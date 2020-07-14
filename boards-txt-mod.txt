@@ -1,0 +1,27 @@
+# BMC Config File Mod
+# copy all this text and paste it at the bottom of Teensyduino's boards.txt file
+# to locate boards.txt on mac, open your Applications folder, right click on Arduino or Teensyduino (which ever you are using)
+# then select "Show Package Contents" and navigate to "Contents/Java/Hardware/Teensy/avr/boards.txt"
+# On Windows: TODO
+
+# ----- Include BMC Config Mod Starts -----
+menu.bmcsketchconfig=Require BMC Config
+teensy41.menu.bmcsketchconfig.no=No
+teensy41.menu.bmcsketchconfig.yes=Yes
+teensy41.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
+teensy40.menu.bmcsketchconfig.no=No
+teensy40.menu.bmcsketchconfig.yes=Yes
+teensy40.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
+teensy36.menu.bmcsketchconfig.no=No
+teensy36.menu.bmcsketchconfig.yes=Yes
+teensy36.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
+teensy35.menu.bmcsketchconfig.no=No
+teensy35.menu.bmcsketchconfig.yes=Yes
+teensy35.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
+teensy31.menu.bmcsketchconfig.no=No
+teensy31.menu.bmcsketchconfig.yes=Yes
+teensy31.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
+teensyLC.menu.bmcsketchconfig.no=No
+teensyLC.menu.bmcsketchconfig.yes=Yes
+teensyLC.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
+# ----- Include BMC Config Mod Ends -----
