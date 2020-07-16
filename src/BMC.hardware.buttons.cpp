@@ -28,7 +28,15 @@ void BMC::setupButtons(){
 }
 
 void BMC::assignButton(BMCButton& button, bmcStoreButton& data){
-  button.reassign();
+  // first check fi the button has an event with a State Change Trigger
+  bool hasStateChangeTrigger = flags.read(BMC_FLAGS_FIRST_LOOP);
+  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
+    if((data.events[e].mode & 0x0F) == BMC_BUTTON_PRESS_TYPE_STATE_CHANGE){
+      hasStateChangeTrigger = true;
+      break;
+    }
+  }
+  button.reassign(hasStateChangeTrigger);
   button.setThreshold(settings.getButtonHoldThreshold());
   // read button only any of it's events have a Trigger set
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){

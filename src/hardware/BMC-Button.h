@@ -42,6 +42,9 @@
 #define BMC_BTN_FLAG_IS_ALT 4
 
 // @buttonFlags:
+#define BMC_BTN_FLAG_MUX_STATE 0
+#define BMC_BTN_FLAG_STATE_HAS_CHANGED 1
+#define BMC_BTN_FLAG_HAS_STATE_CHANGE_TRIGGER 2
 // these are the flags that are part of the "mode" of the button
 // since the button uses the first 4 bits of the mode variable for
 // the press type, we use the other 4 for press flags.
@@ -116,6 +119,7 @@ public:
         BMC_HALT();
       }
       assignedFlags.write(BMC_BTN_FLAG_MUX_IN, true);
+      setInitialState();
       // all good
       return;
     } else {
@@ -130,6 +134,7 @@ public:
       BMC_HALT();
     }
     pinMode(pin, BMC_BUTTON_PIN_MODE);
+    setInitialState();
   }
   void setModeAndFlags(uint8_t t_modeAndFlags=0){
     setMode(t_modeAndFlags);
@@ -199,16 +204,34 @@ public:
     t_value += 2;
     threshold = constrain(t_value, 2, 17);
   }
-  void reassign(){
+  void reassign(bool hasStateChangeTrigger=false){
     // only keep the exp button flag in whatever state it was
     assignedFlags.reset(1 << BMC_BTN_FLAG_MUX_IN);
-    buttonFlags.reset();
+    // don't reset the current mux value
+    buttonFlags.reset(1 << BMC_BTN_FLAG_MUX_STATE);
     reset(true);
 
-    if(readState()){
-      flags.on(BMC_BTN_FLAG_REASSIGNED);
+    // when pages change BMC expects all buttons to be in their OPEN position
+    // before reading them again, this is because if a button was used to change
+    // pages on it's press, hold, or continuous, then when the page changes
+    // if the button has a new event assigned to that same trigger, that event
+    // will automatically be triggered, this will also cause pages to change
+    // more than once in some cases, so it you want to scroll pages you will
+    // not go to the next page but 2 or 3 pages up.
+    // to solve this there's the REASSIGNED flag, this tells the button to
+    // ignore EVERYTHING thing until the button has been released.
+    // ------------------------
+    // for Latching buttons there's a STATE CHANGE trigger type, since latching
+    // buttons will change their state only when they are pressed, we can not
+    // use the same technique of locking out the button on reassign
+    //
+    if(!hasStateChangeTrigger){
+      // if this button doesn't have an event with a State Change Trigger
+      // then we treat it as a non-latching button
+      if(readState()){
+        flags.on(BMC_BTN_FLAG_REASSIGNED);
+      }
     }
-
   }
   uint8_t read(){
     // check if the state of the button has changed
@@ -219,6 +242,7 @@ public:
       // has timed out (you didn't press it at the right time) then we treat
       // it as a press so any other events as triggered
       if(pressed() || doublePressedTimeoutPress()){
+        buttonFlags.on(BMC_BTN_FLAG_STATE_HAS_CHANGED);
         if(assignedFlags.read(BMC_BTN_FLAG_ALTERNATE_PRESS_ENABLED)){
           if(assignedFlags.toggleIfTrue(BMC_BTN_FLAG_IS_ALT)){
             releaseType = BMC_BTN_REL_TYPE_ALT;
@@ -248,7 +272,11 @@ public:
     }
     if(releaseType != 0 && !isClosed()){
       releaseType = 0;
+      buttonFlags.on(BMC_BTN_FLAG_STATE_HAS_CHANGED);
       return BMC_BUTTON_PRESS_TYPE_RELEASE;
+    }
+    if(buttonFlags.toggleIfTrue(BMC_BTN_FLAG_STATE_HAS_CHANGED)){
+      return BMC_BUTTON_PRESS_TYPE_STATE_CHANGE;
     }
     return 0;
   }
@@ -405,7 +433,7 @@ public:
   }
 #if BMC_MAX_MUX_IN > 0
   void setMuxValue(bool t_state){
-    muxState = t_state;
+    buttonFlags.write(BMC_BTN_FLAG_MUX_STATE, t_state);
   }
   bool isMux(){
     return assignedFlags.read(BMC_BTN_FLAG_MUX_IN);
@@ -448,7 +476,7 @@ private:
   FASTRUN bool _digitalRead(){
 #if BMC_MAX_MUX_IN > 0
     if(assignedFlags.read(BMC_BTN_FLAG_MUX_IN)){
-      return muxState;
+      return buttonFlags.read(BMC_BTN_FLAG_MUX_STATE);
     }
 #endif
     return digitalRead(pin);
@@ -555,10 +583,6 @@ private:
   uint8_t pin = 255;
   uint8_t threshold = 0;
   uint8_t releaseType = 0;
-#if BMC_MAX_MUX_IN > 0
-  // start it with the OPEN state
-  bool muxState = BMC_BUTTON_OPEN;
-#endif
   unsigned long debounceTime = 0;
   BMCFlags <uint8_t> assignedFlags;
   BMCFlags <uint8_t> buttonFlags;
@@ -566,5 +590,11 @@ private:
   BMCTimer holdTimer;
   BMCTimer doublePressTimer;
   BMCTimer continuousTimer;
+  void setInitialState(){
+    delay(1);
+    // set the initial state of the button
+    flags.write(BMC_BTN_FLAG_STATE, readState());
+    buttonFlags.write(BMC_BTN_FLAG_MUX_STATE, readState());
+  }
 };
 #endif

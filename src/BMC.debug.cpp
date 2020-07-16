@@ -625,6 +625,8 @@ void BMC::printButtonTrigger(uint8_t n, uint8_t t_trigger, bool t_global){
         BMC_PRINT("RELEASE (only after Continuous)");break;
       case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
         BMC_PRINT("RELEASE (only after Alt Press)");break;
+      case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
+        BMC_PRINT("STATE CHANGE");break;
     }
     BMC_PRINTLN("");
   }

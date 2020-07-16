@@ -60,7 +60,7 @@ public:
       states = 0xFFFFFFFF;
 #else
       mux.begin();
-      delay(10);
+      delay(50);
       mux.update();
       timer = 0;
 #endif
