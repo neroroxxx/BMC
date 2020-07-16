@@ -54,6 +54,7 @@ public:
     midiClockBpmChange = 0;
     midiActivity = 0;
     midiLocalUpdate = 0;
+    midiPreRoute = 0;
     valueStream = 0;
     firstLoop = 0;
     midUpdate = 0;
@@ -147,6 +148,7 @@ public:
   void (*midiClockBpmChange)(uint16_t tempo);
   void (*midiActivity)(bool in, bool out);
   void (*midiLocalUpdate)();
+  bool (*midiPreRoute)(BMCMidiMessage& data, uint8_t destinations);
 
   void (*valueStream)(BMCValueStream item);
   void (*presetChanged)(uint8_t n);

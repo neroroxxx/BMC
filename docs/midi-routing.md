@@ -20,3 +20,13 @@ There are many API callbacks and functions available for use, these may not refl
 ##### FUNCTIONS
 
 ##### CALLBACKS
+```c++
+// triggered when a message is about to be sent to a port via Routing.
+// this callback takes in a MIDI message that is about to be routed (soft-thru)
+// the callback must return a bool, if the callback returns false the message
+// will not be routed.
+// The "data" parameter is a reference so you can manipulate the message before
+// it reaches it's intended ports, however once the data is changed, any other
+// BMC functions will see this new data.
+void onMidiPreRouting(bool (*fptr)(BMCMidiMessage& data, uint8_t destinations));
+```

@@ -203,6 +203,16 @@ public:
   void onMidiLocalUpdate(void (*fptr)()){
     callback.midiLocalUpdate = fptr;
   }
+  // triggered when a message is about to be sent to a port via Routing.
+  // this callback takes in a MIDI message that is about to be routed (soft-thru)
+  // the callback must return a bool, if the callback returns false the message
+  // will not be routed.
+  // The "data" parameter is a reference so you can manipulate the message before
+  // it reaches it's intended ports, however once the data is changed, any other
+  // BMC functions will see this new data.
+  void onMidiPreRouting(bool (*fptr)(BMCMidiMessage& data, uint8_t destinations)){
+    callback.midiPreRoute = fptr;
+  }
   // triggered when a USB MIDI Device is connected to the Teensy's USB Host
   void onHostConnectionChange(void (*fptr)(bool t_connected)){
 #ifdef BMC_USB_HOST_ENABLED

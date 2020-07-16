@@ -451,9 +451,15 @@ private:
   }
 
   // *Routing*
-  void routing(BMCMidiMessage message){
+  void routing(BMCMidiMessage& message){
     uint8_t destinations = midiRouting.incoming(message);
     if(destinations!=BMC_NONE){
+      if(callback.midiPreRoute){
+        // if the callback returns false we block the routing
+        if(!callback.midiPreRoute(message, destinations)){
+          return;
+        }
+      }
       send(destinations, message);
     }
   }
