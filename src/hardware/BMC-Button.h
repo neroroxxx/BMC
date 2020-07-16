@@ -44,7 +44,6 @@
 // @buttonFlags:
 #define BMC_BTN_FLAG_MUX_STATE 0
 #define BMC_BTN_FLAG_STATE_HAS_CHANGED 1
-#define BMC_BTN_FLAG_HAS_STATE_CHANGE_TRIGGER 2
 // these are the flags that are part of the "mode" of the button
 // since the button uses the first 4 bits of the mode variable for
 // the press type, we use the other 4 for press flags.
