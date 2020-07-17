@@ -2,6 +2,7 @@
 See https://www.RoxXxtar.com/bmc for more details
 Copyright (c) 2020 RoxXxtar.com
 See BMC Documentation for License
+See LICENSE file in the project root for full license information.
 */
 
 #ifndef BMC_CONFIG_CHECK_PINS_H
