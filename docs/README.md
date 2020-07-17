@@ -28,7 +28,7 @@ For now here are some topics I want to cover tho they are not complete:
 - [MIDI IO Ports](midi-ports.md)
 - [MIDI API](midi-ports.md)
 - [MIDI Routing/Soft-Thru](midi-routing.md)
-- [Local MIDI Data](local-midi-data.md)
+- [MIDI PC/CC Tracking](midi-pc-cc-tracking.md)
 - [Bluetooth LE MIDI](ble.md)
 - [Messenger](messenger.md)
 - [EEPROM](eeprom.md)

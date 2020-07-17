@@ -6,7 +6,7 @@
 #include <Arduino.h>
 
 #if !defined(BMC_CONFIG_H)
-  #error "config.h file was not included"
+  #error "config.h file is required for BMC."
 #endif
 
 #ifndef BMC_DEF_H
@@ -28,6 +28,7 @@
   #define BMC_TEENSY_MODEL 35 (3.5)
   #define BMC_TEENSY_MODEL 32 (3.2)
   #define BMC_TEENSY_MODEL 10 (LC)
+
 */
 #if defined(__arm__) && defined(CORE_TEENSY)
   #if defined(ARDUINO_TEENSY41)
@@ -113,9 +114,11 @@
     #define BMC_TEENSY_TOTAL_DIGITAL_PINS 27
     #define BMC_TEENSY_TOTAL_PWM_PINS 10
     #define BMC_TEENSY_TOTAL_ANALOG_PINS 13
+
   #else
     #error "BMC is only Compatible with Teensy LC/3.2/3.5/3.6/4.0/4.1"
   #endif
+
 #else
   #error "BMC is only Compatible with Teensy LC/3.2/3.5/3.6/4.0/4.1"
 #endif
@@ -514,6 +517,14 @@
   #define BMC_LED_PWM_DIM_VALUE 1
 #endif
 
+// BMC_MAX_MIDI_CHANNEL_TRACKING must be a value from 1 to 16
+#if !defined(BMC_MAX_MIDI_CHANNEL_TRACKING)
+  #define BMC_MAX_MIDI_CHANNEL_TRACKING 16
+#else
+  #if BMC_MAX_MIDI_CHANNEL_TRACKING < 1  || BMC_MAX_MIDI_CHANNEL_TRACKING > 16
+    #error "BMC_MAX_MIDI_CHANNEL_TRACKING must range from 1 to 16"
+  #endif
+#endif
 
 #ifndef BMC_PAGE_LED_DIM
   #define BMC_PAGE_LED_DIM true

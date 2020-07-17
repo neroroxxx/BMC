@@ -134,7 +134,7 @@ struct BMCMidiDataChannel {
   uint8_t control[128];
 };
 struct BMCMidiData {
-  BMCMidiDataChannel channel[16];
+  BMCMidiDataChannel channel[BMC_MAX_MIDI_CHANNEL_TRACKING];
   void set(uint32_t t_event){
     if((t_event & 0xF0) == BMC_MIDI_PROGRAM_CHANGE){
       setProgram(t_event);
@@ -145,33 +145,41 @@ struct BMCMidiData {
   // PROGRAM
   void setProgram(uint32_t t_event){
     uint8_t ch = BMC_GET_BYTE(0, t_event) & 0x0F;
-    uint8_t pc = BMC_GET_BYTE(1, t_event) & 0x7F;
-    channel[ch].program = pc;
+    if(ch<BMC_MAX_MIDI_CHANNEL_TRACKING){
+      uint8_t pc = BMC_GET_BYTE(1, t_event) & 0x7F;
+      channel[ch].program = pc;
+    }
   }
   void setProgram(uint8_t t_channel, uint8_t t_program){
     uint8_t ch = ((t_channel-1) & 0x0F);
-    channel[ch].program = (t_program & 0x7F);
+    if(ch<BMC_MAX_MIDI_CHANNEL_TRACKING){
+      channel[ch].program = (t_program & 0x7F);
+    }
   }
   uint8_t getProgram(uint8_t t_channel){
     uint8_t ch = ((t_channel-1) & 0x0F);
-    return channel[ch].program;
+    return (ch<BMC_MAX_MIDI_CHANNEL_TRACKING)?channel[ch].program:0;
   }
   // CONTROL
   void setControl(uint32_t t_event){
     uint8_t ch = BMC_GET_BYTE(0, t_event) & 0x0F;
-    uint8_t cc = BMC_GET_BYTE(1, t_event) & 0x7F;
-    uint8_t value = BMC_GET_BYTE(2, t_event) & 0x7F;
-    channel[ch].control[cc] = value;
+    if(ch<BMC_MAX_MIDI_CHANNEL_TRACKING){
+      uint8_t cc = BMC_GET_BYTE(1, t_event) & 0x7F;
+      uint8_t value = BMC_GET_BYTE(2, t_event) & 0x7F;
+      channel[ch].control[cc] = value;
+    }
   }
   void setControl(uint8_t t_channel, uint8_t t_control, uint8_t t_value){
     uint8_t ch = ((t_channel-1) & 0x0F);
-    uint8_t cc = (t_control & 0x7F);
-    channel[ch].control[cc] = (t_value & 0x7F);
+    if(ch<BMC_MAX_MIDI_CHANNEL_TRACKING){
+      uint8_t cc = (t_control & 0x7F);
+      channel[ch].control[cc] = (t_value & 0x7F);
+    }
   }
   uint8_t getControl(uint8_t t_channel, uint8_t t_control){
     uint8_t ch = ((t_channel-1) & 0x0F);
     uint8_t cc = (t_control & 0x7F);
-    return channel[ch].control[cc];
+    return (ch<BMC_MAX_MIDI_CHANNEL_TRACKING) ? channel[ch].control[cc] : 0;
   }
 };
 struct BMCMidiEvent {

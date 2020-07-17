@@ -7,6 +7,8 @@
 # BMC the Badass MIDI Controller!
 BMC is an all-in-one Scalable MIDI Controller library with a companion Desktop/Browser Editor App specifically designed for the Arduino-Compatible **Teensy** development Boards. BMC allows you to build your own MIDI Controllers with a mixed number of Buttons/Leds/Encoders/Pots/Relays etc with only a few lines of code!
 
+BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
+
 ***The Editor App is available for MacOS and Windows, however it's NOT signed, because of this it will not run on MacOS Catalina or later, you can download the desktop app and access the web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
 The goal of BMC is to let you build a MIDI Controller without having to worry about writing a ton of code by using all the power already available within the Teensy platform, all the code to support hardware, MIDI, Data Storage & Editor Communication is already part of the library.

@@ -703,7 +703,7 @@
 
   // as of right now no support for the clicktrack on Teensy 4.0
   // since it's hardcoded to use DAC on T3.2/T3.6
-  #if BMC_TEENSY_MODEL == 40
+  #if BMC_TEENSY_MODEL == 40 || BMC_TEENSY_MODEL == 41
     #if defined(BMC_USE_CLICK_TRACK)
       #undef BMC_USE_CLICK_TRACK
     #endif
