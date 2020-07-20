@@ -21,38 +21,30 @@ public:
   }
   void assign(uint8_t t_port, uint16_t t_data){
     switch(t_port){
-      case BMC_USB:
-        routing.usb.setData(t_data);
-        break;
+      case BMC_USB: routing.usb.setData(t_data); break;
+
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
-      case BMC_SERIAL_A:
-        routing.serialA.setData(t_data);
-        break;
+      case BMC_SERIAL_A: routing.serialA.setData(t_data); break;
+#endif
+
 #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      case BMC_SERIAL_B:
-        routing.serialB.setData(t_data);
-        break;
+      case BMC_SERIAL_B: routing.serialB.setData(t_data); break;
 #endif
+
 #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      case BMC_SERIAL_C:
-        routing.serialC.setData(t_data);
-        break;
+      case BMC_SERIAL_C: routing.serialC.setData(t_data); break;
 #endif
+
 #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      case BMC_SERIAL_D:
-        routing.serialD.setData(t_data);
-        break;
+      case BMC_SERIAL_D: routing.serialD.setData(t_data); break;
 #endif
-#endif
+
 #ifdef BMC_USB_HOST_ENABLED
-      case BMC_HOST:
-        routing.host.setData(t_data);
-        break;
+      case BMC_HOST: routing.host.setData(t_data); break;
 #endif
+
 #ifdef BMC_MIDI_BLE_ENABLED
-      case BMC_BLE:
-        routing.ble.setData(t_data);
-        break;
+      case BMC_BLE: routing.ble.setData(t_data); break;
 #endif
     }
   }
@@ -63,38 +55,30 @@ public:
     }
     BMCRoutingItem item;
     switch(m.getSource()){
-      case BMC_USB:
-        item = routing.usb;
-        break;
+      case BMC_USB: item = routing.usb; break;
+
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
-      case BMC_SERIAL_A:
-        item = routing.serialA;
-        break;
+      case BMC_SERIAL_A: item = routing.serialA; break;
+#endif
+
 #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      case BMC_SERIAL_B:
-        item = routing.serialB;
-        break;
+      case BMC_SERIAL_B: item = routing.serialB; break;
 #endif
+
 #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      case BMC_SERIAL_C:
-        item = routing.serialC;
-        break;
+      case BMC_SERIAL_C: item = routing.serialC; break;
 #endif
+
 #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      case BMC_SERIAL_D:
-        item = routing.serialD;
-        break;
+      case BMC_SERIAL_D: item = routing.serialD; break;
 #endif
-#endif
+
 #ifdef BMC_USB_HOST_ENABLED
-      case BMC_HOST:
-        item = routing.host;
-        break;
+      case BMC_HOST: item = routing.host; break;
 #endif
+
 #ifdef BMC_MIDI_BLE_ENABLED
-      case BMC_BLE:
-        item = routing.ble;
-        break;
+      case BMC_BLE: item = routing.ble; break;
 #endif
       default:
         return BMC_NONE;

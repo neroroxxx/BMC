@@ -368,6 +368,4 @@ uint16_t BMCEditor::getLRelayOffset(uint8_t index){
 }
 uint16_t BMCEditor::getPortPresetsOffset(){
   return getLRelayOffset();
-  //return getLRelayOffset() + sizeof(store.global.portPresets);
 }
-//

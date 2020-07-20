@@ -237,24 +237,24 @@ struct BMCMidiPort {
     bitWrite(ports,BMC_MIDI_PORT_USB_BIT,value);
   }
   void setSerialA(bool value=true){
-    #ifdef BMC_MIDI_SERIAL_A_ENABLED
+#ifdef BMC_MIDI_SERIAL_A_ENABLED
       bitWrite(ports,BMC_MIDI_PORT_SERIAL_A_BIT,value);
-    #endif
+#endif
   }
   void setSerialB(bool value=true){
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
+#ifdef BMC_MIDI_SERIAL_B_ENABLED
       bitWrite(ports,BMC_MIDI_PORT_SERIAL_B_BIT,value);
-    #endif
+#endif
   }
   void setSerialC(bool value=true){
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
+#ifdef BMC_MIDI_SERIAL_C_ENABLED
       bitWrite(ports,BMC_MIDI_PORT_SERIAL_C_BIT,value);
-    #endif
+#endif
   }
   void setSerialD(bool value=true){
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
+#ifdef BMC_MIDI_SERIAL_D_ENABLED
       bitWrite(ports,BMC_MIDI_PORT_SERIAL_D_BIT,value);
-    #endif
+#endif
   }
   void setHost(bool value=true){
     #ifdef BMC_USB_HOST_ENABLED

@@ -141,11 +141,6 @@ void BMCEditor::utilitySendAuxJackActivity(uint8_t data, bool onlyIfConnected){
 #endif
 }
 
-
-
-
-
-
 void BMCEditor::utilitySendNLRelayActivity(uint16_t data, bool onlyIfConnected){
 #if BMC_MAX_NL_RELAYS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){

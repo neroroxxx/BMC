@@ -26,7 +26,7 @@
 #define BMC_FLAG_MIDI_ROUTING_SERIAL_TO_BLE 7
 
 */
-#ifdef BMC_MIDI_SERIAL_A_ENABLED
+#ifdef BMC_HAS_SERIAL_MIDI
   #include "midi/BMC-MidiPortSerial.h"
 #endif
 
@@ -52,15 +52,15 @@ public:
     callback(cb),
     globals(t_globals),
     portPresets(t_portPresets)
-    #ifdef BMC_MIDI_SERIAL_A_ENABLED
+#ifdef BMC_HAS_SERIAL_MIDI
       ,midiSerial(cb)
-    #endif
-    #ifdef BMC_USB_HOST_ENABLED
+#endif
+#ifdef BMC_USB_HOST_ENABLED
       ,midiHost(cb, t_globals)
-    #endif
-    #ifdef BMC_MIDI_BLE_ENABLED
+#endif
+#ifdef BMC_MIDI_BLE_ENABLED
       ,midiBle(cb, t_globals)
-    #endif
+#endif
     {
     flags.reset();
   }
@@ -68,15 +68,15 @@ public:
   void begin(){
     BMC_PRINTLN("");
     BMC_PRINTLN("BMCMidi::begin");
-    #ifdef BMC_MIDI_SERIAL_A_ENABLED
+#ifdef BMC_HAS_SERIAL_MIDI
       midiSerial.begin();
-    #endif
-    #ifdef BMC_USB_HOST_ENABLED
+#endif
+#ifdef BMC_USB_HOST_ENABLED
       midiHost.begin();
-    #endif
-    #ifdef BMC_MIDI_BLE_ENABLED
+#endif
+#ifdef BMC_MIDI_BLE_ENABLED
       midiBle.begin();
-    #endif
+#endif
     BMC_PRINTLN("");
   }
   BMCMidiMessage read(){
@@ -133,7 +133,7 @@ public:
     return flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_OUTPUT);
   }
 
-  #ifdef BMC_MIDI_SERIAL_A_ENABLED
+  #ifdef BMC_HAS_SERIAL_MIDI
     /*
       To read from each of the 4 serial ports you index them with 0,
       Serial A is 0 midi
@@ -399,7 +399,7 @@ private:
     bool debugClock = false;
   #endif
   // midiSerial = an object holding each MIDI Serial Port (DIN) that is compiled
-  #ifdef BMC_MIDI_SERIAL_A_ENABLED
+  #ifdef BMC_HAS_SERIAL_MIDI
     BMCMidiPortSerial midiSerial;
   #endif
   // midiHost = the USB Host port on Teensy 3.6 for MIDI IO
@@ -469,21 +469,24 @@ private:
     if(isMidiSerialAPort(port)){
       return true;
     }
-    #if defined(BMC_MIDI_SERIAL_B_ENABLED)
-      if(isMidiSerialBPort(port)){
-        return true;
-      }
-    #endif
-    #if defined(BMC_MIDI_SERIAL_C_ENABLED)
-      if(isMidiSerialCPort(port)){
-        return true;
-      }
-    #endif
-    #if defined(BMC_MIDI_SERIAL_D_ENABLED)
-      if(isMidiSerialDPort(port)){
-        return true;
-      }
-    #endif
+#endif
+
+#if defined(BMC_MIDI_SERIAL_B_ENABLED)
+    if(isMidiSerialBPort(port)){
+      return true;
+    }
+#endif
+
+#if defined(BMC_MIDI_SERIAL_C_ENABLED)
+    if(isMidiSerialCPort(port)){
+      return true;
+    }
+#endif
+
+#if defined(BMC_MIDI_SERIAL_D_ENABLED)
+    if(isMidiSerialDPort(port)){
+      return true;
+    }
 #endif
     return false;
   }

@@ -96,15 +96,15 @@ void BMC::assignSettings(){
 
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
   midi.setRouting(BMC_SERIAL_A, settings.getSerialARouting());
-  #ifdef BMC_MIDI_SERIAL_B_ENABLED
-    midi.setRouting(BMC_SERIAL_B, settings.getSerialBRouting());
-  #endif
-  #ifdef BMC_MIDI_SERIAL_C_ENABLED
-    midi.setRouting(BMC_SERIAL_C, settings.getSerialCRouting());
-  #endif
-  #ifdef BMC_MIDI_SERIAL_D_ENABLED
-    midi.setRouting(BMC_SERIAL_D, settings.getSerialDRouting());
-  #endif
+#endif
+#ifdef BMC_MIDI_SERIAL_B_ENABLED
+  midi.setRouting(BMC_SERIAL_B, settings.getSerialBRouting());
+#endif
+#ifdef BMC_MIDI_SERIAL_C_ENABLED
+  midi.setRouting(BMC_SERIAL_C, settings.getSerialCRouting());
+#endif
+#ifdef BMC_MIDI_SERIAL_D_ENABLED
+  midi.setRouting(BMC_SERIAL_D, settings.getSerialDRouting());
 #endif
 
 #ifdef BMC_USB_HOST_ENABLED

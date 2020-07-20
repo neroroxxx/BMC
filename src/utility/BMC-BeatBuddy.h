@@ -41,12 +41,10 @@ public:
       flags.off(BMC_BEATBUDDY_FLAG_SYNCED);
       bbStopped();
     }
-
-
     if(timeSignatureTriggered() && midi.callback.beatBuddyBeatLocation){
       // since this is the first bar we need to do the calculation here.
       float x = ((float)100/(float) getTimeSignatureNumerator())*1.0;
-      uint8_t y = map(x,0,100,1,32);
+      uint8_t y = map(x, 0, 100, 1, 32);
       BMC_PRINTLN("timeSignatureTriggered()",getTimeSignatureNumerator(),x,y);
       midi.callback.beatBuddyBeatLocation(y, getTimeSignatureNumerator());
     }

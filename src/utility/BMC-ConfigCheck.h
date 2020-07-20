@@ -133,15 +133,19 @@
 
   #if defined(BMC_USE_MIDI_SERIAL_A) && defined(BMC_MIDI_SERIAL_IO_A)
     #define BMC_MIDI_SERIAL_A_ENABLED
-    #if defined(BMC_USE_MIDI_SERIAL_B) && defined(BMC_MIDI_SERIAL_IO_B)
-      #define BMC_MIDI_SERIAL_B_ENABLED
-    #endif
-    #if defined(BMC_USE_MIDI_SERIAL_C) && defined(BMC_MIDI_SERIAL_IO_C)
-      #define BMC_MIDI_SERIAL_C_ENABLED
-    #endif
-    #if defined(BMC_USE_MIDI_SERIAL_D) && defined(BMC_MIDI_SERIAL_IO_D) && BMC_TEENSY_TOTAL_SERIAL_PORTS > 3
-      #define BMC_MIDI_SERIAL_D_ENABLED
-    #endif
+  #endif
+  #if defined(BMC_USE_MIDI_SERIAL_B) && defined(BMC_MIDI_SERIAL_IO_B)
+    #define BMC_MIDI_SERIAL_B_ENABLED
+  #endif
+  #if defined(BMC_USE_MIDI_SERIAL_C) && defined(BMC_MIDI_SERIAL_IO_C)
+    #define BMC_MIDI_SERIAL_C_ENABLED
+  #endif
+  #if defined(BMC_USE_MIDI_SERIAL_D) && defined(BMC_MIDI_SERIAL_IO_D) && BMC_TEENSY_TOTAL_SERIAL_PORTS > 3
+    #define BMC_MIDI_SERIAL_D_ENABLED
+  #endif
+
+  #if defined(BMC_MIDI_SERIAL_A_ENABLED) || defined(BMC_MIDI_SERIAL_B_ENABLED) || defined(BMC_MIDI_SERIAL_C_ENABLED) || defined(BMC_MIDI_SERIAL_D_ENABLED)
+    #define BMC_HAS_SERIAL_MIDI
   #endif
 
   #if defined(BMC_USE_MIDI_BLE)

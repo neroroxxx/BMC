@@ -85,6 +85,7 @@ void BMCMidi::send(uint8_t port, uint8_t type,
   if(isMidiUsbPort(port)){
     usbMIDI.send(type, data1, data2, channel, cable);
   }
+
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
   if(isMidiSerialAPort(port)){
     midiSerial.serialPortA.Port.send(
@@ -94,37 +95,39 @@ void BMCMidi::send(uint8_t port, uint8_t type,
       channel
     );
   }
-  #ifdef BMC_MIDI_SERIAL_B_ENABLED
-    if(isMidiSerialBPort(port)){
-      midiSerial.serialPortB.Port.send(
-        (midi::MidiType) type,
-        data1,
-        data2,
-        channel
-      );
-    }
-  #endif
-  #ifdef BMC_MIDI_SERIAL_C_ENABLED
-    if(isMidiSerialCPort(port)){
-      midiSerial.serialPortC.Port.send(
-        (midi::MidiType) type,
-        data1,
-        data2,
-        channel
-      );
-    }
-  #endif
-  #ifdef BMC_MIDI_SERIAL_D_ENABLED
-    if(isMidiSerialDPort(port)){
-      midiSerial.serialPortD.Port.send(
-        (midi::MidiType) type,
-        data1,
-        data2,
-        channel
-      );
-    }
-  #endif
 #endif
+
+#ifdef BMC_MIDI_SERIAL_B_ENABLED
+  if(isMidiSerialBPort(port)){
+    midiSerial.serialPortB.Port.send(
+      (midi::MidiType) type,
+      data1,
+      data2,
+      channel
+    );
+  }
+#endif
+#ifdef BMC_MIDI_SERIAL_C_ENABLED
+  if(isMidiSerialCPort(port)){
+    midiSerial.serialPortC.Port.send(
+      (midi::MidiType) type,
+      data1,
+      data2,
+      channel
+    );
+  }
+#endif
+#ifdef BMC_MIDI_SERIAL_D_ENABLED
+  if(isMidiSerialDPort(port)){
+    midiSerial.serialPortD.Port.send(
+      (midi::MidiType) type,
+      data1,
+      data2,
+      channel
+    );
+  }
+#endif
+
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
       midiHost.Port.send(type, data1, data2, channel, cable);
@@ -168,21 +171,21 @@ void BMCMidi::sendRealTime(uint8_t port, uint8_t type, uint8_t cable){
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendRealTime((midi::MidiType) type);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendRealTime((midi::MidiType) type);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendRealTime((midi::MidiType) type);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendRealTime((midi::MidiType) type);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendRealTime((midi::MidiType) type);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendRealTime((midi::MidiType) type);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendRealTime((midi::MidiType) type);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -232,30 +235,30 @@ void BMCMidi::sendSysEx(uint8_t port, uint8_t *data,
       #endif
       midiSerial.serialPortA.Port.sendSysEx(size, data, hasTerm);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        #if BMC_DELAY_SYSEX_ON_SERIAL > 0
-          delay(BMC_DELAY_SYSEX_ON_SERIAL);
-        #endif
-        midiSerial.serialPortB.Port.sendSysEx(size, data, hasTerm);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        #if BMC_DELAY_SYSEX_ON_SERIAL > 0
-          delay(BMC_DELAY_SYSEX_ON_SERIAL);
-        #endif
-        midiSerial.serialPortC.Port.sendSysEx(size, data, hasTerm);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        #if BMC_DELAY_SYSEX_ON_SERIAL > 0
-          delay(BMC_DELAY_SYSEX_ON_SERIAL);
-        #endif
-        midiSerial.serialPortD.Port.sendSysEx(size, data, hasTerm);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      #if BMC_DELAY_SYSEX_ON_SERIAL > 0
+        delay(BMC_DELAY_SYSEX_ON_SERIAL);
+      #endif
+      midiSerial.serialPortB.Port.sendSysEx(size, data, hasTerm);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      #if BMC_DELAY_SYSEX_ON_SERIAL > 0
+        delay(BMC_DELAY_SYSEX_ON_SERIAL);
+      #endif
+      midiSerial.serialPortC.Port.sendSysEx(size, data, hasTerm);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      #if BMC_DELAY_SYSEX_ON_SERIAL > 0
+        delay(BMC_DELAY_SYSEX_ON_SERIAL);
+      #endif
+      midiSerial.serialPortD.Port.sendSysEx(size, data, hasTerm);
+    }
   #endif
 
   #ifdef BMC_USB_HOST_ENABLED
@@ -294,21 +297,21 @@ void BMCMidi::sendProgramChange(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendProgramChange(program, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendProgramChange(program, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendProgramChange(program, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendProgramChange(program, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendProgramChange(program, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendProgramChange(program, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendProgramChange(program, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -351,21 +354,21 @@ void BMCMidi::sendControlChange(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendControlChange(control, value, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendControlChange(control, value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendControlChange(control, value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendControlChange(control, value, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendControlChange(control, value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendControlChange(control, value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendControlChange(control, value, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -403,21 +406,21 @@ void BMCMidi::sendNoteOn(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendNoteOn(note, velocity, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendNoteOn(note, velocity, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendNoteOn(note, velocity, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendNoteOn(note, velocity, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendNoteOn(note, velocity, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendNoteOn(note, velocity, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendNoteOn(note, velocity, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -453,21 +456,21 @@ void BMCMidi::sendNoteOff(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendNoteOff(note, velocity, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendNoteOff(note, velocity, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendNoteOff(note, velocity, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendNoteOff(note, velocity, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendNoteOff(note, velocity, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendNoteOff(note, velocity, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendNoteOff(note, velocity, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -502,21 +505,21 @@ void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendPitchBend(value, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendPitchBend(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendPitchBend(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendPitchBend(value, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendPitchBend(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendPitchBend(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendPitchBend(value, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -556,21 +559,21 @@ void BMCMidi::sendAfterTouch(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendAfterTouch(pressure, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendAfterTouch(pressure, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendAfterTouch(pressure, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendAfterTouch(pressure, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendAfterTouch(pressure, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendAfterTouch(pressure, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendAfterTouch(pressure, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -605,21 +608,21 @@ void BMCMidi::sendAfterTouchPoly(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendAfterTouch(note, pressure, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendAfterTouch(note, pressure, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendAfterTouch(note, pressure, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendAfterTouch(note, pressure, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendAfterTouch(note, pressure, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendAfterTouch(note, pressure, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendAfterTouch(note, pressure, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -660,21 +663,21 @@ void BMCMidi::sendTimeCodeQuarterFrame(uint8_t port, uint8_t type,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendTimeCodeQuarterFrame(type, value);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendTimeCodeQuarterFrame(type, value);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendTimeCodeQuarterFrame(type, value);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendTimeCodeQuarterFrame(type, value);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendTimeCodeQuarterFrame(type, value);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendTimeCodeQuarterFrame(type, value);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendTimeCodeQuarterFrame(type, value);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -708,21 +711,21 @@ void BMCMidi::sendSongPosition(uint8_t port, uint16_t beats,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendSongPosition(beats);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendSongPosition(beats);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendSongPosition(beats);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendSongPosition(beats);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendSongPosition(beats);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendSongPosition(beats);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendSongPosition(beats);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -754,21 +757,21 @@ void BMCMidi::sendSongSelect(uint8_t port, uint8_t song, uint8_t cable){
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendSongSelect(song);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendSongSelect(song);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendSongSelect(song);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendSongSelect(song);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendSongSelect(song);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendSongSelect(song);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendSongSelect(song);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -800,21 +803,21 @@ void BMCMidi::sendTuneRequest(uint8_t port, uint8_t cable){
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendTuneRequest();
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendTuneRequest();
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendTuneRequest();
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendTuneRequest();
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendTuneRequest();
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendTuneRequest();
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendTuneRequest();
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -849,21 +852,21 @@ void BMCMidi::beginRpn(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.beginRpn(number, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.beginRpn(number, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.beginRpn(number, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.beginRpn(number, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.beginRpn(number, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.beginRpn(number, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.beginRpn(number, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -897,21 +900,21 @@ void BMCMidi::sendRpnValue(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendRpnValue(value, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendRpnValue(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendRpnValue(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendRpnValue(value, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendRpnValue(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendRpnValue(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendRpnValue(value, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -945,21 +948,21 @@ void BMCMidi::sendRpnIncrement(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendRpnIncrement(amount, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendRpnIncrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendRpnIncrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendRpnIncrement(amount, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendRpnIncrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendRpnIncrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendRpnIncrement(amount, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -993,21 +996,21 @@ void BMCMidi::sendRpnDecrement(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendRpnDecrement(amount, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendRpnDecrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendRpnDecrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendRpnDecrement(amount, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendRpnDecrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendRpnDecrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendRpnDecrement(amount, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1040,21 +1043,21 @@ void BMCMidi::endRpn(uint8_t port, uint8_t channel, uint8_t cable){
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.endRpn(channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.endRpn(channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.endRpn(channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.endRpn(channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.endRpn(channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.endRpn(channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.endRpn(channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1090,21 +1093,21 @@ void BMCMidi::beginNrpn(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.beginNrpn(number, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.beginNrpn(number, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.beginNrpn(number, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.beginNrpn(number, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.beginNrpn(number, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.beginNrpn(number, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.beginNrpn(number, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1138,21 +1141,21 @@ void BMCMidi::sendNrpnValue(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendNrpnValue(value, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendNrpnValue(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendNrpnValue(value, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendNrpnValue(value, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendNrpnValue(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendNrpnValue(value, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendNrpnValue(value, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1186,21 +1189,21 @@ void BMCMidi::sendNrpnIncrement(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendNrpnIncrement(amount, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendNrpnIncrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendNrpnIncrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendNrpnIncrement(amount, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendNrpnIncrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendNrpnIncrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendNrpnIncrement(amount, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1234,21 +1237,21 @@ void BMCMidi::sendNrpnDecrement(uint8_t port, uint8_t channel,
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.sendNrpnDecrement(amount, channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.sendNrpnDecrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.sendNrpnDecrement(amount, channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.sendNrpnDecrement(amount, channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.sendNrpnDecrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.sendNrpnDecrement(amount, channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.sendNrpnDecrement(amount, channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){
@@ -1281,21 +1284,21 @@ void BMCMidi::endNrpn(uint8_t port, uint8_t channel, uint8_t cable){
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.Port.endNrpn(channel);
     }
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      if(isMidiSerialBPort(port)){
-        midiSerial.serialPortB.Port.endNrpn(channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      if(isMidiSerialCPort(port)){
-        midiSerial.serialPortC.Port.endNrpn(channel);
-      }
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      if(isMidiSerialDPort(port)){
-        midiSerial.serialPortD.Port.endNrpn(channel);
-      }
-    #endif
+  #endif
+  #ifdef BMC_MIDI_SERIAL_B_ENABLED
+    if(isMidiSerialBPort(port)){
+      midiSerial.serialPortB.Port.endNrpn(channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_C_ENABLED
+    if(isMidiSerialCPort(port)){
+      midiSerial.serialPortC.Port.endNrpn(channel);
+    }
+  #endif
+  #ifdef BMC_MIDI_SERIAL_D_ENABLED
+    if(isMidiSerialDPort(port)){
+      midiSerial.serialPortD.Port.endNrpn(channel);
+    }
   #endif
   #ifdef BMC_USB_HOST_ENABLED
     if(isMidiHostPort(port) && globals.hostConnected()){

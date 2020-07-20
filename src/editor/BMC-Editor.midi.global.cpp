@@ -317,18 +317,12 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_BUTTONS){
     // byte 9
     // button pins
-
     buff.appendToSysEx8Bits(BMC_MAX_BUTTONS);
     #if BMC_MAX_BUTTONS > 0
       for(uint8_t i=0;i<BMC_MAX_BUTTONS;i++){
         buff.appendToSysEx7Bits(BMCBuildData::getButtonPin(i));
       }
     #endif
-
-
-  //BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_BUTTONS
-
-
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_BUTTONS){
     // byte 9

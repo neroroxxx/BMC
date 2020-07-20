@@ -164,17 +164,6 @@ public:
   void (*midUpdate)();
   void (*messengerReceived)(BMCMessenger t_messenger);
 
-
-
-
-
-
-
-
-
-
-
-
 #ifdef BMC_USB_HOST_ENABLED
     void (*hostConnection)(bool state);
 #endif

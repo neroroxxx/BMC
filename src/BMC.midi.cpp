@@ -22,18 +22,22 @@ void BMC::readMidi(){
     incomingMidi(midi.readBle());// Read the BLE MIDI Port
   #endif
 
-  #ifdef BMC_MIDI_SERIAL_A_ENABLED
-    incomingMidi(midi.readSerial(0));// Read the Serial MIDI Port
-    #ifdef BMC_MIDI_SERIAL_B_ENABLED
-      incomingMidi(midi.readSerial(1));// Read the Serial B MIDI Port
-    #endif
-    #ifdef BMC_MIDI_SERIAL_C_ENABLED
-      incomingMidi(midi.readSerial(2));// Read the Serial C MIDI Port
-    #endif
-    #ifdef BMC_MIDI_SERIAL_D_ENABLED
-      incomingMidi(midi.readSerial(3));// Read the Serial D MIDI Port
-    #endif
+  #if defined(BMC_MIDI_SERIAL_A_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_A)
+  incomingMidi(midi.readSerial(0));// Read the Serial MIDI Port
   #endif
+
+  #if defined(BMC_MIDI_SERIAL_B_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_B)
+    incomingMidi(midi.readSerial(1));// Read the Serial B MIDI Port
+  #endif
+
+  #if defined(BMC_MIDI_SERIAL_C_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_C)
+    incomingMidi(midi.readSerial(2));// Read the Serial C MIDI Port
+  #endif
+
+  #if defined(BMC_MIDI_SERIAL_D_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_D)
+    incomingMidi(midi.readSerial(3));// Read the Serial D MIDI Port
+  #endif
+
 #ifdef BMC_USE_BEATBUDDY
   beatBuddy.update();
 #endif

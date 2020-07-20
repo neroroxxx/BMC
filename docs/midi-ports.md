@@ -29,7 +29,6 @@ Their bit order is:
 
 With the BMC API you can send a MIDI port ORing the defines above.
 
-
 ```c++
 // Send Program to USB MIDI
 bmc.sendProgramChange(BMC_USB, channel, program);
@@ -59,6 +58,21 @@ bmc.sendProgramChange(BMC_PORTP_13, channel, program);
 bmc.sendProgramChange(BMC_PORTP_14, channel, program);
 bmc.sendProgramChange(BMC_PORTP_15, channel, program);
 ```
+
+### MIDI Serial Transmit Only
+If you only plan on having a Serial MIDI Out on any of the 4 Serial MIDI Ports you can block reading from them to prevent receiving junk data. This is done with a define in your Config File, you can disable the Serial MIDI input for any of the Serial ports with their respective define. This is also available with the Config File Maker.
+
+```c++
+// disable input on Serial A
+#define BMC_RX_DISABLE_SERIAL_A
+// disable input on Serial B
+#define BMC_RX_DISABLE_SERIAL_B
+// disable input on Serial C
+#define BMC_RX_DISABLE_SERIAL_C
+// disable input on Serial D
+#define BMC_RX_DISABLE_SERIAL_D
+```
+
 
 ### MIDI Ports Presets
 Because BMC can have an arbitrary number of MIDI IO Ports and events can be sent to any combination of these sometimes it can be a pain to have to change what IO Port a message is sent to, specially if originally you wanted the message to be sent to say the USB Host port but you later decide to change that device to the SerialA port now you have to change all your library messages or your button events to send messages to that port! This is where Port Presets Shine! you have up to 16 Port Presets then all your events can be assigned to a Port preset instead of a specific port.
