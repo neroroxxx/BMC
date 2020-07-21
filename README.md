@@ -14,6 +14,8 @@ BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
 
 ***The Editor App is available for MacOS and Windows, however it's NOT signed, because of this it will not run on MacOS Catalina or later, you can download the desktop app and access the web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
+![BMC Editor App](images/bmc-editor-preview.jpg)
+
 The goal of BMC is to let you build a MIDI Controller without having to worry about writing a ton of code by using all the power already available within the Teensy platform, all the code to support hardware, MIDI, Data Storage & Editor Communication is already part of the library.
 
 BMC utilizes a Configuration File which contains all the pre-processors that tell the library what features to compile, the Config file can be created manually or better yet it can be created using the Editor Apps GUI making it really easy to get started.
