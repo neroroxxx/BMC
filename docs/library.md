@@ -11,6 +11,10 @@ You can then create a Library message assigned to CC#100/CH#1/Value#127 and assi
 
 Library Events also have their own PORT or PORT Preset, that means that you can assign the port that you want that preset to be sent to every time that library event is triggered. These are Global and do not change with page changes.
 
+Below is an example of how Library Events are part of Presets.
+
+![Presets & Library](../images/presets-library.jpg)
+
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version
 

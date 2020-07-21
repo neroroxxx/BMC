@@ -7,6 +7,8 @@
 # Pots
 BMC has support for potentiometers, resolution is dropped to 7-bit for MIDI and tons of events are available. **Note: if you will be using any other peripherals like Displays or Pixels that use 5V from your Teensy, then you should use a large Electrolytic Capacitors between 5V and Ground, this is mainly to prevent noise in the pots from the surge from the 5V line. Start at 100uF or larger**
 
+![Potentiometer Wiring](../images/pot-wiring.jpg)
+
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version
 

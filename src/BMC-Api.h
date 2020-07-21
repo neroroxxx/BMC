@@ -149,6 +149,8 @@ public:
     callback.userEventRelays = fptr;
   }
   // triggered when an aux jack detects a plug connected or disconnected
+  // @n the Aux Jack Index that had a state change.
+  // @state true if a connection has been made, false if disconnected.
   void onAuxJackConnection(void (*fptr)(uint8_t n, bool state)){
     callback.auxJackConnection = fptr;
   }
@@ -1117,9 +1119,17 @@ public:
 
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
+  // send the specified Custom SysEx Message to the specified Ports
+  // @n the index of the custom sysex
+  // @ports midi ports mask
   void sendCustomSysEx(uint8_t n, uint8_t ports){
     customSysEx.send(BMC_CUSTOM_SYSEX_SEND_A, ports, n);
   }
+  // send 2 custom sysex messages merged into 1
+  // all used bytes of message a are sent first then the used bytes of message b
+  // @a the index of the first custom sysex
+  // @b the index of the second custom sysex
+  // @ports midi ports mask
   void sendMergedCustomSysEx(uint8_t a, uint8_t b, uint8_t ports){
     customSysEx.send(BMC_CUSTOM_SYSEX_SEND_MERGE, ports, a, b);
   }

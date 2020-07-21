@@ -48,6 +48,8 @@ If you have hardware that is meant to have the same function at all times then y
 
 An example would be a Global Button that will scroll pages.
 
+Hopefully this image below will help you understand how Pages and Global Data are separate.
+
 ![pages](../images/pages-1.jpg)
 
 ### API

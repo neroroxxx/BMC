@@ -13,6 +13,8 @@ Buttons are a powerful part of BMC, the best part if you ask me. BMC has 2 types
 
 Buttons and Global Buttons behave exactly the same except Global Buttons will always have the same event(s) event when changing pages.
 
+![Button Wiring](../images/button-wiring.jpg)
+
 Within BMC each button can have up to 8 events, the number of events is specified in the Config File Maker, the compiled number of events applies to all page and global buttons.
 
 A button event is what they will do, for example, change pages, sent a MIDI Message, turn an LED on/off etc.

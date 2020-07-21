@@ -5,11 +5,11 @@
 [< Back to Documentation](README.md)
 
 # MIDI Clock
-BMC has can be a Master or Slave MIDI Clock, you can use encoders, pots, buttons or the API to set the BPM and you can sync Leds and Callbacks to keep track of the ticks.
+BMC can be a Master or Slave MIDI Clock, you can use encoders, pots, buttons or the API to set the BPM in Master Mode and you can sync Leds and Callbacks to keep track of the ticks.
 
-BMC can be set to either or Master/Slave, this is editable within the editor's settings.
+BMC can be set to either Master/Slave, this is editable within the editor's settings.
 
-The Master Clock uses a simple timeout (no hardware timer/interrupt) however because Teensys are so fast it's pretty accurate.
+The Master Clock uses a simple timeout (no hardware timer/interrupt), Teensy's are fast enough to keep accurate timing for the 24 ticks per beat.
 
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version

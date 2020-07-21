@@ -7,6 +7,8 @@
 # Encoders
 You can use Rotary encoders with BMC, they are automatically read by BMC, however they do not hold a "counter" of the current value, BMC just sees if the encoder was rotated up (clock-wise) or down (counter clock-wise) with this if your sketch requires to keep track of a value you can do it separately tho most functions within BMC don't require to know the counter of the encoder.
 
+![Encoder Wiring](../images/encoder-wiring.jpg)
+
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version
 

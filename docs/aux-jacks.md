@@ -13,9 +13,11 @@ In order to use the Aux Jacks you have to use a switching 1/4" Jack like the one
 
 When the Aux Jack is set to Expression the button's pin becomes an output sending 3v to the pot, while the pot act's as a standard POT, when on Dual Button Mode, the POT's pin acts as Button pin.
 
-In either mode the Enable Pin acts as a switch that tells BMC that something was plugged in or unplugged, this way when the Aux Jack is set as Expression and there's no Pot Connected, the Pot readings are ignored as the pin would be floating and a bunch of random data would be read.
+In either mode the Enable Pin (the pin of the second button) acts as a switch that tells BMC that something was plugged in or unplugged, this way when the Aux Jack is set as Expression and there's no Pot Connected, the Pot readings are ignored as the pin would be floating and a bunch of random data would be read.
 
-***Aux Jacks can not use buttons or pots connected thru Muxes.***
+Since the buttons and pots are stored in EEPROM as usual, you can have events set to any of them and they are used based on which mode the AUX JACK is in.
+
+***Aux Jacks can not use buttons or pots connected to Mux.***
 
 ![Aux Jacks Wiring](../images/Aux-Jack-Wiring.jpg)
 

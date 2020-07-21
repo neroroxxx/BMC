@@ -7,6 +7,10 @@
 # Presets
 BMC Presets are basically collections of Library Events, you can compile presets to have up to 16 library events, you can also enable a startup preset which obviously will be executed upon BMC starting up. These are Global and do not change with page changes.
 
+Below is an example of how Library Events are part of Presets.
+
+![Presets & Library](../images/presets-library.jpg)
+
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version
 
