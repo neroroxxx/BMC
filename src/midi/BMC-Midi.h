@@ -16,16 +16,7 @@
 #define BMC_FLAG_MIDI_LISTENER_ENABLE 0
 #define BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT 1
 #define BMC_FLAG_MIDI_REAL_TIME_BLOCK_OUTPUT 2
-/*
-#define BMC_FLAG_MIDI_ROUTING_ON 1
-#define BMC_FLAG_MIDI_ROUTING_USB_TO_SERIAL 2
-#define BMC_FLAG_MIDI_ROUTING_USB_TO_HOST 3
-#define BMC_FLAG_MIDI_ROUTING_HOST_TO_SERIAL 4
-#define BMC_FLAG_MIDI_ROUTING_USB_TO_BLE 5
-#define BMC_FLAG_MIDI_ROUTING_HOST_TO_BLE 6
-#define BMC_FLAG_MIDI_ROUTING_SERIAL_TO_BLE 7
 
-*/
 #ifdef BMC_HAS_SERIAL_MIDI
   #include "midi/BMC-MidiPortSerial.h"
 #endif
@@ -133,42 +124,40 @@ public:
     return flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_OUTPUT);
   }
 
-  #ifdef BMC_HAS_SERIAL_MIDI
-    /*
-      To read from each of the 4 serial ports you index them with 0,
-      Serial A is 0 midi
-    */
-    BMCMidiMessage readSerial(uint8_t port=0){
-      message.reset();
-      if(midiSerial.read(port, message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
-        routing(message);
-        addToLocalData(message);
-      }
-      return message;
+#ifdef BMC_HAS_SERIAL_MIDI
+  //To read from each of the 4 serial ports you index them with 0,
+  //Serial A is 0 midi
+  BMCMidiMessage readSerial(uint8_t port=0){
+    message.reset();
+    if(midiSerial.read(port, message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
+      routing(message);
+      addToLocalData(message);
     }
-  #endif
+    return message;
+  }
+#endif
 
-  #ifdef BMC_USB_HOST_ENABLED
-    BMCMidiMessage readHost(){
-      message.reset();
-      if(midiHost.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
-        routing(message);
-        addToLocalData(message);
-      }
-      return message;
+#ifdef BMC_USB_HOST_ENABLED
+  BMCMidiMessage readHost(){
+    message.reset();
+    if(midiHost.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
+      routing(message);
+      addToLocalData(message);
     }
-  #endif
+    return message;
+  }
+#endif
 
-  #ifdef BMC_MIDI_BLE_ENABLED
-    BMCMidiMessage readBle(){
-      message.reset();
-      if(midiBle.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
-        routing(message);
-        addToLocalData(message);
-      }
-      return message;
+#ifdef BMC_MIDI_BLE_ENABLED
+  BMCMidiMessage readBle(){
+    message.reset();
+    if(midiBle.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
+      routing(message);
+      addToLocalData(message);
     }
-  #endif
+    return message;
+  }
+#endif
 
   void disconnectBLE(){
 #ifdef BMC_MIDI_BLE_ENABLED
@@ -176,7 +165,7 @@ public:
 #endif
   }
 
-  #ifdef BMC_DEBUG
+#ifdef BMC_DEBUG
   void setDebugOut(bool t_debug){
     debug = t_debug;
   }
@@ -195,8 +184,7 @@ public:
   bool getDebugClockOut(){
     return debugClock;
   }
-  #endif
-
+#endif
 
   // *Routing*
   void setRouting(uint8_t t_port, uint16_t t_data){
@@ -270,18 +258,14 @@ public:
   uint8_t scrollPC(uint8_t ports, uint8_t channel, bool direction,
                 bool endless, uint8_t min=0, uint8_t max=127);
 
-  /*
-    Specific to USB & HOST
-  */
+  // Specific to USB & HOST
   void send_now(){
     usbMIDI.send_now();
     #ifdef BMC_USB_HOST_ENABLED
       midiHost.Port.send_now();
     #endif
   }
-  /*
-    Specific to USB HOST
-  */
+  // Specific to USB HOST
   uint16_t getHostDeviceVendorId(){
     #ifdef BMC_USB_HOST_ENABLED
       return midiHost.Port.idVendor();

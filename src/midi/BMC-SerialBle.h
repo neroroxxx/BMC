@@ -46,9 +46,9 @@
 
 
 #define MAX_MS 0x01FFF //13 bits, 8192 dec
-/*
-  Fake serial to feed the MIDI library
-*/
+
+// Fake serial to feed the MIDI library
+
 #define BMC_MIDI_BLE_FLAG_STATE_CHANGED 0
 #define BMC_MIDI_BLE_FLAG_QUEUE_AVAILABLE 1
 #define BMC_MIDI_BLE_FLAG_SYSEX_OPEN 2
@@ -106,9 +106,7 @@ public:
     flushBle();
   }
 
-  /*
-    Utilities
-  */
+  // UTILITIES
   bool midiConnected(){
     return globals.bleConnected();
   }

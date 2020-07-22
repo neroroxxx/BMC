@@ -57,11 +57,11 @@ void BMCMidi::send(uint8_t port, uint8_t type,
                   uint8_t channel, uint8_t cable){
   // check if it's a realtime
   switch(type){
-    case BMC_MIDI_RT_CLOCK: //
+    case BMC_MIDI_RT_CLOCK:
     case BMC_MIDI_RT_START:
     case BMC_MIDI_RT_CONTINUE:
     case BMC_MIDI_RT_STOP:
-    case BMC_MIDI_RT_ACTIVE_SENSE: //
+    case BMC_MIDI_RT_ACTIVE_SENSE:
     case BMC_MIDI_RT_SYSTEM_RESET:
       sendRealTime(port,type,cable);
       return;
@@ -545,11 +545,6 @@ void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
   #endif
 }
 
-
-
-
-
-
 void BMCMidi::sendAfterTouch(uint8_t port, uint8_t channel,
                               uint8_t pressure, uint8_t cable){
   if(isMidiUsbPort(port)){
@@ -840,9 +835,7 @@ void BMCMidi::sendTuneRequest(uint8_t port, uint8_t cable){
   }
   #endif
 }
-/*
-  RPN
-*/
+// RPN
 void BMCMidi::beginRpn(uint8_t port, uint8_t channel,
                         uint16_t number, uint8_t cable){
   if(isMidiUsbPort(port)){
@@ -1081,9 +1074,7 @@ void BMCMidi::endRpn(uint8_t port, uint8_t channel, uint8_t cable){
   }
   #endif
 }
-/*
-  NRPN
-*/
+// NRPN
 void BMCMidi::beginNrpn(uint8_t port, uint8_t channel,
                         uint16_t number, uint8_t cable){
   if(isMidiUsbPort(port)){

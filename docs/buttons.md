@@ -55,11 +55,28 @@ ALSO the lowest button index will always be in `btn1`, so if you want to check i
 
 
 ```c++
+// example sketch using the dual button press callback
+#include <BMC.h>
+BMC_DEFAULT();
+void setup(){
+  bmc.begin();
+  bmc.onButtonDualPress(callback);
+}
+
 void callback(uint8_t btn1, uint8_t btn2){
+  // this callback is triggered any time 2 buttons are pressed simultaneously
+  // for this example I'll check if the first and second button where pressed
+  // at the same time, remember BMC is inclusive to Button #1 will be 0, #2 is 1, etc.
+  // ALSO the lowest button number will always be btn1, so if button #2 is detected
+  // first and button #1 is detected second then "btn1" will carry the index of
+  // button #1 and "btn2" will carry the index of button #2
   if(btn1==0 && btn2==1){
     BMC_PRINTLN("Buttons #1 and #2 were pressed simultanously");
-    // do something
+    // do something here...
   }
+}
+void loop(){
+  bmc.update();
 }
 ```
 
@@ -87,7 +104,7 @@ There are many API callbacks and functions available for use, these may not refl
 ```c++
 // triggered when a button is pressed, released, etc.
 // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
-onButtonActivity(void (*fptr)(uint8_t n,
+void onButtonActivity(void (*fptr)(uint8_t n,
                               uint8_t eventIndex,
                               uint8_t pressType,
                               bmcStoreButton button,
@@ -101,6 +118,8 @@ void onGlobalButtonActivity(void (*fptr)(uint8_t n,
                                   bmcStoreButton button,
                                   bmcStoreButtonEvent data));
 
+// triggered when 2 buttons are pressed at the same time
+// see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
 void onButtonDualPress(void (*fptr)(uint8_t btn1, uint8_t btn2));
 
 void onGlobalButtonDualPress(void (*fptr)(uint8_t btn1, uint8_t btn2));

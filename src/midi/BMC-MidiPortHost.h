@@ -65,9 +65,6 @@ public:
     }
     return false;
   }
-  /*
-    Utilities
-  */
 private:
   BMCCallbacks& callback;
   BMCGlobals& globals;

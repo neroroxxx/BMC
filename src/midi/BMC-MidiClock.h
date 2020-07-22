@@ -146,9 +146,7 @@ public:
     }
     return false;
   }
-  /*
-    Click Track
-  */
+  // Click Track
   #ifdef BMC_USE_CLICK_TRACK
     void clickTrackCommand(uint8_t t_command){
       clickTrack.command(t_command);
