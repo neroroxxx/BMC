@@ -1,10 +1,26 @@
 /*
-This is a modified version of the Adafruit SSD1306 library
-It's modified for BMC and to only use I2C
-It's tested with common Amazon OLED Display
+  This is a modified version of the Adafruit SSD1306 library
+  https://github.com/adafruit/Adafruit_SSD1306
+
+  It's modified for BMC and to only use I2C
+  Class name and definitions were also changed form Adafruit_SSD1306 to BMC_SSD1306
+  to prevent issues if you have the Adafruit_SSD1306 installed.
+  Also adds some functions to center text which is the main reason
+  I modified it and included it with BMC.
+  Requires Adafruit GFX and Adafruit BusIO Libraries
+
+  see https://github.com/adafruit/Adafruit_SSD1306/blob/master/license.txt
+  for license information
+
+  Software License Agreement (BSD License)
+
+  Copyright (c) 2012, Adafruit Industries
+  All rights reserved.
 */
 #ifndef BMC_SSD1306_H_
 #define BMC_SSD1306_H_
+
+#ifdef BMC_USE_OLED
 
 #include <Wire.h>
 
@@ -140,7 +156,7 @@ class BMC_SSD1306 : public Adafruit_GFX {
 };
 
 #endif // BMC_SSD1306_H_
-
+#endif
 
 
 
