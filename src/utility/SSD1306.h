@@ -6,6 +6,8 @@ It's tested with common Amazon OLED Display
 #ifndef BMC_SSD1306_H_
 #define BMC_SSD1306_H_
 
+#ifdef BMC_USE_OLED
+
 #include <Wire.h>
 
 #include <Adafruit_GFX.h>
@@ -140,7 +142,7 @@ class BMC_SSD1306 : public Adafruit_GFX {
 };
 
 #endif // BMC_SSD1306_H_
-
+#endif
 
 
 
