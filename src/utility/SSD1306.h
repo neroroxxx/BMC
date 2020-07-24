@@ -26,7 +26,7 @@
 
 #include <Adafruit_GFX.h>
 
-        /// fit into the BMC_SSD1306_ naming scheme
+/// fit into the BMC_SSD1306_ naming scheme
 #define BMC_SSD1306_BLACK               0    ///< Draw 'off' pixels
 #define BMC_SSD1306_WHITE               1    ///< Draw 'on' pixels
 #define BMC_SSD1306_INVERSE             2    ///< Invert pixels
@@ -155,8 +155,9 @@ class BMC_SSD1306 : public Adafruit_GFX {
   int8_t       i2caddr, vccstate, page_end;
 };
 
-#endif // BMC_SSD1306_H_
 #endif
+
+#endif // BMC_SSD1306_H_
 
 
 

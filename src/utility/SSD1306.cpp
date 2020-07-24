@@ -39,6 +39,8 @@
  *
  */
 
+#ifdef BMC_USE_OLED
+
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
@@ -776,3 +778,4 @@ void BMC_SSD1306::dim(boolean dim) {
   ssd1306_command1(BMC_SSD1306_SETCONTRAST);
   ssd1306_command1(contrast);
 }
+#endif
