@@ -11,29 +11,21 @@
 
 #ifdef BMC_HAS_SERIAL_MIDI
 
+#include "HardwareSerial.h"
 #include <MIDI.h>
 
 // ***********************************
 // ***********************************
 // ***********************************
-//      WRAPPER FOR SERIAL PORTS
+//      WRAPPERS FOR SERIAL PORTS
 // ***********************************
 // ***********************************
 // ***********************************
-struct midiSerialSettings : public midi::DefaultSettings {
-   static const unsigned SysExMaxSize = BMC_MIDI_SYSEX_SIZE;
-};
-template <HardwareSerial& _MidiSerialPort, uint8_t SerBit>
 class BMCMidiPortSerialWrapper {
 public:
-  midi::MidiInterface<HardwareSerial, midiSerialSettings> Port;
-  BMCMidiPortSerialWrapper():Port(_MidiSerialPort){}
-  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
-
-    Port.begin(channel);
-    Port.turnThruOff();
-  }
-  bool read(BMCMidiMessage& message, bool ignoreRealTime){
+  BMCMidiPortSerialWrapper(){}
+  bool read(midi::MidiInterface<midi::SerialMIDI<HardwareSerial>>& Port,
+            BMCMidiMessage& message, uint8_t SerBit, bool ignoreRealTime){
     if(Port.read()){
       message.reset(SerBit);
       message.setStatus((uint8_t) Port.getType());
@@ -60,6 +52,89 @@ public:
     return false;
   }
 };
+
+// ***********************************
+// ***********************************
+// ***********************************
+// Each MIDI Port has it's own class
+// ***********************************
+// ***********************************
+// ***********************************
+#if defined(BMC_MIDI_SERIAL_A_ENABLED)
+template <uint8_t SerBit>
+class BMCMidiPortSerialAWrapper {
+public:
+  midi::SerialMIDI<HardwareSerial> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  BMCMidiPortSerialAWrapper():serialPort(BMC_MIDI_SERIAL_IO_A), Port(serialPort),wrapper(){}
+  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
+    Port.begin(channel);
+    Port.turnThruOff();
+  }
+  bool read(BMCMidiMessage& message, bool ignoreRealTime){
+    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+  }
+private:
+  BMCMidiPortSerialWrapper wrapper;
+};
+#endif
+
+#if defined(BMC_MIDI_SERIAL_B_ENABLED)
+template <uint8_t SerBit>
+class BMCMidiPortSerialBWrapper {
+public:
+  midi::SerialMIDI<HardwareSerial> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  BMCMidiPortSerialBWrapper():serialPort(BMC_MIDI_SERIAL_IO_B), Port(serialPort){}
+  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
+    Port.begin(channel);
+    Port.turnThruOff();
+  }
+  bool read(BMCMidiMessage& message, bool ignoreRealTime){
+    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+  }
+private:
+  BMCMidiPortSerialWrapper wrapper;
+};
+#endif
+
+#if defined(BMC_MIDI_SERIAL_C_ENABLED)
+template <uint8_t SerBit>
+class BMCMidiPortSerialCWrapper {
+public:
+  midi::SerialMIDI<HardwareSerial> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  BMCMidiPortSerialCWrapper():serialPort(BMC_MIDI_SERIAL_IO_C), Port(serialPort){}
+  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
+    Port.begin(channel);
+    Port.turnThruOff();
+  }
+  bool read(BMCMidiMessage& message, bool ignoreRealTime){
+    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+  }
+private:
+  BMCMidiPortSerialWrapper wrapper;
+};
+#endif
+
+#if defined(BMC_MIDI_SERIAL_D_ENABLED)
+template <uint8_t SerBit>
+class BMCMidiPortSerialDWrapper {
+public:
+  midi::SerialMIDI<HardwareSerial> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  BMCMidiPortSerialDWrapper():serialPort(BMC_MIDI_SERIAL_IO_D), Port(serialPort){}
+  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
+    Port.begin(channel);
+    Port.turnThruOff();
+  }
+  bool read(BMCMidiMessage& message, bool ignoreRealTime){
+    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+  }
+private:
+  BMCMidiPortSerialWrapper wrapper;
+};
+#endif
 
 // ***********************************
 // ***********************************
@@ -157,22 +232,22 @@ public:
   BMCCallbacks& callback;
 #if defined(BMC_MIDI_SERIAL_A_ENABLED)
   // Serial A Port
-  BMCMidiPortSerialWrapper <BMC_MIDI_SERIAL_IO_A, BMC_MIDI_PORT_SERIAL_A_BIT> serialPortA;
+  BMCMidiPortSerialAWrapper <BMC_MIDI_PORT_SERIAL_A_BIT> serialPortA;
 #endif
 
 #if defined(BMC_MIDI_SERIAL_B_ENABLED)
   // Serial B Port
-  BMCMidiPortSerialWrapper <BMC_MIDI_SERIAL_IO_B, BMC_MIDI_PORT_SERIAL_B_BIT> serialPortB;
+  BMCMidiPortSerialBWrapper <BMC_MIDI_PORT_SERIAL_B_BIT> serialPortB;
 #endif
 
 #if defined(BMC_MIDI_SERIAL_C_ENABLED)
   // Serial C Port
-  BMCMidiPortSerialWrapper <BMC_MIDI_SERIAL_IO_C, BMC_MIDI_PORT_SERIAL_C_BIT> serialPortC;
+  BMCMidiPortSerialCWrapper <BMC_MIDI_PORT_SERIAL_C_BIT> serialPortC;
 #endif
 
 #if defined(BMC_MIDI_SERIAL_D_ENABLED)
   // Serial D Port
-  BMCMidiPortSerialWrapper <BMC_MIDI_SERIAL_IO_D, BMC_MIDI_PORT_SERIAL_D_BIT> serialPortD;
+  BMCMidiPortSerialDWrapper <BMC_MIDI_PORT_SERIAL_D_BIT> serialPortD;
 #endif
 };
 
