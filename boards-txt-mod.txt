@@ -1,8 +1,8 @@
 # BMC Config File Mod
 # copy all this text and paste it at the bottom of Teensyduino's boards.txt file
 # to locate boards.txt on mac, open your Applications folder, right click on Arduino or Teensyduino (which ever you are using)
-# then select "Show Package Contents" and navigate to "Contents/Java/Hardware/Teensy/avr/boards.txt"
-# On Windows: TODO
+# then select "Show Package Contents" and navigate to "Contents/Java/hardware/teensy/avr/boards.txt"
+# On Windows: go to "Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"
 
 # ----- Include BMC Config Mod Starts -----
 menu.bmcsketchconfig=Require BMC Config

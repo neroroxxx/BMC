@@ -102,8 +102,9 @@ All we are doing is adding a new option in the **Tools** Menu in Arduino, this m
 You config file only contains pre-processors all with `BMC_` prepended, these pre-processors will not affect other libraries unless they also start with `BMC_`.
 
 First Locate the boards.txt file:
-* On Mac open your Applications folder, find the Arduino app and do a right click, click on **Show Package Contents** then go to *Contents/Java/hardware/teensy/avr/boards.txt*
-* On Windows it should be available at *C:/Arduino/hardware/teensy/boards.txt*
+* On Mac open your Applications folder, find the Arduino app and do a right click, click on **Show Package Contents** then go to *"Contents/Java/hardware/teensy/avr/boards.txt"*
+* On Windows it should be available at *"Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"*
+
 
 Once you locate it, open it with a text editor and add the following text at the very bottom. *(this text is also available in a text file within the library contents under boards-txt-mod.txt)*
 
