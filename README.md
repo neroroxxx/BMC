@@ -24,6 +24,7 @@ As this is the initial release of BMC this basic documentation below will grow a
 
 My advice to you is to start with a breadboard and your teensy since you likely already have those, then test all the hardware you want to use. As far as the best teensy for your purposes I usually base it on the size of the enclosure I will be using. The Teensy 3.6 has been my go to for any larger project since they have the SD card holder (no need to use the internal EEPROM or a 24LC256) plus you get TONS of pins and tons of FLASH/RAM however it's larger and it's not as easy to fit in a commonly available enclousure, in which case the new king of the block is the Teensy 4.0 so for tighter fits thats you best bet, BMC will run great on a 3.2 as well
 
+* [3rd Party Dependencies](#3rd-party-dependencies)
 * [Compatible Boards](#compatible-boards)
 * [Hardware Limits](#hardware-limits)
 * [Installation](#installation)
@@ -31,6 +32,15 @@ My advice to you is to start with a breadboard and your teensy since you likely 
 * [Library File Structure](#library-file-structure)
 * [About BMC](#about-bmc)
 * [Documentation](docs/README.md)
+
+#### 3rd Party Dependencies
+BMC will use many libraries included with Teensyduino, however, here are some of the 3rd party libraries it uses.
+
+* Arduino MIDI Library (Version 5.0 or later)
+* QueueArray Library (bundled with BMC)
+* i2c EEPROM Library (bundled with BMC)
+* BLEPeripheral Library for nRF8001 (bundled with BMC)
+* Source code has comments with credits if the code comes from another library, if I missed any please let me know.
 
 ## Compatible Boards
 I haven't had a chance to test BMC on all Teensy boards out there only the Teensy 3.2/3.6/4.0/4.1 however the Editor and Library are compatible with the boards below even tho they are not tested, If you have those boards please let me know how they work with BMC! Keep in mind BMC uses a good amount of RAM so the Teeny LC should only be used for very small/basic projects
@@ -175,15 +185,6 @@ For those who would like to collaborate, helping with documentation would be a H
 Additionally the code base while solid, needs lots of optimizing.
 
 You can access the documentation [Here](docs/README.md)
-
-#### 3rd Party Dependencies
-BMC will use many libraries included with Teensyduino, however, here are some of the 3rd party libraries it uses.
-
-* Arduino MIDI Library
-* QueueArray Library (bundled with BMC)
-* i2c EEPROM Library (bundled with BMC)
-* BLEPeripheral Library for nRF8001 (bundled with BMC)
-* Source code has comments with credits if the code comes from another library, if I missed any please let me know.
 
 ## Coding
 All pre-processors/macros are all uppercase with underscores between words and are always prefixed **BMC_** this is to avoid issues with other libraries.
