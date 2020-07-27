@@ -33,7 +33,7 @@ My advice to you is to start with a breadboard and your teensy since you likely 
 * [About BMC](#about-bmc)
 * [Documentation](docs/README.md)
 
-#### 3rd Party Dependencies
+## 3rd Party Dependencies
 BMC will use many libraries included with Teensyduino, however, here are some of the 3rd party libraries it uses.
 
 * Arduino MIDI Library (Version 5.0 or later)
