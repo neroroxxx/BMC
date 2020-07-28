@@ -258,8 +258,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_BUTTON_DELAY_ENABLED
       bitWrite(buildData,16,1);
     #endif
-
-
+    #ifdef BMC_USE_POT_TOE_SWITCH
+      bitWrite(buildData,17,1);
+    #endif
 
     // byte 9
     buff.appendToSysEx7Bits(BMC_TEENSY_MODEL);
@@ -1183,6 +1184,9 @@ void BMCEditor::globalPot(bool write){
     return;
   }
   sysExLength += BMC_NAME_LEN_POTS;
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    sysExLength += 5;
+  #endif
   if(write && incoming.size() != sysExLength){
     sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
     return;
@@ -1194,8 +1198,11 @@ void BMCEditor::globalPot(bool write){
     bmcStorePot& item = store.global.pots[index];
     item.ports = incoming.get8Bits(10);
     item.event = incoming.get32Bits(12);
+    #if defined(BMC_USE_POT_TOE_SWITCH)
+      item.toeSwitch = incoming.get32Bits(17);
+    #endif
     #if BMC_NAME_LEN_POTS > 1
-      incoming.getStringFromSysEx(17, item.name, BMC_NAME_LEN_POTS);
+      incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
     #endif
     if(!backupActive()){
       saveGlobalPot(index);
@@ -1215,6 +1222,9 @@ void BMCEditor::globalPot(bool write){
   buff.appendToSysEx16Bits(BMCBuildData::getGlobalPotPosition(index,false));
   buff.appendToSysEx8Bits(item.ports);
   buff.appendToSysEx32Bits(item.event);
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    buff.appendToSysEx32Bits(item.toeSwitch);
+  #endif
   #if BMC_NAME_LEN_POTS > 1
     buff.appendCharArrayToSysEx(item.name,BMC_NAME_LEN_POTS);
   #endif

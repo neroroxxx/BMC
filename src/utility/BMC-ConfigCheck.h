@@ -737,18 +737,26 @@
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_PWM_LEDS+BMC_MAX_GLOBAL_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS)
 
+#if BMC_MAX_GLOBAL_POTS > 0
+  #define _____BMC_POT_TOE_SWITCH 15
+#else
+  #define _____BMC_POT_TOE_SWITCH 0
+#endif
+
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch
   // the test of alls LED and PIXELS should not exceed more than 4 seconds.
   // Each LED and PIXEL will turn on and off 3 times when tested, when it turns on
   // it will be delayed by BMC_MAX_LED_TEST_DELAY then turn off and delayed again
   // by the same value and this happens 3 times per LED/PIXEL.
+
+
 #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) >= 12
   #define BMC_MAX_LED_TEST_DELAY ((4000/(BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS))/6)
 #else
   #define BMC_MAX_LED_TEST_DELAY 50
 #endif
-  #define _____BMC_GLOBAL_HARDWARE (BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44)
+  #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44)+(_____BMC_POT_TOE_SWITCH*55))
 
   // Create a CRC based on the current build
   #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))

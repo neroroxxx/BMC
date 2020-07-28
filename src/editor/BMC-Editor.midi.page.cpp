@@ -543,6 +543,9 @@ void BMCEditor::pagePotMessage(bool write){
     return;
   }
   sysExLength += BMC_NAME_LEN_POTS;
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    sysExLength += 5;
+  #endif
   if(write && incoming.size() != sysExLength){
     sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
     return;
@@ -556,8 +559,11 @@ void BMCEditor::pagePotMessage(bool write){
         bmcStorePot& item = store.pages[i].pots[index];
         item.ports = incoming.get8Bits(10);
         item.event = incoming.get32Bits(12);
+        #if defined(BMC_USE_POT_TOE_SWITCH)
+          item.toeSwitch = incoming.get32Bits(17);
+        #endif
         #if BMC_NAME_LEN_POTS > 1
-          incoming.getStringFromSysEx(17,item.name,BMC_NAME_LEN_POTS);
+          incoming.getStringFromSysEx(22,item.name,BMC_NAME_LEN_POTS);
         #endif
       }
       if(!backupActive()){
@@ -567,8 +573,11 @@ void BMCEditor::pagePotMessage(bool write){
       bmcStorePot& item = store.pages[page].pots[index];
       item.ports = incoming.get8Bits(10);
       item.event = incoming.get32Bits(12);
+      #if defined(BMC_USE_POT_TOE_SWITCH)
+        item.toeSwitch = incoming.get32Bits(17);
+      #endif
       #if BMC_NAME_LEN_POTS > 1
-        incoming.getStringFromSysEx(17, item.name, BMC_NAME_LEN_POTS);
+        incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
       #endif
       if(!backupActive()){
         savePagesAndReloadData(page);
@@ -590,6 +599,9 @@ void BMCEditor::pagePotMessage(bool write){
   buff.appendToSysEx16Bits(BMCBuildData::getPotPosition(index,false));
   buff.appendToSysEx8Bits(item.ports);
   buff.appendToSysEx32Bits(item.event);
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    buff.appendToSysEx32Bits(item.toeSwitch);
+  #endif
   #if BMC_NAME_LEN_POTS > 1
     buff.appendCharArrayToSysEx(item.name,BMC_NAME_LEN_POTS);
   #endif

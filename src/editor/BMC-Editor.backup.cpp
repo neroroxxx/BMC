@@ -591,9 +591,15 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
     uint8_t nameLength = incoming.sysex[incoming.size()-3];
+    uint8_t toeSwitch = 0;
+    // if toeswitch is either part of the backup or the current build
+    // the message will be 5 bytes larger than what we should expect
+    if(incoming.size()==(nameLength+t_minLength+5+1)){
+      toeSwitch = 5;
+    }
     // check the length of the message, it must match this length
     // for it to be used
-    if(incoming.size()==(nameLength+t_minLength+1)){
+    if(incoming.size()==(nameLength+t_minLength+toeSwitch+1)){
       uint8_t page = getMessagePageNumber() & 0xFF;
       uint8_t index = incoming.sysex[9];
       bmcStorePot& item = store.pages[page].pots[index];
@@ -601,11 +607,18 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
       //item.event = BMC_MIDI_ARRAY_TO_32BITS(12,incoming.sysex);
       item.ports = incoming.get8Bits(10);
       item.event = incoming.get32Bits(12);
+      #if defined(BMC_USE_POT_TOE_SWITCH)
+        if(toeSwitch==5){
+          item.toeSwitch = incoming.get32Bits(17);
+        } else {
+          item.toeSwitch = 0;
+        }
+      #endif
       #if BMC_NAME_LEN_POTS > 1
         if(nameLength > BMC_NAME_LEN_POTS){
           nameLength = BMC_NAME_LEN_POTS;
         }
-        incoming.getStringFromSysEx(17, item.name, nameLength);
+        incoming.getStringFromSysEx(17+toeSwitch, item.name, nameLength);
       #endif
     }
   }
@@ -647,9 +660,15 @@ void BMCEditor::backupGlobalEncoder(uint16_t t_minLength){
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
     uint8_t nameLength = incoming.sysex[incoming.size()-3];
+    uint8_t toeSwitch = 0;
+    // if toeswitch is either part of the backup or the current build
+    // the message will be 5 bytes larger than what we should expect
+    if(incoming.size()==(nameLength+t_minLength+5+1)){
+      toeSwitch = 5;
+    }
     // check the length of the message, it must match this length
     // for it to be used
-    if(incoming.size()==(nameLength+t_minLength+1)){
+    if(incoming.size()==(nameLength+t_minLength+toeSwitch+1)){
       uint8_t index = incoming.sysex[9];
       bmcStoreEncoder& item = store.global.encoders[index];
       item.mode = incoming.get8Bits(10);//+2
@@ -678,11 +697,18 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
       bmcStorePot& item = store.global.pots[index];
       item.ports = incoming.get8Bits(10);
       item.event = incoming.get32Bits(12);
+      #if defined(BMC_USE_POT_TOE_SWITCH)
+        if(toeSwitch==5){
+          item.toeSwitch = incoming.get32Bits(17);
+        } else {
+          item.toeSwitch = 0;
+        }
+      #endif
       #if BMC_NAME_LEN_POTS > 1
         if(nameLength > BMC_NAME_LEN_POTS){
           nameLength = BMC_NAME_LEN_POTS;
         }
-        incoming.getStringFromSysEx(17, item.name, nameLength);
+        incoming.getStringFromSysEx(17+toeSwitch, item.name, nameLength);
       #endif
     }
   }
