@@ -40,6 +40,9 @@ void BMC::assignPot(BMCPot& pot, bmcStorePot& storeData, bmcStoreGlobalPotCalibr
       );
       break;
   }
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    pot.assignToeSwitch(storeData.toeSwitch, storeData.toeSwitchFlags);
+  #endif
 }
 #endif
 
@@ -65,6 +68,12 @@ void BMC::readPots(){
 #if BMC_MAX_MUX_IN_ANALOG > 0
     pots[i].setMuxValue(muxInAnalog.getPinValue(pots[i].getMuxPin()));
 #endif
+
+#if defined(BMC_USE_POT_TOE_SWITCH)
+    if(pots[i].toeSwitchActive()){
+      potParseToeSwitch(pots[i].toeSwitchGetEvent(), pots[i].toeSwitchGetState(), store.pages[page].pots[i].ports);
+    }
+#endif
     if(pots[i].update()){
 
       uint8_t value = pots[i].getValue();
@@ -84,6 +93,25 @@ void BMC::readPots(){
         editor.utilitySendPotActivity(i, pots[i].getPosition());
       }
     }
+  }
+}
+void BMC::potParseToeSwitch(uint16_t event, bool on, uint8_t ports){
+  BMC_PRINTLN("potParseToeSwitch", on, ports);
+  uint8_t type = BMC_GET_BYTE(0, event);
+  switch(parseMidiEventType(type)){
+    case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:
+      library.send(BMC_GET_BYTE(1, event));
+      break;
+    case BMC_MIDI_CONTROL_CHANGE:
+    case BMC_MIDI_NOTE_ON:
+    case BMC_MIDI_NOTE_OFF:
+      midi.send(ports, (uint32_t)((event & 0xFFFF) | ((on?127:0) << 16)));
+      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event), (on?127:0));
+      break;
+    case BMC_MIDI_PROGRAM_CHANGE:
+      midi.sendProgramChange(ports, BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
+      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
+      break;
   }
 }
 // CALIBRATION
@@ -120,6 +148,13 @@ void BMC::readGlobalPots(){
 #if BMC_MAX_MUX_IN_ANALOG > 0
     globalPots[i].setMuxValue(muxInAnalog.getPinValue(globalPots[i].getMuxPin()));
 #endif
+
+#if defined(BMC_USE_POT_TOE_SWITCH)
+    if(globalPots[i].toeSwitchActive()){
+      potParseToeSwitch(globalPots[i].toeSwitchGetEvent(), globalPots[i].toeSwitchGetState(), globalData.pots[i].ports);
+    }
+#endif
+
     if(globalPots[i].update()){
       uint8_t value = globalPots[i].getValue();
       handlePot(globalData.pots[i], value);
@@ -156,20 +191,13 @@ uint16_t BMC::getGlobalPotAnalogValue(uint8_t n){
 }
 #endif
 
-
-
-
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
-
-
 void BMC::handlePot(bmcStorePot& data, uint8_t value){
   uint8_t type = BMC_GET_BYTE(0, data.event);
   if(type == BMC_NONE){
     return;
   }
-
   uint8_t byteA = BMC_GET_BYTE(1, data.event);
-
   switch(parseMidiEventType(type)){
     case BMC_MIDI_CONTROL_CHANGE:
     case BMC_MIDI_NOTE_ON:

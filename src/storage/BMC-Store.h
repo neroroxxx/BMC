@@ -27,6 +27,7 @@
     uint32_t event = 0;
     #if defined(BMC_USE_POT_TOE_SWITCH)
       uint32_t toeSwitch = 0;
+      uint16_t toeSwitchFlags = 0;
     #endif
     #if BMC_NAME_LEN_POTS> 1
       char name[BMC_NAME_LEN_POTS] = "";

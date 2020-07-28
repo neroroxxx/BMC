@@ -544,7 +544,7 @@ void BMCEditor::pagePotMessage(bool write){
   }
   sysExLength += BMC_NAME_LEN_POTS;
   #if defined(BMC_USE_POT_TOE_SWITCH)
-    sysExLength += 5;
+    sysExLength += 8;
   #endif
   if(write && incoming.size() != sysExLength){
     sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
@@ -561,9 +561,14 @@ void BMCEditor::pagePotMessage(bool write){
         item.event = incoming.get32Bits(12);
         #if defined(BMC_USE_POT_TOE_SWITCH)
           item.toeSwitch = incoming.get32Bits(17);
-        #endif
-        #if BMC_NAME_LEN_POTS > 1
-          incoming.getStringFromSysEx(22,item.name,BMC_NAME_LEN_POTS);
+          item.toeSwitchFlags = incoming.get16Bits(22);
+          #if BMC_NAME_LEN_POTS > 1
+            incoming.getStringFromSysEx(25, item.name, BMC_NAME_LEN_POTS);
+          #endif
+        #else
+          #if BMC_NAME_LEN_POTS > 1
+            incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+          #endif
         #endif
       }
       if(!backupActive()){
@@ -575,9 +580,14 @@ void BMCEditor::pagePotMessage(bool write){
       item.event = incoming.get32Bits(12);
       #if defined(BMC_USE_POT_TOE_SWITCH)
         item.toeSwitch = incoming.get32Bits(17);
-      #endif
-      #if BMC_NAME_LEN_POTS > 1
-        incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+        item.toeSwitchFlags = incoming.get16Bits(22);
+        #if BMC_NAME_LEN_POTS > 1
+          incoming.getStringFromSysEx(25, item.name, BMC_NAME_LEN_POTS);
+        #endif
+      #else
+        #if BMC_NAME_LEN_POTS > 1
+          incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+        #endif
       #endif
       if(!backupActive()){
         savePagesAndReloadData(page);
@@ -601,6 +611,7 @@ void BMCEditor::pagePotMessage(bool write){
   buff.appendToSysEx32Bits(item.event);
   #if defined(BMC_USE_POT_TOE_SWITCH)
     buff.appendToSysEx32Bits(item.toeSwitch);
+    buff.appendToSysEx16Bits(item.toeSwitchFlags);
   #endif
   #if BMC_NAME_LEN_POTS > 1
     buff.appendCharArrayToSysEx(item.name,BMC_NAME_LEN_POTS);

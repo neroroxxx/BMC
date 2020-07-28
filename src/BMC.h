@@ -560,6 +560,7 @@ private:
   BMCPot pots[BMC_MAX_POTS];
   void assignPots();
   void readPots();
+  void potParseToeSwitch(uint16_t event, bool on, uint8_t ports);
   uint16_t getPotAnalogValue(uint8_t n=255);
   void potCalibrationToggle(uint8_t n=255);
 #endif

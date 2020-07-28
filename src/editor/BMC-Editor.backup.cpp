@@ -591,11 +591,11 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
     uint8_t nameLength = incoming.sysex[incoming.size()-3];
-    uint8_t toeSwitch = 0;
+    uint8_t toeSwitch = 8;
     // if toeswitch is either part of the backup or the current build
     // the message will be 5 bytes larger than what we should expect
-    if(incoming.size()==(nameLength+t_minLength+5+1)){
-      toeSwitch = 5;
+    if(incoming.size()!=(nameLength+t_minLength+toeSwitch+1)){
+      toeSwitch = 0;
     }
     // check the length of the message, it must match this length
     // for it to be used
@@ -608,8 +608,9 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
       item.ports = incoming.get8Bits(10);
       item.event = incoming.get32Bits(12);
       #if defined(BMC_USE_POT_TOE_SWITCH)
-        if(toeSwitch==5){
+        if(toeSwitch==6){
           item.toeSwitch = incoming.get32Bits(17);
+          item.toeSwitchFlags = incoming.get16Bits(22);
         } else {
           item.toeSwitch = 0;
         }
@@ -690,6 +691,12 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
     uint8_t nameLength = incoming.sysex[incoming.size()-3];
+    uint8_t toeSwitch = 8;
+    // if toeswitch is either part of the backup or the current build
+    // the message will be 5 bytes larger than what we should expect
+    if(incoming.size()!=(nameLength+t_minLength+toeSwitch+1)){
+      toeSwitch = 0;
+    }
     // check the length of the message, it must match this length
     // for it to be used
     if(incoming.size()==(nameLength+t_minLength+1)){
@@ -698,8 +705,9 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
       item.ports = incoming.get8Bits(10);
       item.event = incoming.get32Bits(12);
       #if defined(BMC_USE_POT_TOE_SWITCH)
-        if(toeSwitch==5){
+        if(toeSwitch==6){
           item.toeSwitch = incoming.get32Bits(17);
+          item.toeSwitchFlags = incoming.get16Bits(22);
         } else {
           item.toeSwitch = 0;
         }
