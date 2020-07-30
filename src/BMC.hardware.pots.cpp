@@ -96,7 +96,6 @@ void BMC::readPots(){
   }
 }
 void BMC::potParseToeSwitch(uint16_t event, bool on, uint8_t ports){
-  BMC_PRINTLN("potParseToeSwitch", on, ports);
   uint8_t type = BMC_GET_BYTE(0, event);
   switch(parseMidiEventType(type)){
     case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:

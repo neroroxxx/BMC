@@ -91,7 +91,7 @@ public:
       );
       BMC_HALT();
     }
-    pinMode(pin, INPUT);
+    pinMode(pin, INPUT_PULLUP);
   }
   // set the calibration of the POT
   void setCalibration(uint16_t t_min, uint16_t t_max){
