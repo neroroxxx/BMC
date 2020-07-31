@@ -98,9 +98,11 @@ void BMC::readPots(){
 void BMC::potParseToeSwitch(uint16_t event, bool on, uint8_t ports){
   uint8_t type = BMC_GET_BYTE(0, event);
   switch(parseMidiEventType(type)){
+#if BMC_MAX_LIBRARY > 0
     case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:
       library.send(BMC_GET_BYTE(1, event));
       break;
+#endif
     case BMC_MIDI_CONTROL_CHANGE:
     case BMC_MIDI_NOTE_ON:
     case BMC_MIDI_NOTE_OFF:
