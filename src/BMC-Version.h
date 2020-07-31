@@ -20,7 +20,7 @@
   Major version will also be increased.
 */
 
-// BMC Version 0.0.7-beta
+// BMC Version 0.0.8-beta
 // BMC Version stored in EEPROM (for editor usage)
 // 0.0
 #define BMC_VERSION_MAJ 0
