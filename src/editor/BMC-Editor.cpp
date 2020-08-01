@@ -86,7 +86,7 @@ void BMCEditor::begin(){
     flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
   #endif
 
-  BMC_PRINTLNNS("Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,"\"");
+  BMC_PRINTLNNS("BMC Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,".",BMC_VERSION_PATCH,"\"");
   BMC_PRINTLNNS("Library Version stored in EEPROM \"",BMC_GET_BYTE(1,store.version),".",BMC_GET_BYTE(0,store.version),"\"");
   BMC_PRINTLN("deviceId =", deviceId);
   BMC_PRINTLN("storeAddress =", storeAddress);

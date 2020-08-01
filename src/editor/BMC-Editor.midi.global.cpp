@@ -262,6 +262,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
       bitWrite(buildData,17,1);
     #endif
 
+    // remove after out of beta
+    bitWrite(buildData, 31, 1);
+
     // byte 9
     buff.appendToSysEx7Bits(BMC_TEENSY_MODEL);
     buff.appendToSysEx16Bits(BMC_VERSION);
@@ -314,6 +317,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_NAME_LEN_PAGES);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_RELAYS);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_STRING_LIBRARY);
+    buff.appendToSysEx8Bits(BMC_VERSION_PATCH);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_BUTTONS){
     // byte 9

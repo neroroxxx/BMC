@@ -20,11 +20,11 @@
   Major version will also be increased.
 */
 
-// BMC Version 0.0.8-beta
 // BMC Version stored in EEPROM (for editor usage)
-// 0.0
 #define BMC_VERSION_MAJ 0
 #define BMC_VERSION_MIN 0
+#define BMC_VERSION_PATCH 9
 
 //16 bits unsigned, LSB byte is minor, MSB byte is major
 #define BMC_VERSION ((BMC_VERSION_MAJ<<8) | BMC_VERSION_MIN)
+#define BMC_SEM_VERSION ((BMC_VERSION<<8) | BMC_VERSION_PATCH)

@@ -181,7 +181,7 @@ void BMC::readDebug(){
   } else if(BMC_STR_MATCH(debugInput,"version")){
 
     printDebugHeader(debugInput);
-    BMC_PRINTLNNS("BMC Library Version ",'"',BMC_VERSION_MAJ,".",BMC_VERSION_MIN,'"');
+    BMC_PRINTLNNS("BMC Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,".",BMC_VERSION_PATCH,"\"");
     BMC_PRINTLNNS("BMC Library Version stored in EEPROM ",'"',BMC_GET_BYTE(1,store.version),".",BMC_GET_BYTE(0,store.version),'"');
     printDebugHeader(debugInput);
 
