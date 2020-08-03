@@ -72,6 +72,9 @@ void BMC::readPots(){
 #if defined(BMC_USE_POT_TOE_SWITCH)
     if(pots[i].toeSwitchActive()){
       potParseToeSwitch(pots[i].toeSwitchGetEvent(), pots[i].toeSwitchGetState(), store.pages[page].pots[i].ports);
+      if(callback.potsToeSwitchState && BMC_GET_BYTE(0, pots[i].toeSwitchGetEvent())>0){
+        callback.potsToeSwitchState(i, pots[i].toeSwitchGetState());
+      }
     }
 #endif
     if(pots[i].update()){
@@ -153,6 +156,9 @@ void BMC::readGlobalPots(){
 #if defined(BMC_USE_POT_TOE_SWITCH)
     if(globalPots[i].toeSwitchActive()){
       potParseToeSwitch(globalPots[i].toeSwitchGetEvent(), globalPots[i].toeSwitchGetState(), globalData.pots[i].ports);
+      if(callback.globalPotsToeSwitchState && BMC_GET_BYTE(0, globalPots[i].toeSwitchGetEvent())>0){
+        callback.globalPotsToeSwitchState(i, globalPots[i].toeSwitchGetState());
+      }
     }
 #endif
 

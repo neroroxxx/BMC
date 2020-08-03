@@ -277,6 +277,11 @@
     #endif
   #endif
 
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    #if (BMC_MAX_POTS == 0 && BMC_MAX_GLOBAL_POTS == 0)
+      #undef BMC_USE_POT_TOE_SWITCH
+    #endif
+  #endif
 
 
   // preset items check
@@ -737,7 +742,7 @@
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_PWM_LEDS+BMC_MAX_GLOBAL_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS)
 
-#if BMC_MAX_GLOBAL_POTS > 0
+#if defined(BMC_USE_POT_TOE_SWITCH)
   #define _____BMC_POT_TOE_SWITCH 15
 #else
   #define _____BMC_POT_TOE_SWITCH 0

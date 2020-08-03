@@ -153,11 +153,17 @@ public:
     return flags.read(BMC_FLAG_POT_TOE_SWITCH_STATE);
   }
   uint8_t toeSwitchGetOffValue(){
-    return ((toeSwitchFlags & 0x07)+1)*5;
+    // use 3 bits for off value (0-2)
+    return (toeSwitchFlags & 0x07)*5;
   }
   uint16_t toeSwitchGetOffSpeed(){
+    // use 3 bits for off speed (3-5)
     uint8_t value = ((toeSwitchFlags>>3) & 0x07);
     return ((value+1)*100)+200;
+  }
+  uint8_t toeSwitchGetMode(){
+    // use 2 bits for Mode (6-7)
+    return (toeSwitchFlags>>6) & 0x03;
   }
   uint16_t toeSwitchGetEvent(){
     if(toeSwitchGetState()){
@@ -168,27 +174,58 @@ public:
   void handleToeSwitch(uint8_t lastValue){
     // toe switch timing
     if(toeSwitchAvailable()){
-      uint8_t offValue = toeSwitchGetOffValue();
-      uint16_t offSpeed = toeSwitchGetOffSpeed();
-      if(!toeSwitchGetState()){
-        // engage
-        if(value>0){
-          flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE);
-          flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
-          toeSwitch.stop();
-        }
-      } else {
-        // disengage
-        if(value<=offValue && value!=lastValue){
-          toeSwitch.start(offSpeed);
-        } else if(value>offValue){
-          toeSwitch.stop();
-        }
+      switch(toeSwitchGetMode()){
+        case 0:
+          handleToeSwitchModeAutoEngage(lastValue);
+          break;
+        case 1:
+          handleToeSwitchModeToeSwitch(lastValue);
+          break;
+      }
+    }
+  }
+  // default mode is AUTO-ENGAGE
+  // Engage message is sent as soon as the pot is rotated past the off value
+  // then once it goes back to the off value or less a timer will start that
+  // once that timer is complete the off value is sent.
+  // these messages are sent only once upon switch states.
+  void handleToeSwitchModeAutoEngage(uint8_t lastValue){
+    uint8_t offValue = toeSwitchGetOffValue();
+    uint16_t offSpeed = toeSwitchGetOffSpeed();
+    if(!toeSwitchGetState()){
+      // engage
+      if(value >= offValue){
+        flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE);
+        flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
+        toeSwitch.stop();
+      }
+    } else {
+      // disengage
+      if(value<=offValue && value!=lastValue){
+        toeSwitch.start(offSpeed);
+      } else if(value>offValue){
+        toeSwitch.stop();
       }
       if(toeSwitch.complete()){
         flags.off(BMC_FLAG_POT_TOE_SWITCH_STATE);
         flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
       }
+    }
+  }
+  // Toe Switch Mode
+  // Toe switch is engaged/disengaged when the specified value is reached
+  void handleToeSwitchModeToeSwitch(uint8_t lastValue){
+    uint8_t trigger = (127-toeSwitchGetOffValue());
+    if(value >= trigger){
+      if(lastValue < trigger){
+        toeSwitch.start(toeSwitchGetOffSpeed());
+      }
+    } else {
+      toeSwitch.stop();
+    }
+    if(toeSwitch.complete()){
+      flags.toggle(BMC_FLAG_POT_TOE_SWITCH_STATE);
+      flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
     }
   }
 #endif

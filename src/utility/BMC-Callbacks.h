@@ -19,13 +19,20 @@ public:
     oneSecondPassed = 0;
     menuCommand = 0;
 
-
     buttonDualPress = 0;
     buttonActivity = 0;
     encoderActivity = 0;
     potActivity = 0;
     ledsActivity = 0;
     globalLedsActivity = 0;
+
+#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+    potsToeSwitchState = 0;
+#endif
+
+#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+    globalPotsToeSwitchState = 0;
+#endif
 
     globalButtonDualPress = 0;
     globalButtonActivity = 0;
@@ -124,6 +131,13 @@ public:
   void (*globalPotActivity)(uint8_t index, uint8_t value,
                       bmcStorePot data);
 
+#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+  void (*potsToeSwitchState)(uint8_t n, bool state);
+#endif
+
+#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+  void (*globalPotsToeSwitchState)(uint8_t n, bool state);
+#endif
 
   void (*buttonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
   void (*encoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction);

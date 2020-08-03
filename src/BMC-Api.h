@@ -154,6 +154,19 @@ public:
   void onAuxJackConnection(void (*fptr)(uint8_t n, bool state)){
     callback.auxJackConnection = fptr;
   }
+#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+  // triggered when a pot toe switch is engaged of disengaged
+  void onPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state)){
+    callback.potsToeSwitchState = fptr;
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
+  // triggered when a pot toe switch is engaged of disengaged on a global pot
+  void onGlobalPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state)){
+    callback.globalPotsToeSwitchState = fptr;
+  }
+#endif
   // triggered when you change pages, also triggered when BMC runs it's first loop
   void onPageChange(void (*fptr)(uint8_t page)){
     callback.pageChanged = fptr;

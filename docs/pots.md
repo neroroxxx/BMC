@@ -47,4 +47,10 @@ void onGlobalPotCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_
 
 // for user defined events, includes page and global led, pwm leds, pixels and rgb pixels
 void onPotsUserEvent(void (*fptr)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value));
+
+// triggered when a pot toe switch is engaged of disengaged
+void onPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state));
+
+// triggered when a pot toe switch is engaged of disengaged on a global pot
+void onGlobalPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state));
 ```

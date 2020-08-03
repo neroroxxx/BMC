@@ -242,6 +242,13 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
         return pots[byteA].getValue()>=63;
       }
       break;
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    case BMC_LED_EVENT_TYPE_TOE_SWITCH:
+      if(byteA < BMC_MAX_POTS){
+        return pots[byteA].toeSwitchGetState();
+      }
+      break;
+  #endif
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0
@@ -255,6 +262,13 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
         return globalPots[byteA].getValue()>=63;
       }
       break;
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    case BMC_LED_EVENT_TYPE_GLOBAL_TOE_SWITCH:
+      if(byteA < BMC_MAX_GLOBAL_POTS){
+        return globalPots[byteA].toeSwitchGetState();
+      }
+      break;
+  #endif
 #endif
     case BMC_LED_EVENT_TYPE_USER_1:
     case BMC_LED_EVENT_TYPE_USER_2:
