@@ -14,18 +14,30 @@
 #include "HardwareSerial.h"
 #include <MIDI.h>
 
+struct midiSerialSettings : public midi::DefaultSettings {
+   static const unsigned SysExMaxSize = BMC_MIDI_SYSEX_SIZE;
+};
+
 // ***********************************
 // ***********************************
 // ***********************************
-//      WRAPPERS FOR SERIAL PORTS
+// Each MIDI Port has it's own class
 // ***********************************
 // ***********************************
 // ***********************************
-class BMCMidiPortSerialWrapper {
+#if defined(BMC_MIDI_SERIAL_A_ENABLED)
+template <uint8_t SerBit>
+class BMCMidiPortSerialAWrapper {
 public:
-  BMCMidiPortSerialWrapper(){}
-  bool read(midi::MidiInterface<midi::SerialMIDI<HardwareSerial>>& Port,
-            BMCMidiMessage& message, uint8_t SerBit, bool ignoreRealTime){
+  midi::SerialMIDI<HardwareSerial> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>, midiSerialSettings> Port;
+  BMCMidiPortSerialAWrapper():serialPort(BMC_MIDI_SERIAL_IO_A),Port(serialPort){}
+
+  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
+    Port.begin(channel);
+    Port.turnThruOff();
+  }
+  bool read(BMCMidiMessage& message, bool ignoreRealTime){
     if(Port.read()){
       message.reset(SerBit);
       message.setStatus((uint8_t) Port.getType());
@@ -52,31 +64,6 @@ public:
     return false;
   }
 };
-
-// ***********************************
-// ***********************************
-// ***********************************
-// Each MIDI Port has it's own class
-// ***********************************
-// ***********************************
-// ***********************************
-#if defined(BMC_MIDI_SERIAL_A_ENABLED)
-template <uint8_t SerBit>
-class BMCMidiPortSerialAWrapper {
-public:
-  midi::SerialMIDI<HardwareSerial> serialPort;
-  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
-  BMCMidiPortSerialAWrapper():serialPort(BMC_MIDI_SERIAL_IO_A), Port(serialPort),wrapper(){}
-  void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
-    Port.begin(channel);
-    Port.turnThruOff();
-  }
-  bool read(BMCMidiMessage& message, bool ignoreRealTime){
-    return wrapper.read(Port, message, SerBit, ignoreRealTime);
-  }
-private:
-  BMCMidiPortSerialWrapper wrapper;
-};
 #endif
 
 #if defined(BMC_MIDI_SERIAL_B_ENABLED)
@@ -84,17 +71,38 @@ template <uint8_t SerBit>
 class BMCMidiPortSerialBWrapper {
 public:
   midi::SerialMIDI<HardwareSerial> serialPort;
-  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>, midiSerialSettings> Port;
   BMCMidiPortSerialBWrapper():serialPort(BMC_MIDI_SERIAL_IO_B), Port(serialPort){}
   void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
     Port.begin(channel);
     Port.turnThruOff();
   }
   bool read(BMCMidiMessage& message, bool ignoreRealTime){
-    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+    if(Port.read()){
+      message.reset(SerBit);
+      message.setStatus((uint8_t) Port.getType());
+      if(message.isSystemRealTimeStatus()){
+        if(ignoreRealTime){
+          message.reset();
+          return false;
+        }
+        return true;
+      }
+      message.setData1(Port.getData1());
+      message.setData2(Port.getData2());
+      if(message.isSystemExclusive()){
+        if(Port.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
+          message.addSysEx(Port.getSysExArray(),Port.getSysExArrayLength());
+        } else {
+          message.setStatus(BMC_NONE);
+        }
+      } else if(message.isChannelStatus()){
+        message.setChannel((uint8_t) Port.getChannel());
+      }
+      return true;
+    }
+    return false;
   }
-private:
-  BMCMidiPortSerialWrapper wrapper;
 };
 #endif
 
@@ -103,17 +111,38 @@ template <uint8_t SerBit>
 class BMCMidiPortSerialCWrapper {
 public:
   midi::SerialMIDI<HardwareSerial> serialPort;
-  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>, midiSerialSettings> Port;
   BMCMidiPortSerialCWrapper():serialPort(BMC_MIDI_SERIAL_IO_C), Port(serialPort){}
   void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
     Port.begin(channel);
     Port.turnThruOff();
   }
   bool read(BMCMidiMessage& message, bool ignoreRealTime){
-    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+    if(Port.read()){
+      message.reset(SerBit);
+      message.setStatus((uint8_t) Port.getType());
+      if(message.isSystemRealTimeStatus()){
+        if(ignoreRealTime){
+          message.reset();
+          return false;
+        }
+        return true;
+      }
+      message.setData1(Port.getData1());
+      message.setData2(Port.getData2());
+      if(message.isSystemExclusive()){
+        if(Port.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
+          message.addSysEx(Port.getSysExArray(),Port.getSysExArrayLength());
+        } else {
+          message.setStatus(BMC_NONE);
+        }
+      } else if(message.isChannelStatus()){
+        message.setChannel((uint8_t) Port.getChannel());
+      }
+      return true;
+    }
+    return false;
   }
-private:
-  BMCMidiPortSerialWrapper wrapper;
 };
 #endif
 
@@ -122,17 +151,38 @@ template <uint8_t SerBit>
 class BMCMidiPortSerialDWrapper {
 public:
   midi::SerialMIDI<HardwareSerial> serialPort;
-  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> Port;
+  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>, midiSerialSettings> Port;
   BMCMidiPortSerialDWrapper():serialPort(BMC_MIDI_SERIAL_IO_D), Port(serialPort){}
   void begin(uint8_t channel=MIDI_CHANNEL_OMNI){
     Port.begin(channel);
     Port.turnThruOff();
   }
   bool read(BMCMidiMessage& message, bool ignoreRealTime){
-    return wrapper.read(Port, message, SerBit, ignoreRealTime);
+    if(Port.read()){
+      message.reset(SerBit);
+      message.setStatus((uint8_t) Port.getType());
+      if(message.isSystemRealTimeStatus()){
+        if(ignoreRealTime){
+          message.reset();
+          return false;
+        }
+        return true;
+      }
+      message.setData1(Port.getData1());
+      message.setData2(Port.getData2());
+      if(message.isSystemExclusive()){
+        if(Port.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
+          message.addSysEx(Port.getSysExArray(),Port.getSysExArrayLength());
+        } else {
+          message.setStatus(BMC_NONE);
+        }
+      } else if(message.isChannelStatus()){
+        message.setChannel((uint8_t) Port.getChannel());
+      }
+      return true;
+    }
+    return false;
   }
-private:
-  BMCMidiPortSerialWrapper wrapper;
 };
 #endif
 

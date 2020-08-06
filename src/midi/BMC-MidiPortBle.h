@@ -10,8 +10,8 @@
 #include "utility/BMC-Def.h"
 
 #ifdef BMC_MIDI_BLE_ENABLED
-#include <MIDI.h>
 #include "midi/BMC-SerialBle.h"
+#include <MIDI.h>
 
 struct midiSerialBleSettings : public midi::DefaultSettings {
   static const unsigned SysExMaxSize = BMC_MIDI_SYSEX_SIZE;
@@ -19,11 +19,15 @@ struct midiSerialBleSettings : public midi::DefaultSettings {
 
 class BMCMidiPortBle {
 public:
+
   BMCSerialBle SerialBle;
-  midi::MidiInterface<BMCSerialBle,midiSerialBleSettings> Port;
+  midi::SerialMIDI<BMCSerialBle> serialPort;
+  midi::MidiInterface<midi::SerialMIDI<BMCSerialBle>, midiSerialBleSettings> Port;
+
   BMCMidiPortBle(BMCCallbacks& cb, BMCGlobals& t_globals):
     SerialBle(t_globals),
-    Port(SerialBle),
+    serialPort(SerialBle),
+    Port(serialPort),
     callback(cb),
     globals(t_globals){
   }

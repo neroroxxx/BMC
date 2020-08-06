@@ -409,7 +409,7 @@ private:
       BMCFlags <uint32_t> ledCustomState;
       uint32_t ledStates = 0;
     #endif
-    void setupLeds();
+
     void assignLeds();
     void readLeds();
   #endif //#if BMC_MAX_LEDS > 0
@@ -423,16 +423,15 @@ private:
       BMCFlags <uint16_t> globalLedCustomState;
       uint16_t globalLedStates = 0;
     #endif
-    void setupGlobalLeds();
     void assignGlobalLeds();
     void readGlobalLeds();
   #endif //if BMC_MAX_GLOBAL_LEDS > 0
 
-/*
+
 #if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
-    void handleLeds(uint8_t index, uint32_t data, BMCLed& item, bool isGlobal);
-#endif //#if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
-*/
+    void setupLeds();
+#endif
+
 
 
   #if BMC_MAX_PWM_LEDS > 0

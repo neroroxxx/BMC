@@ -79,15 +79,6 @@ void BMC::readLeds(){
 
 #if BMC_MAX_GLOBAL_LEDS > 0
 /*
-  Setup
-*/
-void BMC::setupGlobalLeds(){
-  for(uint8_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
-    globalLeds[index].begin(BMCBuildData::getGlobalLedPin(index));
-  }
-  assignGlobalLeds();
-}
-/*
   Read
 */
 void BMC::assignGlobalLeds(){
