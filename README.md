@@ -39,7 +39,7 @@ BMC will use many libraries included with Teensyduino, however, here are some of
 * Arduino MIDI Library (Version 5.0 or later)
 * QueueArray Library (bundled with BMC)
 * i2c EEPROM Library (bundled with BMC)
-* BLEPeripheral Library for nRF8001 (bundled with BMC)
+* BLEPeripheral Library for nRF8001 (download at [https://github.com/neroroxxx/arduino-BLEPeripheral](https://github.com/neroroxxx/arduino-BLEPeripheral), you must instal from this url as it's a modified version of the library.)
 * Source code has comments with credits if the code comes from another library, if I missed any please let me know.
 
 ## Compatible Boards
@@ -148,7 +148,7 @@ Once you do this mod save the file and restart Arduino/Teensyduino. You will now
 ![Tools Menu with BMC Installed](images/tools-menu.jpg)
 
 #### Step 3
-Download and Instal the BMC Library, if you are planning on using the nRF8001 for BLE MIDI then you will find it inside the BMC library folder, there's a folder named *BLEPeripheral* with a zip file inside, copy that zip file and unzip it's contents in your Arduino libraries folder.
+Download and Install the BMC Library, if you are planning on using the nRF8001 for BLE MIDI then you will also need to download the BLEPeripheral library, however you must use this forked version as it's modified to work with BMC and newer Teensy boards [https://github.com/neroroxxx/arduino-BLEPeripheral](https://github.com/neroroxxx/arduino-BLEPeripheral)
 
 #### Step 4
 Create a new sketch in your projects folder and start creating your config file with the Editor App *(make sure you set it to DEBUG so you can see helpful info on the Serial Monitor and to make sure you've set things up properly)*, once you have your config file save it to that new sketch's folder and make sure it's named **config.h**
