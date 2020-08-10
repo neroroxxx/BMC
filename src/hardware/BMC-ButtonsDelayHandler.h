@@ -74,7 +74,7 @@ public:
     return BMC_GET_BYTE(0,eventQueue[buttonIndex].event);
   }
   void setThreshold(uint8_t t){
-    threshold = (t>=1 && t<=200) ? t : 1;
+    threshold = (t>=1 && t<=250) ? t : 1;
   }
   void queueDelay(uint8_t buttonIndex, uint8_t eventIndex, uint8_t pressType, bmcStoreButtonEvent event){
     // invalid button index or a delay already exists and is waiting to be sent

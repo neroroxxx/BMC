@@ -143,15 +143,15 @@ void BMC::handleButton(uint8_t index, uint8_t t_trigger){
       continue;
     }
 #if defined(BMC_BUTTON_DELAY_ENABLED)
-      if(type==BMC_BUTTON_EVENT_TYPE_DELAY && e < (BMC_MAX_BUTTON_EVENTS-1)){
-        // do not use the delay if they event with the delay
-        // is the last event of the button
-        // always set the delay threshold first
-        buttonsDelay.setThreshold(BMC_GET_BYTE(1,data.event));
-        buttonsDelay.queueDelay(index, e, trigger, data);
-      } else if(buttonsDelay.setDelayedEvent(index, e, trigger, data)){
-        continue;
-      }
+    if(type==BMC_BUTTON_EVENT_TYPE_DELAY && e < (BMC_MAX_BUTTON_EVENTS-1)){
+      // do not use the delay if the event with the delay
+      // is the last event of the button
+      // always set the delay threshold first
+      buttonsDelay.setThreshold(BMC_GET_BYTE(1,data.event));
+      buttonsDelay.queueDelay(index, e, trigger, data);
+    } else if(buttonsDelay.setDelayedEvent(index, e, trigger, data)){
+      continue;
+    }
 #endif
     handleButtonEvent(type, data);
     if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
