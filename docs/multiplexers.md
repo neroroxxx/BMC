@@ -5,6 +5,9 @@
 [< Back to Documentation](README.md)
 
 # Multiplexers
+***********************************************
+***BMC now allows for up to 127 Analog Mux Pins, Digital Mux In will still be limited to 64 pins***
+***********************************************
 While BMC uses a Teensy's pins to read inputs it also has support for up 64 Mux inputs.
 
 These include:

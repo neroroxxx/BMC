@@ -1096,6 +1096,447 @@ See LICENSE file in the project root for full license information.
 #endif
 #define BMC_MAX_POTS 64
 
+#if defined(BMC_POT_65_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=65) && defined(BMC_POT_65_X) && defined(BMC_POT_65_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 65
+
+#if defined(BMC_POT_66_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=66) && defined(BMC_POT_66_X) && defined(BMC_POT_66_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 66
+
+#if defined(BMC_POT_67_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=67) && defined(BMC_POT_67_X) && defined(BMC_POT_67_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 67
+
+#if defined(BMC_POT_68_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=68) && defined(BMC_POT_68_X) && defined(BMC_POT_68_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 68
+
+#if defined(BMC_POT_69_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=69) && defined(BMC_POT_69_X) && defined(BMC_POT_69_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 69
+
+#if defined(BMC_POT_70_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=70) && defined(BMC_POT_70_X) && defined(BMC_POT_70_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 70
+
+#if defined(BMC_POT_71_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=71) && defined(BMC_POT_71_X) && defined(BMC_POT_71_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 71
+
+#if defined(BMC_POT_72_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=72) && defined(BMC_POT_72_X) && defined(BMC_POT_72_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 72
+
+#if defined(BMC_POT_73_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=73) && defined(BMC_POT_73_X) && defined(BMC_POT_73_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 73
+
+#if defined(BMC_POT_74_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=74) && defined(BMC_POT_74_X) && defined(BMC_POT_74_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 74
+
+#if defined(BMC_POT_75_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=75) && defined(BMC_POT_75_X) && defined(BMC_POT_75_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 75
+
+#if defined(BMC_POT_76_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=76) && defined(BMC_POT_76_X) && defined(BMC_POT_76_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 76
+
+#if defined(BMC_POT_77_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=77) && defined(BMC_POT_77_X) && defined(BMC_POT_77_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 77
+
+#if defined(BMC_POT_78_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=78) && defined(BMC_POT_78_X) && defined(BMC_POT_78_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 78
+
+#if defined(BMC_POT_79_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=79) && defined(BMC_POT_79_X) && defined(BMC_POT_79_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 79
+
+#if defined(BMC_POT_80_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=80) && defined(BMC_POT_80_X) && defined(BMC_POT_80_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 80
+
+#if defined(BMC_POT_81_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=81) && defined(BMC_POT_81_X) && defined(BMC_POT_81_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 81
+
+#if defined(BMC_POT_82_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=82) && defined(BMC_POT_82_X) && defined(BMC_POT_82_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 82
+
+#if defined(BMC_POT_83_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=83) && defined(BMC_POT_83_X) && defined(BMC_POT_83_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 83
+
+#if defined(BMC_POT_84_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=84) && defined(BMC_POT_84_X) && defined(BMC_POT_84_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 84
+
+#if defined(BMC_POT_85_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=85) && defined(BMC_POT_85_X) && defined(BMC_POT_85_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 85
+
+#if defined(BMC_POT_86_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=86) && defined(BMC_POT_86_X) && defined(BMC_POT_86_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 86
+
+#if defined(BMC_POT_87_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=87) && defined(BMC_POT_87_X) && defined(BMC_POT_87_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 87
+
+#if defined(BMC_POT_88_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=88) && defined(BMC_POT_88_X) && defined(BMC_POT_88_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 88
+
+#if defined(BMC_POT_89_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=89) && defined(BMC_POT_89_X) && defined(BMC_POT_89_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 89
+
+#if defined(BMC_POT_90_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=90) && defined(BMC_POT_90_X) && defined(BMC_POT_90_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 90
+
+#if defined(BMC_POT_91_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=91) && defined(BMC_POT_91_X) && defined(BMC_POT_91_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 91
+
+#if defined(BMC_POT_92_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=92) && defined(BMC_POT_92_X) && defined(BMC_POT_92_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 92
+
+#if defined(BMC_POT_93_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=93) && defined(BMC_POT_93_X) && defined(BMC_POT_93_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 93
+
+#if defined(BMC_POT_94_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=94) && defined(BMC_POT_94_X) && defined(BMC_POT_94_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 94
+
+#if defined(BMC_POT_95_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=95) && defined(BMC_POT_95_X) && defined(BMC_POT_95_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 95
+
+#if defined(BMC_POT_96_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=96) && defined(BMC_POT_96_X) && defined(BMC_POT_96_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 96
+
+#if defined(BMC_POT_97_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=97) && defined(BMC_POT_97_X) && defined(BMC_POT_97_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 97
+
+#if defined(BMC_POT_98_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=98) && defined(BMC_POT_98_X) && defined(BMC_POT_98_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 98
+
+#if defined(BMC_POT_99_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=99) && defined(BMC_POT_99_X) && defined(BMC_POT_99_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 99
+
+#if defined(BMC_POT_100_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=100) && defined(BMC_POT_100_X) && defined(BMC_POT_100_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 100
+
+#if defined(BMC_POT_101_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=101) && defined(BMC_POT_101_X) && defined(BMC_POT_101_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 101
+
+#if defined(BMC_POT_102_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=102) && defined(BMC_POT_102_X) && defined(BMC_POT_102_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 102
+
+#if defined(BMC_POT_103_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=103) && defined(BMC_POT_103_X) && defined(BMC_POT_103_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 103
+
+#if defined(BMC_POT_104_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=104) && defined(BMC_POT_104_X) && defined(BMC_POT_104_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 104
+
+#if defined(BMC_POT_105_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=105) && defined(BMC_POT_105_X) && defined(BMC_POT_105_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 105
+
+#if defined(BMC_POT_106_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=106) && defined(BMC_POT_106_X) && defined(BMC_POT_106_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 106
+
+#if defined(BMC_POT_107_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=107) && defined(BMC_POT_107_X) && defined(BMC_POT_107_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 107
+
+#if defined(BMC_POT_108_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=108) && defined(BMC_POT_108_X) && defined(BMC_POT_108_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 108
+
+#if defined(BMC_POT_109_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=109) && defined(BMC_POT_109_X) && defined(BMC_POT_109_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 109
+
+#if defined(BMC_POT_110_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=110) && defined(BMC_POT_110_X) && defined(BMC_POT_110_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 110
+
+#if defined(BMC_POT_111_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=111) && defined(BMC_POT_111_X) && defined(BMC_POT_111_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 111
+
+#if defined(BMC_POT_112_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=112) && defined(BMC_POT_112_X) && defined(BMC_POT_112_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 112
+
+#if defined(BMC_POT_113_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=113) && defined(BMC_POT_113_X) && defined(BMC_POT_113_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 113
+
+#if defined(BMC_POT_114_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=114) && defined(BMC_POT_114_X) && defined(BMC_POT_114_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 114
+
+#if defined(BMC_POT_115_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=115) && defined(BMC_POT_115_X) && defined(BMC_POT_115_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 115
+
+#if defined(BMC_POT_116_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=116) && defined(BMC_POT_116_X) && defined(BMC_POT_116_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 116
+
+#if defined(BMC_POT_117_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=117) && defined(BMC_POT_117_X) && defined(BMC_POT_117_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 117
+
+#if defined(BMC_POT_118_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=118) && defined(BMC_POT_118_X) && defined(BMC_POT_118_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 118
+
+#if defined(BMC_POT_119_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=119) && defined(BMC_POT_119_X) && defined(BMC_POT_119_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 119
+
+#if defined(BMC_POT_120_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=120) && defined(BMC_POT_120_X) && defined(BMC_POT_120_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 120
+
+#if defined(BMC_POT_121_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=121) && defined(BMC_POT_121_X) && defined(BMC_POT_121_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 121
+
+#if defined(BMC_POT_122_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=122) && defined(BMC_POT_122_X) && defined(BMC_POT_122_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 122
+
+#if defined(BMC_POT_123_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=123) && defined(BMC_POT_123_X) && defined(BMC_POT_123_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 123
+
+#if defined(BMC_POT_124_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=124) && defined(BMC_POT_124_X) && defined(BMC_POT_124_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 124
+
+#if defined(BMC_POT_125_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=125) && defined(BMC_POT_125_X) && defined(BMC_POT_125_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 125
+
+#if defined(BMC_POT_126_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=126) && defined(BMC_POT_126_X) && defined(BMC_POT_126_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 126
+
+#if defined(BMC_POT_127_PIN) && (BMC_TEENSY_TOTAL_ANALOG_PINS+BMC_MAX_MUX_IN_ANALOG>=127) && defined(BMC_POT_127_X) && defined(BMC_POT_127_Y)
+#ifdef BMC_MAX_POTS
+#undef BMC_MAX_POTS
+#endif
+#define BMC_MAX_POTS 127
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif
 #endif
 #endif
@@ -2161,6 +2602,671 @@ See LICENSE file in the project root for full license information.
 #endif
 #define BMC_MAX_GLOBAL_POTS 32
 
+#if defined(BMC_GLOBAL_POT_33_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=33 && defined(BMC_GLOBAL_POT_33_X) && defined(BMC_GLOBAL_POT_33_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 33
+
+#if defined(BMC_GLOBAL_POT_34_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=34 && defined(BMC_GLOBAL_POT_34_X) && defined(BMC_GLOBAL_POT_34_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 34
+
+#if defined(BMC_GLOBAL_POT_35_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=35 && defined(BMC_GLOBAL_POT_35_X) && defined(BMC_GLOBAL_POT_35_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 35
+
+#if defined(BMC_GLOBAL_POT_36_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=36 && defined(BMC_GLOBAL_POT_36_X) && defined(BMC_GLOBAL_POT_36_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 36
+
+#if defined(BMC_GLOBAL_POT_37_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=37 && defined(BMC_GLOBAL_POT_37_X) && defined(BMC_GLOBAL_POT_37_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 37
+
+#if defined(BMC_GLOBAL_POT_38_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=38 && defined(BMC_GLOBAL_POT_38_X) && defined(BMC_GLOBAL_POT_38_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 38
+
+#if defined(BMC_GLOBAL_POT_39_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=39 && defined(BMC_GLOBAL_POT_39_X) && defined(BMC_GLOBAL_POT_39_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 39
+
+#if defined(BMC_GLOBAL_POT_40_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=40 && defined(BMC_GLOBAL_POT_40_X) && defined(BMC_GLOBAL_POT_40_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 40
+
+#if defined(BMC_GLOBAL_POT_41_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=41 && defined(BMC_GLOBAL_POT_41_X) && defined(BMC_GLOBAL_POT_41_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 41
+
+#if defined(BMC_GLOBAL_POT_42_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=42 && defined(BMC_GLOBAL_POT_42_X) && defined(BMC_GLOBAL_POT_42_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 42
+
+#if defined(BMC_GLOBAL_POT_43_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=43 && defined(BMC_GLOBAL_POT_43_X) && defined(BMC_GLOBAL_POT_43_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 43
+
+#if defined(BMC_GLOBAL_POT_44_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=44 && defined(BMC_GLOBAL_POT_44_X) && defined(BMC_GLOBAL_POT_44_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 44
+
+#if defined(BMC_GLOBAL_POT_45_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=45 && defined(BMC_GLOBAL_POT_45_X) && defined(BMC_GLOBAL_POT_45_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 45
+
+#if defined(BMC_GLOBAL_POT_46_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=46 && defined(BMC_GLOBAL_POT_46_X) && defined(BMC_GLOBAL_POT_46_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 46
+
+#if defined(BMC_GLOBAL_POT_47_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=47 && defined(BMC_GLOBAL_POT_47_X) && defined(BMC_GLOBAL_POT_47_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 47
+
+#if defined(BMC_GLOBAL_POT_48_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=48 && defined(BMC_GLOBAL_POT_48_X) && defined(BMC_GLOBAL_POT_48_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 48
+
+#if defined(BMC_GLOBAL_POT_49_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=49 && defined(BMC_GLOBAL_POT_49_X) && defined(BMC_GLOBAL_POT_49_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 49
+
+#if defined(BMC_GLOBAL_POT_50_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=50 && defined(BMC_GLOBAL_POT_50_X) && defined(BMC_GLOBAL_POT_50_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 50
+
+#if defined(BMC_GLOBAL_POT_51_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=51 && defined(BMC_GLOBAL_POT_51_X) && defined(BMC_GLOBAL_POT_51_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 51
+
+#if defined(BMC_GLOBAL_POT_52_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=52 && defined(BMC_GLOBAL_POT_52_X) && defined(BMC_GLOBAL_POT_52_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 52
+
+#if defined(BMC_GLOBAL_POT_53_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=53 && defined(BMC_GLOBAL_POT_53_X) && defined(BMC_GLOBAL_POT_53_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 53
+
+#if defined(BMC_GLOBAL_POT_54_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=54 && defined(BMC_GLOBAL_POT_54_X) && defined(BMC_GLOBAL_POT_54_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 54
+
+#if defined(BMC_GLOBAL_POT_55_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=55 && defined(BMC_GLOBAL_POT_55_X) && defined(BMC_GLOBAL_POT_55_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 55
+
+#if defined(BMC_GLOBAL_POT_56_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=56 && defined(BMC_GLOBAL_POT_56_X) && defined(BMC_GLOBAL_POT_56_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 56
+
+#if defined(BMC_GLOBAL_POT_57_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=57 && defined(BMC_GLOBAL_POT_57_X) && defined(BMC_GLOBAL_POT_57_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 57
+
+#if defined(BMC_GLOBAL_POT_58_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=58 && defined(BMC_GLOBAL_POT_58_X) && defined(BMC_GLOBAL_POT_58_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 58
+
+#if defined(BMC_GLOBAL_POT_59_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=59 && defined(BMC_GLOBAL_POT_59_X) && defined(BMC_GLOBAL_POT_59_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 59
+
+#if defined(BMC_GLOBAL_POT_60_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=60 && defined(BMC_GLOBAL_POT_60_X) && defined(BMC_GLOBAL_POT_60_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 60
+
+#if defined(BMC_GLOBAL_POT_61_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=61 && defined(BMC_GLOBAL_POT_61_X) && defined(BMC_GLOBAL_POT_61_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 61
+
+#if defined(BMC_GLOBAL_POT_62_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=62 && defined(BMC_GLOBAL_POT_62_X) && defined(BMC_GLOBAL_POT_62_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 62
+
+#if defined(BMC_GLOBAL_POT_63_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=63 && defined(BMC_GLOBAL_POT_63_X) && defined(BMC_GLOBAL_POT_63_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 63
+
+#if defined(BMC_GLOBAL_POT_64_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=64 && defined(BMC_GLOBAL_POT_64_X) && defined(BMC_GLOBAL_POT_64_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 64
+
+#if defined(BMC_GLOBAL_POT_65_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=65 && defined(BMC_GLOBAL_POT_65_X) && defined(BMC_GLOBAL_POT_65_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 65
+
+#if defined(BMC_GLOBAL_POT_66_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=66 && defined(BMC_GLOBAL_POT_66_X) && defined(BMC_GLOBAL_POT_66_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 66
+
+#if defined(BMC_GLOBAL_POT_67_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=67 && defined(BMC_GLOBAL_POT_67_X) && defined(BMC_GLOBAL_POT_67_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 67
+
+#if defined(BMC_GLOBAL_POT_68_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=68 && defined(BMC_GLOBAL_POT_68_X) && defined(BMC_GLOBAL_POT_68_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 68
+
+#if defined(BMC_GLOBAL_POT_69_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=69 && defined(BMC_GLOBAL_POT_69_X) && defined(BMC_GLOBAL_POT_69_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 69
+
+#if defined(BMC_GLOBAL_POT_70_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=70 && defined(BMC_GLOBAL_POT_70_X) && defined(BMC_GLOBAL_POT_70_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 70
+
+#if defined(BMC_GLOBAL_POT_71_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=71 && defined(BMC_GLOBAL_POT_71_X) && defined(BMC_GLOBAL_POT_71_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 71
+
+#if defined(BMC_GLOBAL_POT_72_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=72 && defined(BMC_GLOBAL_POT_72_X) && defined(BMC_GLOBAL_POT_72_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 72
+
+#if defined(BMC_GLOBAL_POT_73_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=73 && defined(BMC_GLOBAL_POT_73_X) && defined(BMC_GLOBAL_POT_73_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 73
+
+#if defined(BMC_GLOBAL_POT_74_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=74 && defined(BMC_GLOBAL_POT_74_X) && defined(BMC_GLOBAL_POT_74_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 74
+
+#if defined(BMC_GLOBAL_POT_75_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=75 && defined(BMC_GLOBAL_POT_75_X) && defined(BMC_GLOBAL_POT_75_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 75
+
+#if defined(BMC_GLOBAL_POT_76_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=76 && defined(BMC_GLOBAL_POT_76_X) && defined(BMC_GLOBAL_POT_76_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 76
+
+#if defined(BMC_GLOBAL_POT_77_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=77 && defined(BMC_GLOBAL_POT_77_X) && defined(BMC_GLOBAL_POT_77_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 77
+
+#if defined(BMC_GLOBAL_POT_78_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=78 && defined(BMC_GLOBAL_POT_78_X) && defined(BMC_GLOBAL_POT_78_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 78
+
+#if defined(BMC_GLOBAL_POT_79_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=79 && defined(BMC_GLOBAL_POT_79_X) && defined(BMC_GLOBAL_POT_79_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 79
+
+#if defined(BMC_GLOBAL_POT_80_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=80 && defined(BMC_GLOBAL_POT_80_X) && defined(BMC_GLOBAL_POT_80_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 80
+
+#if defined(BMC_GLOBAL_POT_81_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=81 && defined(BMC_GLOBAL_POT_81_X) && defined(BMC_GLOBAL_POT_81_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 81
+
+#if defined(BMC_GLOBAL_POT_82_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=82 && defined(BMC_GLOBAL_POT_82_X) && defined(BMC_GLOBAL_POT_82_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 82
+
+#if defined(BMC_GLOBAL_POT_83_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=83 && defined(BMC_GLOBAL_POT_83_X) && defined(BMC_GLOBAL_POT_83_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 83
+
+#if defined(BMC_GLOBAL_POT_84_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=84 && defined(BMC_GLOBAL_POT_84_X) && defined(BMC_GLOBAL_POT_84_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 84
+
+#if defined(BMC_GLOBAL_POT_85_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=85 && defined(BMC_GLOBAL_POT_85_X) && defined(BMC_GLOBAL_POT_85_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 85
+
+#if defined(BMC_GLOBAL_POT_86_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=86 && defined(BMC_GLOBAL_POT_86_X) && defined(BMC_GLOBAL_POT_86_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 86
+
+#if defined(BMC_GLOBAL_POT_87_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=87 && defined(BMC_GLOBAL_POT_87_X) && defined(BMC_GLOBAL_POT_87_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 87
+
+#if defined(BMC_GLOBAL_POT_88_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=88 && defined(BMC_GLOBAL_POT_88_X) && defined(BMC_GLOBAL_POT_88_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 88
+
+#if defined(BMC_GLOBAL_POT_89_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=89 && defined(BMC_GLOBAL_POT_89_X) && defined(BMC_GLOBAL_POT_89_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 89
+
+#if defined(BMC_GLOBAL_POT_90_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=90 && defined(BMC_GLOBAL_POT_90_X) && defined(BMC_GLOBAL_POT_90_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 90
+
+#if defined(BMC_GLOBAL_POT_91_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=91 && defined(BMC_GLOBAL_POT_91_X) && defined(BMC_GLOBAL_POT_91_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 91
+
+#if defined(BMC_GLOBAL_POT_92_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=92 && defined(BMC_GLOBAL_POT_92_X) && defined(BMC_GLOBAL_POT_92_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 92
+
+#if defined(BMC_GLOBAL_POT_93_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=93 && defined(BMC_GLOBAL_POT_93_X) && defined(BMC_GLOBAL_POT_93_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 93
+
+#if defined(BMC_GLOBAL_POT_94_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=94 && defined(BMC_GLOBAL_POT_94_X) && defined(BMC_GLOBAL_POT_94_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 94
+
+#if defined(BMC_GLOBAL_POT_95_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=95 && defined(BMC_GLOBAL_POT_95_X) && defined(BMC_GLOBAL_POT_95_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 95
+
+#if defined(BMC_GLOBAL_POT_96_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=96 && defined(BMC_GLOBAL_POT_96_X) && defined(BMC_GLOBAL_POT_96_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 96
+
+#if defined(BMC_GLOBAL_POT_97_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=97 && defined(BMC_GLOBAL_POT_97_X) && defined(BMC_GLOBAL_POT_97_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 97
+
+#if defined(BMC_GLOBAL_POT_98_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=98 && defined(BMC_GLOBAL_POT_98_X) && defined(BMC_GLOBAL_POT_98_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 98
+
+#if defined(BMC_GLOBAL_POT_99_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=99 && defined(BMC_GLOBAL_POT_99_X) && defined(BMC_GLOBAL_POT_99_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 99
+
+#if defined(BMC_GLOBAL_POT_100_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=100 && defined(BMC_GLOBAL_POT_100_X) && defined(BMC_GLOBAL_POT_100_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 100
+
+#if defined(BMC_GLOBAL_POT_101_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=101 && defined(BMC_GLOBAL_POT_101_X) && defined(BMC_GLOBAL_POT_101_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 101
+
+#if defined(BMC_GLOBAL_POT_102_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=102 && defined(BMC_GLOBAL_POT_102_X) && defined(BMC_GLOBAL_POT_102_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 102
+
+#if defined(BMC_GLOBAL_POT_103_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=103 && defined(BMC_GLOBAL_POT_103_X) && defined(BMC_GLOBAL_POT_103_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 103
+
+#if defined(BMC_GLOBAL_POT_104_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=104 && defined(BMC_GLOBAL_POT_104_X) && defined(BMC_GLOBAL_POT_104_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 104
+
+#if defined(BMC_GLOBAL_POT_105_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=105 && defined(BMC_GLOBAL_POT_105_X) && defined(BMC_GLOBAL_POT_105_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 105
+
+#if defined(BMC_GLOBAL_POT_106_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=106 && defined(BMC_GLOBAL_POT_106_X) && defined(BMC_GLOBAL_POT_106_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 106
+
+#if defined(BMC_GLOBAL_POT_107_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=107 && defined(BMC_GLOBAL_POT_107_X) && defined(BMC_GLOBAL_POT_107_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 107
+
+#if defined(BMC_GLOBAL_POT_108_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=108 && defined(BMC_GLOBAL_POT_108_X) && defined(BMC_GLOBAL_POT_108_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 108
+
+#if defined(BMC_GLOBAL_POT_109_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=109 && defined(BMC_GLOBAL_POT_109_X) && defined(BMC_GLOBAL_POT_109_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 109
+
+#if defined(BMC_GLOBAL_POT_110_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=110 && defined(BMC_GLOBAL_POT_110_X) && defined(BMC_GLOBAL_POT_110_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 110
+
+#if defined(BMC_GLOBAL_POT_111_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=111 && defined(BMC_GLOBAL_POT_111_X) && defined(BMC_GLOBAL_POT_111_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 111
+
+#if defined(BMC_GLOBAL_POT_112_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=112 && defined(BMC_GLOBAL_POT_112_X) && defined(BMC_GLOBAL_POT_112_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 112
+
+#if defined(BMC_GLOBAL_POT_113_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=113 && defined(BMC_GLOBAL_POT_113_X) && defined(BMC_GLOBAL_POT_113_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 113
+
+#if defined(BMC_GLOBAL_POT_114_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=114 && defined(BMC_GLOBAL_POT_114_X) && defined(BMC_GLOBAL_POT_114_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 114
+
+#if defined(BMC_GLOBAL_POT_115_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=115 && defined(BMC_GLOBAL_POT_115_X) && defined(BMC_GLOBAL_POT_115_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 115
+
+#if defined(BMC_GLOBAL_POT_116_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=116 && defined(BMC_GLOBAL_POT_116_X) && defined(BMC_GLOBAL_POT_116_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 116
+
+#if defined(BMC_GLOBAL_POT_117_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=117 && defined(BMC_GLOBAL_POT_117_X) && defined(BMC_GLOBAL_POT_117_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 117
+
+#if defined(BMC_GLOBAL_POT_118_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=118 && defined(BMC_GLOBAL_POT_118_X) && defined(BMC_GLOBAL_POT_118_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 118
+
+#if defined(BMC_GLOBAL_POT_119_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=119 && defined(BMC_GLOBAL_POT_119_X) && defined(BMC_GLOBAL_POT_119_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 119
+
+#if defined(BMC_GLOBAL_POT_120_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=120 && defined(BMC_GLOBAL_POT_120_X) && defined(BMC_GLOBAL_POT_120_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 120
+
+#if defined(BMC_GLOBAL_POT_121_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=121 && defined(BMC_GLOBAL_POT_121_X) && defined(BMC_GLOBAL_POT_121_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 121
+
+#if defined(BMC_GLOBAL_POT_122_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=122 && defined(BMC_GLOBAL_POT_122_X) && defined(BMC_GLOBAL_POT_122_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 122
+
+#if defined(BMC_GLOBAL_POT_123_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=123 && defined(BMC_GLOBAL_POT_123_X) && defined(BMC_GLOBAL_POT_123_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 123
+
+#if defined(BMC_GLOBAL_POT_124_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=124 && defined(BMC_GLOBAL_POT_124_X) && defined(BMC_GLOBAL_POT_124_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 124
+
+#if defined(BMC_GLOBAL_POT_125_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=125 && defined(BMC_GLOBAL_POT_125_X) && defined(BMC_GLOBAL_POT_125_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 125
+
+#if defined(BMC_GLOBAL_POT_126_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=126 && defined(BMC_GLOBAL_POT_126_X) && defined(BMC_GLOBAL_POT_126_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 126
+
+#if defined(BMC_GLOBAL_POT_127_PIN) && BMC_TEENSY_TOTAL_DIGITAL_PINS>=127 && defined(BMC_GLOBAL_POT_127_X) && defined(BMC_GLOBAL_POT_127_Y)
+#ifdef BMC_MAX_GLOBAL_POTS
+#undef BMC_MAX_GLOBAL_POTS
+#endif
+#define BMC_MAX_GLOBAL_POTS 127
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif
 #endif
 #endif

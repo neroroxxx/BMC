@@ -79,12 +79,12 @@
   #ifndef BMC_MAX_MUX_IN_ANALOG
     #define BMC_MAX_MUX_IN_ANALOG 0
   #endif
-  #if BMC_MAX_MUX_IN_ANALOG > 64
-    #error "BMC supports up to 64 Analog Mux Pins"
+  #if BMC_MAX_MUX_IN_ANALOG > 127
+    #error "BMC supports up to 127 Analog Mux Pins"
   #endif
 
-  #if (BMC_MAX_MUX_IN+BMC_MAX_MUX_IN_ANALOG)>64
-    #error "BMC supports a maximum of 64 Mux Pins total, that inclues a sum of BMC_MAX_MUX_IN and BMC_MAX_MUX_IN_ANALOG"
+  #if (BMC_MAX_MUX_IN+BMC_MAX_MUX_IN_ANALOG)>127
+    #error "BMC supports a maximum of 127 Mux Pins total, that inclues a sum of BMC_MAX_MUX_IN and BMC_MAX_MUX_IN_ANALOG"
   #endif
 
   #if BMC_MAX_MUX_IN > 0 && (BMC_MAX_BUTTONS==0 && BMC_MAX_ENCODERS==0)

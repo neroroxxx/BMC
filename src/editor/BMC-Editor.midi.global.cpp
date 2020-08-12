@@ -347,12 +347,41 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
         buff.appendToSysEx7Bits(BMCBuildData::getGlobalEncoderPinB(i));
       }
     #endif
-  } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS){
+  } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_2 ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_3 ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_4
+  ){
+    uint8_t min = 0;
+    uint8_t max = 32;
+    if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_2){
+      min = 32;
+      max = 64;
+    } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_3){
+      min = 64;
+      max = 96;
+    } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_POTS_4){
+      min = 96;
+      max = 128;
+    }
     // pot pins
     buff.appendToSysEx8Bits(BMC_MAX_GLOBAL_POTS);
+    uint8_t numOfPinsInMessage = 0;
+    for(uint8_t i=min;i<max;i++){
+      if(i<BMC_MAX_GLOBAL_POTS){
+        numOfPinsInMessage++;
+        continue;
+      }
+      break;
+    }
+    buff.appendToSysEx7Bits(numOfPinsInMessage);
     #if BMC_MAX_GLOBAL_POTS > 0
-      for(uint8_t i=0;i<BMC_MAX_GLOBAL_POTS;i++){
-        buff.appendToSysEx7Bits(BMCBuildData::getGlobalPotPin(i));
+      for(uint8_t i=min;i<max;i++){
+        if(i<BMC_MAX_GLOBAL_POTS){
+          buff.appendToSysEx8Bits(BMCBuildData::getGlobalPotPin(i));
+        } else {
+          break;
+        }
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_LEDS){
@@ -371,12 +400,42 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
         buff.appendToSysEx7Bits(BMCBuildData::getPwmLedPin(i));
       }
     #endif
-  } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS){
+  } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_2 ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_3 ||
+            itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_4
+  ){
+    uint8_t min = 0;
+    uint8_t max = 32;
+    if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_2){
+      min = 32;
+      max = 64;
+    } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_3){
+      min = 64;
+      max = 96;
+    } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS_4){
+      min = 96;
+      max = 128;
+    }
+
     // pot pins
     buff.appendToSysEx8Bits(BMC_MAX_POTS);
+    uint8_t numOfPinsInMessage = 0;
+    for(uint8_t i=min;i<max;i++){
+      if(i<BMC_MAX_POTS){
+        numOfPinsInMessage++;
+        continue;
+      }
+      break;
+    }
+    buff.appendToSysEx7Bits(numOfPinsInMessage);
     #if BMC_MAX_POTS > 0
-      for(uint8_t i=0;i<BMC_MAX_POTS;i++){
-        buff.appendToSysEx7Bits(BMCBuildData::getPotPin(i));
+      for(uint8_t i=min;i<max;i++){
+        if(i<BMC_MAX_POTS){
+          buff.appendToSysEx8Bits(BMCBuildData::getPotPin(i));
+        } else {
+          break;
+        }
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_ENCODERS){
