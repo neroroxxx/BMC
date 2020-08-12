@@ -12,8 +12,6 @@
 
 #if BMC_MAX_MUX_IN_ANALOG > 0 && (BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4067 || BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4051)
 
-
-
 #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_1
   #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_1 was NOT defined"
 #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_1 >= 64
@@ -42,6 +40,22 @@
       #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_4 was NOT defined"
     #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_4 >= 64
       #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_4 is not a valid pin"
+    #endif
+  #endif
+
+  #if BMC_MAX_MUX_IN_ANALOG > 64
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_5
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_5 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_5 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_5 is not a valid pin"
+    #endif
+  #endif
+
+  #if BMC_MAX_MUX_IN_ANALOG > 80
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_6
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_6 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_6 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_6 is not a valid pin"
     #endif
   #endif
 
@@ -104,6 +118,38 @@
     #endif
   #endif
 
+  #if BMC_MAX_MUX_IN_ANALOG > 64
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_9
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_9 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_9 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_9 is not a valid pin"
+    #endif
+  #endif
+
+  #if BMC_MAX_MUX_IN_ANALOG > 72
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_10
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_10 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_10 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_10 is not a valid pin"
+    #endif
+  #endif
+
+  #if BMC_MAX_MUX_IN_ANALOG > 80
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_11
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_11 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_11 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_11 is not a valid pin"
+    #endif
+  #endif
+
+  #if BMC_MAX_MUX_IN_ANALOG > 88
+    #ifndef BMC_MUX_IN_ANALOG_74HC40XX_SIG_12
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_12 was NOT defined"
+    #elif BMC_MUX_IN_ANALOG_74HC40XX_SIG_12 >= 64
+      #error "BMC_MUX_IN_ANALOG_74HC40XX_SIG_12 is not a valid pin"
+    #endif
+  #endif
+
 #endif
 
 #ifndef BMC_MUX_IN_ANALOG_74HC40XX_BIT0
@@ -131,7 +177,11 @@
     #error "BMC_MUX_IN_ANALOG_74HC40XX_BIT3 is not a valid pin"
   #endif
 
-  #if BMC_MAX_MUX_IN_ANALOG > 48
+  #if BMC_MAX_MUX_IN_ANALOG > 80
+    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 6
+  #elif BMC_MAX_MUX_IN_ANALOG > 64
+    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 5
+  #elif BMC_MAX_MUX_IN_ANALOG > 48
     #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 4
   #elif BMC_MAX_MUX_IN_ANALOG > 32
     #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 3
@@ -140,6 +190,7 @@
   #else
     #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 1
   #endif
+
 
   #if BMC_MAX_MUX_IN_ANALOG > 16
     #define BMC_MAX_MUX_IN_ANALOG_LAST 16
@@ -152,7 +203,15 @@
 
 #elif BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4051
 
-  #if BMC_MAX_MUX_IN_ANALOG > 56
+  #if BMC_MAX_MUX_IN_ANALOG > 88
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 12
+  #elif BMC_MAX_MUX_IN_ANALOG > 80
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 11
+  #elif BMC_MAX_MUX_IN_ANALOG > 72
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 10
+  #elif BMC_MAX_MUX_IN_ANALOG > 64
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 9
+  #elif BMC_MAX_MUX_IN_ANALOG > 56
     #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 8
   #elif BMC_MAX_MUX_IN_ANALOG > 48
     #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 7
@@ -205,6 +264,12 @@ private:
   #if BMC_MAX_MUX_IN_ANALOG > 48
     ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_4
   #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 64
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_5
+  #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 80
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_6
+  #endif
 
 #elif BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4051
 
@@ -228,6 +293,18 @@ private:
   #endif
   #if BMC_MAX_MUX_IN_ANALOG > 56
     ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_8
+  #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 64
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_9
+  #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 72
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_10
+  #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 80
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_11
+  #endif
+  #if BMC_MAX_MUX_IN_ANALOG > 88
+    ,BMC_MUX_IN_ANALOG_74HC40XX_SIG_12
   #endif
 #endif
   };
@@ -282,7 +359,7 @@ public:
         );
         BMC_HALT();
       }
-      pinMode(signalPin[i], INPUT);
+      pinMode(signalPin[i], INPUT_PULLUP);
     }
     // set the channel pins for each mux
     for(uint8_t i = 0 ; i < BMC_MUX_IN_ANALOG_74HC40XX_CHANNELS ; i++){
