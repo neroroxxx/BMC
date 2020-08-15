@@ -624,7 +624,7 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         }
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_PRESET:
-        fas.setPreset(byteA | byteB<<8);
+        fas.setPreset(byteA | (byteB<<8));
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_PRESET_SCROLL:
         {

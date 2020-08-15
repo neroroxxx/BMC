@@ -335,12 +335,14 @@ struct BMCMidiMessage {
     appendToSysEx7Bits(BMC_MIDI_GET_WORD(1,value));
   }
   // same as appendToSysEx14Bits
-  void appendToSysEx14Bits(uint8_t value){
-    appendToSysEx8Bits(value);
+  void appendToSysEx14Bits(uint16_t value){
+    appendToSysEx7Bits(BMC_MIDI_GET_WORD(1, value));
+    appendToSysEx7Bits(BMC_MIDI_GET_WORD(0, value));
   }
   // same as appendToSysEx8BitsLSBFirst
-  void appendToSysEx14BitsLSBFirst(uint8_t value){
-    appendToSysEx8BitsLSBFirst(value);
+  void appendToSysEx14BitsLSBFirst(uint16_t value){
+    appendToSysEx7Bits(BMC_MIDI_GET_WORD(0, value));
+    appendToSysEx7Bits(BMC_MIDI_GET_WORD(1, value));
   }
 
   // append a 16-bit byte as three 7-bit midi words to the sysex array

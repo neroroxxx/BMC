@@ -133,7 +133,7 @@ public:
     // this message will be broadcast on all MIDI ports except USB and BLE (if available)
     if(flags.read(BMC_FAS_FLAG_DEVICE_SEARCH)){
       if(attempts<10 && findDeviceTimer.complete()){
-        BMC_PRINTLN("Looking for FAS Device");
+        BMC_PRINTLN(">> Looking for FAS Device <<");
         sendDeviceSearch();
         findDeviceTimer.start(5000);
         attempts++;
@@ -146,7 +146,7 @@ public:
       if(midi.callback.fasTunerStateChange){
         midi.callback.fasTunerStateChange(false);
       }
-      BMC_PRINTLN("FAS TUNER OFF");
+      BMC_PRINTLN("--> FAS TUNER OFF");
     }
     if(!connected()&&!syncing()){
       if(startSyncTimer.complete()){
@@ -202,7 +202,7 @@ public:
     if(connected()){
       return false;
     }
-    BMC_PRINTLN("FAS Connect");
+    BMC_PRINTLN("--> FAS Connect");
     flags.on(BMC_FAS_FLAG_DEVICE_SEARCH);
     attempts = 0;
     findDeviceTimer.trigger();
@@ -212,7 +212,7 @@ public:
     if(!connected()){
       return false;
     }
-    BMC_PRINTLN("FAS Disconnect");
+    BMC_PRINTLN("--> FAS Disconnect");
     sendDisconnect();
     device.reset();
     flags.reset();
@@ -402,7 +402,7 @@ private:
         attempts = 0;
         findDeviceTimer.stop();
         startSyncTimer.start(250);
-        BMC_PRINTLN("FAS FOUND DEVICE", device.getId(), device.getPort());
+        BMC_PRINTLN("*** FAS FOUND DEVICE", device.getId(), device.getPort());
       }
       return false;
     }
@@ -431,7 +431,7 @@ private:
     }
     // the rest require a valid CRC
     if(isValidFasFunction(message.sysex[5]) && !message.validateChecksum()){
-      BMC_PRINTLN("FAS Received Bad CRC?");
+      BMC_PRINTLN("!!!  FAS Received Bad CRC  !!!");
       return false;
     }
     switch(message.sysex[5]){
@@ -500,11 +500,11 @@ private:
     if(!isFractMessage(message, 10)){
       return;
     }
-    BMC_PRINTLN("FAS GENERAL PURPOSE FUNC:", message.get7Bits(6),"CODE:", message.get7Bits(7));
+    BMC_PRINTLN("--> FAS GENERAL PURPOSE FUNC:", message.get7Bits(6),"CODE:", message.get7Bits(7));
   }
   // Looper
   void receivedLooperInfo(BMCMidiMessage& message){
-    BMC_PRINTLN("FAS Looper Info", message.sysex[6], message.sysex[7]);
+    BMC_PRINTLN("--> FAS Looper Info", message.sysex[6], message.sysex[7]);
     device.looper.set(message.sysex[6], message.sysex[7]);
   }
   // Tuner
@@ -520,7 +520,7 @@ private:
           midi.callback.fasTunerStateChange(true);
         }
         flags.on(BMC_FAS_FLAG_TUNER_ACTIVE);
-        BMC_PRINTLN("FAS TUNER ON");
+        BMC_PRINTLN("--> FAS TUNER ON");
       }
       if(midi.callback.fasTunerReceived){
         midi.callback.fasTunerReceived(tunerData);
@@ -536,7 +536,7 @@ private:
     flags.on(BMC_FAS_FLAG_SYNCING);
     startSyncTimer.stop();
     requestMidiChannel();
-    BMC_PRINTLN("FAS FIRMWARE RECEIVED:", device.version);
+    BMC_PRINTLN("--> FAS FIRMWARE RECEIVED:", device.version);
   }
   // MIDI Channel received
   void receivedMidiChannel(BMCMidiMessage& message){
@@ -546,7 +546,7 @@ private:
     }
     device.channel = message.get7Bits(6)+1;
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("FAS CHANNEL RECEIVED:", device.channel);
+      BMC_PRINTLN("--> FAS CHANNEL RECEIVED:", device.channel);
 #endif
     flags.on(BMC_FAS_FLAG_CONNECTED);
     flags.off(BMC_FAS_FLAG_SYNCING);
@@ -573,7 +573,7 @@ private:
       uint8_t bypassCC = (block>>8) & 0x7F;
       uint8_t xyCC = (block>>16) & 0x7F;
       if(blockId>=100 && blockId<=170){
-        BMC_PRINTLN("Block", blocksGlobalData[blockId-100].name, blockId, bypassCC, xyCC, isEngaged?"ON":"OFF", isX?"X":"Y");
+        BMC_PRINTLN("--> Block", blocksGlobalData[blockId-100].name, blockId, bypassCC, xyCC, isEngaged?"ON":"OFF", isX?"X":"Y");
       }
 #endif
       device.blocks.set(blockId, isEngaged, !isX);
@@ -590,7 +590,7 @@ private:
       resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
     }
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("Received Blocks");
+      BMC_PRINTLN("--> Received Blocks");
 #endif
   }
   // received the current scene number
@@ -609,7 +609,7 @@ private:
 
     device.scene = value;
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("FAS SCENE NUMBER", device.scene);
+      BMC_PRINTLN("--> FAS SCENE NUMBER", device.scene);
 #endif
 
     if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE)){
@@ -632,7 +632,7 @@ private:
     }
     uint8_t value = message.get7Bits(6);
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("FAS CPU", value, "%");
+      BMC_PRINTLN("--> FAS CPU", value, "%");
 #endif
     if(midi.callback.fasCpuReceived){
       midi.callback.fasCpuReceived(value);
@@ -652,7 +652,7 @@ private:
         midi.callback.fasBlocksChange();
       }
 #ifdef BMC_FAS_DEBUG
-        BMC_PRINTLN("FAS BLOCK Bypass Received", blockId, value==0?"engaged":"bypassed");
+        BMC_PRINTLN("--> FAS BLOCK Bypass Received", blockId, value==0?"engaged":"bypassed");
 #endif
     } else {
       device.paramReceived(blockId, paramId, value);
@@ -664,7 +664,7 @@ private:
         message.getStringFromSysEx(18, str, strLen);
         midi.callback.fasBlockParameterReceived(blockId, paramId, value, str, strLen);
 #ifdef BMC_FAS_DEBUG
-          BMC_PRINTLN("FAS Block Parameter Received: Block:", blockId,
+          BMC_PRINTLN("--> FAS Block Parameter Received: Block:", blockId,
                       "Param:", paramId, "Value:", value, "Str:", str, strLen);
 #endif
       }
@@ -682,7 +682,7 @@ private:
       midi.callback.fasBlocksChange();
     }
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("FAS BLOCK XY Received", blockId, xy?"Y":"X");
+      BMC_PRINTLN("--> FAS BLOCK XY Received", blockId, xy?"Y":"X");
 #endif
   }
   // received the current preset number
@@ -699,7 +699,7 @@ private:
       }
     }
     device.preset = value;
-    BMC_PRINTLN("FAS PRESET NUMBER", device.preset);
+    BMC_PRINTLN("--> FAS PRESET NUMBER", device.preset);
     if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET)){
       resyncTimer.start(1000);
     } else {
@@ -717,7 +717,7 @@ private:
     strcpy(device.presetName, "");
     message.getStringFromSysEx(6, device.presetName, 32);
 #ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("FAS PRESET NAME", device.presetName,"size:", message.size());
+      BMC_PRINTLN("--> FAS PRESET NAME", device.presetName,"size:", message.size());
 #endif
     if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME)){
       resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
