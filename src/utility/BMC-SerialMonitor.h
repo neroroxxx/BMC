@@ -14,8 +14,6 @@
 
 #define BMC_SERIAL_MONITOR_FLAG_READY 0
 
-
-
 class BMCSerialMonitor {
 public:
   BMCSerialMonitor(){
@@ -30,14 +28,16 @@ public:
     char receivedChar;
     while(Serial.available() > 0 && !readFlag(BMC_SERIAL_MONITOR_FLAG_READY)){
       receivedChar = Serial.read();
-      if(receivedChar != '\n') {
+      //if(receivedChar != '\n') {
+      if((uint8_t)receivedChar != 10) {
         buff[i] = receivedChar;
         i++;
         if(i >= BMC_SERIAL_MONITOR_MAX_CHARS){
           i = BMC_SERIAL_MONITOR_MAX_CHARS-1;
         }
       } else {
-        buff[i] = '\0';
+        //buff[i] = '\0';
+        buff[i] = 0;
         i = 0;
         writeFlag(BMC_SERIAL_MONITOR_FLAG_READY, true);
       }

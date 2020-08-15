@@ -45,6 +45,7 @@
 #define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
 #define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
 #define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
+#define BMC_FAS_FUNC_ID_MFC_TAP               0x10 // unused
 #define BMC_FAS_FUNC_ID_BLOCK_XY              0x11
 #define BMC_FAS_FUNC_ID_CPU                   0x13
 #define BMC_FAS_FUNC_ID_GET_PRESET_NUMBER     0x14
@@ -77,23 +78,45 @@ private:
   void debugPrintFasMessageInfo(BMCMidiMessage& message){
     char str[50];
     switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_BLOCK_PARAM: strcpy(str, "\"BMC_FAS_FUNC_ID_BLOCK_PARAM\"");break;
-      case BMC_FAS_FUNC_ID_FIRMWARE: strcpy(str, "\"BMC_FAS_FUNC_ID_FIRMWARE\"");break;
-      case BMC_FAS_FUNC_ID_BLOCKS_DATA: strcpy(str, "\"BMC_FAS_FUNC_ID_BLOCKS_DATA\"");break;
-      case BMC_FAS_FUNC_ID_TUNER_INFO: strcpy(str, "\"BMC_FAS_FUNC_ID_TUNER_INFO\"");break;
-      case BMC_FAS_FUNC_ID_PRESET_NAME: strcpy(str, "\"BMC_FAS_FUNC_ID_PRESET_NAME\"");break;
-      case BMC_FAS_FUNC_ID_BLOCK_XY: strcpy(str, "\"BMC_FAS_FUNC_ID_BLOCK_XY\"");break;
-      case BMC_FAS_FUNC_ID_CPU: strcpy(str, "\"BMC_FAS_FUNC_ID_CPU\"");break;
-      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER: strcpy(str, "\"BMC_FAS_FUNC_ID_GET_PRESET_NUMBER\"");break;
-      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL: strcpy(str, "\"BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL\"");break;
-      case BMC_FAS_FUNC_ID_RESYNC: strcpy(str, "\"BMC_FAS_FUNC_ID_RESYNC\"");break;
-      case BMC_FAS_FUNC_ID_LOOPER: strcpy(str, "\"BMC_FAS_FUNC_ID_LOOPER\"");break;
-      case BMC_FAS_FUNC_ID_SCENE_NUMBER: strcpy(str, "\"BMC_FAS_FUNC_ID_SCENE_NUMBER\"");break;
-      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER: strcpy(str, "\"BMC_FAS_FUNC_ID_SET_PRESET_NUMBER\"");break;
-      case BMC_FAS_FUNC_ID_DISCONNECT: strcpy(str, "\"BMC_FAS_FUNC_ID_DISCONNECT\"");break;
-      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE: strcpy(str, "\"BMC_FAS_FUNC_ID_GENERAL_PURPOSE\"");break;
+      case BMC_FAS_FUNC_ID_BLOCK_PARAM: strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_PARAM");break;
+      case BMC_FAS_FUNC_ID_FIRMWARE: strcpy(str, "BMC_FAS_FUNC_ID_FIRMWARE");break;
+      case BMC_FAS_FUNC_ID_BLOCKS_DATA: strcpy(str, "BMC_FAS_FUNC_ID_BLOCKS_DATA");break;
+      case BMC_FAS_FUNC_ID_TUNER_INFO: strcpy(str, "BMC_FAS_FUNC_ID_TUNER_INFO");break;
+      case BMC_FAS_FUNC_ID_PRESET_NAME: strcpy(str, "BMC_FAS_FUNC_ID_PRESET_NAME");break;
+      case BMC_FAS_FUNC_ID_BLOCK_XY: strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_XY");break;
+      case BMC_FAS_FUNC_ID_CPU: strcpy(str, "BMC_FAS_FUNC_ID_CPU");break;
+      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_GET_PRESET_NUMBER");break;
+      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL: strcpy(str, "BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL");break;
+      case BMC_FAS_FUNC_ID_RESYNC: strcpy(str, "BMC_FAS_FUNC_ID_RESYNC");break;
+      case BMC_FAS_FUNC_ID_LOOPER: strcpy(str, "BMC_FAS_FUNC_ID_LOOPER");break;
+      case BMC_FAS_FUNC_ID_SCENE_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_SCENE_NUMBER");break;
+      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_SET_PRESET_NUMBER");break;
+      case BMC_FAS_FUNC_ID_DISCONNECT: strcpy(str, "BMC_FAS_FUNC_ID_DISCONNECT");break;
+      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE: strcpy(str, "BMC_FAS_FUNC_ID_GENERAL_PURPOSE");break;
+      default: strcpy(str, "UNUSED");
     }
     BMC_PRINTLN("--> FAS MESSAGE RECEIVED, ID:", message.sysex[5], str, "SIZE:", message.size());
+  }
+  bool isValidFasFunction(uint8_t funcId){
+    switch(funcId){
+      case BMC_FAS_FUNC_ID_BLOCK_PARAM:
+      case BMC_FAS_FUNC_ID_FIRMWARE:
+      case BMC_FAS_FUNC_ID_BLOCKS_DATA:
+      case BMC_FAS_FUNC_ID_TUNER_INFO:
+      case BMC_FAS_FUNC_ID_PRESET_NAME:
+      case BMC_FAS_FUNC_ID_BLOCK_XY:
+      case BMC_FAS_FUNC_ID_CPU:
+      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER:
+      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL:
+      case BMC_FAS_FUNC_ID_RESYNC:
+      case BMC_FAS_FUNC_ID_LOOPER:
+      case BMC_FAS_FUNC_ID_SCENE_NUMBER:
+      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER:
+      case BMC_FAS_FUNC_ID_DISCONNECT:
+      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE:
+        return true;
+    }
+    return false;
   }
 #endif
 
@@ -394,6 +417,8 @@ private:
 
     // messages that don't have a Checksum
     switch(message.sysex[5]){
+      case BMC_FAS_FUNC_ID_MFC_TAP:
+        return true;
       case BMC_FAS_FUNC_ID_TUNER_INFO:
         receivedTunerInfo(message);
         return true;
@@ -405,7 +430,7 @@ private:
         return true;
     }
     // the rest require a valid CRC
-    if(!message.validateChecksum()){
+    if(isValidFasFunction(message.sysex[5]) && !message.validateChecksum()){
       BMC_PRINTLN("FAS Received Bad CRC?");
       return false;
     }
