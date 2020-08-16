@@ -349,10 +349,14 @@ public:
 
 
   void setPreset(uint16_t value){
+    sendControlChange(0, (value & 0x7F));
+    sendProgramChange((value>>7) & 0x7F);
+    /*
     BMCMidiMessage message;
     prepSysEx(message, BMC_FAS_FUNC_ID_SET_PRESET_NUMBER);
     message.appendToSysEx14Bits(value);
     sendFractMidiSysEx(message);
+    */
   }
   void presetScroll(bool t_up=true, bool t_endless=true, uint16_t t_min=0, uint16_t t_max=7){
     if(!connected()){
