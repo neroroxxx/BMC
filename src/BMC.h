@@ -67,12 +67,8 @@
   #include "addon/BMC-Kemper.h"
 #endif
 
-#if BMC_MAX_MUX_IN > 0
-  #include "hardware/BMC-MuxIn.h"
-#endif
-
-#if BMC_MAX_MUX_IN_ANALOG
-  #include "hardware/BMC-MuxInAnalog.h"
+#if defined(BMC_MUX_AVAILABLE)
+  #include "mux/BMC-Mux.h"
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
@@ -156,6 +152,8 @@ public:
   // go to a new page
   // @reassignSettings if true will reassign all global settings
   void setPage(uint8_t page, bool reassignSettings=false);
+  void nextPage();
+  void prevPage();
   // scroll to a different page, either the previous or next page
   void scrollPage(uint8_t t_flags, uint8_t t_min,
                   uint8_t t_max, uint8_t t_amount);
@@ -198,6 +196,8 @@ private:
   BMCSettings settings;
   // the global midi object
   BMCMidi midi;
+  // value typer object
+  BMCTyper valueTyper;
   // struct to hold messenger data sent between sketch and editor app
   BMCMessenger messenger;
   // editor handling all editing of the store
@@ -334,12 +334,8 @@ private:
   uint8_t parseMidiEventType(uint8_t t_type);
   uint8_t parseUserEventType(uint8_t t_type);
 
-#if BMC_MAX_MUX_IN > 0
-  BMCMuxIn muxIn;
-#endif
-
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  BMCMuxInAnalog muxInAnalog;
+#if defined(BMC_MUX_AVAILABLE)
+  BMCMux mux;
 #endif
 
 // PIXELS AND LEDS

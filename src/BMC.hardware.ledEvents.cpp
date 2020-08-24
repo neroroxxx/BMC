@@ -340,7 +340,7 @@ void BMC::handleClockLeds(){
 #if BMC_MAX_LEDS > 0
   for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
     bmcStoreLed& item = store.pages[page].leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event>>1)){
+    if(BMCTools::isMidiClockLedEvent(item.event)){
       leds[index].pulse();
     }
   }
@@ -349,7 +349,7 @@ void BMC::handleClockLeds(){
 #if BMC_MAX_GLOBAL_LEDS > 0
   for(uint8_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
     bmcStoreLed& item = globalData.leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event>>1)){
+    if(BMCTools::isMidiClockLedEvent(item.event)){
       globalLeds[index].pulse();
     }
   }

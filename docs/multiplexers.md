@@ -8,6 +8,10 @@
 ***********************************************
 ***BMC now allows for up to 127 Analog Mux Pins, Digital Mux In will still be limited to 64 pins***
 ***********************************************
+***********************************************
+***BMC now supports Mux Out with the 74HC595***
+***********************************************
+
 While BMC uses a Teensy's pins to read inputs it also has support for up 64 Mux inputs.
 
 These include:
@@ -20,6 +24,11 @@ IC | Input Type | Inputs | Pins Required
 **74HC4067** | Analog Only | 16 | 5 *(1 must be analog)*
 **74HC4051** | Analog Only | 8 | 4 *(1 must be analog)*
 
+#### MUX OUT:
+
+IC | Output Type | Outputs | Pins Required
+-|-|-|-
+**74HC595** | Digital Only | 8 | 3 (4 optional for PWM)
 
 
 BMC has code to read all chips above however there are a few limits. For digital inputs you can only use one type of chip, so if you want to have 32 inputs you can either use four 74HC165 or two MCP23017 or two MCP23018, you can not combine them.
@@ -57,12 +66,14 @@ BMC also lets you use other ICs, however you have to write the code to read them
 For Digital Inputs you can use these API functions:
 
 ```c++
-// for the first 32 pins
-void setMuxIn1To32(uint32_t values);
+// @n the digital pin index, this is the actual index, that is if it's the very first digital pin, n will be 0
+// @value false if button is pressed, true is released
+void setMuxDigitalValue(uint8_t n, bool value);
+```
 
-// for the last 32 pins
-// (only available if more than 32 Digital Mux In pins compiled)
-void setMuxIn33To64(uint32_t values);
+For Digital Output
+```c++
+void setMuxDigitalOutValue(uint8_t pin, bool value);
 ```
 
 For Analog Inputs you can use:
@@ -70,12 +81,11 @@ For Analog Inputs you can use:
 ```c++
 // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
 // @value the 10-bit analog value 0 to 1023
-void setMuxInAnalogValue(uint8_t n, uint16_t value);
+void setMuxAnalogValue(uint8_t n, uint16_t value);
 ```
 
-Since digital inputs only have 2 states on/off, true/false, 0/1, etc, you have to think of each digital input as a ***bit***,  so bit-0 of `values` in `setMuxIn1To32` is the very first digital pin.
 
-Additionally, BMC reads digital inputs **Active Low** that is when a button is inactive (depressed) that bit must be **1**, when a button is pressed that bit must be **0**
+Additionally, BMC reads digital inputs **Active Low** that is when a button is inactive (depressed) that value passed must be **1**, when a button is pressed the value passed must be **0**
 
 With the API could use a touch sensor to trigger a Pot and send MIDI messages from assigned to that Pot, MIDI Theremin anybody?
 
@@ -84,38 +94,39 @@ There are many API callbacks and functions available for use, these may not refl
 
 ##### FUNCTIONS
 
-
+For Digital Input
 ```c++
-// Only available if Mux In is set to *Other*
-// for the first 32 pins
-// each bit of the 32-bit int represents the digital input
-// they must be active low
-void setMuxIn1To32(uint32_t values);
-
-// Only available if Mux In is set to *Other*
-// for the last 32 pins
-// (only available if more than 32 Digital Mux In pins compiled)
-void setMuxIn33To64(uint32_t values);
+// @n the digital pin index, this is the actual index, that is if it's the very first digital pin, n will be 0
+// @value false if button is pressed, true is released
+void setMuxDigitalValue(uint8_t n, bool value);
 
 // Only available for supported Mux ICs, useful when you want to read pins
 // to be handled by your sketch
 // read a digital mux in pin
-bool getMuxInValue(uint8_t n);
+bool getMuxValue(uint8_t n);
+```
+
+For Digital Output
+```c++
+// set the value of a custom mux output pin
+void setMuxDigitalOutValue(uint8_t pin, bool value);
+
+// get the value of a mux output pin
+bool getMuxOutValue(uint8_t n);
 ```
 
 For Analog Inputs you can use these API functions:
 
 ```c++
-// Only available if Mux In is set to *Other*
 // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
 // @value the 10-bit analog value 0 to 1023
-void setMuxInAnalogValue(uint8_t n, uint16_t value);
+void setMuxAnalogValue(uint8_t n, uint16_t value);
 
 // Only available for supported Analog Mux ICs, useful when you want to read pins
 // to be handled by your sketch
 // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
 // returns a 10-bit value
-uint16_t getMuxInAnalogValue(uint8_t n);
+uint16_t getMuxAnalogValue(uint8_t n);
 ```
 
 

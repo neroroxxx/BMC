@@ -33,8 +33,10 @@
 #define BMC_FLAG_LED_TEMP_BLINK 4
 #define BMC_FLAG_LED_IS_PWM 5
 #define BMC_FLAG_LED_USE_OFF_VALUE 6
-
-
+// flag 7 available
+#define BMC_FLAG_LED_MUX 8
+#define BMC_FLAG_LED_MUX_VALUE 9
+#define BMC_FLAG_LED_MUX_TESTING 10
 
 class BMCLed {
 public:
@@ -48,7 +50,6 @@ public:
   // the BMC-Pins.h object will return 255 if the pot doesn't have a pin defined
   // this method will only work the first time it's called
   void begin(uint8_t t_pin){
-    //
     if(pin!=255){
       return;
     }
@@ -59,6 +60,32 @@ public:
       );
       BMC_HALT();
     }
+#if BMC_MAX_MUX_OUT > 0
+    // all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
+    // BMC will group them in this order MUX_IN then MUX_IN_ANALOG
+    // so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
+    // then MUX_IN_ANALOG pins start at pin 74 and so on
+    // so we want to make sure this pot was set to a MUX_IN_ANALOG
+    if(t_pin>=64){
+      if(BMCBuildData::isMuxOutPin(t_pin)){
+        flags.on(BMC_FLAG_LED_MUX);
+        pin = t_pin;
+        reset();
+        #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
+          test();
+        #endif
+        blinker.start(BMC_LED_BLINK_TIMEOUT);
+        return;
+      } else {
+        BMC_ERROR(
+          "Mux Pin:", t_pin,
+          "Can NOT be used with Leds as it is NOT a Mux Out Pin"
+        );
+        BMC_HALT();
+      }
+    }
+#endif
+
     if(!BMCBuildData::isDigitalPin(t_pin) && !BMCBuildData::isPwmPin(t_pin)){
       BMC_ERROR(
         "PIN:", t_pin,
@@ -86,6 +113,26 @@ public:
 
     blinker.start(BMC_LED_BLINK_TIMEOUT);
   }
+  uint8_t getPin(){
+    return pin;
+  }
+
+#if BMC_MAX_MUX_OUT > 0
+  uint8_t getMuxPin(){
+#if BMC_MAX_MUX_OUT > 0
+    if(flags.read(BMC_FLAG_LED_MUX)){
+      return pin-64;
+    }
+#endif
+    return pin;
+  }
+  bool getMuxState(){
+    return flags.read(BMC_FLAG_LED_MUX_VALUE);
+  }
+  bool muxTesting(){
+    return flags.toggleIfTrue(BMC_FLAG_LED_MUX_TESTING);
+  }
+#endif
   void overrideState(bool t_value){
     writeToPin(t_value);
   }
@@ -104,6 +151,12 @@ public:
   // at startup or if the editor is triggering a test of the LED
   // the LED will return to it's state before the test began
   void test(){
+#if BMC_MAX_MUX_OUT > 0
+    if(flags.read(BMC_FLAG_LED_MUX)){
+      flags.on(BMC_FLAG_LED_MUX_TESTING);
+      return;
+    }
+#endif
     bool state = flags.read(BMC_FLAG_LED_STATE);
     for(uint8_t i=0;i<3;i++){
       writeToPin(!state);
@@ -233,7 +286,11 @@ public:
   }
 private:
   uint8_t pin = 255;
+#if BMC_MAX_MUX_OUT == 0
   BMCFlags <uint8_t> flags;
+#else
+  BMCFlags <uint16_t> flags;
+#endif
   // endeless timer used for blinking the LED
   BMCEndlessTimer blinker;
   // temporary blinker
@@ -251,7 +308,12 @@ private:
     bool userPwmOffValue = flags.read(BMC_FLAG_LED_USE_OFF_VALUE);
     bool blinkerState = flags.read(BMC_FLAG_LED_BLINKER_STATE);
 
-    flags.reset();
+    #if BMC_MAX_MUX_OUT == 0
+      flags.reset();
+    #else
+      flags.reset((1 << BMC_FLAG_LED_MUX));
+    #endif
+
     flags.write(BMC_FLAG_LED_IS_PWM, isPWM);
     flags.write(BMC_FLAG_LED_USE_OFF_VALUE, userPwmOffValue);
     flags.write(BMC_FLAG_LED_BLINKER_STATE, blinkerState);
@@ -261,9 +323,16 @@ private:
     // turn the LED off
     writeToPin(false);
   }
-  FASTRUN void writeToPin(bool t_value){
+  void writeToPin(bool t_value){
 #if defined(BMC_REVERSE_LED_POLARITY)
     t_value = !t_value;
+#endif
+
+#if BMC_MAX_MUX_OUT > 0
+    if(flags.read(BMC_FLAG_LED_MUX)){
+      flags.write(BMC_FLAG_LED_MUX_VALUE, t_value);
+      return;
+    }
 #endif
     if(isPwmCapable()){
       if(flags.read(BMC_FLAG_LED_USE_OFF_VALUE)){

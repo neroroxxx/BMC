@@ -41,8 +41,8 @@ void BMC::readEncoders(){
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0
       if(encoders[i].hasMux()){
-        encoders[i].setMuxValue(0, muxIn.getPinValue(encoders[i].getMuxPin(0)));
-        encoders[i].setMuxValue(1, muxIn.getPinValue(encoders[i].getMuxPin(1)));
+        encoders[i].setMuxValue(0, mux.readDigital(encoders[i].getMuxPin(0)));
+        encoders[i].setMuxValue(1, mux.readDigital(encoders[i].getMuxPin(1)));
       }
     #endif
 
@@ -78,8 +78,8 @@ void BMC::readGlobalEncoders(){
     // GET THE PIN STATE FROM MUX
 #if BMC_MAX_MUX_IN > 0
     if(globalEncoders[i].hasMux()){
-      globalEncoders[i].setMuxValue(0, muxIn.getPinValue(globalEncoders[i].getMuxPin(0)));
-      globalEncoders[i].setMuxValue(1, muxIn.getPinValue(globalEncoders[i].getMuxPin(1)));
+      globalEncoders[i].setMuxValue(0, mux.readDigital(globalEncoders[i].getMuxPin(0)));
+      globalEncoders[i].setMuxValue(1, mux.readDigital(globalEncoders[i].getMuxPin(1)));
     }
 #endif
 

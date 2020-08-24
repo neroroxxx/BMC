@@ -277,6 +277,10 @@
 #define BMC_MUX_IN_CHIPSET_MCP2301X 2
 #define BMC_MUX_IN_CHIPSET_74HC165 3
 
+// Supported chipsets for Mux OUT
+#define BMC_MUX_OUT_CHIPSET_OTHER 1
+#define BMC_MUX_OUT_CHIPSET_74HC595 2
+
 // Supported chipsets for Mux In Analog
 #define BMC_MUX_IN_ANALOG_CHIPSET_OTHER 1
 #define BMC_MUX_IN_ANALOG_CHIPSET_74HC4067 2
@@ -905,6 +909,7 @@
 #define BMC_BUTTON_EVENT_TYPE_SETLIST_SONG_SCROLL 48
 #define BMC_BUTTON_EVENT_TYPE_PROGRAM_BANKING_SCROLL 49
 #define BMC_BUTTON_EVENT_TYPE_PROGRAM_BANKING_TRIGGER 50
+#define BMC_BUTTON_EVENT_TYPE_TYPER_CMD 51
 // id 51 to id 79 availabel
 #define BMC_BUTTON_EVENT_TYPE_FAS_COMMAND 80
 #define BMC_BUTTON_EVENT_TYPE_FAS_PRESET 81
@@ -2039,6 +2044,7 @@
 #include "utility/BMC-MidiControl.h"
 #include "utility/BMC-Timer.h"
 #include "utility/BMC-Flags.h"
+#include "utility/BMC-Typer.h"
 #include "utility/BMC-Tools.h"
 #include "utility/BMC-Settings.h"
 #include "utility/BMC-BpmCalculator.h"

@@ -244,6 +244,16 @@ public:
   void onMenu(void (*fptr)(uint8_t t_command)){
     callback.menuCommand = fptr;
   }
+  // triggered when the Typer value has been Updated
+  void onTyperUpdate(void (*fptr)(uint16_t t_value)){
+    callback.typerCommand = fptr;
+  }
+  // triggered when the Typer value has been Updated and you set it to custom calback
+  void onTyperCustomUpdate(void (*fptr)(uint16_t t_value)){
+    callback.typerCustomCommand = fptr;
+  }
+
+
   // triggered when BMC runs it's update() method the first time.
   void onFirstLoop(void (*fptr)()){
     callback.firstLoop = fptr;
@@ -759,25 +769,28 @@ public:
 
 #if BMC_MAX_MUX_IN > 0
   #if BMC_MUX_IN_CHIPSET==BMC_MUX_IN_CHIPSET_OTHER
-    // for the first 32 pins
-    // each bit of the 32-bit int represents the digital input
-    // they must be active low
-    void setMuxIn1To32(uint32_t values){
-      muxIn.setPinValues1To32(values);
+    // set the value of a custom mux input pin
+    void setMuxDigitalValue(uint8_t pin, bool value){
+      mux.setDigitalValue(pin, value);
     }
-    #if BMC_MAX_MUX_IN > 32
-      // for the last 32 pins
-      // (only available if more than 32 Digital Mux In pins compiled)
-      void setMuxIn33To64(uint32_t values){
-        muxIn.setPinValues33To64(values);
-      }
-    #endif
   #else
-    // available for supported Mux ICs, useful when you want to read pins
-    // to be handled by your sketch
-    // read a digital mux in pin
-    bool getMuxInValue(uint8_t n){
-      return muxIn.getPinValue(n);
+    // get the value of a mux input pin
+    bool getMuxValue(uint8_t n){
+      return mux.readDigital(n);
+    }
+  #endif
+#endif
+
+#if BMC_MAX_MUX_OUT > 0
+  #if BMC_MUX_OUT_CHIPSET==BMC_MUX_OUT_CHIPSET_OTHER
+    // set the value of a custom mux output pin
+    void setMuxDigitalOutValue(uint8_t pin, bool value){
+      mux.writeDigital(pin, value);
+    }
+  #else
+    // get the value of a mux output pin
+    bool getMuxOutValue(uint8_t n){
+      return mux.getDigitalValue(n);
     }
   #endif
 #endif
@@ -786,16 +799,16 @@ public:
   #if BMC_MUX_IN_ANALOG_CHIPSET==BMC_MUX_IN_ANALOG_CHIPSET_OTHER
     // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
     // @value the 10-bit analog value 0 to 1023
-    void setMuxInAnalogValue(uint8_t n, uint16_t value){
-      muxInAnalog.setPinValue(n, value);
+    void setMuxAnalogValue(uint8_t n, uint16_t value){
+      mux.setAnalogValue(n, value);
     }
   #else
     // available for supported Analog Mux ICs, useful when you want to read pins
     // to be handled by your sketch
     // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
     // returns a 10-bit value
-    uint16_t getMuxInAnalogValue(uint8_t n){
-      return muxInAnalog.getPinValue(n);
+    uint16_t getMuxAnalogValue(uint8_t n){
+      return mux.readAnalog(n);
     }
   #endif
 #endif

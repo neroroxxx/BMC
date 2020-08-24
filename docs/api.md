@@ -64,6 +64,12 @@ void onBleConnectionChange(void (*fptr)(bool t_connected));
 // triggered when a Menu Command is handled by a button, encoder, API, etc.
 void onMenu(void (*fptr)(uint8_t t_command));
 
+// triggered when the Typer value has been Updated
+void onTyperUpdate(void (*fptr)(uint16_t t_value));
+
+// triggered when the Typer value has been Updated and you set it to custom calback
+void onTyperCustomUpdate(void (*fptr)(uint16_t t_value));
+
 // triggered when BMC runs it's update() method the first time.
 void onFirstLoop(void (*fptr)());
 

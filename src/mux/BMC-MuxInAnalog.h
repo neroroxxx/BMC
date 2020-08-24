@@ -15,7 +15,7 @@
 #if BMC_MAX_MUX_IN_ANALOG > 0
 
 #if (BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4067 || BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4051)
-  #include "hardware/BMC-MuxInAnalog74HC40XX.h"
+  #include "mux/BMC-MuxInAnalog74HC40XX.h"
 #endif
 
 class BMCMuxInAnalog {
@@ -27,7 +27,7 @@ private:
 #endif
   uint8_t parsePinNumber(uint8_t t_pin){
     if(t_pin>=64){
-      t_pin -= (64+BMC_MAX_MUX_IN);
+      t_pin -= (64+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT);
     }
     return constrain(t_pin, 0, (BMC_MAX_MUX_IN_ANALOG-1));
   }
@@ -72,14 +72,14 @@ public:
     return 0;
   }
 
-#if BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_OTHER
   void setPinValue(uint8_t n, uint16_t t_value){
+#if BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_OTHER
     n = parsePinNumber(n);
     if(n < BMC_MAX_MUX_IN_ANALOG){
       values[n] = t_value;
     }
-  }
 #endif
+  }
 
 };
 #endif

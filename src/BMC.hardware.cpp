@@ -16,7 +16,7 @@ void BMC::setupHardware(){
   BMC_PRINTLN("BMC_MAX_AUX_JACKS", BMC_MAX_AUX_JACKS);
   for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
 
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       if(
         BMCBuildData::getPotPin(BMCBuildData::getPotMergeItem(i, 0))>=64 ||
         BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 1))>=64 ||
@@ -34,12 +34,8 @@ void BMC::setupHardware(){
   }
 #endif
 
-#if BMC_MAX_MUX_IN > 0
-  muxIn.begin();
-#endif
-
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  muxInAnalog.begin();
+#if defined(BMC_MUX_AVAILABLE)
+  mux.begin();
 #endif
 
 #if BMC_MAX_PIXELS > 0
@@ -151,12 +147,8 @@ void BMC::assignHardware() {
 // Read the hardware items for changes
 void BMC::readHardware(){
 
-#if BMC_MAX_MUX_IN > 0
-  muxIn.update();
-#endif
-
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  muxInAnalog.update();
+#if defined(BMC_MUX_AVAILABLE)
+  mux.update();
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0

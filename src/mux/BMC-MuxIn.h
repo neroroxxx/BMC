@@ -12,22 +12,25 @@
 #if BMC_MAX_MUX_IN > 0
 
 #if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_MCP2301X
-  #include "hardware/BMC-MuxInMCP2301x.h"
+  #include "mux/BMC-MuxInMCP2301x.h"
 #elif BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_74HC165
-  #include "hardware/BMC-MuxIn74HC165.h"
+  #include "mux/BMC-MuxIn74HC165.h"
 #endif
 
 #ifndef BMC_MUX_IN_DELAY_MICROS
   #define BMC_MUX_IN_DELAY_MICROS 500
 #endif
 
+#if BMC_MAX_MUX_IN > 32
+  #define BMC_MAX_MUX_IN_ARR 2
+#else
+  #define BMC_MAX_MUX_IN_ARR 1
+#endif
+
 class BMCMuxIn {
 private:
 #if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER
-  uint32_t states = 0;
-  #if BMC_MAX_MUX_IN > 32
-    uint32_t states2 = 0;
-  #endif
+  uint32_t states[BMC_MAX_MUX_IN_ARR];
 #elif BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_MCP2301X
   BMCMuxInMCP2301x mux;
 #elif BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_74HC165
@@ -57,7 +60,10 @@ public:
       BMC_PRINTLN("BMC MUX IN set to use a chip other than the MCP23017, MCP23018 or 74HC165.");
       BMC_PRINTLN("You must read the chip with your sketch and use bmc.setMuxInValues() to set the states of the pins used.");
       BMC_PRINTLN("");
-      states = 0xFFFFFFFF;
+      for(uint8_t i=0;i<BMC_MAX_MUX_IN_ARR;i++){
+        states[i] = 0xFFFFFFFF;
+      }
+
 #else
       mux.begin();
       delay(50);
@@ -82,10 +88,10 @@ public:
 #if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER
   #if BMC_MAX_MUX_IN > 32
       if(t_pin>=32){
-        return bitRead(states2, (t_pin-32));
+        return bitRead(states[1], (t_pin-32));
       }
   #endif
-    return bitRead(states, t_pin);
+    return bitRead(states[0], t_pin);
 #else
 
   #if BMC_MAX_MUX_IN > 32
@@ -109,13 +115,13 @@ public:
   // for custom chip only
   void setPinValues1To32(uint32_t t_states){
 #if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER
-    states = t_states;
+    states[0] = t_states;
 #endif
   }
   // for custom chip only
   void setPinValues33To64(uint32_t t_states){
 #if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER && BMC_MAX_MUX_IN > 32
-    states2 = t_states;
+    states[1] = t_states;
 #endif
   }
 
@@ -126,11 +132,10 @@ public:
 
 #if BMC_MAX_MUX_IN > 32
       if(t_pin>=32){
-        return bitRead(states2, (t_pin-32));
+        return bitRead(states[1], (t_pin-32));
       }
 #endif
-
-      bitWrite(states, t_pin, t_value);
+      bitWrite(states[0], t_pin, t_value);
     }
 #endif
   }

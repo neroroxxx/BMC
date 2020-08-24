@@ -7506,16 +7506,31 @@ return false;
 }
 
 static bool isMuxInPin(uint8_t n){
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_GPIO > 0
+  return isMuxGpioPin(n);
+#elif BMC_MAX_MUX_IN > 0
   return (n>=64 && n<(64+BMC_MAX_MUX_IN));
+#endif
+  return false;
+}
+static bool isMuxOutPin(uint8_t n){
+#if BMC_MAX_MUX_GPIO > 0
+  return isMuxGpioPin(n);
+#elif BMC_MAX_MUX_OUT > 0
+  return (n>=(64+BMC_MAX_MUX_IN) && n<(64+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT));
 #endif
   return false;
 }
 static bool isMuxInAnalogPin(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
-  return (n>=(64+BMC_MAX_MUX_IN) && n<(64+BMC_MAX_MUX_IN+BMC_MAX_MUX_IN_ANALOG));
+  return (n>=(64+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT) && n<(64+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG));
 #endif
   return false;
 }
-};
+static bool isMuxGpioPin(uint8_t n){
+#if BMC_MAX_MUX_GPIO > 0
+  return (n >= 64 && n < BMC_MAX_MUX_GPIO);
+#endif
+  return false;
+}};
 #endif

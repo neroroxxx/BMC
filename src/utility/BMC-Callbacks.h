@@ -18,6 +18,8 @@ public:
     storeUpdated = 0;
     oneSecondPassed = 0;
     menuCommand = 0;
+    typerCommand = 0;
+    typerCustomCommand = 0;
 
     buttonDualPress = 0;
     buttonActivity = 0;
@@ -108,8 +110,8 @@ public:
   void (*storeUpdated)();
   void (*pageChanged)(uint8_t page);
   void (*menuCommand)(uint8_t t_command);
-
-
+  void (*typerCommand)(uint16_t t_value);
+  void (*typerCustomCommand)(uint16_t t_value);
 
 
   void (*buttonDualPress)(uint8_t btn1, uint8_t btn2);

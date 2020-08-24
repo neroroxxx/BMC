@@ -83,7 +83,7 @@ void BMC::readButtons(){
 
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0
-      buttons[i].setMuxValue(muxIn.getPinValue(buttons[i].getMuxPin()));
+      buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
     uint8_t buttonTrigger = buttons[i].read();
@@ -196,7 +196,7 @@ void BMC::readGlobalButtons(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0
-      globalButtons[i].setMuxValue(muxIn.getPinValue(globalButtons[i].getMuxPin()));
+      globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
     #endif
 
     #if BMC_MAX_GLOBAL_BUTTONS == 1
@@ -716,6 +716,32 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteA = Amount
         // byteB = Channel
         midiProgramBankTrigger(byteA, byteB, ports);
+        break;
+      case BMC_BUTTON_EVENT_TYPE_TYPER_CMD:
+        {
+          uint8_t cmd = valueTyper.cmd(byteA, byteB);
+          if(cmd > 10){// cmd 10 is Clear
+            if(cmd==12){// page
+              setPage(valueTyper.getOutput());
+            } else if(cmd==13){// preset
+              #if BMC_MAX_PRESETS > 0
+              presets.set(valueTyper.getOutput());
+              #endif
+            } else if(cmd==14){// fas preset
+              #if defined(BMC_USE_FAS)
+              fas.setPreset(valueTyper.getOutput());
+              #endif
+            } else if(cmd==15){// fas scene
+              #if defined(BMC_USE_FAS)
+              fas.setSceneNumber(valueTyper.getOutput(), false);
+              #endif
+            } else if(cmd==16){// fas scene revert
+              #if defined(BMC_USE_FAS)
+              fas.setSceneNumber(valueTyper.getOutput(), true);
+              #endif
+            }
+          }
+        }
         break;
 
   #if BMC_MAX_CUSTOM_SYSEX > 0

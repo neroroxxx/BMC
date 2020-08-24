@@ -147,7 +147,7 @@ public:
     }
   }
   // reset all flags execpt the bit passed
-  void resetNotBit(uint8_t n){
+  void resetNotBit(T n){
     uint8_t tmp = 0;
     bitWrite(tmp, n, bitRead(flags, n));
     flags = tmp;

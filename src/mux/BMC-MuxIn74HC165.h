@@ -40,10 +40,7 @@
 
 class BMCMuxIn74HC165 {
 private:
-  uint32_t states = 0;
-#if BMC_MAX_MUX_IN > 32
-  uint32_t states2 = 0;
-#endif
+  uint32_t states[(BMC_MAX_MUX_IN>32)?2:1];
 
 public:
   BMCMuxIn74HC165(){}
@@ -55,6 +52,7 @@ public:
     digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, LOW);
     digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, HIGH);
   }
+
   void update(){
     // set load pin
     digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, LOW);
@@ -66,16 +64,15 @@ public:
     for(uint8_t mux = 0, n=total/8; mux < n; mux++){
       for(int i = 7, bitN = ((mux + 1) * 8); i >= 0; i--, bitN--){
         uint8_t bit = digitalReadFast(BMC_MUX_IN_74HC165_DATA);
-
         #if BMC_MAX_MUX_IN > 32
           if(bitN>=32){
             // states2 starting with bit 0 so remove 33 from the value
-            bitWrite(states2, bitN-33, bit);
+            bitWrite(states[1], bitN-33, bit);
           } else {
-            bitWrite(states, bitN-1, bit);
+            bitWrite(states[0], bitN-1, bit);
           }
         #else
-          bitWrite(states, bitN-1, bit);
+          bitWrite(states[0], bitN-1, bit);
         #endif
 
         digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, HIGH);
@@ -84,28 +81,25 @@ public:
       }
     }
   }
+
   uint32_t read1To32(){
-    return states;
+    return states[0];
   }
+
 #if BMC_MAX_MUX_IN > 32
   uint32_t read33To64(){
-    return states2;
+    return states[1];
   }
 #endif
 
-
 #if BMC_MAX_MUX_IN > 32
-
   uint32_t read(uint8_t n=0){
-    return (n > 0) ? states2 : states;
+    return states[(n>0)?1:0];
   }
-
 #else
-
   uint32_t read(){
-    return states;
+    return states[0];
   }
-
 #endif
 };
 #endif

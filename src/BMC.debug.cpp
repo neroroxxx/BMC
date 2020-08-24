@@ -57,7 +57,8 @@ void BMC::readDebug(){
 
     BMC_PRINTLN("storageDebug = Prints the time it takes to read/write/clear EEPROM everytime the actions happens");
     BMC_PRINTLN("metrics = Prints some metrics of the performance of BMC like loops per second, etc. Happens every other second.");
-
+    BMC_PRINTLN("nextPage = Go to next page");
+    BMC_PRINTLN("prevPage = Go to previous page");
     BMC_PRINTLN("midiClockInfo = Display Master/Slave Clock Info");
     BMC_PRINTLN("midiIn = Toggles displaying all incoming MIDI Messages (excludes Clock)");
     BMC_PRINTLN("midiOut = Toggles displaying all outgoing MIDI Messages (excludes Clock)");
@@ -125,6 +126,14 @@ void BMC::readDebug(){
       BMC_PRINTLN("Some features may increase or decrease this number");
     }
     printDebugHeader(debugInput);
+
+  } else if(BMC_STR_MATCH(debugInput,"nextPage")){
+
+    nextPage();
+
+  } else if(BMC_STR_MATCH(debugInput,"prevPage")){
+
+    prevPage();
 
   } else if(BMC_STR_MATCH(debugInput,"midiClockInfo")){
 

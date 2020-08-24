@@ -57,7 +57,7 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
-//#define BMC_FAS_DEBUG
+#define BMC_FAS_DEBUG
 
 #if defined(BMC_FAS_DEBUG) && !defined(BMC_DEBUG)
   #undef BMC_FAS_DEBUG
@@ -125,6 +125,7 @@ public:
     device.reset();
     flags.on(BMC_FAS_FLAG_DEVICE_SEARCH);
     findDeviceTimer.start(3000);
+    BMC_PRINTLN("FAS Sync Version 1.0");
   }
   // PUBLIC
 
@@ -347,16 +348,11 @@ public:
     controlBlockParameter(blockId, parameterId, 0, false);
   }
 
-
   void setPreset(uint16_t value){
-    sendControlChange(0, (value & 0x7F));
-    sendProgramChange((value>>7) & 0x7F);
-    /*
-    BMCMidiMessage message;
-    prepSysEx(message, BMC_FAS_FUNC_ID_SET_PRESET_NUMBER);
-    message.appendToSysEx14Bits(value);
-    sendFractMidiSysEx(message);
-    */
+    // Send CC#0
+    sendControlChange(0, (value>>7) & 0x7F);
+    // Send Program Change
+    sendProgramChange((value & 0x7F));
   }
   void presetScroll(bool t_up=true, bool t_endless=true, uint16_t t_min=0, uint16_t t_max=7){
     if(!connected()){
@@ -370,8 +366,6 @@ public:
     }
 
   }
-
-
 
 private:
   // send the message that will trigger a response
@@ -574,6 +568,7 @@ private:
       uint8_t blockId = (block>>24) & 0xFF;
 
 #ifdef BMC_FAS_DEBUG
+      BMC_PRINTLN("--> Received Blocks");
       uint8_t bypassCC = (block>>8) & 0x7F;
       uint8_t xyCC = (block>>16) & 0x7F;
       if(blockId>=100 && blockId<=170){
@@ -593,9 +588,6 @@ private:
     if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS)){
       resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
     }
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> Received Blocks");
-#endif
   }
   // received the current scene number
   void receivedSceneNumber(BMCMidiMessage& message){

@@ -60,6 +60,14 @@ bool BMC::pageChangedPeek(){
 uint8_t BMC::getPage(){
   return page;
 }
+void BMC::nextPage(){
+  BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
+  setPage(scroller.scroll(1, true, true, page, 0, BMC_MAX_PAGES-1));
+}
+void BMC::prevPage(){
+  BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
+  setPage(scroller.scroll(1, false, true, page, 0, BMC_MAX_PAGES-1));
+}
 void BMC::scrollPage(uint8_t t_flags, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
   // t_flags bit-0 = direction
   // t_flags bit-1 = endless

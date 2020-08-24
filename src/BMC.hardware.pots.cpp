@@ -66,7 +66,7 @@ void BMC::readPots(){
 #endif
 
 #if BMC_MAX_MUX_IN_ANALOG > 0
-    pots[i].setMuxValue(muxInAnalog.getPinValue(pots[i].getMuxPin()));
+    pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));
 #endif
 
 #if defined(BMC_USE_POT_TOE_SWITCH)
@@ -128,7 +128,7 @@ void BMC::potCalibrationToggle(uint8_t n){
 }
 uint16_t BMC::getPotAnalogValue(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
-  pots[n].setMuxValue(muxInAnalog.getPinValue(pots[n].getMuxPin()));
+  pots[n].setMuxValue(mux.readAnalog(pots[n].getMuxPin()));
 #endif
   return pots[n].getAnalogValue();
 }
@@ -150,7 +150,7 @@ void BMC::readGlobalPots(){
   }
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
 #if BMC_MAX_MUX_IN_ANALOG > 0
-    globalPots[i].setMuxValue(muxInAnalog.getPinValue(globalPots[i].getMuxPin()));
+    globalPots[i].setMuxValue(mux.readAnalog(globalPots[i].getMuxPin()));
 #endif
 
 #if defined(BMC_USE_POT_TOE_SWITCH)
@@ -192,7 +192,7 @@ void BMC::globalPotCalibrationToggle(uint8_t n){
 }
 uint16_t BMC::getGlobalPotAnalogValue(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
-  globalPots[n].setMuxValue(muxInAnalog.getPinValue(globalPots[n].getMuxPin()));
+  globalPots[n].setMuxValue(mux.readAnalog(globalPots[n].getMuxPin()));
 #endif
   return globalPots[n].getAnalogValue();
 }

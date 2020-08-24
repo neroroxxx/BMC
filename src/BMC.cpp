@@ -11,6 +11,7 @@ BMC::BMC():
   globalData(store.global),
   settings(store.global.settings),
   midi(callback, globals, store.global.portPresets),
+  valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)

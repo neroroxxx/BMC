@@ -134,7 +134,6 @@ void BMC::incomingMidi(BMCMidiMessage message){
 
 void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
   if(midiClock.read(isClock, isStartOrContinue)){
-
     #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
       handleClockLeds();
     #endif
