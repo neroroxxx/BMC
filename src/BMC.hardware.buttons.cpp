@@ -724,21 +724,21 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
             if(cmd==12){// page
               setPage(valueTyper.getRawOutput());
             } else if(cmd==13){// preset
-              #if BMC_MAX_PRESETS > 0
+#if BMC_MAX_PRESETS > 0
               presets.set(valueTyper.getRawOutput());
-              #endif
+#endif
             } else if(cmd==14){// fas preset
-              #if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS)
               fas.setPreset(valueTyper.getRawOutput());
-              #endif
+#endif
             } else if(cmd==15){// fas scene
-              #if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS)
               fas.setSceneNumber(valueTyper.getRawOutput(), false);
-              #endif
+#endif
             } else if(cmd==16){// fas scene revert
-              #if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS)
               fas.setSceneNumber(valueTyper.getRawOutput(), true);
-              #endif
+#endif
             }
           }
         }

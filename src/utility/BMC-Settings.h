@@ -28,6 +28,7 @@
       bit 5 getActiveSenseAtStartup - Active Sensing Master Enabled
       bit 6 getMidiRealTimeBlockInput
       bit 7 getMidiRealTimeBlockOutput
+      bit 8 getTyperOffSet
 
 
 
@@ -146,6 +147,13 @@ public:
   void setMidiRealTimeBlockOutput(bool value){
     writeFlag(7,value);
   }
+  // typer offset to 0
+  uint8_t getTyperOffSet(){
+    return readFlag(8);
+  }
+  void setTyperOffSet(bool value){
+    writeFlag(8, value);
+  }
 
 
 
@@ -186,13 +194,6 @@ public:
   }
   void setPwmDimWhenOff(uint8_t value){
     bitWrite(settings.data[0],18,value);
-  }
-  // typer offset to 0
-  uint8_t getTyperOffSet(){
-    return (settings.data[0]>>19) & 0x01;
-  }
-  void setTyperOffSet(uint8_t value){
-    bitWrite(settings.data[0], 19, value);
   }
   // store address
   uint8_t getStoreAddress(){

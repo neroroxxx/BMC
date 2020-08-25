@@ -41,18 +41,16 @@ public:
   }
   // return the raw value used by the output
   uint16_t getRawOutput(){
-    if(flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET)){
+    if(!flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET)){
       return (output==0) ? 0 : (output-1);
     }
     return output;
   }
-  void setOffset(bool value){
-    if(flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET) != value){
-      vtValue = 0;
-      vtCount = 0;
-      output = 0;
-    }
-    flags.write(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET, value);
+  void setOffset(bool t_value){
+    vtValue = 0;
+    vtCount = 0;
+    output = 0;
+    flags.write(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET, t_value);
   }
   uint8_t cmd(uint8_t value, uint8_t autoTrigger=0){
     if(value >= 10){
