@@ -18,6 +18,9 @@
   n+2: 0xF7 end of sysex
 
   Standard FAS response is minimum 9 bytes, without checksum it's 8
+
+  For Axe Fx 2 users: for ideal syncing you should turn off the MIDI THRU OFF,
+  also to use the tuner functions you must set "SEND REALTIME SYSEX" to ALL or TUNER
 */
 #ifndef BMC_FAS_H
 #define BMC_FAS_H
@@ -36,14 +39,15 @@
 #define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 7
 #define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 8
 #define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 9
+#define BMC_FAS_FLAG_TEMPO_RECEIVED 10
 
 #define BMC_FAS_RESYNC_TIMEOUT 1000
 #define BMC_FAS_RESYNC_QUEUE_TIMEOUT 175
 
 #define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
 #define BMC_FAS_FUNC_ID_FIRMWARE              0x08
-#define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
 #define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
+#define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
 #define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
 #define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10 // unused
 #define BMC_FAS_FUNC_ID_BLOCK_XY              0x11
@@ -78,21 +82,22 @@ private:
   void debugPrintFasMessageInfo(BMCMidiMessage& message){
     char str[50];
     switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_BLOCK_PARAM: strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_PARAM");break;
-      case BMC_FAS_FUNC_ID_FIRMWARE: strcpy(str, "BMC_FAS_FUNC_ID_FIRMWARE");break;
-      case BMC_FAS_FUNC_ID_BLOCKS_DATA: strcpy(str, "BMC_FAS_FUNC_ID_BLOCKS_DATA");break;
-      case BMC_FAS_FUNC_ID_TUNER_INFO: strcpy(str, "BMC_FAS_FUNC_ID_TUNER_INFO");break;
-      case BMC_FAS_FUNC_ID_PRESET_NAME: strcpy(str, "BMC_FAS_FUNC_ID_PRESET_NAME");break;
-      case BMC_FAS_FUNC_ID_BLOCK_XY: strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_XY");break;
-      case BMC_FAS_FUNC_ID_CPU: strcpy(str, "BMC_FAS_FUNC_ID_CPU");break;
-      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_GET_PRESET_NUMBER");break;
-      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL: strcpy(str, "BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL");break;
-      case BMC_FAS_FUNC_ID_RESYNC: strcpy(str, "BMC_FAS_FUNC_ID_RESYNC");break;
-      case BMC_FAS_FUNC_ID_LOOPER: strcpy(str, "BMC_FAS_FUNC_ID_LOOPER");break;
-      case BMC_FAS_FUNC_ID_SCENE_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_SCENE_NUMBER");break;
-      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER: strcpy(str, "BMC_FAS_FUNC_ID_SET_PRESET_NUMBER");break;
-      case BMC_FAS_FUNC_ID_DISCONNECT: strcpy(str, "BMC_FAS_FUNC_ID_DISCONNECT");break;
-      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE: strcpy(str, "BMC_FAS_FUNC_ID_GENERAL_PURPOSE");break;
+      case BMC_FAS_FUNC_ID_BLOCK_PARAM:         strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_PARAM");break;
+      case BMC_FAS_FUNC_ID_FIRMWARE:            strcpy(str, "BMC_FAS_FUNC_ID_FIRMWARE");break;
+      case BMC_FAS_FUNC_ID_TUNER_INFO:          strcpy(str, "BMC_FAS_FUNC_ID_TUNER_INFO");break;
+      case BMC_FAS_FUNC_ID_BLOCKS_DATA:         strcpy(str, "BMC_FAS_FUNC_ID_BLOCKS_DATA");break;
+      case BMC_FAS_FUNC_ID_PRESET_NAME:         strcpy(str, "BMC_FAS_FUNC_ID_PRESET_NAME");break;
+      case BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT:     strcpy(str, "BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT");break;
+      case BMC_FAS_FUNC_ID_BLOCK_XY:            strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_XY");break;
+      case BMC_FAS_FUNC_ID_CPU:                 strcpy(str, "BMC_FAS_FUNC_ID_CPU");break;
+      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER:   strcpy(str, "BMC_FAS_FUNC_ID_GET_PRESET_NUMBER");break;
+      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL:    strcpy(str, "BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL");break;
+      case BMC_FAS_FUNC_ID_RESYNC:              strcpy(str, "BMC_FAS_FUNC_ID_RESYNC");break;
+      case BMC_FAS_FUNC_ID_LOOPER:              strcpy(str, "BMC_FAS_FUNC_ID_LOOPER");break;
+      case BMC_FAS_FUNC_ID_SCENE_NUMBER:        strcpy(str, "BMC_FAS_FUNC_ID_SCENE_NUMBER");break;
+      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER:   strcpy(str, "BMC_FAS_FUNC_ID_SET_PRESET_NUMBER");break;
+      case BMC_FAS_FUNC_ID_DISCONNECT:          strcpy(str, "BMC_FAS_FUNC_ID_DISCONNECT");break;
+      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE:     strcpy(str, "BMC_FAS_FUNC_ID_GENERAL_PURPOSE");break;
       default: strcpy(str, "UNUSED");
     }
     BMC_PRINTLN("--> FAS MESSAGE RECEIVED, ID:", message.sysex[5], str, "SIZE:", message.size());
@@ -183,6 +188,9 @@ public:
   }
   bool isTunerActive(){
     return flags.read(BMC_FAS_FLAG_TUNER_ACTIVE);
+  }
+  bool tempoReceived(){
+    return flags.toggleIfTrue(BMC_FAS_FLAG_TEMPO_RECEIVED);
   }
   void getTunerData(BMCTunerData& buff){
     buff = tunerData;
@@ -404,7 +412,7 @@ private:
       }
       return false;
     }
-    if(!isFractMessage(message) && !isValidPort(message.getPort())){
+    if(!isFractMessage(message) || !isValidPort(message.getPort())){
       return false;
     }
 
@@ -415,6 +423,7 @@ private:
     // messages that don't have a Checksum
     switch(message.sysex[5]){
       case BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT:
+        receivedTempoBeat(message);
         return true;
       case BMC_FAS_FUNC_ID_TUNER_INFO:
         receivedTunerInfo(message);
@@ -524,6 +533,13 @@ private:
       }
     }
   }
+  // Tuner
+  void receivedTempoBeat(BMCMidiMessage& message){
+    if(connected() && isFractMessage(message, 5)){
+      flags.on(BMC_FAS_FLAG_TEMPO_RECEIVED);
+    }
+  }
+
   // used when firmware is received
   void receivedFirmware(BMCMidiMessage& message){
     if(!isFractMessage(message, 10) || connected() || syncing()){

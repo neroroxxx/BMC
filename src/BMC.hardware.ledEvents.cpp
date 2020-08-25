@@ -139,6 +139,8 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
         return fas.connected();
       } else if(byteA==1){
         return fas.isTunerActive();
+      } else if(byteA==2){
+        return fas.tempoReceived() ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
       }
       break;
     case BMC_LED_EVENT_TYPE_FAS_PRESET:
