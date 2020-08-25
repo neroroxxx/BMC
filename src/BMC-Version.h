@@ -23,7 +23,7 @@
 // BMC Version stored in EEPROM (for editor usage)
 #define BMC_VERSION_MAJ 0
 #define BMC_VERSION_MIN 0
-#define BMC_VERSION_PATCH 15
+#define BMC_VERSION_PATCH 16
 
 //16 bits unsigned, LSB byte is minor, MSB byte is major
 #define BMC_VERSION ((BMC_VERSION_MAJ<<8) | BMC_VERSION_MIN)

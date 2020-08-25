@@ -15,6 +15,8 @@
   #define BMC_TYPER_MODE 0
 #endif
 
+#define BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET 0
+
 class BMCTyper {
 private:
   BMCFlags <uint8_t> flags;
@@ -24,15 +26,33 @@ private:
   BMCCallbacks& callback;
   void buildOutput(){
 #if BMC_TYPER_MODE == 0
-    output = (((vtValue>>0)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>1)&0x0F);
+    output = (((vtValue>>0)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>8)&0x0F);
 #else
     output = (((vtValue>>8)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>0)&0x0F);
 #endif
   }
 public:
-  BMCTyper(BMCCallbacks& cb):callback(cb){}
+  BMCTyper(BMCCallbacks& cb):callback(cb){
+    flags.reset();
+  }
+  // return the value to be displayed
   uint16_t getOutput(){
     return output;
+  }
+  // return the raw value used by the output
+  uint16_t getRawOutput(){
+    if(flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET)){
+      return (output==0) ? 0 : (output-1);
+    }
+    return output;
+  }
+  void setOffset(bool value){
+    if(flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET) != value){
+      vtValue = 0;
+      vtCount = 0;
+      output = 0;
+    }
+    flags.write(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET, value);
   }
   uint8_t cmd(uint8_t value, uint8_t autoTrigger=0){
     if(value >= 10){
@@ -42,20 +62,16 @@ public:
       // 13 is preset
       // 14 is fas preset
       // 15 is fas scene
+      // 16 is fas scene revert
       vtValue = 0;
       vtCount = 0;
       if(value==10){
         output = 0;
       }
-
-      if(value==11){
-        if(callback.typerCustomCommand){
-          callback.typerCustomCommand(output);
-          return value;
-        }
-      }
-      if(callback.typerCommand){
-        callback.typerCommand(output);
+      if(value==11 && callback.typerCustomCommand){
+        callback.typerCustomCommand(getOutput(), getRawOutput());
+      } else if(callback.typerCommand){
+        callback.typerCommand(getOutput(), getRawOutput());
       }
       // trigger display callback
       return value;
@@ -76,11 +92,17 @@ public:
     vtCount++;
 
     if(vtCount>=3 && autoTrigger>0){
-      return cmd(autoTrigger+10, 0);
+      if(!flags.read(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET) && output==0){
+        // if the value is 000 and we are NOT using the ZERO offset
+        // then don't use the auto-trigger
+      } else {
+        return cmd(autoTrigger+10, 0);
+      }
+
     }
     // trigger display callback
     if(callback.typerCommand){
-      callback.typerCommand(output);
+      callback.typerCommand(getOutput(), getRawOutput());
     }
     return 0;
   }

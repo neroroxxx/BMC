@@ -187,6 +187,13 @@ public:
   void setPwmDimWhenOff(uint8_t value){
     bitWrite(settings.data[0],18,value);
   }
+  // typer offset to 0
+  uint8_t getTyperOffSet(){
+    return (settings.data[0]>>19) & 0x01;
+  }
+  void setTyperOffSet(uint8_t value){
+    bitWrite(settings.data[0], 19, value);
+  }
   // store address
   uint8_t getStoreAddress(){
     return (settings.data[0]>>20) & 0x03;

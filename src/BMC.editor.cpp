@@ -92,6 +92,8 @@ void BMC::assignSettings(){
   midi.setClockListenerPort(settings.getClockInputPortBit());
   editor.setChainingPort(settings.getChainingPort());
 
+  valueTyper.setOffset(settings.getTyperOffSet());
+
   midi.setRouting(BMC_USB, settings.getUsbRouting());
 
 #ifdef BMC_MIDI_SERIAL_A_ENABLED

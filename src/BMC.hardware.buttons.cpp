@@ -722,22 +722,22 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           uint8_t cmd = valueTyper.cmd(byteA, byteB);
           if(cmd > 10){// cmd 10 is Clear
             if(cmd==12){// page
-              setPage(valueTyper.getOutput());
+              setPage(valueTyper.getRawOutput());
             } else if(cmd==13){// preset
               #if BMC_MAX_PRESETS > 0
-              presets.set(valueTyper.getOutput());
+              presets.set(valueTyper.getRawOutput());
               #endif
             } else if(cmd==14){// fas preset
               #if defined(BMC_USE_FAS)
-              fas.setPreset(valueTyper.getOutput());
+              fas.setPreset(valueTyper.getRawOutput());
               #endif
             } else if(cmd==15){// fas scene
               #if defined(BMC_USE_FAS)
-              fas.setSceneNumber(valueTyper.getOutput(), false);
+              fas.setSceneNumber(valueTyper.getRawOutput(), false);
               #endif
             } else if(cmd==16){// fas scene revert
               #if defined(BMC_USE_FAS)
-              fas.setSceneNumber(valueTyper.getOutput(), true);
+              fas.setSceneNumber(valueTyper.getRawOutput(), true);
               #endif
             }
           }

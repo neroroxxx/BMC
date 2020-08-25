@@ -245,11 +245,11 @@ public:
     callback.menuCommand = fptr;
   }
   // triggered when the Typer value has been Updated
-  void onTyperUpdate(void (*fptr)(uint16_t t_value)){
+  void onTyperUpdate(void (*fptr)(uint16_t t_value, uint16_t t_rawValue)){
     callback.typerCommand = fptr;
   }
   // triggered when the Typer value has been Updated and you set it to custom calback
-  void onTyperCustomUpdate(void (*fptr)(uint16_t t_value)){
+  void onTyperCustomUpdate(void (*fptr)(uint16_t t_value, uint16_t t_rawValue)){
     callback.typerCustomCommand = fptr;
   }
 
