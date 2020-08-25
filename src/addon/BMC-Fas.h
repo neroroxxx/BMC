@@ -45,7 +45,7 @@
 #define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
 #define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
 #define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
-#define BMC_FAS_FUNC_ID_MFC_TAP               0x10 // unused
+#define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10 // unused
 #define BMC_FAS_FUNC_ID_BLOCK_XY              0x11
 #define BMC_FAS_FUNC_ID_CPU                   0x13
 #define BMC_FAS_FUNC_ID_GET_PRESET_NUMBER     0x14
@@ -404,7 +404,6 @@ private:
       }
       return false;
     }
-
     if(!isFractMessage(message) && !isValidPort(message.getPort())){
       return false;
     }
@@ -415,7 +414,7 @@ private:
 
     // messages that don't have a Checksum
     switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_MFC_TAP:
+      case BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT:
         return true;
       case BMC_FAS_FUNC_ID_TUNER_INFO:
         receivedTunerInfo(message);

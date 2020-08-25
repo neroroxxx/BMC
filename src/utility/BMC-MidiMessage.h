@@ -107,7 +107,7 @@ struct BMCMidiMessage {
   }
   void setSysExArrayLength(uint16_t value){
     setData1(value & 0xFF);
-    setData2(value >> 8);
+    setData2((value >> 8) & 0xFF);
 	}
   uint8_t peekSysEx(uint8_t index){
     if(index < BMC_MIDI_SYSEX_SIZE){

@@ -63,13 +63,13 @@ void BMC::incomingMidi(BMCMidiMessage message){
     return;
   }
 
-  #if BMC_MAX_TRIGGERS > 0
-    readTrigger();
-  #endif
+#if BMC_MAX_TRIGGERS > 0
+  readTrigger();
+#endif
 
-  #if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
-    checkRelaysMidiInput(message);
-  #endif
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
+  checkRelaysMidiInput(message);
+#endif
 
 #ifdef BMC_USE_BEATBUDDY
   beatBuddy.incoming(message);
@@ -127,16 +127,16 @@ void BMC::incomingMidi(BMCMidiMessage message){
     }
   }
   // only used when debugging
-  #ifdef BMC_DEBUG
-    midiInDebug(message);
-  #endif
+#ifdef BMC_DEBUG
+  midiInDebug(message);
+#endif
 }
 
 void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
   if(midiClock.read(isClock, isStartOrContinue)){
-    #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
-      handleClockLeds();
-    #endif
+#if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
+    handleClockLeds();
+#endif
 
     if(callback.midiClockBeat){
       callback.midiClockBeat();

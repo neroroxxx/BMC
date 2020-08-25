@@ -86,6 +86,8 @@ public:
       message.setData1(usbMIDI.getData1());
       message.setData2(usbMIDI.getData2());
       if(message.isSystemExclusive()){
+        message.setData1(0);
+        message.setData2(0);
         if(usbMIDI.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
           message.addSysEx(
             usbMIDI.getSysExArray(),

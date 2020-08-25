@@ -56,6 +56,8 @@ public:
       message.setData1(Port.getData1());
       message.setData2(Port.getData2());
       if(message.isSystemExclusive()){
+        message.setData1(0);
+        message.setData2(0);
         if(Port.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
           message.addSysEx(Port.getSysExArray(),Port.getSysExArrayLength());
         } else {
