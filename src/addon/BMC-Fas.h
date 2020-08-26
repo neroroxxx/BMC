@@ -61,7 +61,7 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
-#define BMC_FAS_DEBUG
+//#define BMC_FAS_DEBUG
 
 #if defined(BMC_FAS_DEBUG) && !defined(BMC_DEBUG)
   #undef BMC_FAS_DEBUG
