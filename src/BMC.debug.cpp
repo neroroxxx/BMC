@@ -55,6 +55,10 @@ void BMC::readDebug(){
     BMC_PRINTLN("disconnectBLE = Disconnect the BLE Module if connected.");
     #endif
 
+#ifdef BMC_USE_FAS
+    BMC_PRINTLN("fasConnection = Toggle the connection state of a FAS device");
+#endif
+
     BMC_PRINTLN("storageDebug = Prints the time it takes to read/write/clear EEPROM everytime the actions happens");
     BMC_PRINTLN("metrics = Prints some metrics of the performance of BMC like loops per second, etc. Happens every other second.");
     BMC_PRINTLN("nextPage = Go to next page");
@@ -71,10 +75,19 @@ void BMC::readDebug(){
     BMC_PRINTLN("stopwatch = Displays Stopwatch info.");
     printDebugHeader(debugInput);
 
+#ifdef BMC_USE_FAS
+  } else if(BMC_STR_MATCH(debugInput,"fasConnection")){
+    printDebugHeader(debugInput);
+    if(fas.connected()){
+      fas.disconnect();
+    } else {
+      fas.connect();
+    }
+    printDebugHeader(debugInput);
+#endif
   } else if(BMC_STR_MATCH(debugInput,"storageDebug")){
     printDebugHeader(debugInput);
     BMC_PRINTLN("Storage Debug:",globals.toggleStorageDebug());
-    //editor.debugStorage();
     printDebugHeader(debugInput);
 
   } else if(BMC_STR_MATCH(debugInput,"runTime")){

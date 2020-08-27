@@ -140,7 +140,32 @@ void BMCEditor::utilitySendAuxJackActivity(uint8_t data, bool onlyIfConnected){
   }
 #endif
 }
-
+void BMCEditor::utilitySendFasState(uint8_t data, bool onlyIfConnected){
+#if defined(BMC_USE_FAS)
+  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
+    return;
+  }
+  if(onlyIfConnected && !midi.globals.editorConnected()){
+    return;
+  }
+  // if editor feedback is disabled...
+  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
+    return;
+  }
+  if(!connectionOngoing()){
+    BMCEditorMidiFlags flag;
+    flag.setWrite(true);
+    BMCMidiMessage buff;
+    buff.prepareEditorMessage(
+      port, deviceId,
+      BMC_GLOBALF_UTILITY, flag,
+      BMC_UTILF_FAS_STATE
+    );
+    buff.appendToSysEx7Bits(data);
+    sendToEditor(buff, true, false); // don't show midi activity
+  }
+#endif
+}
 void BMCEditor::utilitySendNLRelayActivity(uint16_t data, bool onlyIfConnected){
 #if BMC_MAX_NL_RELAYS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){

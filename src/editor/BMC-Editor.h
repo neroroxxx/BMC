@@ -930,6 +930,7 @@ private:
   void globalLRelay(bool write);
   void globalSetTime(bool write);
   void globalPortPresets(bool write);
+  void globalGetFasState();
   void globalEditorFeedback(bool write);
   void globalEditorMetrics();
   void globalEditorMessenger(bool write);
@@ -985,6 +986,9 @@ public:
                               bool onlyIfConnected=true);
   //
   void utilitySendAuxJackActivity(uint8_t data,
+                              bool onlyIfConnected=true);
+  //
+  void utilitySendFasState(uint8_t data,
                               bool onlyIfConnected=true);
   //
   void utilitySendNLRelayActivity(uint16_t data,

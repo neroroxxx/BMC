@@ -298,6 +298,12 @@ void BMC::ctrlHardware(){
       break;
 #endif
 
+#if defined(BMC_USE_FAS)
+    case BMC_CTRL_FAS_STATE:
+      editor.utilitySendFasState(fas.getConnectedDeviceId());
+      break;
+#endif
+
 #if BMC_MAX_PWM_LEDS > 0
     case BMC_CTRL_PWM_LED_STATES:
       pwmLedStates = ~pwmLedStates;

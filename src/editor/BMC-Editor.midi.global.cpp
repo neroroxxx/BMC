@@ -1715,7 +1715,6 @@ void BMCEditor::globalSetTime(bool write){
   #endif
   sendToEditor(buff);
 }
-
 void BMCEditor::globalPortPresets(bool write){
   if(!isValidGlobalMessage()){
     return;

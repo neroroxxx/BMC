@@ -31,15 +31,16 @@
 
 #define BMC_FAS_FLAG_DEVICE_SEARCH 0
 #define BMC_FAS_FLAG_CONNECTED 1
-#define BMC_FAS_FLAG_SYNCING 2
-#define BMC_FAS_FLAG_TUNER_ACTIVE 3
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET 4
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME 5
-#define BMC_FAS_FLAG_SYNC_EXPECTING_SCENE 6
-#define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 7
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 8
-#define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 9
-#define BMC_FAS_FLAG_TEMPO_RECEIVED 10
+#define BMC_FAS_FLAG_CONNECTION_CHANGED 2
+#define BMC_FAS_FLAG_SYNCING 3
+#define BMC_FAS_FLAG_TUNER_ACTIVE 4
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET 5
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME 6
+#define BMC_FAS_FLAG_SYNC_EXPECTING_SCENE 7
+#define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 8
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 9
+#define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 10
+#define BMC_FAS_FLAG_TEMPO_RECEIVED 11
 
 #define BMC_FAS_RESYNC_TIMEOUT 1000
 #define BMC_FAS_RESYNC_QUEUE_TIMEOUT 175
@@ -133,7 +134,6 @@ public:
     BMC_PRINTLN("FAS Sync Version 1.0");
   }
   // PUBLIC
-
   void update(){
     // search for response from FAS device, try up to 10 times every 5 seconds
     // this message will be broadcast on all MIDI ports except USB and BLE (if available)
@@ -146,7 +146,6 @@ public:
       }
       return;
     }
-
     if(tunerTimeout.complete()){
       flags.off(BMC_FAS_FLAG_TUNER_ACTIVE);
       if(midi.callback.fasTunerStateChange){
@@ -232,6 +231,7 @@ public:
     tunerData.reset();
     device.reset();
     attempts = 0;
+    flags.on(BMC_FAS_FLAG_CONNECTION_CHANGED);
     if(midi.callback.fasConnection){
       midi.callback.fasConnection(false);
     }
@@ -297,7 +297,6 @@ public:
     BMCScroller <uint8_t> scroller(0, 7);
     setSceneNumber(scroller.scroll(1, t_up, t_endless, device.scene, t_min, t_max), t_revert);
   }
-
   // Control Effect/Block XY State
   bool setBlockXY(uint8_t blockId, bool y){
     if(canXY(blockId) && connected()){
@@ -375,6 +374,16 @@ public:
 
   }
 
+  uint8_t getConnectedDeviceId(){
+    if(connected()){
+      return device.getId();
+    }
+    return 0;
+  }
+  bool connectionStateChanged(){
+    return flags.toggleIfTrue(BMC_FAS_FLAG_CONNECTION_CHANGED);
+  }
+
 private:
   // send the message that will trigger a response
   void sendDeviceSearch(){
@@ -399,6 +408,7 @@ private:
       true // should it trigger MIDI Out activity
     );
   }
+
   // parse incoming Sysex Messages
   bool parseincoming(BMCMidiMessage& message){
     if(flags.read(BMC_FAS_FLAG_DEVICE_SEARCH) && findDeviceTimer.active()){
@@ -562,6 +572,7 @@ private:
       BMC_PRINTLN("--> FAS CHANNEL RECEIVED:", device.channel);
 #endif
     flags.on(BMC_FAS_FLAG_CONNECTED);
+    flags.on(BMC_FAS_FLAG_CONNECTION_CHANGED);
     flags.off(BMC_FAS_FLAG_SYNCING);
     if(midi.callback.fasConnection){
       midi.callback.fasConnection(true);

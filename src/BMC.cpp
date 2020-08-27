@@ -186,6 +186,9 @@ void BMC::update(){
 
   #ifdef BMC_USE_FAS
     fas.update();
+    if(fas.connectionStateChanged()){
+      editor.utilitySendFasState(fas.getConnectedDeviceId());
+    }
   #endif
 
   #ifdef BMC_USE_KEMPER

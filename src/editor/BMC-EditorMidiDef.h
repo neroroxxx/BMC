@@ -115,6 +115,7 @@
     #define BMC_UTILF_GLOBAL_POT_CALIBRATION 26
     #define BMC_UTILF_GLOBAL_POT_CALIBRATION_STATUS 27
     #define BMC_UTILF_GLOBAL_POT_CALIBRATION_CANCEL 28
+    #define BMC_UTILF_FAS_STATE 29
 
 
 // if read/write flag is 0 it's checking the connection status, if 1, it's trying to connect
