@@ -29,6 +29,7 @@
       bit 6 getMidiRealTimeBlockInput
       bit 7 getMidiRealTimeBlockOutput
       bit 8 getTyperOffSet
+      bit 9
 
 
 
@@ -154,6 +155,8 @@ public:
   void setTyperOffSet(bool value){
     writeFlag(8, value);
   }
+
+
 
 
 

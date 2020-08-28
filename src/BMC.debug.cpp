@@ -57,6 +57,7 @@ void BMC::readDebug(){
 
 #ifdef BMC_USE_FAS
     BMC_PRINTLN("fasConnection = Toggle the connection state of a FAS device");
+    BMC_PRINTLN("fasDebug = Toggle Additional debug information of synced FAS device");
 #endif
 
     BMC_PRINTLN("storageDebug = Prints the time it takes to read/write/clear EEPROM everytime the actions happens");
@@ -84,6 +85,12 @@ void BMC::readDebug(){
       fas.connect();
     }
     printDebugHeader(debugInput);
+
+  } else if(BMC_STR_MATCH(debugInput,"fasDebug")){
+    printDebugHeader(debugInput);
+    BMC_PRINTLN("FAS Debug:",globals.toggleFasDebug());
+    printDebugHeader(debugInput);
+
 #endif
   } else if(BMC_STR_MATCH(debugInput,"storageDebug")){
     printDebugHeader(debugInput);

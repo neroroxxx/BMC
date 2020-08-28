@@ -299,6 +299,14 @@ public:
   void onFasTunerReceived(void (*fptr)(BMCTunerData& data)){
     callback.fasTunerReceived = fptr;
   }
+  // triggered when the FAS Looper has been activated or stopped
+  void onFasLooperStateChange(void (*fptr)(bool state)){
+    callback.fasLooperStateChange = fptr;
+  }
+  // triggered when the FAS Looper data has been received
+  void onFasLooperReceived(void (*fptr)(uint8_t data, uint8_t position)){
+    callback.fasLooperReceived = fptr;
+  }
   // triggered when FAS CPU usage has been received
   void onFasCpuReceived(void (*fptr)(uint8_t n)){
     callback.fasCpuReceived = fptr;

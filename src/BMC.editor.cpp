@@ -82,7 +82,6 @@ void BMC::assignStoreData(){
 }
 void BMC::assignSettings(){
   // Set the global settings
-  valueTyper.setOffset(settings.getTyperOffSet());
   midiClock.setMaster(settings.getMasterClock());
   midiActiveSense.setOutputPorts(settings.getListenerPorts());
   midi.setListenerEnable(settings.getIncomingListenerEnabled());
@@ -90,6 +89,8 @@ void BMC::assignSettings(){
   midi.setListenerPorts(settings.getListenerPorts());
   midi.setClockListenerPort(settings.getClockInputPortBit());
   editor.setChainingPort(settings.getChainingPort());
+
+  valueTyper.setOffset(settings.getTyperOffSet());
 
   midi.setRouting(BMC_USB, settings.getUsbRouting());
 #ifdef BMC_MIDI_SERIAL_A_ENABLED

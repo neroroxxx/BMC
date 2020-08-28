@@ -261,6 +261,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_USE_POT_TOE_SWITCH
       bitWrite(buildData,17,1);
     #endif
+    #ifdef BMC_USE_FAS3
+      bitWrite(buildData,18,1);
+    #endif
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);

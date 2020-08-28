@@ -10,12 +10,13 @@
 #ifndef BMC_FAS_DEF_H
 #define BMC_FAS_DEF_H
 
-
 // Fractal Compatible Device IDs
 #define BMC_FAS_DEVICE_ID_AXE_FX_II 0x03
 #define BMC_FAS_DEVICE_ID_AXE_FX_II_XL 0x06
 #define BMC_FAS_DEVICE_ID_AXE_FX_II_XL_PLUS 0x07
 #define BMC_FAS_DEVICE_ID_AX8 0x08
+#define BMC_FAS_DEVICE_ID_AXE_FX_III 0x10
+#define BMC_FAS_DEVICE_ID_FM3 0x11
 
 // Fractal Block IDs
 #define BMC_FAS_BLOCK_CPR 100
@@ -146,6 +147,30 @@
 #endif
 #ifndef BMC_FAS_CC_SCENE_DEC
 	#define BMC_FAS_CC_SCENE_DEC 124
+#endif
+#ifndef BMC_FAS_CC_LOOPER_RECORD
+	#define BMC_FAS_CC_LOOPER_RECORD 28
+#endif
+#ifndef BMC_FAS_CC_LOOPER_PLAY
+	#define BMC_FAS_CC_LOOPER_PLAY 29
+#endif
+#ifndef BMC_FAS_CC_LOOPER_ONCE
+	#define BMC_FAS_CC_LOOPER_ONCE 30
+#endif
+#ifndef BMC_FAS_CC_LOOPER_DUB
+	#define BMC_FAS_CC_LOOPER_DUB 31
+#endif
+#ifndef BMC_FAS_CC_LOOPER_REVERSE
+	#define BMC_FAS_CC_LOOPER_REVERSE 32
+#endif
+#ifndef BMC_FAS_CC_LOOPER_BYPASS
+	#define BMC_FAS_CC_LOOPER_BYPASS 33
+#endif
+#ifndef BMC_FAS_CC_LOOPER_HALF
+	#define BMC_FAS_CC_LOOPER_HALF 120
+#endif
+#ifndef BMC_FAS_CC_LOOPER_UNDO
+	#define BMC_FAS_CC_LOOPER_UNDO 121
 #endif
 
 // BLOCK PARAMETERS

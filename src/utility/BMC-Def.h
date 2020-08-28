@@ -196,6 +196,9 @@
   #define digitalIsLow(pin) (digitalReadFast(pin)==LOW)
 #endif
 
+const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
+
 #define BMC_IS_EVEN(n) ((n % 2 == 0))
 #define BMC_IS_ODD(n)  ((n % 2 != 0))
 #define BMC_GET_MIDI_STATUS(value) ( (uint8_t) ((value&0xFF)<0xF0) ? (value & 0xF0) : value )
@@ -835,6 +838,27 @@
 #define BMC_BEATBUDDY_CMD_TRANS_PART_125 225
 #define BMC_BEATBUDDY_CMD_TRANS_PREV 226
 #define BMC_BEATBUDDY_CMD_TRANS_NEXT 227
+
+#define BMC_FAS_LOOPER_STATE_RECORDING 0
+#define BMC_FAS_LOOPER_STATE_PLAYING 1
+#define BMC_FAS_LOOPER_STATE_ONCE 2
+#define BMC_FAS_LOOPER_STATE_OVERDUBBING 3
+#define BMC_FAS_LOOPER_STATE_REVERSED 4
+#define BMC_FAS_LOOPER_STATE_HALF 5
+#define BMC_FAS_LOOPER_STATE_UNDO 6
+
+#define BMC_FAS_LOOPER_CONTROL_STOP 0
+#define BMC_FAS_LOOPER_CONTROL_RECORD 1
+#define BMC_FAS_LOOPER_CONTROL_PLAY 2
+#define BMC_FAS_LOOPER_CONTROL_ONCE 3
+#define BMC_FAS_LOOPER_CONTROL_OVERDUB 4
+#define BMC_FAS_LOOPER_CONTROL_REVERSE 5
+#define BMC_FAS_LOOPER_CONTROL_HALF 6
+#define BMC_FAS_LOOPER_CONTROL_UNDO 7
+#define BMC_FAS_LOOPER_CONTROL_REC_PLAY_DUB 8
+#define BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY 9
+#define BMC_FAS_LOOPER_CONTROL_CLEAR 10
+
 
 // Line 6 Helix ID per Device
 #define BMC_HELIX_ID 0

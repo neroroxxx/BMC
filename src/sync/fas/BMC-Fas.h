@@ -6,6 +6,7 @@
 
   Wrapper to some sync/control Fractal Audio Guitar Processors
   In this Class as BLOCK is an EFFECT like Delay, Reverb, Amp, etc.
+
   Fractal Sysex Anatomy
   0: 0xF0 start of sysex
   1: 0x00 sysex id
@@ -20,37 +21,50 @@
   Standard FAS response is minimum 9 bytes, without checksum it's 8
 
   For Axe Fx 2 users: for ideal syncing you should turn off the MIDI THRU OFF,
-  also to use the tuner functions you must set "SEND REALTIME SYSEX" to ALL or TUNER
+  also set "SEND REALTIME SYSEX" to ALL if you want to use the tuner and tempo beat led
+
+  Currently only supports Axe Fx II/XL/+ and AX8
+
+  Support for Axe Fx III and FM3 is planned for the future
 */
 #ifndef BMC_FAS_H
 #define BMC_FAS_H
+
 #include "utility/BMC-Def.h"
+
 #if defined(BMC_USE_FAS)
-#include "addon/BMC-Fas-Def.h"
-#include "addon/BMC-Fas-Struct.h"
+
+#include "midi/BMC-Midi.h"
+#include "sync/fas/BMC-Fas-Def.h"
+#include "sync/fas/BMC-Fas-Struct.h"
 
 #define BMC_FAS_FLAG_DEVICE_SEARCH 0
 #define BMC_FAS_FLAG_CONNECTED 1
 #define BMC_FAS_FLAG_CONNECTION_CHANGED 2
 #define BMC_FAS_FLAG_SYNCING 3
 #define BMC_FAS_FLAG_TUNER_ACTIVE 4
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET 5
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME 6
-#define BMC_FAS_FLAG_SYNC_EXPECTING_SCENE 7
-#define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 8
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 9
-#define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 10
-#define BMC_FAS_FLAG_TEMPO_RECEIVED 11
+#define BMC_FAS_FLAG_LOOPER_ACTIVE 5
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET 6
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME 7
+#define BMC_FAS_FLAG_SYNC_EXPECTING_SCENE 8
+#define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 9
+#define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 10
+#define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 11
+#define BMC_FAS_FLAG_TEMPO_RECEIVED 12
+#define BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE 13
+#define BMC_FAS_FLAG_CONNECTION_LOST 14
 
-#define BMC_FAS_RESYNC_TIMEOUT 1000
-#define BMC_FAS_RESYNC_QUEUE_TIMEOUT 175
+#define BMC_FAS_RESYNC_TIMEOUT 250
+#define BMC_FAS_RESYNC_QUEUE_TIMEOUT 250
+#define BMC_FAS_CONNECTION_LOST_TIMEOUT 5000
 
+// function id list for Axe Fx II and AX8
 #define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
 #define BMC_FAS_FUNC_ID_FIRMWARE              0x08
 #define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
 #define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
 #define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
-#define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10 // unused
+#define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10
 #define BMC_FAS_FUNC_ID_BLOCK_XY              0x11
 #define BMC_FAS_FUNC_ID_CPU                   0x13
 #define BMC_FAS_FUNC_ID_GET_PRESET_NUMBER     0x14
@@ -62,105 +76,59 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
-//#define BMC_FAS_DEBUG
-
-#if defined(BMC_FAS_DEBUG) && !defined(BMC_DEBUG)
-  #undef BMC_FAS_DEBUG
-#endif
+// for Axe Fx 3
+#define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
+#define BMC_FAS_FUNC_ID_FIRMWARE              0x08
+#define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
+#define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
+#define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
+#define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10
+#define BMC_FAS_FUNC_ID_BLOCK_CHANNEL         0x11
+#define BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL      0x17
+#define BMC_FAS_FUNC_ID_RESYNC                0x21
+#define BMC_FAS_FUNC_ID_LOOPER                0x23
+#define BMC_FAS_FUNC_ID_SCENE_NUMBER          0x29
+#define BMC_FAS_FUNC_ID_SET_PRESET_NUMBER     0x3C
+#define BMC_FAS_FUNC_ID_DISCONNECT            0x42
+#define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
 class BMCFas {
 private:
   BMCMidi& midi;
+  BMCGlobals& globals;
   BMCFlags <uint16_t> flags;
   BMCTimer findDeviceTimer;
   BMCTimer startSyncTimer;
   BMCTimer resyncTimer;
   BMCTimer tunerTimeout;
+  BMCTimer looperTimeout;
+  BMCTimer connectionLost;
   BMCFasData device;
   BMCTunerData tunerData;
   uint8_t attempts = 0;
+  bool isAxe3(uint8_t id){
+    return (id==BMC_FAS_DEVICE_ID_AXE_FX_III || id==BMC_FAS_DEVICE_ID_FM3);
+  }
+
 #ifdef BMC_DEBUG
-  void debugPrintFasMessageInfo(BMCMidiMessage& message){
-    char str[50];
-    switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_BLOCK_PARAM:         strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_PARAM");break;
-      case BMC_FAS_FUNC_ID_FIRMWARE:            strcpy(str, "BMC_FAS_FUNC_ID_FIRMWARE");break;
-      case BMC_FAS_FUNC_ID_TUNER_INFO:          strcpy(str, "BMC_FAS_FUNC_ID_TUNER_INFO");break;
-      case BMC_FAS_FUNC_ID_BLOCKS_DATA:         strcpy(str, "BMC_FAS_FUNC_ID_BLOCKS_DATA");break;
-      case BMC_FAS_FUNC_ID_PRESET_NAME:         strcpy(str, "BMC_FAS_FUNC_ID_PRESET_NAME");break;
-      case BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT:     strcpy(str, "BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT");break;
-      case BMC_FAS_FUNC_ID_BLOCK_XY:            strcpy(str, "BMC_FAS_FUNC_ID_BLOCK_XY");break;
-      case BMC_FAS_FUNC_ID_CPU:                 strcpy(str, "BMC_FAS_FUNC_ID_CPU");break;
-      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER:   strcpy(str, "BMC_FAS_FUNC_ID_GET_PRESET_NUMBER");break;
-      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL:    strcpy(str, "BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL");break;
-      case BMC_FAS_FUNC_ID_RESYNC:              strcpy(str, "BMC_FAS_FUNC_ID_RESYNC");break;
-      case BMC_FAS_FUNC_ID_LOOPER:              strcpy(str, "BMC_FAS_FUNC_ID_LOOPER");break;
-      case BMC_FAS_FUNC_ID_SCENE_NUMBER:        strcpy(str, "BMC_FAS_FUNC_ID_SCENE_NUMBER");break;
-      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER:   strcpy(str, "BMC_FAS_FUNC_ID_SET_PRESET_NUMBER");break;
-      case BMC_FAS_FUNC_ID_DISCONNECT:          strcpy(str, "BMC_FAS_FUNC_ID_DISCONNECT");break;
-      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE:     strcpy(str, "BMC_FAS_FUNC_ID_GENERAL_PURPOSE");break;
-      default: strcpy(str, "UNUSED");
-    }
-    BMC_PRINTLN("--> FAS MESSAGE RECEIVED, ID:", message.sysex[5], str, "SIZE:", message.size());
-  }
-  bool isValidFasFunction(uint8_t funcId){
-    switch(funcId){
-      case BMC_FAS_FUNC_ID_BLOCK_PARAM:
-      case BMC_FAS_FUNC_ID_FIRMWARE:
-      case BMC_FAS_FUNC_ID_BLOCKS_DATA:
-      case BMC_FAS_FUNC_ID_TUNER_INFO:
-      case BMC_FAS_FUNC_ID_PRESET_NAME:
-      case BMC_FAS_FUNC_ID_BLOCK_XY:
-      case BMC_FAS_FUNC_ID_CPU:
-      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER:
-      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL:
-      case BMC_FAS_FUNC_ID_RESYNC:
-      case BMC_FAS_FUNC_ID_LOOPER:
-      case BMC_FAS_FUNC_ID_SCENE_NUMBER:
-      case BMC_FAS_FUNC_ID_SET_PRESET_NUMBER:
-      case BMC_FAS_FUNC_ID_DISCONNECT:
-      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE:
-        return true;
-    }
-    return false;
-  }
+  String debugPrintDeviceName(uint8_t id);
+  String debugPrintPreset();
+  void debugPrintFasMessageInfo(BMCMidiMessage& message);
+  bool isValidFasFunction(uint8_t funcId);
 #endif
 
+  void timeConnectionStart(){
+    flags.off(BMC_FAS_FLAG_CONNECTION_LOST);
+    connectionLost.start(BMC_FAS_CONNECTION_LOST_TIMEOUT);
+  }
+
 public:
-  BMCFas(BMCMidi& t_midi):midi(t_midi){
-    device.reset();
-    flags.on(BMC_FAS_FLAG_DEVICE_SEARCH);
-    findDeviceTimer.start(3000);
-    BMC_PRINTLN("FAS Sync Version 1.0");
-  }
-  // PUBLIC
-  void update(){
-    // search for response from FAS device, try up to 10 times every 5 seconds
-    // this message will be broadcast on all MIDI ports except USB and BLE (if available)
-    if(flags.read(BMC_FAS_FLAG_DEVICE_SEARCH)){
-      if(attempts<10 && findDeviceTimer.complete()){
-        BMC_PRINTLN(">> Looking for FAS Device <<");
-        sendDeviceSearch();
-        findDeviceTimer.start(5000);
-        attempts++;
-      }
-      return;
-    }
-    if(tunerTimeout.complete()){
-      flags.off(BMC_FAS_FLAG_TUNER_ACTIVE);
-      if(midi.callback.fasTunerStateChange){
-        midi.callback.fasTunerStateChange(false);
-      }
-      BMC_PRINTLN("--> FAS TUNER OFF");
-    }
-    if(!connected()&&!syncing()){
-      if(startSyncTimer.complete()){
-        startSyncTimer.start(3000);
-        requestFirmware();
-      }
-    }
-    presetSyncQueue();
-  }
+  BMCFas(BMCMidi& t_midi, BMCGlobals& t_globals);
+
+  void begin();
+  void update();
+  bool incoming(BMCMidiMessage& message);
+
   void setSyncedParameter(uint8_t slot, uint8_t block, uint8_t parameter){
     device.paramSet(slot, block, parameter);
   }
@@ -182,9 +150,7 @@ public:
     device.paramReceived(block, param, value);
     controlBlockParameter(block, param, value, true);
   }
-  bool incoming(BMCMidiMessage& message){
-    return parseincoming(message);
-  }
+
   bool isTunerActive(){
     return flags.read(BMC_FAS_FLAG_TUNER_ACTIVE);
   }
@@ -194,17 +160,113 @@ public:
   void getTunerData(BMCTunerData& buff){
     buff = tunerData;
   }
-  void toggleTuner(){
-    sendControlChange(BMC_FAS_CC_TUNER, isTunerActive()?0:127);
-  }
-  void tapTempo(){
-    sendControlChange(BMC_FAS_CC_TAP_TEMPO, 127);
-  }
   bool connected(){
     return flags.read(BMC_FAS_FLAG_CONNECTED);
   }
   bool syncing(){
     return flags.read(BMC_FAS_FLAG_SYNCING);
+  }
+  bool looperEnable(bool value){
+    if(value!=device.getLooperState()){
+      device.looper.changeState(value);
+      sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, value?1:0);
+      return true;
+    }
+    return false;
+  }
+  void looperControl(uint8_t cmd){
+    if(!connected()){
+      return;
+    }
+    switch(cmd){
+      case BMC_FAS_LOOPER_CONTROL_STOP:{
+        if(device.looper.getStates()>0){
+          sendControlChange(BMC_FAS_CC_LOOPER_RECORD, 0);
+          sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 0);
+          sendControlChange(BMC_FAS_CC_LOOPER_DUB, 0);
+        }
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_RECORD:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_RECORDING)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_RECORD, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_PLAY:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_PLAYING)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_PLAY, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_ONCE:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_ONCE)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_ONCE, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_OVERDUB:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_OVERDUBBING)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_DUB, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_REVERSE:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_REVERSED)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_REVERSE, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_HALF:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_HALF)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_HALF, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_UNDO:{
+        uint8_t state = device.looper.getStates(BMC_FAS_LOOPER_STATE_UNDO)?0:127;
+        sendControlChange(BMC_FAS_CC_LOOPER_UNDO, state);
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_REC_PLAY_DUB:
+      case BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY:{
+        //cmd==BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY
+        if(device.looper.getStates()==0){
+          if(flags.read(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE)){
+            sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 127);
+          } else {
+            sendControlChange(BMC_FAS_CC_LOOPER_RECORD, 127);
+          }
+        } else if(device.looper.getStates(BMC_FAS_LOOPER_STATE_RECORDING)){
+          if(cmd==BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY){
+            sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 127);
+            sendControlChange(BMC_FAS_CC_LOOPER_DUB, 127);
+          } else {
+            sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 127);
+          }
+        } else if(device.looper.getStates(BMC_FAS_LOOPER_STATE_PLAYING)){
+          if(device.looper.getStates(BMC_FAS_LOOPER_STATE_OVERDUBBING)){
+            sendControlChange(BMC_FAS_CC_LOOPER_DUB, 0);
+          } else {
+            sendControlChange(BMC_FAS_CC_LOOPER_DUB, 127);
+          }
+        }
+        break;
+      }
+      case BMC_FAS_LOOPER_CONTROL_CLEAR:{
+        flags.off(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE);
+        if(device.looper.getStates()>0){
+          looperControl(BMC_FAS_LOOPER_CONTROL_STOP);
+        }
+        break;
+      }
+    }
+  }
+  bool looperGetState(){
+    return device.looper.isEnabled();
+  }
+  bool looperStatus(uint8_t cmd=255){
+    return device.looper.getStates(cmd);
+  }
+  bool looperTrackRecorded(){
+    return flags.read(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE);
+  }
+  bool looperStopped(){
+    return device.looper.getStates()==0;
   }
   bool connect(){
     if(connected()){
@@ -221,13 +283,16 @@ public:
       return false;
     }
     BMC_PRINTLN("--> FAS Disconnect");
-    sendDisconnect();
+    // turn off looper stream if it's on
+    looperEnable(false);
+    sendBasicSysEx(BMC_FAS_FUNC_ID_DISCONNECT);
     device.reset();
     flags.reset();
     findDeviceTimer.stop();
     startSyncTimer.stop();
     resyncTimer.stop();
     tunerTimeout.stop();
+    looperTimeout.stop();
     tunerData.reset();
     device.reset();
     attempts = 0;
@@ -271,6 +336,15 @@ public:
   }
   bool isBlockX(uint8_t blockId){
     return !isBlockY(blockId);
+  }
+
+  // Toggle the tuner state
+  void toggleTuner(){
+    sendControlChange(BMC_FAS_CC_TUNER, isTunerActive()?0:127);
+  }
+  // send a tap tempo cc
+  void tapTempo(){
+    sendControlChange(BMC_FAS_CC_TAP_TEMPO, 127);
   }
   void sendSetTempo(uint16_t tempo){
     if(tempo<30 || tempo>250){
@@ -408,84 +482,6 @@ private:
       true // should it trigger MIDI Out activity
     );
   }
-
-  // parse incoming Sysex Messages
-  bool parseincoming(BMCMidiMessage& message){
-    if(flags.read(BMC_FAS_FLAG_DEVICE_SEARCH) && findDeviceTimer.active()){
-      if(isFractMessage(message)){
-        device.setIdAndPort(message.sysex[4], message.getPort());
-        flags.off(BMC_FAS_FLAG_DEVICE_SEARCH);
-        attempts = 0;
-        findDeviceTimer.stop();
-        startSyncTimer.start(250);
-        BMC_PRINTLN("*** FAS FOUND DEVICE", device.getId(), device.getPort());
-      }
-      return false;
-    }
-    if(!isFractMessage(message) || !isValidPort(message.getPort())){
-      return false;
-    }
-
-#ifdef BMC_DEBUG
-    debugPrintFasMessageInfo(message);
-#endif
-
-    // messages that don't have a Checksum
-    switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT:
-        receivedTempoBeat(message);
-        return true;
-      case BMC_FAS_FUNC_ID_TUNER_INFO:
-        receivedTunerInfo(message);
-        return true;
-      case BMC_FAS_FUNC_ID_LOOPER:
-        receivedLooperInfo(message);
-        return true;
-      case BMC_FAS_FUNC_ID_BLOCKS_DATA:
-        receivedBlocksStates(message);
-        return true;
-    }
-    // the rest require a valid CRC
-    if(isValidFasFunction(message.sysex[5]) && !message.validateChecksum()){
-      BMC_PRINTLN("!!!  FAS Received Bad CRC  !!!");
-      return false;
-    }
-    switch(message.sysex[5]){
-      case BMC_FAS_FUNC_ID_FIRMWARE:
-        receivedFirmware(message);
-        return true;
-      case BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL:
-        receivedMidiChannel(message);
-        return true;
-      case BMC_FAS_FUNC_ID_BLOCK_PARAM:
-        receivedBlockParameter(message);
-        return true;
-      case BMC_FAS_FUNC_ID_CPU:
-        receivedCPU(message);
-        return true;
-      case BMC_FAS_FUNC_ID_PRESET_NAME:
-        receivedPresetName(message);
-        return true;
-      case BMC_FAS_FUNC_ID_GET_PRESET_NUMBER:
-        receivedPresetNumber(message);
-        return true;
-      case BMC_FAS_FUNC_ID_SCENE_NUMBER:
-        receivedSceneNumber(message);
-        return true;
-      case BMC_FAS_FUNC_ID_RESYNC:
-        device.paramReset();
-        BMC_WARN("FAS RE-SYNC RECEIVED");
-        receivedReSync(true);
-        return true;
-      case BMC_FAS_FUNC_ID_BLOCK_XY:
-        receivedBlockXY(message);
-        return true;
-      case BMC_FAS_FUNC_ID_GENERAL_PURPOSE:
-        receivedGeneralPurpose(message);
-        return true;
-    }
-    return false;
-  }
   // received the resync message
   void receivedReSync(bool quick=false){
     if(resyncTimer.active()){
@@ -495,260 +491,23 @@ private:
     flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET);
     flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME);
     flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE);
-
+/*
     if(device.id!=BMC_FAS_DEVICE_ID_AX8){
       flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
     }
-
+*/
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
     flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS);
     // quick is only true when the actual message is reaceived from the FAS device
     // this function is also used when other messages are received in which case
     // they request updated data, in that case we wait a little longer before resyncing
     // this is in case we're changing scenes quickly etc.
     if(quick){
-      resyncTimer.start(500);
+      resyncTimer.start(250);
     } else {
-      resyncTimer.start(1000);
+      resyncTimer.start(750);
     }
   }
-  // General Purpose
-  void receivedGeneralPurpose(BMCMidiMessage& message){
-    if(!isFractMessage(message, 10)){
-      return;
-    }
-    BMC_PRINTLN("--> FAS GENERAL PURPOSE FUNC:", message.get7Bits(6),"CODE:", message.get7Bits(7));
-  }
-  // Looper
-  void receivedLooperInfo(BMCMidiMessage& message){
-    BMC_PRINTLN("--> FAS Looper Info", message.sysex[6], message.sysex[7]);
-    device.looper.set(message.sysex[6], message.sysex[7]);
-  }
-  // Tuner
-  void receivedTunerInfo(BMCMidiMessage& message){
-    if(connected() && isFractMessage(message, 10)){
-      tunerData.note = message.sysex[6];
-      tunerData.stringNumber = message.sysex[7];
-      tunerData.pitch = map((message.sysex[8]&0x7F), 0, 127, -63, 64);
-      tunerNote(tunerData.note, tunerData.noteName);
-      tunerTimeout.start(250);
-      if(!flags.read(BMC_FAS_FLAG_TUNER_ACTIVE)){
-        if(midi.callback.fasTunerStateChange){
-          midi.callback.fasTunerStateChange(true);
-        }
-        flags.on(BMC_FAS_FLAG_TUNER_ACTIVE);
-        BMC_PRINTLN("--> FAS TUNER ON");
-      }
-      if(midi.callback.fasTunerReceived){
-        midi.callback.fasTunerReceived(tunerData);
-      }
-    }
-  }
-  // Tuner
-  void receivedTempoBeat(BMCMidiMessage& message){
-    if(connected() && isFractMessage(message, 5)){
-      flags.on(BMC_FAS_FLAG_TEMPO_RECEIVED);
-    }
-  }
-
-  // used when firmware is received
-  void receivedFirmware(BMCMidiMessage& message){
-    if(!isFractMessage(message, 10) || connected() || syncing()){
-      return;
-    }
-    device.version = (message.get7Bits(6)<<8) | message.get7Bits(7);
-    flags.on(BMC_FAS_FLAG_SYNCING);
-    startSyncTimer.stop();
-    requestMidiChannel();
-    BMC_PRINTLN("--> FAS FIRMWARE RECEIVED:", device.version);
-  }
-  // MIDI Channel received
-  void receivedMidiChannel(BMCMidiMessage& message){
-    //BMC_PRINTLN("receivedMidiChannel message.size()", message.size());
-    if(!isFractMessage(message, 9) || connected() || !syncing()){
-      return;
-    }
-    device.channel = message.get7Bits(6)+1;
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> FAS CHANNEL RECEIVED:", device.channel);
-#endif
-    flags.on(BMC_FAS_FLAG_CONNECTED);
-    flags.on(BMC_FAS_FLAG_CONNECTION_CHANGED);
-    flags.off(BMC_FAS_FLAG_SYNCING);
-    if(midi.callback.fasConnection){
-      midi.callback.fasConnection(true);
-    }
-    receivedReSync();
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
-  }
-  void receivedBlocksStates(BMCMidiMessage& message){
-    if(!isFractMessage(message, 5)){
-      return;
-    }
-    // crc used to know if there's a change within the blocks
-    uint8_t crc = device.blocks.getCRC();
-    device.blocks.reset();
-    for(uint8_t i = 6; i < message.size()-2; i+=5){
-      uint32_t block = message.get32BitsLSBFirst(i);
-      bool isEngaged = bitRead(block, 0);
-      bool isX = bitRead(block, 1);
-      uint8_t blockId = (block>>24) & 0xFF;
-
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> Received Blocks");
-      uint8_t bypassCC = (block>>8) & 0x7F;
-      uint8_t xyCC = (block>>16) & 0x7F;
-      if(blockId>=100 && blockId<=170){
-        BMC_PRINTLN("--> Block", blocksGlobalData[blockId-100].name, blockId, bypassCC, xyCC, isEngaged?"ON":"OFF", isX?"X":"Y");
-      }
-#endif
-      device.blocks.set(blockId, isEngaged, !isX);
-    }
-
-    if(midi.callback.fasBlocksChange){
-      device.blocks.createCRC();
-      if(crc!=device.blocks.getCRC()){
-        midi.callback.fasBlocksChange();
-      }
-    }
-
-    if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS)){
-      resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
-    }
-  }
-  // received the current scene number
-  void receivedSceneNumber(BMCMidiMessage& message){
-    if(!isFractMessage(message, 9)){
-      return;
-    }
-    uint8_t value = message.get7Bits(6);
-    if(device.scene!=value){
-      flags.on(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN);
-      requestSyncParameters();
-      if(midi.callback.fasSceneChange){
-        midi.callback.fasSceneChange(value);
-      }
-    }
-
-    device.scene = value;
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> FAS SCENE NUMBER", device.scene);
-#endif
-
-    if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE)){
-      resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
-      if(device.id==BMC_FAS_DEVICE_ID_AX8){
-        flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
-      }
-    } else {
-      if(device.id!=BMC_FAS_DEVICE_ID_AX8){
-        flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
-        resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
-      }
-    }
-  }
-
-  // received CPU usage
-  void receivedCPU(BMCMidiMessage& message){
-    if(!isFractMessage(message, 9)){
-      return;
-    }
-    uint8_t value = message.get7Bits(6);
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> FAS CPU", value, "%");
-#endif
-    if(midi.callback.fasCpuReceived){
-      midi.callback.fasCpuReceived(value);
-    }
-  }
-  // received a block parameter value
-  void receivedBlockParameter(BMCMidiMessage& message){
-    if(!isFractMessage(message, 15)){
-      return;
-    }
-    uint8_t blockId = message.get8BitsLSBFirst(6);
-    uint8_t paramId = message.get8BitsLSBFirst(8);
-    uint16_t value = message.get16BitsLSBFirst(10);
-    if(paramId==255){
-      device.blocks.set(blockId, (value==0), device.blocks.isY(blockId));
-      if(midi.callback.fasBlocksChange && device.blocks.isEngaged(blockId) != (value==0)){
-        midi.callback.fasBlocksChange();
-      }
-#ifdef BMC_FAS_DEBUG
-        BMC_PRINTLN("--> FAS BLOCK Bypass Received", blockId, value==0?"engaged":"bypassed");
-#endif
-    } else {
-      device.paramReceived(blockId, paramId, value);
-      requestSyncParameters();
-
-      if(midi.callback.fasBlockParameterReceived){
-        uint8_t strLen = message.size()-(18+2);
-        char str[strLen] = "";
-        message.getStringFromSysEx(18, str, strLen);
-        midi.callback.fasBlockParameterReceived(blockId, paramId, value, str, strLen);
-#ifdef BMC_FAS_DEBUG
-          BMC_PRINTLN("--> FAS Block Parameter Received: Block:", blockId,
-                      "Param:", paramId, "Value:", value, "Str:", str, strLen);
-#endif
-      }
-    }
-  }
-  // received the block XY state after it was changed by BMC
-  void receivedBlockXY(BMCMidiMessage& message){
-    if(!isFractMessage(message, 11)){
-      return;
-    }
-    uint8_t blockId = message.get8BitsLSBFirst(6);
-    uint8_t xy = message.get7Bits(8);
-    device.blocks.set(blockId, device.blocks.isEngaged(blockId), xy);
-    if(midi.callback.fasBlocksChange && device.blocks.isY(blockId)!=xy){
-      midi.callback.fasBlocksChange();
-    }
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> FAS BLOCK XY Received", blockId, xy?"Y":"X");
-#endif
-  }
-  // received the current preset number
-  void receivedPresetNumber(BMCMidiMessage& message){
-    if(!isFractMessage(message, 10)){
-      return;
-    }
-    uint16_t value = message.get14Bits(6);
-
-    if(device.preset!=value){
-      device.paramReset();
-      if(midi.callback.fasPresetChange){
-        midi.callback.fasPresetChange(value);
-      }
-    }
-    device.preset = value;
-    BMC_PRINTLN("--> FAS PRESET NUMBER", device.preset);
-    if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET)){
-      resyncTimer.start(1000);
-    } else {
-      receivedReSync();
-      flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET);
-      flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
-      resyncTimer.start(1000);
-    }
-  }
-  // received the current preset name
-  void receivedPresetName(BMCMidiMessage& message){
-    if(!isFractMessage(message, 30)){
-      return;
-    }
-    strcpy(device.presetName, "");
-    message.getStringFromSysEx(6, device.presetName, 32);
-#ifdef BMC_FAS_DEBUG
-      BMC_PRINTLN("--> FAS PRESET NAME", device.presetName,"size:", message.size());
-#endif
-    if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME)){
-      resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
-    }
-    if(midi.callback.fasPresetName){
-      midi.callback.fasPresetName(device.presetName);
-    }
-  }
-
   bool requestSyncParameters(){
     if(!flags.read(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN)){
       return false;
@@ -770,45 +529,17 @@ private:
     flags.off(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN);
     return false;
   }
-
-
-
-
-
-
-
-
-
-  // GET THE FIRMWARE, also activates the 0x21 message sent by the device when
-  // there's a change
-  void requestFirmware(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_FIRMWARE);
-  }
-  // Disconnect BMC from fractal device, this should only be sent if BMC_FAS_FUNC_ID_FIRMWARE
-  // was sent first
-  void sendDisconnect(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_DISCONNECT);
-  }
-  // MIDI CHANNEL OF THE DEVICE
-  void requestMidiChannel(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL);
-  }
-  // PARSE THE BLOCKS DATA, these are the blocks loaded into the preset
-  // and the bypass and X/Y of the block
-  void requestBlocksData(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_BLOCKS_DATA);
-  }
   // Request the current Scene Number
   bool requestScene(){
     return controlScene(0x7F);
   }
   // PRESET NUMBER
   void requestPresetNumber(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_GET_PRESET_NUMBER);
+    sendBasicSysEx(BMC_FAS_FUNC_ID_GET_PRESET_NUMBER);
   }
   // PRESET NAME
   void requestPresetName(){
-    sendSimpleSysEx(BMC_FAS_FUNC_ID_PRESET_NAME);
+    sendBasicSysEx(BMC_FAS_FUNC_ID_PRESET_NAME);
   }
 
 
@@ -822,7 +553,7 @@ private:
       } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME)){
         requestPresetName();
       } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS)){
-        requestBlocksData();
+        sendBasicSysEx(BMC_FAS_FUNC_ID_BLOCKS_DATA);
       } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE)){
         requestScene();
       } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS)){
@@ -845,6 +576,19 @@ private:
     }
   }
 
+  void sendCustomFasSysEx(uint8_t funcId, uint8_t * bytes, uint8_t len, bool crc=true){
+    if(!connected()){
+      return;
+    }
+    BMCMidiMessage message;
+    prepSysEx(message, funcId);
+
+    for(uint8_t i=0;i<len;i++){
+      message.appendToSysEx7Bits(bytes[i]);
+    }
+    sendFractMidiSysEx(message, crc);
+  }
+
   void sendFractMidiSysEx(BMCMidiMessage& message, bool crc=true){
     if(device.getPort()==0 || device.getId()==0){
       return;
@@ -861,13 +605,16 @@ private:
       true // should it trigger MIDI Out activity
     );
   }
-  void sendSimpleSysEx(uint8_t funcId){
+  void sendBasicSysEx(uint8_t funcId, uint8_t extraByte=255){
     BMCMidiMessage message;
     prepSysEx(message, funcId);
+    if(extraByte<=0x7F){
+      message.appendToSysEx7Bits(extraByte);
+    }
     sendFractMidiSysEx(message);
   }
   // change the scene or request the scene number, this is the actual function
-  // that handles all scene requests
+  // that handles all scene get/set requests
   bool controlScene(uint8_t value){
     if(!connected() || (value>7 && value!=0x7F)){
       return false;
@@ -919,23 +666,6 @@ private:
     }
     return 0;
   }
-
-  void tunerNote(uint8_t note, char* str){
-		switch(note){
-			case 0: strcpy(str, "A "); break;
-			case 1: strcpy(str, "Bb"); break;
-			case 2: strcpy(str, "B "); break;
-			case 3: strcpy(str, "C "); break;
-			case 4: strcpy(str, "C#"); break;
-			case 5: strcpy(str, "D "); break;
-			case 6: strcpy(str, "Eb"); break;
-			case 7: strcpy(str, "E "); break;
-			case 8: strcpy(str, "F "); break;
-			case 9: strcpy(str, "F#"); break;
-			case 10: strcpy(str, "G "); break;
-			case 11: strcpy(str, "G#"); break;
-		}
-	}
   void findBlockData(uint8_t id, BMCFasBlocks& block){
     if(!isValidBlockId(id)){
       return;
@@ -958,8 +688,6 @@ private:
     }
     return blocksGlobalData[id-100].index;
   }
-
-
   // this is the data for blocks, this is used to determine if
   // block is available on the device loaded then to either bypass/XY the block
   // total: 71, totalUsable: 64
@@ -1029,7 +757,22 @@ private:
     // 0x10 Axe-Fx III
     return (id==3 || (id>=6 && id<=8));
   }
-
+  void tunerNote(uint8_t note, char* str){
+		switch(note){
+			case 0: strcpy(str, "A "); break;
+			case 1: strcpy(str, "Bb"); break;
+			case 2: strcpy(str, "B "); break;
+			case 3: strcpy(str, "C "); break;
+			case 4: strcpy(str, "C#"); break;
+			case 5: strcpy(str, "D "); break;
+			case 6: strcpy(str, "Eb"); break;
+			case 7: strcpy(str, "E "); break;
+			case 8: strcpy(str, "F "); break;
+			case 9: strcpy(str, "F#"); break;
+			case 10: strcpy(str, "G "); break;
+			case 11: strcpy(str, "G#"); break;
+		}
+	}
   // this is the data for blocks, this is used to determine if
   // block is available on the device loaded then to either bypass/XY the block
   // total: 71, totalUsable: 64

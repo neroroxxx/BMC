@@ -96,6 +96,8 @@ public:
     fasBlocksChange = 0;
     fasTunerStateChange = 0;
     fasTunerReceived = 0;
+    fasLooperStateChange = 0;
+    fasLooperReceived = 0;
     fasCpuReceived = 0;
     fasBlockParameterReceived = 0;
 #endif
@@ -200,6 +202,8 @@ public:
   void (*fasBlocksChange)();
   void (*fasTunerStateChange)(bool state);
   void (*fasTunerReceived)(BMCTunerData& data);
+  void (*fasLooperStateChange)(bool state);
+  void (*fasLooperReceived)(uint8_t state, uint8_t position);
   void (*fasCpuReceived)(uint8_t n);
   void (*fasBlockParameterReceived)(uint8_t block, uint8_t param, uint16_t value, char* str, uint8_t strLen);
 

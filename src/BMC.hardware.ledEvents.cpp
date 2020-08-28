@@ -141,6 +141,21 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
         return fas.isTunerActive();
       } else if(byteA==2){
         return fas.tempoReceived() ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
+      } else if(byteA==3){
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+      } else if(byteA==4){
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_RECORDING);
+      } else if(byteA==5){
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_OVERDUBBING);
+      } else if(byteA==6){ // recording OR looping
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_OVERDUBBING) ||
+        fas.looperStatus(BMC_FAS_LOOPER_STATE_RECORDING);
+      } else if(byteA==7){
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_REVERSED);
+      } else if(byteA==8){
+        return fas.looperStatus(BMC_FAS_LOOPER_STATE_HALF);
+      } else if(byteA==9){ // stopped but has a track recorded
+        return fas.looperStopped() && fas.looperTrackRecorded();
       }
       break;
     case BMC_LED_EVENT_TYPE_FAS_PRESET:

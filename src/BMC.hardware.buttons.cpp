@@ -621,6 +621,8 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           } else {
             fas.connect();
           }
+        } else if(byteA>=5){// looper
+          fas.looperControl(byteA-5);
         }
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_PRESET:

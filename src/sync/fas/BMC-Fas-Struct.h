@@ -5,6 +5,10 @@
   See LICENSE file in the project root for full license information.
 
   Wrapper to control/read from Fractal Audio Devices
+
+  Currently only supports Axe Fx II/XL/+ and AX8
+
+  Support for Axe Fx 3 and FM3 is planned for the future
 */
 #ifndef BMC_FAS_STRUCT_H
 #define BMC_FAS_STRUCT_H
@@ -13,7 +17,7 @@
 
 #if defined(BMC_USE_FAS)
 
-#include "addon/BMC-Fas-Def.h"
+#include "sync/fas/BMC-Fas-Def.h"
 
 // Fractal Device ID, only AX8 supported at the moment
 // ------------------------
@@ -28,6 +32,7 @@
 // 0x08 AX8
 // 0x0A FX8 mk2
 // 0x10 Axe-Fx III
+// 0x11 FM3
 
 struct BMCFasBlocks {
   uint8_t id = 0;
@@ -123,23 +128,40 @@ struct BMCFasBlockStates {
   }
 };
 struct BMCFasLooper {
+  bool enabled = false;
   uint8_t data;
   uint8_t position;
   void set(uint8_t t_data, uint8_t t_position){
     data = t_data;
     position = t_position;
   }
-  bool recording(){ return bitRead(data, 0); }
-  bool play(){ return bitRead(data, 1); }
-  bool once(){ return bitRead(data, 2); }
-  bool overdub(){ return bitRead(data, 3); }
-  bool reverse(){ return bitRead(data, 4); }
-  bool half(){ return bitRead(data, 5); }
-  bool undo(){ return bitRead(data, 6); }
+  void changeState(bool value){
+    enabled = value;
+  }
+  bool getStates(uint8_t bit=255){
+    if(bit<=6){
+      return  bitRead(data, bit);
+    } else {
+      return data;
+    }
+    return false;
+  }
+  bool isEnabled(){   return enabled; }
+  bool recording(){   return bitRead(data, BMC_FAS_LOOPER_STATE_RECORDING); }
+  bool playing(){     return bitRead(data, BMC_FAS_LOOPER_STATE_PLAYING); }
+  bool once(){        return bitRead(data, BMC_FAS_LOOPER_STATE_ONCE); }
+  bool overdubbing(){ return bitRead(data, BMC_FAS_LOOPER_STATE_OVERDUBBING); }
+  bool reversed(){    return bitRead(data, BMC_FAS_LOOPER_STATE_REVERSED); }
+  bool half(){        return bitRead(data, BMC_FAS_LOOPER_STATE_HALF); }
+  bool undo(){        return bitRead(data, BMC_FAS_LOOPER_STATE_UNDO); }
+
+
   uint8_t getPosition(){ return position; }
   void reset(){
     data = 0;
     position = 0;
+    // do not reset the enabled as it's controller by BMC Settings.
+    //enabled = false;
   }
 };
 
@@ -155,7 +177,6 @@ struct BMCFasData {
   char presetName[32] = "";
   BMCFasBlockStates blocks;
   BMCFasLooper looper;
-
 
   uint16_t parameters[8];
   uint16_t parametersX[8];
@@ -219,7 +240,9 @@ struct BMCFasData {
     }
     return 255;
   }
-
+  bool getLooperState(){
+    return looper.isEnabled();
+  }
 
 
   void setIdAndPort(uint8_t t_id, uint8_t t_port){

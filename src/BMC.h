@@ -47,24 +47,20 @@
 #include "midi/BMC-MidiActiveSense.h"
 #include "editor/BMC-Editor.h"
 
-
-
-#ifdef BMC_USE_BEATBUDDY
-  #include "utility/BMC-BeatBuddy.h"
+#if defined(BMC_USE_FAS)
+  #include "sync/fas/BMC-Fas.h"
 #endif
 
-#ifdef BMC_USE_HELIX
-  #include "utility/BMC-Helix.h"
+#if defined(BMC_USE_KEMPER)
+  #include "sync/kemp/BMC-Kemp.h"
 #endif
 
-#ifdef BMC_USE_FAS
-  #include "addon/BMC-Fas-Def.h"
-  #include "addon/BMC-Fas-Struct.h"
-  #include "addon/BMC-Fas.h"
+#if defined(BMC_USE_BEATBUDDY)
+  #include "sync/beatbuddy/BMC-BeatBuddy.h"
 #endif
 
-#ifdef BMC_USE_KEMPER
-  #include "addon/BMC-Kemper.h"
+#if defined(BMC_USE_HELIX)
+  #include "sync/helix/BMC-Helix.h"
 #endif
 
 #if defined(BMC_MUX_AVAILABLE)
@@ -223,7 +219,7 @@ private:
 #endif
 
 #if defined(BMC_USE_KEMPER)
-// handles Kemper devices see src/addon/BMC-Kemper.h
+// handles Kemper devices see src/sync/BMC-Kemper.h
   BMCKemper kemper;
 #endif
 

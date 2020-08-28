@@ -43,6 +43,7 @@ public:
     BMC-Editor.cpp
   */
   BMCEditor(bmcStore& t_store, BMCMidi& t_midi, BMCSettings& t_settings, BMCMessenger& t_messenger);
+  
   void begin();
   void update();
   bool readyToReload();

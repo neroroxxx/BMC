@@ -22,7 +22,7 @@ BMC::BMC():
     ,helix(midi)
   #endif
   #ifdef BMC_USE_FAS
-    ,fas(midi)
+    ,fas(midi, globals)
   #endif
   #ifdef BMC_USE_KEMPER
     ,kemper(midi)
@@ -112,6 +112,10 @@ void BMC::begin(){
 
   delay(100);
 
+  #ifdef BMC_USE_FAS
+    fas.begin();
+  #endif
+
   // this flag will allow BMC to execute some code only the first time update() runs
   // yes that code can run here instead HOWEVER by letting that code execute
   // after the first loop we are allowing other classes with a begin() method
@@ -180,20 +184,20 @@ void BMC::update(){
     callback.midUpdate();
   }
 
-  #ifdef BMC_USE_HELIX
+#ifdef BMC_USE_HELIX
     helix.update();
-  #endif
+#endif
 
-  #ifdef BMC_USE_FAS
+#ifdef BMC_USE_FAS
     fas.update();
     if(fas.connectionStateChanged()){
       editor.utilitySendFasState(fas.getConnectedDeviceId());
     }
-  #endif
+#endif
 
-  #ifdef BMC_USE_KEMPER
+#ifdef BMC_USE_KEMPER
     kemper.update();
-  #endif
+#endif
 
   // Read/Update the hardware: buttons, leds, pots, encoders
   readHardware();

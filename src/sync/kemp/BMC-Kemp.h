@@ -8,7 +8,7 @@
 
   This class is not Tested, if you own a Kemper profiler please help development
   visit RoxXxtar.com/contact and message me.
-  Currently i'm trying to get my  hands on a Kemper for testing once I do I will
+  Currently i'm trying to get my hands on a Kemper for testing once I do I will
   implement the whole thing ;-)
 
   1: 0xF0
