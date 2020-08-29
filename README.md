@@ -15,7 +15,7 @@ BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
 
 ## [READ THE DOCUMENTATION](docs/README.md)
 
-***The Editor App is available for MacOS and Windows, however it's NOT signed, because of this it will not run on MacOS Catalina or later, you can download the desktop app and access the web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
+***You can access they web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
 ![BMC Editor App](images/bmc-editor-preview.jpg)
 
