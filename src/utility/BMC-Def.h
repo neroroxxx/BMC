@@ -621,16 +621,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #define BMC_STREAM_TEMPL_MIDI_CLOCK_BPM "BPM %03u"
 #endif
 
-// used temp page scrolling
-#ifndef BMC_STREAM_TEMPL_TMP_PAGE_SCROLL
-  #define BMC_STREAM_TEMPL_TMP_PAGE_SCROLL "Tmp Page %03u"
-#endif
-
-// used temp preset scrolling
-#ifndef BMC_STREAM_TEMPL_TMP_PRESET_SCROLL
-  #define BMC_STREAM_TEMPL_TMP_PRESET_SCROLL "Tmp Preset %03u"
-#endif
-
 #define BMC_FS_MAX_STORES 32
 
 #define BMC_BUTTON_PRESS_TYPE_PRESS 1
@@ -913,9 +903,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_BUTTON_EVENT_TYPE_LED_TEMP_BLINK 28
 #define BMC_BUTTON_EVENT_TYPE_GLOBAL_LED_TEMP_BLINK 29
 #define BMC_BUTTON_EVENT_TYPE_CONTROL_TOGGLE_2 30
-#define BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_TRIGGER 31
-#define BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_PAGES 32
-#define BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_PRESETS 33
+// available 31, 32 and 33
 #define BMC_BUTTON_EVENT_TYPE_NL_RELAY_CONTROL_TOGGLE 34
 #define BMC_BUTTON_EVENT_TYPE_L_RELAY_CONTROL_TOGGLE 35
 #define BMC_BUTTON_EVENT_TYPE_MIDI_REAL_TIME_BLOCK 36
@@ -1950,8 +1938,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ENCODER_EVENT_TYPE_CLOCK 1
 #define BMC_ENCODER_EVENT_TYPE_PAGES 2
 #define BMC_ENCODER_EVENT_TYPE_PRESETS 3
-#define BMC_ENCODER_EVENT_TYPE_TMP_SCROLLER_PAGES 4
-#define BMC_ENCODER_EVENT_TYPE_TMP_SCROLLER_PRESETS 5
+// available 4 & 5
 #define BMC_ENCODER_EVENT_TYPE_BEATBUDDY_CMD 6
 #define BMC_ENCODER_EVENT_TYPE_LIBRARY 7
 #define BMC_ENCODER_EVENT_TYPE_CUSTOM_SYSEX 8
@@ -2063,7 +2050,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #include "utility/BMC-Debug.h"
 #include "storage/BMC-Store.h"
 #include "utility/BMC-Scroller.h"
-#include "utility/BMC-TmpScroller.h"
 #include "utility/BMC-Structs.h"
 #include "utility/BMC-PixelColors.h"
 #include "utility/BMC-BuildData.h"

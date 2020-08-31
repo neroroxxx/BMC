@@ -284,15 +284,6 @@ private:
   bool pageChanged();
   bool pageChangedPeek();
 
-#if BMC_MAX_PRESETS > 0 || BMC_MAX_PAGES > 1
-  void triggerTmpScroller();
-#endif
-  void scrollTmpPage(uint8_t t_flags, uint8_t t_min,
-                  uint8_t t_max, uint8_t t_amount);
-  void scrollTmpPage(bool t_direction, bool t_endless,
-                  uint8_t t_min, uint8_t t_max,
-                  uint8_t t_amount);
-
   // EDITOR
   //BMC.editor.cpp
   void editorRead();
@@ -616,8 +607,6 @@ private:
   unsigned long getTiming(uint8_t n, bool t_micros=false);
 #endif
 
-  BMCTmpScroller tmpScroller;
-
   // code @ BMC.sketchStream.cpp
   // Value stream handlers
   // used to send data to the sketch for use with displays
@@ -626,8 +615,6 @@ private:
   void streamToSketch(uint8_t t_id, int t_value, char* str);
   void streamMidi(uint8_t status, uint8_t channel, uint8_t data1, uint8_t data2=255);
   void streamRawValue(uint16_t t_value);
-  void streamTmpScrollerPage(uint8_t value);
-  void streamTmpScrollerPreset(uint8_t value);
   void streamMidiProgram(uint8_t channel, uint8_t program);
   void streamMidiControl(uint8_t channel, uint8_t control, uint8_t value);
   void streamMidiClockBPM(uint16_t value);

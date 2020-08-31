@@ -287,9 +287,6 @@ void BMC::update(){
   // update globals clearing some flags that may need to be used only once
   globals.update();
 
-  // handle timeout for tmpScroller
-  tmpScroller.update();
-
   if(oneMillisecondPassed()){
     oneMilliSecondtimer = 0;
   }
@@ -318,34 +315,6 @@ void BMC::update(){
     oneSecondTimer = 0;
   }
 }
-
-#if BMC_MAX_PRESETS > 0 || BMC_MAX_PAGES > 1
-  // tmp Scroller
-  void BMC::triggerTmpScroller(){
-    if(tmpScroller.isActive()){
-      bool isPreset = tmpScroller.isPreset();
-      uint16_t value = tmpScroller.get();
-
-#if BMC_MAX_PRESETS > 0
-      if(isPreset){
-        char str[30] = "";
-        sprintf(str,"Preset %03u",value+1);
-        presets.set(value);
-        return;
-      }
-#endif
-
-#if BMC_MAX_PAGES > 1
-      if(!isPreset){
-        char str[30] = "";
-        sprintf(str,"Page %03u",value+1);
-        setPage(value);
-      }
-#endif
-    }
-  }
-#endif
-
 
 void BMC::stopwatchCmd(uint8_t cmd, uint8_t h, uint8_t m, uint8_t s){
   switch(cmd){

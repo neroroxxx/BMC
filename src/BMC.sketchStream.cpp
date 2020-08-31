@@ -86,26 +86,6 @@ void BMC::streamRawValue(uint16_t t_value){
     callback.valueStream(item);
   }
 }
-void BMC::streamTmpScrollerPage(uint8_t value){
-  if(callback.valueStream){
-    BMCValueStream item;
-    item.id = BMC_ITEM_ID_PAGE;
-    item.value = value;
-    item.data = value;
-    sprintf(item.name,BMC_STREAM_TEMPL_TMP_PAGE_SCROLL,value);
-    callback.valueStream(item);
-  }
-}
-void BMC::streamTmpScrollerPreset(uint8_t value){
-  if(callback.valueStream){
-    BMCValueStream item;
-    item.id = BMC_ITEM_ID_PRESET;
-    item.value = value;
-    item.data = value;
-    sprintf(item.name,BMC_STREAM_TEMPL_TMP_PRESET_SCROLL,value);
-    callback.valueStream(item);
-  }
-}
 void BMC::streamMidiProgram(uint8_t channel, uint8_t program){
   if(callback.valueStream){
     BMCValueStream item;

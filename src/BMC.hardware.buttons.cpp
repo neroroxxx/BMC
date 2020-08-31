@@ -324,19 +324,6 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         scrollPage(byteA, byteB, byteC, 1);
         break;
   #endif
-
-  #if BMC_MAX_PRESETS > 0 || BMC_MAX_PAGES > 1
-      case BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_TRIGGER:
-        triggerTmpScroller();
-        break;
-  #endif
-
-  #if BMC_MAX_PAGES > 1
-      case BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_PAGES:
-        scrollTmpPage(byteA, byteB, byteC, 1);
-        break;
-  #endif
-
       case BMC_BUTTON_EVENT_TYPE_PROGRAM_SCROLL:
         // byteA (bits 0-3) = Channel (0 to 15)
         // byteA (bits 4-7) = flags, bit-0 direction, bit-1 endless
@@ -807,17 +794,6 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteB = minimum preset for scrolling
         // byteC = maximum preset for scrolling
         presets.scroll(1, byteA, byteB, byteC);
-        break;
-      case BMC_BUTTON_EVENT_TYPE_TMP_SCROLLER_PRESETS:
-        {
-          uint8_t v = presets.get();
-          if(tmpScroller.isActive() && tmpScroller.isPreset()){
-            v = tmpScroller.get();
-          }
-          uint8_t tmp = presets.getScrollValue(v, 1, byteA, byteB, byteC);
-          tmpScroller.set(tmp, true);
-          streamTmpScrollerPreset(tmp+1);
-        }
         break;
       case BMC_BUTTON_EVENT_TYPE_PRESET_IN_BANK:
         // byteA = index of preset to send

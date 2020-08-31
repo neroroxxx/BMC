@@ -222,56 +222,6 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
       break;
 #endif
 
-#if BMC_MAX_PAGES > 1
-    case BMC_ENCODER_EVENT_TYPE_TMP_SCROLLER_PAGES:
-      // byteA = min Page
-      // byteB = max Page
-      // byteC = limit, BMC_SCROLL_LIMITED, BMC_SCROLL_ENDLESS
-      {
-        uint8_t v = page;
-        if(tmpScroller.isActive() && tmpScroller.isPage()){
-          v = tmpScroller.get();
-        }
-        tmp = getNewEncoderValue(
-          mode,
-          v,
-          0, BMC_MAX_PAGES-1,
-          byteA, byteB,
-          increased,
-          BMC_GET_BYTE(3,event)
-        );
-        tmp = tmp & 0xFF;
-        tmpScroller.set(tmp, false);
-        streamTmpScrollerPage(tmp+1);
-      }
-      break;
-#endif
-
-#if BMC_MAX_PRESETS > 0
-    case BMC_ENCODER_EVENT_TYPE_TMP_SCROLLER_PRESETS:
-      // byteA = min Presets
-      // byteB = max Presets
-      // byteC = limit, BMC_SCROLL_LIMITED, BMC_SCROLL_ENDLESS
-      {
-        uint8_t v = presets.get();
-        if(tmpScroller.isActive() && tmpScroller.isPreset()){
-          v = tmpScroller.get();
-        }
-        tmp = getNewEncoderValue(
-          mode,
-          v,
-          0, BMC_MAX_PRESETS-1,
-          byteA, byteB,
-          increased,
-          BMC_GET_BYTE(3,event)
-        );
-        tmp = tmp & 0xFF;
-        tmpScroller.set(tmp, true);
-        streamTmpScrollerPreset(tmp+1);
-      }
-      break;
-#endif
-
 #ifdef BMC_USE_BEATBUDDY
     case BMC_ENCODER_EVENT_TYPE_BEATBUDDY_CMD:
       if(byteA==BMC_BEATBUDDY_CMD_SONG_SCROLL_UP || byteA==BMC_BEATBUDDY_CMD_SONG_SCROLL_DOWN){

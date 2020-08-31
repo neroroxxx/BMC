@@ -77,19 +77,3 @@ void BMC::scrollPage(bool t_dir, bool t_endless, uint8_t t_min, uint8_t t_max, u
   BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
   setPage(scroller.scroll(t_amount, t_dir, t_endless, page, t_min, t_max));
 }
-
-void BMC::scrollTmpPage(uint8_t t_flags, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
-  // t_flags bit-0 = direction
-  // t_flags bit-1 = endless
-  scrollTmpPage((bitRead(t_flags,0)),bitRead(t_flags,1),t_min,t_max,t_amount);
-}
-void BMC::scrollTmpPage(bool t_dir, bool t_endless, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
-  uint8_t v = page;
-  if(tmpScroller.isActive() && tmpScroller.isPage()){
-    v = tmpScroller.get();
-  }
-  BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
-  uint8_t tmp = scroller.scroll(t_amount, t_dir, t_endless, v, t_min, t_max);
-  tmpScroller.set(tmp, false);
-  streamTmpScrollerPage(tmp+1);
-}
