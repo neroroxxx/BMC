@@ -741,6 +741,28 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 #if defined(BMC_USE_FAS)
               fas.setSceneNumber(valueTyper.getRawOutput(), true);
 #endif
+            } else if(cmd==17){// set typer channel for midi modes
+              // channel
+              uint8_t ch = valueTyper.getRawOutput();
+              if(ch>=0 && ch<=15){
+                typerChannel = ch+1;
+              }
+            } else if(cmd==18){
+              // program
+              uint8_t pc = valueTyper.getRawOutput();
+              midi.sendProgramChange(ports, typerChannel, pc);
+              streamMidiProgram(typerChannel, pc);
+            } else if(cmd==19){
+              // control 0 value
+              uint8_t val = valueTyper.getRawOutput();
+              midi.sendControlChange(ports, typerChannel, 0, val);
+              streamMidiControl(typerChannel, 0, val);
+            } else if(cmd==20){
+              // control toggle
+              uint8_t cc = valueTyper.getRawOutput();
+              uint8_t val = midi.toggleCC(ports, typerChannel, cc);
+              midi.sendControlChange(ports, typerChannel, cc, val);
+              streamMidiControl(typerChannel, cc, val);
             }
           }
         }

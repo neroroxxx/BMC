@@ -194,6 +194,8 @@ private:
   BMCMidi midi;
   // value typer object
   BMCTyper valueTyper;
+  // used for the value typer when sending PC or CC
+  uint8_t typerChannel = 1;
   // struct to hold messenger data sent between sketch and editor app
   BMCMessenger messenger;
   // editor handling all editing of the store
