@@ -27,6 +27,8 @@ public:
     potActivity = 0;
     ledsActivity = 0;
     globalLedsActivity = 0;
+    pixelsActivity = 0;
+    rgbPixelsActivity = 0;
 
 #if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
     potsToeSwitchState = 0;
@@ -126,6 +128,9 @@ public:
                       bmcStorePot data);
   void (*ledsActivity)(uint32_t states);
   void (*globalLedsActivity)(uint32_t states);
+  void (*pixelsActivity)(uint32_t states);
+  void (*rgbPixelsActivity)(uint32_t states);
+
   void (*globalButtonDualPress)(uint8_t btn1, uint8_t btn2);
   void (*globalButtonActivity)(uint8_t n, uint8_t eventIndex, uint8_t trigger,
                           bmcStoreButton button,

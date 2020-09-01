@@ -63,6 +63,16 @@ public:
   void onLedsActivity(void (*fptr)(uint32_t states)){
     callback.ledsActivity = fptr;
   }
+  // triggered when a pixel changes states, @states holds the state of each
+  // led in bits, so bit 0 of states, is LED 0, if bit 0 is not set then led is off
+  void onPixelsActivity(void (*fptr)(uint32_t states)){
+    callback.pixelsActivity = fptr;
+  }
+  // triggered when an RGB pixel changes states, @states holds the state of each
+  // led in bits, so bit 0 of states, is LED 0, if bit 0 is not set then led is off
+  void onRgbPixelsActivity(void (*fptr)(uint32_t states)){
+    callback.rgbPixelsActivity = fptr;
+  }
 
   // triggered when an global button is pressed, released, etc.
   // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.

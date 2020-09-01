@@ -231,6 +231,14 @@ void onLedsActivity(void (*fptr)(uint32_t states));
 // triggered when a global led changes states
 void onGlobalLedsActivity(void (*fptr)(uint32_t states));
 
+// triggered when a pixel changes states, @states holds the state of each
+// led in bits, so bit 0 of states, is LED 0, if bit 0 is not set then led is off
+void onPixelsActivity(void (*fptr)(uint32_t states));
+
+// triggered when an RGB pixel changes states, @states holds the state of each
+// led in bits, so bit 0 of states, is LED 0, if bit 0 is not set then led is off
+void onRgbPixelsActivity(void (*fptr)(uint32_t states));
+
 // for user defined events, includes page, global, pixels & rgb pixels
 // this callback must return true or false
 // true turns Led on, false turnes it off
