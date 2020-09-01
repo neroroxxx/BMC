@@ -19,6 +19,8 @@ BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
 
 ![BMC Editor App](images/bmc-editor-preview.jpg)
 
+**Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
+
 The goal of BMC is to let you build a MIDI Controller without having to worry about writing a ton of code by using all the power already available within the Teensy platform, all the code to support hardware, MIDI, Data Storage & Editor Communication is already part of the library.
 
 BMC utilizes a Configuration File which contains all the pre-processors that tell the library what features to compile, the Config file can be created manually or better yet it can be created using the Editor Apps GUI making it really easy to get started.
@@ -101,6 +103,8 @@ You can use any combination of Hardware as long as your Teensy supports it!
 **NOTE:** using Mux Inputs will not increase the maximum number of items that can be used, Mux Inputs just allow you to reach that maximum.
 
 ## Installation
+
+[![View installation instruction on YouTube](https://img.youtube.com/vi/FuYEk7bobh8/0.jpg)](https://www.youtube.com/watch?v=FuYEk7bobh8)
 
 #### Step 1
 First you will need to instal the Teensyduino addon for Arduino with all it's libraries, you can downloaded and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
