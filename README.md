@@ -104,7 +104,7 @@ You can use any combination of Hardware as long as your Teensy supports it!
 
 ## Installation
 
-[![View installation instruction on YouTube](https://img.youtube.com/vi/FuYEk7bobh8/0.jpg)](https://www.youtube.com/watch?v=FuYEk7bobh8)
+### [View installation instruction on YouTube](https://www.youtube.com/watch?v=FuYEk7bobh8)
 
 #### Step 1
 First you will need to instal the Teensyduino addon for Arduino with all it's libraries, you can downloaded and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
