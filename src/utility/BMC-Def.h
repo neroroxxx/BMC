@@ -116,15 +116,15 @@
     #define BMC_TEENSY_TOTAL_ANALOG_PINS 13
 
   #else
-    #error "BMC is only Compatible with Teensy LC/3.2/3.5/3.6/4.0/4.1"
+    #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
   #endif
 
 #else
-  #error "BMC is only Compatible with Teensy LC/3.2/3.5/3.6/4.0/4.1"
+  #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
 #if !defined(BMC_TEENSY_MODEL)
-  #error "BMC is only Compatible with Teensy LC/3.2/3.5/3.6/4.0/4.1"
+  #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
 // MIDI STATUS, keep them here as they are used throut BMC
