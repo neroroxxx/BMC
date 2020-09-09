@@ -38,21 +38,30 @@
 #include "sync/fas/BMC-Fas-Def.h"
 #include "sync/fas/BMC-Fas-Struct.h"
 
-#define BMC_FAS_FLAG_DEVICE_SEARCH 0
-#define BMC_FAS_FLAG_CONNECTED 1
-#define BMC_FAS_FLAG_CONNECTION_CHANGED 2
-#define BMC_FAS_FLAG_SYNCING 3
-#define BMC_FAS_FLAG_TUNER_ACTIVE 4
-#define BMC_FAS_FLAG_LOOPER_ACTIVE 5
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET 6
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME 7
-#define BMC_FAS_FLAG_SYNC_EXPECTING_SCENE 8
-#define BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS 9
-#define BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS 10
-#define BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN 11
-#define BMC_FAS_FLAG_TEMPO_RECEIVED 12
-#define BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE 13
-#define BMC_FAS_FLAG_CONNECTION_LOST 14
+#define BMC_FAS_FLAG_DEVICE_SEARCH                0
+#define BMC_FAS_FLAG_CONNECTED                    1
+#define BMC_FAS_FLAG_CONNECTION_CHANGED           2
+#define BMC_FAS_FLAG_SYNCING                      3
+#define BMC_FAS_FLAG_LOOPER_ACTIVE                4
+#define BMC_FAS_FLAG_SYNC_EXPECT_PRESET           5
+#define BMC_FAS_FLAG_SYNC_EXPECT_PRESET_NAME      6
+#define BMC_FAS_FLAG_SYNC_EXPECT_SCENE            7
+#define BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS           8
+#define BMC_FAS_FLAG_SYNC_EXPECT_PARAMETERS       9
+#define BMC_FAS_FLAG_SYNC_PARAM_SYNC_BEGIN        10
+#define BMC_FAS_FLAG_TEMPO_RECEIVED               11
+#define BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE       12
+#define BMC_FAS_FLAG_CONNECTION_LOST              13
+
+
+#define BMC_FAS_TUNER_FLAG_ACTIVE                 0
+#define BMC_FAS_TUNER_FLAG_FLAT                   1
+#define BMC_FAS_TUNER_FLAG_FLATTER                2
+#define BMC_FAS_TUNER_FLAG_FLATTEST               3
+#define BMC_FAS_TUNER_FLAG_SHARP                  4
+#define BMC_FAS_TUNER_FLAG_SHARPER                5
+#define BMC_FAS_TUNER_FLAG_SHARPEST               6
+
 
 #define BMC_FAS_RESYNC_TIMEOUT 250
 #define BMC_FAS_RESYNC_QUEUE_TIMEOUT 250
@@ -97,6 +106,7 @@ private:
   BMCMidi& midi;
   BMCGlobals& globals;
   BMCFlags <uint16_t> flags;
+  BMCFlags <uint8_t> tunerFlags;
   BMCTimer findDeviceTimer;
   BMCTimer startSyncTimer;
   BMCTimer resyncTimer;
@@ -152,7 +162,28 @@ public:
   }
 
   bool isTunerActive(){
-    return flags.read(BMC_FAS_FLAG_TUNER_ACTIVE);
+    return tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE);
+  }
+  bool tunerInTune(){
+    return isTunerActive() && (!tunerFlat() && !tunerSharp());
+  }
+  bool tunerFlat(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLAT);
+  }
+  bool tunerFlatter(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTER);
+  }
+  bool tunerFlattest(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTEST);
+  }
+  bool tunerSharp(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARP);
+  }
+  bool tunerSharper(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPER);
+  }
+  bool tunerSharpest(){
+    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPEST);
   }
   bool tempoReceived(){
     return flags.toggleIfTrue(BMC_FAS_FLAG_TEMPO_RECEIVED);
@@ -262,11 +293,32 @@ public:
   bool looperStatus(uint8_t cmd=255){
     return device.looper.getStates(cmd);
   }
-  bool looperTrackRecorded(){
-    return flags.read(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE);
+  bool looperPlaying(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+  }
+  bool looperRecording(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+  }
+  bool looperDubbing(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+  }
+  bool looperRecordingOrDubbing(){
+    return looperRecording() || looperDubbing();
+  }
+  bool looperReversed(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_REVERSED);
+  }
+  bool looperHalf(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_HALF);
+  }
+  bool looperStoppedWithTrack(){
+    return looperStopped() && looperTrackRecorded();
   }
   bool looperStopped(){
     return device.looper.getStates()==0;
+  }
+  bool looperTrackRecorded(){
+    return flags.read(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE);
   }
   bool connect(){
     if(connected()){
@@ -288,6 +340,7 @@ public:
     sendBasicSysEx(BMC_FAS_FUNC_ID_DISCONNECT);
     device.reset();
     flags.reset();
+    tunerFlags.reset();
     findDeviceTimer.stop();
     startSyncTimer.stop();
     resyncTimer.stop();
@@ -358,7 +411,7 @@ public:
       return false;
     }
     if(revert){
-      flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE);
+      flags.on(BMC_FAS_FLAG_SYNC_EXPECT_SCENE);
       sendControlChange(BMC_FAS_CC_SCENE, scene&0x07);
       return false;
     }
@@ -488,16 +541,16 @@ private:
       return;
     }
     BMC_INFO("FAS RE-SYNC QUEUED");
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET);
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME);
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE);
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECT_PRESET);
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECT_PRESET_NAME);
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECT_SCENE);
 /*
     if(device.id!=BMC_FAS_DEVICE_ID_AX8){
-      flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
+      flags.off(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
     }
 */
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
-    flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS);
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
+    flags.on(BMC_FAS_FLAG_SYNC_EXPECT_PARAMETERS);
     // quick is only true when the actual message is reaceived from the FAS device
     // this function is also used when other messages are received in which case
     // they request updated data, in that case we wait a little longer before resyncing
@@ -509,7 +562,7 @@ private:
     }
   }
   bool requestSyncParameters(){
-    if(!flags.read(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN)){
+    if(!flags.read(BMC_FAS_FLAG_SYNC_PARAM_SYNC_BEGIN)){
       return false;
     }
     for(uint8_t i = 0 ; i < 8 ; i++){
@@ -525,8 +578,8 @@ private:
       controlBlockParameter(block, param, 0, false);
       return true;
     }
-    flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS);
-    flags.off(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN);
+    flags.off(BMC_FAS_FLAG_SYNC_EXPECT_PARAMETERS);
+    flags.off(BMC_FAS_FLAG_SYNC_PARAM_SYNC_BEGIN);
     return false;
   }
   // Request the current Scene Number
@@ -548,16 +601,16 @@ private:
     // sync preset
     if(connected() && resyncTimer.complete()){
       resyncTimer.start(BMC_FAS_RESYNC_TIMEOUT);
-      if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET)){
+      if(flags.read(BMC_FAS_FLAG_SYNC_EXPECT_PRESET)){
         requestPresetNumber();
-      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME)){
+      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECT_PRESET_NAME)){
         requestPresetName();
-      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS)){
+      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS)){
         sendBasicSysEx(BMC_FAS_FUNC_ID_BLOCKS_DATA);
-      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE)){
+      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECT_SCENE)){
         requestScene();
-      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECTING_PARAMETERS)){
-        flags.on(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN);
+      } else if(flags.read(BMC_FAS_FLAG_SYNC_EXPECT_PARAMETERS)){
+        flags.on(BMC_FAS_FLAG_SYNC_PARAM_SYNC_BEGIN);
         requestSyncParameters();
       } else {
         resyncTimer.stop();

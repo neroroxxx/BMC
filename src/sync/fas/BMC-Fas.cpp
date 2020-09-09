@@ -53,7 +53,7 @@ void BMCFas::update(){
     }
   }
   if(tunerTimeout.complete()){
-    flags.off(BMC_FAS_FLAG_TUNER_ACTIVE);
+    tunerFlags.reset();
     if(midi.callback.fasTunerStateChange){
       midi.callback.fasTunerStateChange(false);
     }
@@ -115,15 +115,38 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       tunerData.pitch = map((message.sysex[8]&0x7F), 0, 127, -63, 64);
       tunerNote(tunerData.note, tunerData.noteName);
       tunerTimeout.start(250);
-      if(!flags.read(BMC_FAS_FLAG_TUNER_ACTIVE)){
+
+      if(!tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE)){
         if(midi.callback.fasTunerStateChange){
           midi.callback.fasTunerStateChange(true);
         }
-        flags.on(BMC_FAS_FLAG_TUNER_ACTIVE);
+        tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
         BMC_PRINTLN("--> FAS TUNER: ON");
       }
       if(midi.callback.fasTunerReceived){
         midi.callback.fasTunerReceived(tunerData);
+      }
+      //reset tuner flags but keep state flag on
+      tunerFlags.reset(1 << BMC_FAS_TUNER_FLAG_ACTIVE);
+      if(tunerData.pitch>=-3 && tunerData.pitch<=3){
+        // tuner center
+        // leave other flags off
+      } else if(tunerData.pitch<0){
+        tunerFlags.on(BMC_FAS_TUNER_FLAG_FLAT);
+        if(tunerData.pitch < -21){
+          tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTER);
+        }
+        if(tunerData.pitch < -41){
+          tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTEST);
+        }
+      } else if(tunerData.pitch>0){
+        tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARP);
+        if(tunerData.pitch > 21){
+          tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPER);
+        }
+        if(tunerData.pitch > 41){
+          tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPEST);
+        }
       }
     }
       return true;
@@ -189,7 +212,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
           midi.callback.fasBlocksChange();
         }
       }
-      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS)){
+      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS)){
         resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
       }
     }
@@ -236,7 +259,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
         midi.callback.fasConnection(true);
       }
       receivedReSync();
-      flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
+      flags.on(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
     }
       return true;
     case BMC_FAS_FUNC_ID_BLOCK_PARAM:{
@@ -288,7 +311,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       strcpy(device.presetName, "");
       message.getStringFromSysEx(6, device.presetName, 32);
       BMC_PRINTLN("--> FAS PRESET NAME:", device.presetName);
-      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET_NAME)){
+      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECT_PRESET_NAME)){
         resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
       }
       if(midi.callback.fasPresetName){
@@ -309,12 +332,12 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       }
       device.preset = value;
       BMC_PRINTLN("--> FAS PRESET NUMBER:", debugPrintPreset());
-      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET)){
+      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECT_PRESET)){
         resyncTimer.start(BMC_FAS_RESYNC_TIMEOUT);
       } else {
         receivedReSync();
-        flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_PRESET);
-        flags.on(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
+        flags.off(BMC_FAS_FLAG_SYNC_EXPECT_PRESET);
+        flags.on(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
         resyncTimer.start(BMC_FAS_RESYNC_TIMEOUT);
       }
     }
@@ -325,7 +348,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       }
       uint8_t value = message.get7Bits(6);
       if(device.scene!=value){
-        flags.on(BMC_FAS_FLAG_SYNC_PARAMETER_SYNC_BEGIN);
+        flags.on(BMC_FAS_FLAG_SYNC_PARAM_SYNC_BEGIN);
         requestSyncParameters();
         if(midi.callback.fasSceneChange){
           midi.callback.fasSceneChange(value);
@@ -333,14 +356,14 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       }
       device.scene = value;
       BMC_PRINTLN("--> FAS SCENE NUMBER:", device.scene+1);
-      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECTING_SCENE)){
+      if(flags.toggleIfTrue(BMC_FAS_FLAG_SYNC_EXPECT_SCENE)){
         resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
         if(device.id==BMC_FAS_DEVICE_ID_AX8){
-          flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
+          flags.off(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
         }
       } else {
         if(device.id!=BMC_FAS_DEVICE_ID_AX8){
-          flags.off(BMC_FAS_FLAG_SYNC_EXPECTING_BLOCKS);
+          flags.off(BMC_FAS_FLAG_SYNC_EXPECT_BLOCKS);
           resyncTimer.start(BMC_FAS_RESYNC_QUEUE_TIMEOUT);
         }
       }

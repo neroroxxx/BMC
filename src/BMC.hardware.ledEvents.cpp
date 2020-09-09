@@ -135,27 +135,24 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 
 #if defined(BMC_USE_FAS)
     case BMC_LED_EVENT_TYPE_FAS_STATE:
-      if(byteA==0){
-        return fas.connected();
-      } else if(byteA==1){
-        return fas.isTunerActive();
-      } else if(byteA==2){
-        return fas.tempoReceived() ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
-      } else if(byteA==3){
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
-      } else if(byteA==4){
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_RECORDING);
-      } else if(byteA==5){
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_OVERDUBBING);
-      } else if(byteA==6){ // recording OR looping
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_OVERDUBBING) ||
-        fas.looperStatus(BMC_FAS_LOOPER_STATE_RECORDING);
-      } else if(byteA==7){
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_REVERSED);
-      } else if(byteA==8){
-        return fas.looperStatus(BMC_FAS_LOOPER_STATE_HALF);
-      } else if(byteA==9){ // stopped but has a track recorded
-        return fas.looperStopped() && fas.looperTrackRecorded();
+      switch(byteA){
+        case 0: return fas.connected();
+        case 1: return fas.isTunerActive();
+        case 2: return fas.tempoReceived()?BMC_PULSE_LED_EVENT:BMC_IGNORE_LED_EVENT;
+        case 3: return fas.looperPlaying();
+        case 4: return fas.looperRecording();
+        case 5: return fas.looperDubbing();
+        case 6: return fas.looperRecordingOrDubbing();
+        case 7: return fas.looperReversed();
+        case 8: return fas.looperHalf();
+        case 9: return fas.looperStoppedWithTrack();
+        case 10: return fas.tunerInTune();
+        case 11: return fas.tunerFlat();
+        case 12: return fas.tunerFlatter();
+        case 13: return fas.tunerFlattest();
+        case 14: return fas.tunerSharp();
+        case 15: return fas.tunerSharper();
+        case 16: return fas.tunerSharpest();
       }
       break;
     case BMC_LED_EVENT_TYPE_FAS_PRESET:
