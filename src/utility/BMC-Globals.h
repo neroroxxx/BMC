@@ -87,10 +87,16 @@ public:
   void setMidiInActivity(){
     flags.on(BMC_GLOBALS_FLAG_MIDI_IN);
   }
+  void clearMidiInActivity(){
+    flags.off(BMC_GLOBALS_FLAG_MIDI_IN);
+  }
   bool midiInActivity(){
     return flags.read(BMC_GLOBALS_FLAG_MIDI_IN);
   }
   void setMidiOutActivity(){
+    flags.on(BMC_GLOBALS_FLAG_MIDI_OUT);
+  }
+  void clearMidiOutActivity(){
     flags.on(BMC_GLOBALS_FLAG_MIDI_OUT);
   }
   bool midiOutActivity(){

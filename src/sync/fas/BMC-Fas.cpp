@@ -11,6 +11,7 @@ BMCFas::BMCFas(BMCMidi& t_midi, BMCGlobals& t_globals):
 }
 void BMCFas::begin(){
   BMC_INFO("FAS Sync Version 1.0");
+  BMC_INFO("On Axe FX II to use the tuner toggle or tempo beat you MUST enable Real Time MIDI");
   flags.on(BMC_FAS_FLAG_DEVICE_SEARCH);
   findDeviceTimer.start(1000);
 }
@@ -54,6 +55,7 @@ void BMCFas::update(){
   }
   if(tunerTimeout.complete()){
     tunerFlags.reset();
+    sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, true);
     if(midi.callback.fasTunerStateChange){
       midi.callback.fasTunerStateChange(false);
     }
@@ -104,12 +106,14 @@ bool BMCFas::incoming(BMCMidiMessage& message){
         return false;
       }
       flags.on(BMC_FAS_FLAG_TEMPO_RECEIVED);
+      globals.clearMidiInActivity();
     }
       return true;
     case BMC_FAS_FUNC_ID_TUNER_INFO:{
       if(!connected() || !isFractMessage(message, 10)){
         return false;
       }
+      globals.clearMidiInActivity();
       tunerData.note = message.sysex[6];
       tunerData.stringNumber = message.sysex[7];
       tunerData.pitch = map((message.sysex[8]&0x7F), 0, 127, -63, 64);
@@ -121,30 +125,34 @@ bool BMCFas::incoming(BMCMidiMessage& message){
           midi.callback.fasTunerStateChange(true);
         }
         tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
+        // turn off looper data while tuning
+        sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, false);
         BMC_PRINTLN("--> FAS TUNER: ON");
       }
       if(midi.callback.fasTunerReceived){
         midi.callback.fasTunerReceived(tunerData);
       }
+      //BMC_PRINTLN("--> FAS TUNER: ", tunerData.pitch);
       //reset tuner flags but keep state flag on
-      tunerFlags.reset(1 << BMC_FAS_TUNER_FLAG_ACTIVE);
-      if(tunerData.pitch>=-3 && tunerData.pitch<=3){
+      tunerFlags.reset();
+      tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
+      if(tunerData.pitch>=-4 && tunerData.pitch<=4){
         // tuner center
         // leave other flags off
       } else if(tunerData.pitch<0){
         tunerFlags.on(BMC_FAS_TUNER_FLAG_FLAT);
-        if(tunerData.pitch < -21){
+        if(tunerData.pitch < -12){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTER);
         }
-        if(tunerData.pitch < -41){
+        if(tunerData.pitch < -24){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTEST);
         }
       } else if(tunerData.pitch>0){
         tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARP);
-        if(tunerData.pitch > 21){
+        if(tunerData.pitch > 12){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPER);
         }
-        if(tunerData.pitch > 41){
+        if(tunerData.pitch > 24){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPEST);
         }
       }
@@ -154,6 +162,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       if(!connected() || !isFractMessage(message, 9)){
         return false;
       }
+      globals.clearMidiInActivity();
       uint8_t data = message.sysex[6];
       uint8_t position = message.sysex[7];
       device.looper.set(data, position);

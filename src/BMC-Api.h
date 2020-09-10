@@ -1277,19 +1277,51 @@ public:
       fas.connect();
     }
   }
+  // copy the current Preset Name into a buffer char array
+  // the length of the char array must be at least 32 bytes
   bool getFasPresetName(char* str){
     fas.getPresetName(str);
     return fas.connected();
   }
+  // get the synced preset number (0 index)
+  // this is the actual preset number within your Fractal, these are not
+  // broken into bank/preset but the location of the preset in your fractal's memory
+  // depending on your Fractal the numbers will be:
+  // Axe FX II: 0 to 383
+  // Axe FX II XL/XL+: 0 tp 767
+  // AX8: 0 to 511
   uint16_t getFasPresetNumber(){
     return fas.getPresetNumber();
   }
+  // get the synced scene number
   uint8_t getFasSceneNumber(){
     return fas.getSceneNumber();
   }
+  // get the synced preset Bank Number (0 index)
+  // the Axe FX II has 384 presets that is 3 banks each with 128 presets
+  // on Axe FX II a number from 0 to 2 will be returned
+  // the Axe FX II XL and XL+ have 768 for a total of 6 banks of 128 presets each
+  // so a number from 0 to 5 will be returned
+  // the AX8 has 512 presets, 64 banks of 8 presets per bank
+  // so a number from 0 to 63 will be returned
+  uint8_t getFasPresetBankNumber(){
+    return fas.getPresetBankNumber();
+  }
+  // get the synced preset number within it's bank (0 index)
+  // on Axe FX there are 128 presets per bank so a number from 000 to 127
+  // will always be returned
+  // on AX8 there are 8 presets per bank so a number from 000 to 007 will
+  // always be returned.
+  // use this in conjunction with getFasPresetBankNumber() to get the
+  // bank # & preset # to display it on an LCD or OLED
+  uint8_t getFasPresetInBankNumber(){
+    return fas.getPresetInBankNumber();
+  }
+  // change to a new FAS preset number, value is the actual preset number
   void setFasPresetNumber(uint16_t value){
     fas.setPreset(value);
   }
+  // change to a new FAS scene number, value must be 0 to 7
   void setFasSceneNumber(uint8_t value, bool revert=false){
     fas.setSceneNumber(value, revert);
   }

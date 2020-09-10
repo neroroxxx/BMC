@@ -510,6 +510,31 @@ public:
   bool connectionStateChanged(){
     return flags.toggleIfTrue(BMC_FAS_FLAG_CONNECTION_CHANGED);
   }
+  uint8_t getPresetBankNumber(){
+    switch(device.id){
+      case BMC_FAS_DEVICE_ID_AXE_FX_II:
+      case BMC_FAS_DEVICE_ID_AXE_FX_II_XL:
+      case BMC_FAS_DEVICE_ID_AXE_FX_II_XL_PLUS:
+        return ((device.preset>>7) & 0x7F);
+      case BMC_FAS_DEVICE_ID_AX8:{
+        return (device.preset>>3);
+      }
+    }
+    return 0;
+  }
+  uint8_t getPresetInBankNumber(){
+    switch(device.id){
+      case BMC_FAS_DEVICE_ID_AXE_FX_II:
+      case BMC_FAS_DEVICE_ID_AXE_FX_II_XL:
+      case BMC_FAS_DEVICE_ID_AXE_FX_II_XL_PLUS:{
+        return (device.preset & 0x7F);
+      }
+      case BMC_FAS_DEVICE_ID_AX8:{
+        return (device.preset & 0x07);
+      }
+    }
+    return 0;
+  }
 
 private:
   // send the message that will trigger a response
