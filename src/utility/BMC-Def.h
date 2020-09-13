@@ -275,8 +275,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MERGE_BYTES3(a,b,c)      ((c & 0xFF) | ((b & 0xFF)<<8) | ((a & 0xFF)<<16))
 #define BMC_MERGE_BYTES4(a,b,c,d)    ((d & 0xFF) | ((c & 0xFF)<<8) | ((b & 0xFF)<<16) | ((a & 0xFF)<<24))
 
-#define BMC_EVENT_TO_PRESET_NUM(e) ((bmcPreset_t) (e & 0x3FF))
-#define BMC_EVENT_TO_LIBRARY_NUM(e) ((bmcLibrary_t) (e & 0x3FF))
+#define BMC_EVENT_TO_PRESET_NUM(e) ((bmcPreset_t) ((e) & 0x3FF))
+#define BMC_EVENT_TO_LIBRARY_NUM(e) ((bmcLibrary_t) ((e) & 0x3FF))
 
 // Supported chipsets for Mux In
 #define BMC_MUX_IN_CHIPSET_OTHER 1
