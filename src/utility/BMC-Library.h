@@ -155,7 +155,7 @@ private:
 
   #if BMC_MAX_CUSTOM_SYSEX > 0
     BMCCustomSysEx& customSysEx;
-    void sendCustomSysEx(uint8_t index, uint8_t status, uint8_t ports){
+    void sendCustomSysEx(bmcLibrary_t index, uint8_t status, uint8_t ports){
       uint8_t mode = BMC_CUSTOM_SYSEX_SEND_A;
       if(status==0xF1){
         mode = BMC_CUSTOM_SYSEX_SEND_B;

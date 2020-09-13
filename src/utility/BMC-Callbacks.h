@@ -174,7 +174,7 @@ public:
   bool (*midiPreRoute)(BMCMidiMessage& data, uint8_t destinations);
 
   void (*valueStream)(BMCValueStream item);
-  void (*presetChanged)(uint8_t n);
+  void (*presetChanged)(bmcPreset_t n);
   void (*presetBankChanged)(uint8_t n);
   void (*setListChanged)(uint8_t n);
   void (*setListSongChanged)(uint8_t n);

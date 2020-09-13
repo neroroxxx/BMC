@@ -156,20 +156,8 @@ public:
     writeFlag(8, value);
   }
 
-
-
-
-
-  // DATA BYTES
-/*
-  // moved to settins.data[2] to increase value
-  uint8_t getButtonHoldThreshold(){
-    return settings.data[0] & 0x03;
-  }
-  void setButtonHoldThreshold(uint8_t value){
-    BMC_WRITE_BITS(settings.data[0],value,0x03,0);
-  }
-*/
+  // data array
+  
   uint8_t getListenerChannel(){
     return (settings.data[0]>>2) & 0x1F;
   }

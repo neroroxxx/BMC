@@ -334,7 +334,7 @@ public:
   }
 #endif
   // triggered when a BMC Preset has changed
-  void onPresetChange(void (*fptr)(uint8_t n)){
+  void onPresetChange(void (*fptr)(bmcPreset_t n)){
     callback.presetChanged = fptr;
   }
   // triggered when a BMC Preset Bank has changed

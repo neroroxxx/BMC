@@ -100,10 +100,10 @@ public:
   void scrollInBank(uint8_t t_amount, bool t_up, bool t_endless){
     scrollInBank(t_amount, t_up, t_up, 0, BMC_MAX_PRESETS_PER_BANK-1);
   }
-  void scrollInBank(uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
+  void scrollInBank(uint8_t t_amount, uint8_t t_flags, bmcPreset_t t_min, bmcPreset_t t_max){
     scrollInBank(t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
   }
-  void scrollInBank(uint8_t t_amount, bool t_up, bool t_endless, uint8_t t_min, uint8_t t_max){
+  void scrollInBank(uint8_t t_amount, bool t_up, bool t_endless, bmcPreset_t t_min, bmcPreset_t t_max){
     // first preset of bank
     uint8_t s = bank * BMC_MAX_PRESETS_PER_BANK;
     t_min += s;
