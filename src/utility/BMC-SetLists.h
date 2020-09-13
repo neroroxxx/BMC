@@ -39,7 +39,7 @@ public:
     if(global.setLists[n].length > n){
       presets.set(global.setLists[setList].songs[n]);
     }
-    BMC_PRINTLN("Song #",n);
+    BMC_PRINTLN("Song #", n);
     flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
   }
   // Set List Scrolling

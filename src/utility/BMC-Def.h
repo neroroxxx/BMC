@@ -275,6 +275,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MERGE_BYTES3(a,b,c)      ((c & 0xFF) | ((b & 0xFF)<<8) | ((a & 0xFF)<<16))
 #define BMC_MERGE_BYTES4(a,b,c,d)    ((d & 0xFF) | ((c & 0xFF)<<8) | ((b & 0xFF)<<16) | ((a & 0xFF)<<24))
 
+#define BMC_EVENT_TO_PRESET_NUM(e) ((bmcPreset_t) (e & 0x3FF))
+#define BMC_EVENT_TO_LIBRARY_NUM(e) ((bmcLibrary_t) (e & 0x3FF))
+
 // Supported chipsets for Mux In
 #define BMC_MUX_IN_CHIPSET_OTHER 1
 #define BMC_MUX_IN_CHIPSET_MCP2301X 2
@@ -882,7 +885,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_BUTTON_EVENT_TYPE_MASTER_CLOCK_SET 7
 #define BMC_BUTTON_EVENT_TYPE_LIBRARY 8
 #define BMC_BUTTON_EVENT_TYPE_LIBRARY2 9
-#define BMC_BUTTON_EVENT_TYPE_LIBRARY3 10
+//#define BMC_BUTTON_EVENT_TYPE_LIBRARY3 10 // available......
 #define BMC_BUTTON_EVENT_TYPE_PRESET 11
 #define BMC_BUTTON_EVENT_TYPE_PRESET_SCROLL 12
 #define BMC_BUTTON_EVENT_TYPE_CUSTOM_SYSEX 13
@@ -1966,7 +1969,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_TRIGGER_EVENT_TYPE_BUTTON 2
 #define BMC_TRIGGER_EVENT_TYPE_LIBRARY 3
 #define BMC_TRIGGER_EVENT_TYPE_LIBRARY2 4
-#define BMC_TRIGGER_EVENT_TYPE_LIBRARY3 5
+//#define BMC_TRIGGER_EVENT_TYPE_LIBRARY3 5 // available
 #define BMC_TRIGGER_EVENT_TYPE_PRESET 6
 #define BMC_TRIGGER_EVENT_TYPE_PRESET_SCROLL 7
 #define BMC_TRIGGER_EVENT_TYPE_PAGE 8

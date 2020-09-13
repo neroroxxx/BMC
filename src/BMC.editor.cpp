@@ -442,11 +442,11 @@ void BMC::ctrlHardware(){
 void BMC::ctrlPreset(){
   switch(editor.getCtrlParameter()){
     case BMC_CTRL_PRESET_GET:
-      editor.utilitySendPreset(presets.get(),false);
+      editor.utilitySendPreset(presets.get(), false);
       break;
     case BMC_CTRL_PRESET_SET:
       if(editor.getCtrlWrite() && editor.getCtrlValue() < BMC_MAX_PRESETS){
-        presets.set(editor.getCtrlValue() & 0xFF);
+        presets.set((bmcPreset_t) editor.getCtrlValue());
         // since this is a request that can be sent not just by the editor app
         // we need to send a notification of this change right away
         // so we send it out (second parameter false means it should be sent

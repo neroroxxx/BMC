@@ -57,7 +57,7 @@ public:
 
     }
   #endif
-  void send(uint8_t index){
+  void send(bmcLibrary_t index){
     uint8_t status = (global.library[index].event & 0xFF);
     if(index < BMC_MAX_LIBRARY && status>0x7F){
       if(status<0xF0){
@@ -70,7 +70,7 @@ public:
       }
     }
   }
-  void sendWithDifferentPorts(uint8_t index, uint8_t ports){
+  void sendWithDifferentPorts(bmcLibrary_t index, uint8_t ports){
     uint8_t status = (global.library[index].event & 0xFF);
     if(index < BMC_MAX_LIBRARY && status > 0x7F){
       if(status<0xF0){
@@ -82,25 +82,25 @@ public:
       }
     }
   }
-  void send(uint8_t index, uint8_t index2){
+  void send(bmcLibrary_t index, bmcLibrary_t index2){
     send(index);
     send(index2);
   }
-  void send(uint8_t index, uint8_t index2, uint8_t index3){
+  void send(bmcLibrary_t index, bmcLibrary_t index2, bmcLibrary_t index3){
     send(index);
     send(index2);
     send(index3);
   }
 
   // these are here to make it easier to access a library message from the outside
-  uint32_t getEvent(uint8_t n){
+  uint32_t getEvent(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
     return global.library[n].event;
   }
   // get the status of an event (program,control, etc.)
-  uint8_t getStatus(uint8_t n){
+  uint8_t getStatus(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
@@ -113,14 +113,14 @@ public:
   }
   // we always return the channel from 1 to 16 rather than from 0 to 15
   // to match the MIDI Library
-  uint8_t getChannel(uint8_t n){
+  uint8_t getChannel(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
     return (BMC_GET_BYTE(0, global.library[n].event) & 0x0F) + 1;
   }
   // since these can only be 7 bits we mask it
-  uint8_t getData1(uint8_t n){
+  uint8_t getData1(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
@@ -128,20 +128,20 @@ public:
   }
   // these can only be 7 bits, however a value of 128 or higher can be used
   // to toggle a control change
-  uint8_t getData2(uint8_t n){
+  uint8_t getData2(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
     return BMC_GET_BYTE(2, global.library[n].event);
   }
-  uint8_t getPort(uint8_t n){
+  uint8_t getPort(bmcLibrary_t n){
     if(n>=BMC_MAX_LIBRARY){
       return 0;
     }
     return BMC_GET_BYTE(3, global.library[n].event);
   }
 #if BMC_NAME_LEN_LIBRARY > 1
-  void getName(uint8_t n, char* t_string){
+  void getName(bmcLibrary_t n, char* t_string){
     strcpy(t_string, global.library[n].name);
   }
 #endif

@@ -90,7 +90,7 @@
   #if BMC_MAX_MUX_GPIO > 64
     #error "BMC supports up to 64 Mux GPIO Pins"
   #endif
-  
+
   #if BMC_MAX_MUX_GPIO > 0
     #undef BMC_MAX_MUX_IN
     #undef BMC_MAX_MUX_OUT
@@ -780,6 +780,23 @@
 #else
   #define _____BMC_POT_TOE_SWITCH 0
 #endif
+
+  // typedef for Presets and library
+  // this is used in order to increase the maximum from 255 to up to 999
+  // this is for both presets and library.
+  // if there are more than 255 presets then we'll need a 16-bit type to hold
+  // the value, same applies to the library
+  #if BMC_MAX_PRESETS > 255
+    typedef uint16_t bmcPreset_t;
+  #else
+    typedef uint8_t bmcPreset_t;
+  #endif
+
+  #if BMC_MAX_LIBRARY > 255
+    typedef uint16_t bmcLibrary_t;
+  #else
+    typedef uint8_t bmcLibrary_t;
+  #endif
 
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch

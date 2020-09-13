@@ -508,44 +508,44 @@ public:
   #if BMC_NAME_LEN_LIBRARY > 1
     // retrieve a Library event name
     // must pass a pointer to your string with length >= BMC_NAME_LEN_LIBRARY
-    void getLibraryEventName(uint8_t n, char* t_string){
+    void getLibraryEventName(bmcLibrary_t n, char* t_string){
       if(n<BMC_MAX_LIBRARY){
         library.getName(n, t_string);
       }
     }
   #endif
   // send/execute a library event
-  void sendLibraryEvent(uint8_t n){
+  void sendLibraryEvent(bmcLibrary_t n){
     library.send(n);
   }
   // send a library even but override the port(s)
   // example to send library event 0 to USB and Serial A ports at the same time
   // sendLibraryEventToPorts(0, BMC_USB | BMC_SERIAL_A);
-  void sendLibraryEventToPorts(uint8_t n, uint8_t ports){
+  void sendLibraryEventToPorts(bmcLibrary_t n, uint8_t ports){
     library.sendWithDifferentPorts(n, ports);
   }
   // retrieve the a library event as a 32-bit unsigned integer
-  uint32_t getLibraryEvent(uint8_t n){
+  uint32_t getLibraryEvent(bmcLibrary_t n){
     return library.getEvent(n);
   }
   // retrieve the status of a library event
-  uint8_t getLibraryEventStatus(uint8_t n){
+  uint8_t getLibraryEventStatus(bmcLibrary_t n){
     return library.getStatus(n);
   }
   // retrieve the channel of a library event
-  uint8_t getLibraryEventChannel(uint8_t n){
+  uint8_t getLibraryEventChannel(bmcLibrary_t n){
     return library.getChannel(n);
   }
   // retrieve the first MIDI word of a library event
-  uint8_t getLibraryEventData1(uint8_t n){
+  uint8_t getLibraryEventData1(bmcLibrary_t n){
     return library.getData1(n);
   }
   // retrieve the second MIDI word of a library event
-  uint8_t getLibraryEventData2(uint8_t n){
+  uint8_t getLibraryEventData2(bmcLibrary_t n){
     return library.getData2(n);
   }
   // retrieve the stored ports of a library event
-  uint8_t getLibraryEventPort(uint8_t n){
+  uint8_t getLibraryEventPort(bmcLibrary_t n){
     return library.getPort(n);
   }
 #endif
@@ -560,22 +560,22 @@ public:
       getPresetName(presets.get(), t_string);
     }
     // retrieve a preset name
-    void getPresetName(uint8_t n, char* t_string){
+    void getPresetName(bmcPreset_t n, char* t_string){
       if(n<BMC_MAX_PRESETS){
         presets.getName(n, t_string);
       }
     }
   #endif
   // get how many library messages this preset has
-  uint8_t getPresetLength(uint8_t n){
+  uint8_t getPresetLength(bmcPreset_t n){
     return presets.getLength(n);
   }
   // get a library message id
-  uint8_t getPresetItem(uint8_t n, uint8_t e){
+  bmcLibrary_t getPresetItem(bmcPreset_t n, bmcLibrary_t e){
     return presets.getPresetItem(n, e);
   }
   // get the current preset number
-  uint8_t getPreset(){
+  bmcPreset_t getPreset(){
     return presets.get();
   }
   // get the current preset bank
@@ -587,7 +587,7 @@ public:
     return presets.getPresetInBank();
   }
   // change to a preset
-  void setPreset(uint8_t n){
+  void setPreset(bmcPreset_t n){
     presets.set(n);
   }
   // go to the next preset

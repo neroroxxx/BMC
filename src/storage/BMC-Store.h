@@ -109,7 +109,7 @@
   // Presets object
   struct __attribute__ ((packed)) bmcStoreGlobalPresets {
     uint8_t length = 0;
-    uint8_t events[BMC_MAX_PRESET_ITEMS];
+    bmcLibrary_t events[BMC_MAX_PRESET_ITEMS];
     #if BMC_NAME_LEN_PRESETS > 1
       char name[BMC_NAME_LEN_PRESETS] = "";
     #endif
@@ -117,7 +117,7 @@
   // SetList Song object
   struct __attribute__ ((packed)) bmcStoreGlobalSetList {
     uint8_t length = 0;
-    uint8_t songs[BMC_MAX_SETLISTS_SONGS];
+    bmcPreset_t songs[BMC_MAX_SETLISTS_SONGS];
     #if BMC_NAME_LEN_SETLISTS > 1
       char name[BMC_NAME_LEN_SETLISTS] = "";
     #endif
@@ -166,7 +166,7 @@
     #if BMC_MAX_LIBRARY > 0
       bmcStoreGlobalLibrary library[BMC_MAX_LIBRARY];
       #if BMC_MAX_PRESETS > 0
-        uint8_t startup = 0;
+        bmcPreset_t startup = 0;
         bmcStoreGlobalPresets presets[BMC_MAX_PRESETS];
         #if BMC_MAX_SETLISTS > 0
           bmcStoreGlobalSetList setLists[BMC_MAX_SETLISTS];

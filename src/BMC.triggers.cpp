@@ -162,42 +162,28 @@
 
 #if BMC_MAX_LIBRARY > 0
       case BMC_TRIGGER_EVENT_TYPE_LIBRARY:
-        // event (bits 08 to 15) = Library Index
-        library.send(byteA);
+        // event (bits 08 to 17) = Library Index
+        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8));
         BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_LIBRARY");
         break;
 #endif
 
 #if BMC_MAX_LIBRARY > 1
       case BMC_TRIGGER_EVENT_TYPE_LIBRARY2:
-        // event (bits 08 to 15) = Library Index
-        // event (bits 16 to 23) = Library Index
+        // event (bits 08 to 17) = Library Index
+        // event (bits 18 to 27) = Library Index
         library.send(
-          byteA,
-          byteB
+          BMC_EVENT_TO_LIBRARY_NUM(event>>8),
+          BMC_EVENT_TO_LIBRARY_NUM(event>>18)
         );
         BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_LIBRARY2");
         break;
 #endif
 
-#if BMC_MAX_LIBRARY > 2
-      case BMC_TRIGGER_EVENT_TYPE_LIBRARY3:
-        // event (bits 08 to 15) = Library Index
-        // event (bits 16 to 23) = Library Index
-        // event (bits 24 to 31) = Library Index
-        library.send(
-          byteA,
-          byteB,
-          byteC
-        );
-        BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_LIBRARY3");
-        break;
-#endif
-
 #if BMC_MAX_PRESETS > 0
       case BMC_TRIGGER_EVENT_TYPE_PRESET:
-        // event (bits 08 to 15) = Preset Index
-        presets.set(byteA);
+        // event (bits 08 to 17) = Preset Index
+        presets.set(BMC_EVENT_TO_PRESET_NUM(event>>8));
         BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_PRESET");
         break;
 #endif
@@ -206,13 +192,13 @@
       case BMC_TRIGGER_EVENT_TYPE_PRESET_SCROLL:
         // byteA (flags) = bit-0 scroll direction, down (0), up (1)
         // byteA (flags) = bit-1 limit, limited (0), endless (1)
-        // byteB = minimum preset for scrolling
+        // byteB = maximum preset for scrolling
         // byteC = maximum preset for scrolling
         presets.scroll(
           1,
           byteA,
-          byteB,
-          byteC
+          0,
+          BMC_EVENT_TO_PRESET_NUM((byteC<<8) | byteB)
         );
         BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_PRESET_SCROLL");
         break;

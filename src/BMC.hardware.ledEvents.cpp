@@ -181,7 +181,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 
 #if BMC_MAX_PRESETS > 0
     case BMC_LED_EVENT_TYPE_PRESET:
-      return byteA == presets.get();
+      return BMC_EVENT_TO_PRESET_NUM(event>>8) == presets.get();
     case BMC_LED_EVENT_TYPE_PRESET_IN_BANK:
       return presets.isPresetInBank(byteA);
     case BMC_LED_EVENT_TYPE_PRESETS_BANK:

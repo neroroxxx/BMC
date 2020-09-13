@@ -64,7 +64,7 @@ void BMCEditor::backupGlobalStringLibrary(uint16_t t_minLength){
 
 void BMCEditor::backupGlobalLibrary(uint16_t t_minLength){
 #if BMC_MAX_LIBRARY > 0
-  uint16_t index = getMessagePageNumber();
+  bmcLibrary_t index = (bmcLibrary_t) getMessagePageNumber();
   if(index >= BMC_MAX_LIBRARY){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
@@ -96,7 +96,7 @@ void BMCEditor::backupGlobalLibrary(uint16_t t_minLength){
 }
 void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
 #if BMC_MAX_PRESETS > 0
-  uint16_t index = getMessagePageNumber();
+  bmcPreset_t index = (bmcPreset_t) getMessagePageNumber();
   if(index >= BMC_MAX_PRESETS){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
@@ -127,12 +127,12 @@ void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
         // only add the item if it's within the limir compiled
         if(i < BMC_MAX_PRESET_ITEMS){
           //item.events[i] = BMC_MIDI_ARRAY_TO_8BITS(e,incoming.sysex);
-          item.events[i] = incoming.get8Bits(e);
+          item.events[i] = (bmcLibrary_t) incoming.get14Bits(e);
           // if the library item is higher than the compiled we set it
           // to 0 and we lower the length of items that are part of the preset
           if(item.events[i] >= BMC_MAX_LIBRARY){
             item.events[i] = 0;
-            if(item.length>0){
+            if(item.length > 0){
               item.length--;
             }
           }
@@ -144,7 +144,7 @@ void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
         if(nameLength > BMC_NAME_LEN_PRESETS){
           nameLength = BMC_NAME_LEN_PRESETS;
         }
-        incoming.getStringFromSysEx(e,item.name,nameLength);
+        incoming.getStringFromSysEx(e, item.name, nameLength);
       #endif
     }
   }
@@ -157,7 +157,7 @@ void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
   // from the standard read/write messages
   if(incoming.size() >= t_minLength){
     //uint8_t index = BMC_MIDI_ARRAY_TO_8BITS(9,incoming.sysex);
-    uint8_t index = incoming.get8Bits(9);
+    bmcPreset_t index = incoming.get14Bits(9);
     if(index >= BMC_MAX_PRESETS){
       index = 0;
     }
@@ -199,7 +199,7 @@ void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
         // only add the item if it's within the limir compiled
         if(i < BMC_MAX_SETLISTS_SONGS){
           //item.songs[i] = BMC_MIDI_ARRAY_TO_8BITS(e,incoming.sysex);
-          item.songs[i] = incoming.get8Bits(e);
+          item.songs[i] = (bmcPreset_t) incoming.get14Bits(e);
           // if the library item is higher than the compiled we set it
           // to 0 and we lower the length of items that are part of the preset
           if(item.songs[i] >= BMC_MAX_PRESETS){

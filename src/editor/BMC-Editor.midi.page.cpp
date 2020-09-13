@@ -758,7 +758,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
   if(mode!=BMC_PAGEF_HARDWARE_COPY && mode!=BMC_PAGEF_HARDWARE_SWAP){
     sendNotification(BMC_NOTIFY_INVALID_REQUEST, 0, true);
     return;
-  } else if(incoming.size() != 18){
+  } else if(incoming.size() != 20){
     // check required SysEx Length
     sendNotification(BMC_NOTIFY_INVALID_PAGE, 18, true);
     return;
@@ -774,8 +774,8 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 
   uint8_t sourcePage = incoming.get8Bits(10);
   uint8_t targetPage = incoming.get8Bits(12);
-  uint8_t sourceItem = incoming.get7Bits(14);
-  uint8_t targetItem = incoming.get7Bits(15);
+  uint16_t sourceItem = incoming.get14Bits(14);
+  uint16_t targetItem = incoming.get14Bits(16);
   if(sourcePage==targetPage && sourceItem==targetItem){
     // notify: copying the same item in the same page
     sendNotification(BMC_NOTIFY_INVALID_COPY_REQUEST, __LINE__, true);

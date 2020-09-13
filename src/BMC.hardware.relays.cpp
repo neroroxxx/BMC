@@ -195,7 +195,7 @@ void BMC::handleRelaysL(uint8_t index){
         case BMC_RELAY_EVENT_TYPE_PRESET:
           if(presets.peekChanged()){
             uint8_t newState = BMC_GET_BYTE(3, event) & 0x03;
-            if(BMC_GET_BYTE(1, event) == presets.get()){
+            if(BMC_EVENT_TO_PRESET_NUM(event>>8) == presets.get()){
               setRelay(index, latching, newState);
             } else if(newState!=BMC_RELAY_TOGGLE){
               setRelay(index, latching, !newState);

@@ -767,18 +767,12 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
   #if BMC_MAX_LIBRARY > 0
       case BMC_BUTTON_EVENT_TYPE_LIBRARY:
         // byteA = index of the library item
-        library.send(byteA);
+        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8));
         break;
       case BMC_BUTTON_EVENT_TYPE_LIBRARY2:
         // byteA = index of the 1st library item to send
         // byteB = index of the 2nd library item to send
-        library.send(byteA, byteB);
-        break;
-      case BMC_BUTTON_EVENT_TYPE_LIBRARY3:
-        // byteA = index of the 1st library item to send
-        // byteB = index of the 2nd library item to send
-        // byteC = index of the 3rd library item to send
-        library.send(byteA, byteB, byteC);
+        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8), BMC_EVENT_TO_LIBRARY_NUM(event>>18));
         break;
 
     #if BMC_MAX_PRESETS > 0
@@ -786,14 +780,14 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteA = index of preset to send
         // byteB = if 0 use send each library item of the preset to it's ports
         //         if 1 or more, override all ports
-        presets.set(byteA, (byteB > 0), ports);
+        presets.set(BMC_EVENT_TO_PRESET_NUM(event>>8), (byteC > 0), ports);
         break;
       case BMC_BUTTON_EVENT_TYPE_PRESET_SCROLL:
         // byteA (flags) = bit-0 scroll direction, down (0), up (1)
         // byteA (flags) = bit-1 limit, limited (0), endless (1)
-        // byteB = minimum preset for scrolling
+        // byteB = maximum preset for scrolling
         // byteC = maximum preset for scrolling
-        presets.scroll(1, byteA, byteB, byteC);
+        presets.scroll(1, byteA, 0, BMC_EVENT_TO_PRESET_NUM(event>>16));
         break;
       case BMC_BUTTON_EVENT_TYPE_PRESET_IN_BANK:
         // byteA = index of preset to send

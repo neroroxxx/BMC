@@ -21,14 +21,14 @@ public:
             library(t_library)
   {
   }
-  void set(uint8_t index=0, bool overridePorts=false, uint8_t ports=0){
+  void set(bmcPreset_t index=0, bool overridePorts=false, uint8_t ports=0){
     send(index, overridePorts, ports);
   }
   void setInBank(uint8_t index=0, bool overridePorts=false, uint8_t ports=0){
     if(index >= BMC_MAX_PRESETS_PER_BANK){
       return;
     }
-    uint8_t p = index+(bank*BMC_MAX_PRESETS_PER_BANK);
+    bmcPreset_t p = index+(bank*BMC_MAX_PRESETS_PER_BANK);
     if(p<BMC_MAX_PRESETS){
       set(p, overridePorts, ports);
     }
@@ -40,7 +40,7 @@ public:
       BMC_PRINTLN("BMCPresets Bank Set", bank);
     }
   }
-  void send(uint8_t index=0, bool overridePorts=false, uint8_t ports=0){
+  void send(bmcPreset_t index, bool overridePorts=false, uint8_t ports=0){
     if(index >= BMC_MAX_PRESETS){
       BMC_PRINTLN("!!! Invalid Preset", index,"!!!");
       return;
@@ -70,11 +70,11 @@ public:
   void scroll(uint8_t t_amount, bool t_up, bool t_endless){
     scroll(t_amount, t_up, t_up, 0, BMC_MAX_PRESETS-1);
   }
-  void scroll(uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
+  void scroll(uint8_t t_amount, uint8_t t_flags, bmcPreset_t t_min, bmcPreset_t t_max){
     scroll(t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
   }
-  void scroll(uint8_t t_amount, bool t_up, bool t_endless, uint8_t t_min, uint8_t t_max){
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESETS-1);
+  void scroll(uint8_t t_amount, bool t_up, bool t_endless, bmcPreset_t t_min, bmcPreset_t t_max){
+    BMCScroller <bmcPreset_t> scroller(0, BMC_MAX_PRESETS-1);
     set(scroller.scroll(t_amount, t_up, t_endless, preset, t_min, t_max));
   }
   //
@@ -89,11 +89,11 @@ public:
     setBank(scroller.scroll(t_amount, t_up, t_endless, bank, t_min, t_max));
   }
   //
-  uint8_t getScrollValue(uint8_t t_value, uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
+  bmcPreset_t getScrollValue(bmcPreset_t t_value, uint8_t t_amount, uint8_t t_flags, bmcPreset_t t_min, bmcPreset_t t_max){
     return getScrollValue(t_value, t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
   }
-  uint8_t getScrollValue(uint8_t t_value, uint8_t t_amount, bool t_direction, bool t_endless, uint8_t t_min, uint8_t t_max){
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESETS-1);
+  bmcPreset_t getScrollValue(bmcPreset_t t_value, uint8_t t_amount, bool t_direction, bool t_endless, bmcPreset_t t_min, bmcPreset_t t_max){
+    BMCScroller <bmcPreset_t> scroller(0, BMC_MAX_PRESETS-1);
     return scroller.scroll(t_amount, t_direction, t_endless, t_value, t_min, t_max);
   }
   //
@@ -108,8 +108,8 @@ public:
     uint8_t s = bank * BMC_MAX_PRESETS_PER_BANK;
     t_min += s;
     t_max += t_min;
-    BMCScroller <uint8_t> scroller(t_min, t_max);
-    uint8_t p = scroller.scroll(t_amount, t_up, t_endless, preset, t_min, t_max);
+    BMCScroller <bmcPreset_t> scroller(t_min, t_max);
+    bmcPreset_t p = scroller.scroll(t_amount, t_up, t_endless, preset, t_min, t_max);
     if(p<BMC_MAX_PRESETS){
       set(p);
     }
@@ -123,10 +123,10 @@ public:
   bool bankChanged(){
     return flags.toggleIfTrue(BMC_FLAG_PRESETS_BANK_CHANGED);
   }
-  uint8_t getCurrentPreset(){
+  bmcPreset_t getCurrentPreset(){
     return get();
   }
-  uint8_t get(){
+  bmcPreset_t get(){
     return preset;
   }
   bool isPresetInBank(uint8_t t_value){
@@ -145,13 +145,13 @@ public:
     }
     return 0;
   }
-  uint8_t getPresetItem(uint8_t n, uint8_t e){
+  bmcLibrary_t getPresetItem(bmcPreset_t n, uint8_t e){
     if(n<BMC_MAX_PRESETS && e<BMC_MAX_PRESET_ITEMS){
       return global.presets[n].events[e];
     }
     return 0;
   }
-  void getName(uint8_t n, char* t_string){
+  void getName(bmcPreset_t n, char* t_string){
 #if BMC_NAME_LEN_PRESETS > 1
     if(n<BMC_MAX_PRESETS){
       strcpy(t_string, global.presets[n].name);
@@ -163,7 +163,7 @@ public:
   }
 private:
   uint8_t bank = 0;
-  uint8_t preset = 0;
+  bmcPreset_t preset = 0;
   BMCMidi& midi;
   bmcStoreGlobal& global;
   BMCLibrary& library;

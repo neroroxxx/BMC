@@ -501,7 +501,7 @@ void BMCEditor::utilitySendGlobalEncoderActivity(uint8_t index, bool increased,
   }
 #endif
 }
-void BMCEditor::utilitySendPreset(uint16_t presetNumber,
+void BMCEditor::utilitySendPreset(bmcPreset_t presetNumber,
                                   bool onlyIfConnected){
 #if BMC_MAX_PRESETS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){

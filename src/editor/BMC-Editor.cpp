@@ -178,7 +178,7 @@ uint16_t BMCEditor::getLibraryOffset(uint8_t index){
 uint16_t BMCEditor::getPresetOffset(){
   uint16_t value = getLibraryOffset();
 #if BMC_MAX_PRESETS > 0
-  value += 1;
+  value += sizeof(bmcPreset_t);
   value += sizeof(store.global.presets);
 #endif
   return value;
@@ -186,7 +186,7 @@ uint16_t BMCEditor::getPresetOffset(){
 uint16_t BMCEditor::getPresetOffset(uint8_t index){
   uint16_t value = getLibraryOffset();
 #if BMC_MAX_PRESETS > 0
-  value += 1;
+  value += sizeof(bmcPreset_t);
   value += (sizeof(bmcStoreGlobalPresets)*index);
 #endif
   return value;

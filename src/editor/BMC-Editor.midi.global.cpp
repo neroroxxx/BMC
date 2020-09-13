@@ -275,8 +275,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx16Bits(sizeof(bmcStore));
     buff.appendToSysEx32Bits(buildData);
 
-    buff.appendToSysEx8Bits(BMC_MAX_LIBRARY);
-    buff.appendToSysEx8Bits(BMC_MAX_PRESETS);
+    buff.appendToSysEx14Bits(BMC_MAX_LIBRARY);
+    buff.appendToSysEx14Bits(BMC_MAX_PRESETS);
     buff.appendToSysEx8Bits(BMC_MAX_PRESET_ITEMS);
     buff.appendToSysEx7Bits(BMC_MAX_CUSTOM_SYSEX);
     buff.appendToSysEx7Bits(BMC_MAX_TRIGGERS);
@@ -833,7 +833,7 @@ void BMCEditor::globalPreset(bool write){
     backupGlobalPreset(sysExLength);
     return;
   }
-  uint8_t index = getMessagePageNumber();
+  bmcPreset_t index = getMessagePageNumber();
   if(index>0 && index>=BMC_MAX_PRESETS){
     sendNotification(BMC_NOTIFY_INVALID_PRESET, index, true);
     return;
@@ -854,9 +854,9 @@ void BMCEditor::globalPreset(bool write){
       item.length = BMC_MAX_PRESET_ITEMS;
     }
     uint8_t e = 10;
-    memset(item.events,0,BMC_MAX_PRESET_ITEMS);
-    for(uint8_t i=0;i<BMC_MAX_PRESET_ITEMS;i++){
-      item.events[i] = incoming.get8Bits(e);
+    memset(item.events, 0, BMC_MAX_PRESET_ITEMS);
+    for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
+      item.events[i] = (bmcLibrary_t) incoming.get14Bits(e);
       if(item.events[i] >= BMC_MAX_LIBRARY){
         item.events[i] = 0;
       }
@@ -879,14 +879,14 @@ void BMCEditor::globalPreset(bool write){
     BMC_GLOBALF_PRESET, flag,
     index
   );
-  buff.appendToSysEx8Bits(BMC_MAX_PRESETS);
+  buff.appendToSysEx14Bits(BMC_MAX_PRESETS);
   buff.appendToSysEx7Bits(BMC_MAX_PRESET_ITEMS);
   #if BMC_MAX_PRESETS > 0
     bmcStoreGlobalPresets& item = store.global.presets[index];
     buff.appendToSysEx7Bits(item.length);
     // how many of the items of the preset are active
     for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
-      buff.appendToSysEx8Bits(item.events[i]);
+      buff.appendToSysEx14Bits(item.events[i]);
     }
     #if BMC_NAME_LEN_PRESETS > 1
       buff.appendCharArrayToSysEx(item.name, BMC_NAME_LEN_PRESETS);
@@ -910,8 +910,7 @@ void BMCEditor::globalStartup(bool write){
   }
 #if BMC_MAX_PRESETS > 0
   if(write){
-    //uint8_t index = BMC_MIDI_ARRAY_TO_8BITS(9,incoming.sysex);
-    uint8_t index = incoming.get8Bits(9);
+    bmcPreset_t index = incoming.get14Bits(9);
     if(index >= BMC_MAX_PRESETS){
       sendNotification(BMC_NOTIFY_INVALID_PRESET, index, true);
       return;
@@ -928,9 +927,9 @@ void BMCEditor::globalStartup(bool write){
   BMCMidiMessage buff;
   buff.prepareEditorMessage(port, deviceId, BMC_GLOBALF_STARTUP, 0, 0);
   #if BMC_MAX_PRESETS > 0
-    buff.appendToSysEx8Bits(store.global.startup);
+    buff.appendToSysEx14Bits(store.global.startup);
   #else
-    buff.appendToSysEx8Bits(0);
+    buff.appendToSysEx14Bits(0);
   #endif
 
   sendToEditor(buff);
@@ -965,16 +964,16 @@ void BMCEditor::globalSetList(bool write){
       item.length = BMC_MAX_SETLISTS_SONGS;
     }
     uint8_t e = 10;
-    memset(item.songs,0,BMC_MAX_SETLISTS_SONGS);
-    for(uint8_t i=0;i<BMC_MAX_SETLISTS_SONGS;i++){
-      item.songs[i] = incoming.get8Bits(e);
+    memset(item.songs, 0, BMC_MAX_SETLISTS_SONGS);
+    for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
+      item.songs[i] = (bmcPreset_t) incoming.get14Bits(e);
       if(item.songs[i] >= BMC_MAX_PRESETS){
         item.songs[i] = 0;
       }
       e += 2;
     }
     #if BMC_NAME_LEN_SETLISTS > 1
-      incoming.getStringFromSysEx(e,item.name, BMC_NAME_LEN_SETLISTS);
+      incoming.getStringFromSysEx(e, item.name, BMC_NAME_LEN_SETLISTS);
     #endif
     if(!backupActive()){
       saveSetList(index);
@@ -997,7 +996,7 @@ void BMCEditor::globalSetList(bool write){
     buff.appendToSysEx7Bits(item.length);
     // how many of the items of the preset are active
     for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
-      buff.appendToSysEx8Bits(item.songs[i]);
+      buff.appendToSysEx14Bits(item.songs[i]);
     }
     #if BMC_NAME_LEN_SETLISTS > 1
       buff.appendCharArrayToSysEx(item.name, BMC_NAME_LEN_SETLISTS);

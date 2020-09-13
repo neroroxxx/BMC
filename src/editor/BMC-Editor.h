@@ -43,7 +43,7 @@ public:
     BMC-Editor.cpp
   */
   BMCEditor(bmcStore& t_store, BMCMidi& t_midi, BMCSettings& t_settings, BMCMessenger& t_messenger);
-  
+
   void begin();
   void update();
   bool readyToReload();
@@ -456,7 +456,7 @@ public:
 
 #if BMC_MAX_LIBRARY > 0
   // save a single "library" item to EEPROM
-  void saveLibrary(uint8_t index){
+  void saveLibrary(bmcLibrary_t index){
     if(index>=BMC_MAX_LIBRARY){
       return;
     }
@@ -482,7 +482,7 @@ public:
     #endif
   }
   // save a single "preset" to EEPROM
-  void savePreset(uint8_t index){
+  void savePreset(bmcPreset_t index){
     if(index>=BMC_MAX_PRESETS){
       return;
     }
@@ -868,8 +868,8 @@ private:
   uint8_t getMessageDeviceId(){
     return incoming.sysex[4];
   }
-  uint8_t getMessagePageNumber(){
-    return incoming.get8Bits(6);
+  uint16_t getMessagePageNumber(){
+    return incoming.get14Bits(6);
     //return BMC_MIDI_ARRAY_TO_8BITS(6,incoming.sysex);
   }
   uint8_t getMessageRequestId(){
@@ -1015,7 +1015,7 @@ public:
                                     bool onlyIfConnected=true);
   void utilitySendRgbPixelActivity(uint32_t red, uint32_t green, uint32_t blue,
                                     bool onlyIfConnected=true);
-  void utilitySendPreset(uint16_t presetNumber,
+  void utilitySendPreset(bmcPreset_t presetNumber,
                         bool onlyIfConnected=true);
 
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,

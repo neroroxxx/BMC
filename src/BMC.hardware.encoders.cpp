@@ -206,18 +206,17 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
 
 #if BMC_MAX_PRESETS > 0
     case BMC_ENCODER_EVENT_TYPE_PRESETS:
-      // byteA = min Presets
+      // byteA = max Presets
       // byteB = max Presets
       // byteC = limit, BMC_SCROLL_LIMITED, BMC_SCROLL_ENDLESS
-      tmp = getNewEncoderValue(
+      tmp = (bmcPreset_t) getNewEncoderValue(
         mode,
         presets.get(),
         0, BMC_MAX_PRESETS-1,
-        byteA, byteB,
+        0, BMC_EVENT_TO_PRESET_NUM(event>>8),
         increased,
         BMC_GET_BYTE(3,event)
       );
-      tmp = tmp & 0xFF;
       presets.set(tmp);
       break;
 #endif
@@ -243,7 +242,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
 
 #if BMC_MAX_LIBRARY > 1
     case BMC_ENCODER_EVENT_TYPE_LIBRARY:
-      library.send(increased ? byteB : byteA);
+      library.send(BMC_EVENT_TO_LIBRARY_NUM(event >> (increased ? 18 : 8)));
       break;
 #endif
 
