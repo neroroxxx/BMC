@@ -765,7 +765,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
   }
   // must be a page message and must be a write message
   uint8_t hardwareType = incoming.get7Bits(9);
-  uint8_t hardwareLength = checkIfHardwareAvailable(hardwareType);
+  uint16_t hardwareLength = checkIfHardwareAvailable(hardwareType);
   // check if the hardware type is vailable otherwise send an error message
   if(hardwareLength==0 && hardwareType!=BMC_ITEM_ID_PAGE){
     sendNotification(BMC_NOTIFY_INVALID_INDEX, hardwareLength | (__LINE__<<16), true);
@@ -1190,7 +1190,9 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
   }
   if(success){
     BMCMidiMessage buff;
-    buff.prepareEditorMessage(port, deviceId, mode, 0, 0);
+    BMCEditorMidiFlags flag;
+    flag.setPage(true);
+    buff.prepareEditorMessage(port, deviceId, mode, flag, 0);
     buff.appendToSysEx7Bits(1);
     sendToEditor(buff);
   } else {

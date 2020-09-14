@@ -13,10 +13,10 @@
   // 8-bit unsigned integers, specially when sending these values out thru midi
 
   #define BMC_LIMIT_MIN_LIBRARY 0
-  #define BMC_LIMIT_MAX_LIBRARY 255
+  #define BMC_LIMIT_MAX_LIBRARY 512
 
   #define BMC_LIMIT_MIN_PRESETS 0
-  #define BMC_LIMIT_MAX_PRESETS 255
+  #define BMC_LIMIT_MAX_PRESETS 512
 
   #define BMC_LIMIT_MIN_PRESET_ITEMS 1
   #define BMC_LIMIT_MAX_PRESET_ITEMS 16

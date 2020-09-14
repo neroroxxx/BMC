@@ -316,7 +316,7 @@ struct BMCMidiMessage {
     appendToSysEx7Bits(BMC_GET_BYTE(0,BMC_EDITOR_SYSEX_ID));
     appendToSysEx7Bits(deviceId);
     appendToSysEx7Bits(flags);
-    appendToSysEx8Bits(page); // 2 bytes
+    appendToSysEx14Bits(page); // 2 bytes
     appendToSysEx7Bits(functionId);
   }
   // append a 7-bit midi word to the sysex array

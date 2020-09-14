@@ -311,7 +311,7 @@ private:
     return 0;
   }
 
-  uint8_t checkIfHardwareAvailable(uint8_t t_type){
+  uint16_t checkIfHardwareAvailable(uint8_t t_type){
     switch(t_type){
       case BMC_ITEM_ID_BUTTON:          return BMC_MAX_BUTTONS;
       case BMC_ITEM_ID_LED:             return BMC_MAX_LEDS;

@@ -812,7 +812,7 @@ void BMCEditor::globalLibrary(bool write){//BMC_GLOBALF_LIBRARY
     BMC_GLOBALF_LIBRARY, 0,
     index
   );
-  buff.appendToSysEx8Bits(BMC_MAX_LIBRARY);
+  buff.appendToSysEx14Bits(BMC_MAX_LIBRARY);
 #if BMC_MAX_LIBRARY > 0
   bmcStoreGlobalLibrary& item = store.global.library[index];
   buff.appendToSysEx32Bits(item.event);
