@@ -290,6 +290,36 @@ void BMCEditor::backupGlobalPortPresets(uint16_t t_minLength){
   }
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
+
+
+
+void BMCEditor::backupPixelProgram(uint16_t t_minLength){
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+  uint8_t index = getMessagePageNumber();
+  if(index >= BMC_MAX_PIXEL_PROGRAMS){
+    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
+    return;
+  }
+  if(incoming.size() >= t_minLength){
+    bmcStorePixelPrograms& item = store.global.pixelPrograms[index];
+    // add the number of preset items that will be used
+    // make sure it's not higher than the number of preset items compiled
+    item.length = incoming.sysex[9];
+    if(item.length > 8){
+      item.length = 8;
+    }
+    // set all bytes in the event array to 0
+    memset(item.events, 0, 8);
+    for(uint8_t i = 0, e = 10; i < 8 ; i++, e+=2){
+      item.events[i] = incoming.get8Bits(e);
+    }
+  }
+#endif
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+
+
+
 void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
 #if BMC_MAX_TRIGGERS > 0
   uint8_t index = getMessagePageNumber();

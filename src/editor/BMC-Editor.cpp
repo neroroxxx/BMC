@@ -166,15 +166,13 @@ uint16_t BMCEditor::getLibraryOffset(){
 #endif
   return value;
 }
-uint16_t BMCEditor::getLibraryOffset(uint8_t index){
+uint16_t BMCEditor::getLibraryOffset(bmcLibrary_t index){
   uint16_t value = getStringLibraryOffset();
 #if BMC_MAX_LIBRARY > 0
   value += (sizeof(bmcStoreGlobalLibrary)*index);
 #endif
   return value;
 }
-
-
 uint16_t BMCEditor::getPresetOffset(){
   uint16_t value = getLibraryOffset();
 #if BMC_MAX_PRESETS > 0
@@ -183,7 +181,7 @@ uint16_t BMCEditor::getPresetOffset(){
 #endif
   return value;
 }
-uint16_t BMCEditor::getPresetOffset(uint8_t index){
+uint16_t BMCEditor::getPresetOffset(bmcPreset_t index){
   uint16_t value = getLibraryOffset();
 #if BMC_MAX_PRESETS > 0
   value += sizeof(bmcPreset_t);
@@ -368,4 +366,20 @@ uint16_t BMCEditor::getLRelayOffset(uint8_t index){
 }
 uint16_t BMCEditor::getPortPresetsOffset(){
   return getLRelayOffset();
+}
+uint16_t BMCEditor::getPixelProgramsOffset(){
+  uint16_t value = getPortPresetsOffset();
+  value += sizeof(store.global.portPresets);
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    value += sizeof(store.global.pixelPrograms);
+  #endif
+  return value;
+}
+uint16_t BMCEditor::getPixelProgramsOffset(uint8_t index){
+  uint16_t value = getPortPresetsOffset();
+  value += sizeof(store.global.portPresets);
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    value += (sizeof(bmcStorePixelPrograms) * index);
+  #endif
+  return value;
 }

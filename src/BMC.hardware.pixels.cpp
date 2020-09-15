@@ -36,8 +36,11 @@ void BMC::readPixels(){
     // handleLedEvent() @ BMC.hardware.ledEvents.cpp
     uint8_t state = handleLedEvent(i, pageData.pixels[i].event, 3);
     uint8_t color = BMC_GET_BYTE(3, pageData.pixels[i].event) >> 4;
-    if(BMC_GET_BYTE(0, pageData.pixels[i].event)==BMC_EVENT_TYPE_CUSTOM){
+    uint8_t type = BMC_GET_BYTE(0, pageData.pixels[i].event);
+    if(type==BMC_EVENT_TYPE_CUSTOM){
       pixels.setBrightness(i, map(((state>>4)&0x0F), 0, 15, 0, 127), (state&0x0F));
+    } else if(type==BMC_LED_EVENT_TYPE_PIXEL_PROGRAM){
+      pixels.setState(i, pixelPrograms.getColor());
     } else {
       if(state<=1){
         pixels.setState(i, (state==1) ? color : 0);

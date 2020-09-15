@@ -13,6 +13,8 @@
 #define BMC_MICROS_ON_SECOND 0x3938700
 #define BMC_MILLIS_ON_SECOND 0xEA60
 
+#define BMC_BPM_CALC_EIGHT_NOTE 0
+
 class BMCBpmCalculator {
 public:
   BMCBpmCalculator(){
@@ -27,7 +29,10 @@ public:
       reset();
     }
   }
+  bool isEigthNote(){
+    return flags.toggleIfTrue(BMC_BPM_CALC_EIGHT_NOTE);;
 
+  }
   void setBpm(uint16_t tempo){
     if(isValidBpm(tempo)){
       bpm = tempo;
@@ -45,10 +50,13 @@ public:
   }
   bool tickReceived(){
     bool isQuarterNote = false;
+
     if(ticks==0){
       ticksTime = micros();
     }
+    flags.write(BMC_BPM_CALC_EIGHT_NOTE, (ticks==12));
     if(ticks >= 24){
+      flags.on(BMC_BPM_CALC_EIGHT_NOTE);
       // calculate bpm based on micros
       setBpm(round(60000 / ((micros()-ticksTime) / 1000.0)));
 
@@ -104,7 +112,7 @@ public:
 
 private:
   uint16_t bpm = 0;
-
+  BMCFlags <uint8_t> flags;
   // used for Tap Tempo
   float bpmAvg[BMC_BPM_AVERAGE];
   uint8_t bpmAvgSize = 0;
@@ -121,6 +129,7 @@ private:
     bpmAvgSize = 0;
     memset(bpmAvg,0,BMC_BPM_AVERAGE);
     timer.stop();
+    flags.reset();
   }
 };
 #endif

@@ -109,6 +109,9 @@ void BMCEditor::globalProcessMessage(){
     case BMC_GLOBALF_EDITOR_MESSENGER:
       globalEditorMessenger(isWriteMessage());
       break;
+    case BMC_GLOBALF_PIXEL_PROGRAM:
+      globalPixelProgram(isWriteMessage());
+      break;
     case BMC_GLOBALF_EDITOR_PERFORM_MODE:
       // no yet implemented, its meant to be a customizable screen
       // for easy editing that only loads the data of the current page and
@@ -304,7 +307,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_BUTTONS);
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_POTS);
-    buff.appendToSysEx7Bits(0);
+    buff.appendToSysEx7Bits(BMC_MAX_PIXEL_PROGRAMS);
     buff.appendToSysEx7Bits(0);
     buff.appendToSysEx7Bits(0);
     buff.appendToSysEx7Bits(0);
@@ -1054,7 +1057,63 @@ void BMCEditor::globalLeds(bool write){//BMC_GLOBALF_LEDS
 #endif
   sendToEditor(buff);
 }
-
+void BMCEditor::globalPixelProgram(bool write){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  uint8_t sysExLength = 28;
+  // handle backup
+  if(write && backupActive()){
+    backupPixelProgram(sysExLength);
+    return;
+  }
+  uint8_t index = getMessagePageNumber();
+  if(index > 0 && index >= BMC_MAX_PIXEL_PROGRAMS){
+    sendNotification(BMC_NOTIFY_INVALID_PIXEL_PROGRAM, index, true);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+  if(write){
+    // write new data and save, starts at byte 9
+    // index of the library message we are writting to
+    bmcStorePixelPrograms& item = store.global.pixelPrograms[index];
+    item.length = incoming.get7Bits(9);
+    if(item.length > 8){
+      item.length = 8;
+    }
+    memset(item.events, 0, 8);
+    for(uint8_t i = 0, e = 10 ; i < 8 ; i++, e += 2){
+      item.events[i] = incoming.get8Bits(e);
+    }
+    if(!backupActive()){
+      savePixelProgram(index);
+      reloadData();
+    }
+  }
+#endif
+  BMCEditorMidiFlags flag;
+  flag.reset();
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_GLOBALF_PIXEL_PROGRAM, flag,
+    index
+  );
+  buff.appendToSysEx7Bits(BMC_MAX_PIXEL_PROGRAMS);
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    bmcStorePixelPrograms& item = store.global.pixelPrograms[index];
+    buff.appendToSysEx7Bits(item.length);
+    // how many of the items of the preset are active
+    for(uint8_t i = 0 ; i < 8 ; i++){
+      buff.appendToSysEx8Bits(item.events[i]);
+    }
+  #endif
+  sendToEditor(buff);
+}
 void BMCEditor::globalButton(bool write){
   if(!isValidGlobalMessage()){
     return;

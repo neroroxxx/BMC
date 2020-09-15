@@ -151,6 +151,9 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
       streamMidiClockBPM(midiClock.getBpm());
     }
   }
+#if BMC_MAX_PIXELS > 0
+    pixels.clockBeat(midiClock.getBpm());
+#endif
 }
 void BMC::midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t min, uint8_t max){
   amount = constrain(amount, 1, 64);

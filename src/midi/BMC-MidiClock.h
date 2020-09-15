@@ -20,6 +20,7 @@
 #define BMC_MIDI_CLOCK_FLAG_MASTER 0
 #define BMC_MIDI_CLOCK_FLAG_BEAT 1
 #define BMC_MIDI_CLOCK_FLAG_BPM_CHANGED 2
+#define BMC_MIDI_CLOCK_FLAG_EIGTH 3
 
 #define BMC_CLOCK_BPM_AVG 4
 #define BMC_MICROS_SECOND 0x3938700
@@ -63,8 +64,10 @@ public:
         midi.sendRealTime(midi.getListenerPorts(), BMC_MIDI_RT_CLOCK);
         // increase the number of ticks
         ticks++;
+        flags.write(BMC_MIDI_CLOCK_FLAG_EIGTH, (ticks==12));
         // if we have reached 24 ticks then we have reached a BEAT
         if(ticks>=24){
+          flags.on(BMC_MIDI_CLOCK_FLAG_EIGTH);
           // reset the ticks to start over
           ticks = 0;
           #ifdef BMC_USE_CLICK_TRACK
@@ -112,6 +115,13 @@ public:
     }
     return false;
   }
+  bool isEigthNote(){
+    if(isMaster()){
+      return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_EIGTH);
+    }
+    return bpmCalc.isEigthNote();
+  }
+
   void setMaster(bool value){
     if(isMaster()!=value){
       flags.write(BMC_MIDI_CLOCK_FLAG_MASTER,value);
@@ -219,7 +229,7 @@ public:
 private:
   BMCMidi& midi;
   uint8_t ticks = 0;
-  uint16_t bpm = 0;
+  uint16_t bpm = 120;
   uint16_t tmpBpm = 0;
   unsigned long interval = 0;
   #ifdef BMC_USE_CLICK_TRACK

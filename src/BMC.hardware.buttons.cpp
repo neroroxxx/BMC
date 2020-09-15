@@ -390,6 +390,21 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           streamMidiControl(channel, cc, currentValue);
         }
         break;
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+      case BMC_BUTTON_EVENT_TYPE_PIXEL_PROGRAM:
+        if(byteA>0){
+          pixelPrograms.setProgram(byteA-1);
+        } else {
+          pixelPrograms.toggleBlackout();
+        }
+        break;
+      case BMC_BUTTON_EVENT_TYPE_PIXEL_PROGRAM_SCROLL:
+        // byteA flags, 0: dir, 1: limit
+        // byteB min
+        // byteC max
+        pixelPrograms.scroll(bitRead(byteA, 0), bitRead(byteA, 1), byteB, byteC);
+        break;
+#endif
       case BMC_BUTTON_EVENT_TYPE_ACTIVE_SENSE:
         // byteA = command, 0 stop, 1 start, 2 toggle
         // see utility/BMC-Def.h for list

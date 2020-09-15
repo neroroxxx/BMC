@@ -141,10 +141,14 @@
   struct __attribute__ ((packed)) bmcStoreGlobalTempoToTap {
     uint32_t event = 0;
   };
-
   // Port Presets
   struct __attribute__ ((packed)) bmcStorePortPresets {
     uint8_t preset[16];
+  };
+  // Pixel Programs
+  struct __attribute__ ((packed)) bmcStorePixelPrograms {
+    uint8_t length = 0;
+    uint8_t events[8];
   };
   // Settings object
   struct __attribute__ ((packed)) bmcStoreGlobalSettings {
@@ -205,6 +209,9 @@
       bmcStoreGlobalRelay relaysL[BMC_MAX_L_RELAYS];
     #endif
     bmcStorePortPresets portPresets;
+    #if BMC_MAX_PIXEL_PROGRAMS > 0 && BMC_MAX_PIXELS > 0
+      bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
+    #endif
   };
 
 

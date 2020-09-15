@@ -117,6 +117,10 @@ public:
     BMC_PRINTLN("");
   }
 
+  void clockBeat(uint16_t speed){
+    updateRainbowColor(60000/speed);
+  }
+
   void reassign(){
 #if BMC_MAX_PIXELS > 0
     for(uint8_t i=0; i<BMC_MAX_PIXELS; i++){
@@ -451,8 +455,8 @@ private:
   // time the rainbow to be triggered after 10ms
   elapsedMillis rainbowTimeout;
 
-  void updateRainbowColor(){
-    if(rainbowTimeout >= 500){
+  void updateRainbowColor(uint16_t speed=500){
+    if(rainbowTimeout >= speed){
       if(!flags.read(BMC_PIXELS_FLAG_RAINBOW_CHANGED)){
         rainbowCurrentColor++;
         // BMC_COLOR_RAINBOW is the highest index number
@@ -532,7 +536,7 @@ private:
        // if the target color BMC_COLOR_RAINBOW then we will go thru all colors
        t_color = rainbowCurrentColor;
        setDimColor(t_index, t_color);
-       updateRainbowColor();
+       //updateRainbowColor();
 #endif
     }
 

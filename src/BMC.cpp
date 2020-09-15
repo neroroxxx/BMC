@@ -49,6 +49,9 @@ BMC::BMC():
   #if BMC_MAX_TRIGGERS > 0
     ,triggers(midi, store.global)
   #endif
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    ,pixelPrograms(store.global)
+  #endif
   #if BMC_MAX_BUTTONS > 0
     // second argument is true for global buttons
     // to check which callback to use
@@ -201,6 +204,10 @@ void BMC::update(){
 
   // Read/Update the hardware: buttons, leds, pots, encoders
   readHardware();
+
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+    pixelPrograms.update(midiClock.isEigthNote());
+#endif
 
   // handle callbacks for presets and setlist
   #if BMC_MAX_PRESETS > 0

@@ -48,6 +48,8 @@
   #define BMC_LIMIT_MIN_BUTTON_EVENTS 1
   #define BMC_LIMIT_MAX_BUTTON_EVENTS 8
 
+  #define BMC_LIMIT_MAX_PIXEL_PROGRAMS 32
+
 
   #if defined(BMC_I2C_FREQ_100K)
     #define BMC_I2C_FREQ 100000
@@ -279,7 +281,7 @@
     #define BMC_MAX_LIBRARY BMC_LIMIT_MIN_LIBRARY
   #endif
   #if BMC_MAX_LIBRARY > BMC_LIMIT_MAX_LIBRARY
-    #error "The maximum number of library items is 255"
+    #error "The maximum number of library items is 512"
   #endif
 
   // presets check
@@ -288,7 +290,7 @@
     #define BMC_MAX_PRESETS_PER_BANK 0
   #endif
   #if BMC_MAX_PRESETS > BMC_LIMIT_MAX_PRESETS
-    #error "The maximum number of presets is 255"
+    #error "The maximum number of presets is 512"
   #endif
 
   // if there's no library then there's no presets
@@ -582,6 +584,21 @@
     #endif
   #endif
 
+  #if !defined(BMC_MAX_PIXEL_PROGRAMS)
+    #define BMC_MAX_PIXEL_PROGRAMS 0
+  #endif
+
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    #if BMC_MAX_PIXEL_PROGRAMS > BMC_LIMIT_MAX_PIXEL_PROGRAMS
+      #error "You can not have more than 32 Pixel Programs"
+    #endif
+  #endif
+
+  #if BMC_MAX_PIXELS == 0
+    #undef BMC_MAX_PIXEL_PROGRAMS
+    #define BMC_MAX_PIXEL_PROGRAMS 0
+  #endif
+
 
 
   // names check
@@ -816,7 +833,7 @@
   // Create a CRC based on the current build
   #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
   #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_PIXEL_PROGRAMS*12))
   #define BMC_CRC (uint16_t)((((_____BMC_NAMES)+(_____BMC_GLOBAL)+(_____BMC_NAMES)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

@@ -86,6 +86,9 @@
 
 #if BMC_PIXELS_PORT > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
   #include "hardware/BMC-Pixels.h"
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    #include "utility/BMC-PixelPrograms.h"
+  #endif
 #endif
 
 #if BMC_MAX_PWM_LEDS > 0
@@ -371,6 +374,10 @@ private:
       void readRgbPixels();
       //void handleRgbPixel(uint8_t index, uint32_t event, uint8_t nColor);
     #endif //#if BMC_MAX_RGB_PIXELS > 0
+
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+      BMCPixelPrograms pixelPrograms;
+    #endif
 
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
   uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);

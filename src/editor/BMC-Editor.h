@@ -356,9 +356,9 @@ private:
   uint16_t getStringLibraryOffset();
   uint16_t getStringLibraryOffset(uint8_t index);
   uint16_t getLibraryOffset();
-  uint16_t getLibraryOffset(uint8_t index);
+  uint16_t getLibraryOffset(bmcLibrary_t index);
   uint16_t getPresetOffset();
-  uint16_t getPresetOffset(uint8_t index);
+  uint16_t getPresetOffset(bmcPreset_t index);
   uint16_t getSetListOffset();
   uint16_t getSetListOffset(uint8_t index);
   uint16_t getGlobalLedOffset();
@@ -386,6 +386,8 @@ private:
   uint16_t getLRelayOffset();
   uint16_t getLRelayOffset(uint8_t index);
   uint16_t getPortPresetsOffset();
+  uint16_t getPixelProgramsOffset();
+  uint16_t getPixelProgramsOffset(uint8_t index);
 
   // Clear the entire EEPROM
   void clearEEPROM(){
@@ -694,6 +696,20 @@ public:
       storage.set(address, store.global.portPresets);
     #endif
   }
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+  void savePixelProgram(uint8_t index){
+    if(index >= BMC_MAX_PIXEL_PROGRAMS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getPixelProgramsOffset(index);
+      storage.set(address, store.global.pixelPrograms);
+    #endif
+  }
+#endif
   // save a single page to EEPROM
   void savePage(uint8_t page){
     #if defined(BMC_SD_CARD_ENABLED)
@@ -915,6 +931,7 @@ private:
   void globalStartup(bool write);
   void globalStoreAddress(bool write);
   void globalLeds(bool write);
+  void globalPixelProgram(bool write);
 
   void globalButton(bool write);
   void globalEncoder(bool write);
@@ -1058,7 +1075,7 @@ private:
   void backupGlobalNLRelay(uint16_t t_minLength);
   void backupGlobalLRelay(uint16_t t_minLength);
   void backupGlobalPortPresets(uint16_t t_minLength);
-
+  void backupPixelProgram(uint16_t t_minLength);
   void backupGlobalButton(uint16_t t_minLength);
   void backupGlobalEncoder(uint16_t t_minLength);
   void backupGlobalPot(uint16_t t_minLength);

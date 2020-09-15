@@ -178,6 +178,19 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
         }
       }
       break;
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+    case BMC_ENCODER_EVENT_TYPE_PIXEL_PROGRAM_SCROLL:
+      tmp = getNewEncoderValue(
+        mode,
+        pixelPrograms.getProgram(),
+        0, BMC_MAX_PIXEL_PROGRAMS-1,
+        byteA, byteB,
+        increased,
+        BMC_GET_BYTE(3,event)
+      ) & 0xFF;
+      pixelPrograms.setProgram(tmp);
+      break;
+#endif
     case BMC_ENCODER_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
       // byteA (bits 0 and 1) = flags, bit-0 direction, bit-1 endless
       // byteA (bits 2 to 7) = amount (0 to 63 max then add 1 here)
@@ -198,8 +211,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
         byteA, byteB,
         increased,
         BMC_GET_BYTE(3,event)
-      );
-      tmp = tmp & 0xFF;
+      ) & 0xFF;
       setPage(tmp);
       break;
 #endif
