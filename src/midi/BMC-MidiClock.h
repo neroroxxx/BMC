@@ -20,7 +20,8 @@
 #define BMC_MIDI_CLOCK_FLAG_MASTER 0
 #define BMC_MIDI_CLOCK_FLAG_BEAT 1
 #define BMC_MIDI_CLOCK_FLAG_BPM_CHANGED 2
-#define BMC_MIDI_CLOCK_FLAG_EIGTH 3
+#define BMC_MIDI_CLOCK_FLAG_ACTIVE 3
+#define BMC_MIDI_CLOCK_FLAG_EIGTH 4
 
 #define BMC_CLOCK_BPM_AVG 4
 #define BMC_MICROS_SECOND 0x3938700
@@ -51,6 +52,7 @@ public:
     }
     // If BMC is set to Master Clock
     if(isMaster()){
+      flags.on(BMC_MIDI_CLOCK_FLAG_ACTIVE);
       // check if the timer is active and complete, in which case we assign
       // a new BPM, this timer is started when a new BPM is set via the API
       if(bpmSetTimer.complete()){
@@ -80,6 +82,11 @@ public:
         }
       }
     } else if(incoming && midi.isIncomingClockPort()){
+      timeout.start(2000);
+      flags.on(BMC_MIDI_CLOCK_FLAG_ACTIVE);
+      if(timeout.complete()){
+        flags.off(BMC_MIDI_CLOCK_FLAG_ACTIVE);
+      }
       // the ticks variable is only used by the master clock
       ticks = 0;
       // the bmp calculator that a PPQN was received
@@ -120,6 +127,9 @@ public:
       return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_EIGTH);
     }
     return bpmCalc.isEigthNote();
+  }
+  bool isActive(){
+    return flags.read(BMC_MIDI_CLOCK_FLAG_ACTIVE);
   }
 
   void setMaster(bool value){
@@ -239,6 +249,7 @@ private:
   elapsedMicros masterTimer;
   BMCBpmCalculator bpmCalc;
   BMCTimer bpmSetTimer;
+  BMCTimer timeout;
   void assignBpm(uint16_t tempo){
     if(isMaster() && BMCBpmCalculator::isValidBpm(tempo)){
       if(bpm!=tempo){

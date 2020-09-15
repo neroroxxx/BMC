@@ -1027,6 +1027,16 @@ public:
   uint32_t getPixelStates(){
     return pixelStates;
   }
+  #if BMC_MAX_PIXEL_PROGRAMS > 0
+    // change the current pixel program
+    void setPixelProgram(uint8_t t_program){
+      pixelPrograms.setProgram(t_program);
+    }
+    // get the current pixel program
+    uint8_t getPixelProgram(){
+      return pixelPrograms.getProgram();
+    }
+  #endif
 #endif
 
 #if BMC_MAX_RGB_PIXELS > 0

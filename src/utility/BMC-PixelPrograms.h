@@ -10,7 +10,8 @@
 #include "utility/BMC-Def.h"
 #if BMC_MAX_PIXELS > 0 && BMC_MAX_PIXEL_PROGRAMS > 0
 
-#define BMC_PIXEL_PROGRAMS_FLAG_BLACKOUT 0
+#define BMC_PIXEL_PROGRAMS_FLAG_ACTIVE 0
+#define BMC_PIXEL_PROGRAMS_FLAG_BLACKOUT 1
 
 class BMCPixelPrograms {
 private:
@@ -26,15 +27,15 @@ public:
   void reassign(){
 
   }
-  void update(bool isEigthNote){
-    if(isEigthNote){
+  void update(bool t_eigth, bool t_active){
+    if(t_eigth){
       eigthNotes++;
-      if(eigthNotes>8){
+      if(eigthNotes>16){
         eigthNotes = 1;
       }
     }
     uint8_t duration = ((global.pixelPrograms[program].events[currentItem]>>4)&0x0F)+1;
-
+    flags.write(BMC_PIXEL_PROGRAMS_FLAG_ACTIVE, t_active);
     if(eigthNotes == duration){
       currentItem++;
       if(currentItem >= global.pixelPrograms[program].length){
@@ -54,7 +55,7 @@ public:
     setBlackout(!flags.read(BMC_PIXEL_PROGRAMS_FLAG_BLACKOUT));
   }
   uint8_t getColor(){
-    if(flags.read(BMC_PIXEL_PROGRAMS_FLAG_BLACKOUT)){
+    if(isBlackout() || !isActive()){
       return 0;
     }
     return global.pixelPrograms[program].events[currentItem] & 0x0F;
@@ -66,7 +67,14 @@ public:
     if(t_value<BMC_MAX_PIXEL_PROGRAMS){
       program = t_value;
       currentItem = 0;
+      eigthNotes = 0;
     }
+  }
+  bool isBlackout(){
+    return flags.read(BMC_PIXEL_PROGRAMS_FLAG_BLACKOUT);
+  }
+  bool isActive(){
+    return flags.read(BMC_PIXEL_PROGRAMS_FLAG_ACTIVE);
   }
   void scrollUp(bool endless, uint8_t min, uint8_t max){
     scroll(true, endless, min, max);

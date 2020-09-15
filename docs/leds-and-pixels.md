@@ -199,6 +199,14 @@ uint8_t getPixelCustomStateBrightness(uint8_t n);
 
 uint32_t getPixelStates();
 
+// available if pixel programs compiled
+// change the current pixel program
+void setPixelProgram(uint8_t t_program);
+
+// available if pixel programs compiled
+// get the current pixel program
+uint8_t getPixelProgram();
+
 // ** RGB PIXELS **
 
 // get RgbPixel Data

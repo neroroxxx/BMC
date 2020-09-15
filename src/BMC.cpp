@@ -206,7 +206,7 @@ void BMC::update(){
   readHardware();
 
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-    pixelPrograms.update(midiClock.isEigthNote());
+    pixelPrograms.update(midiClock.isEigthNote(), midiClock.isActive());
 #endif
 
   // handle callbacks for presets and setlist
