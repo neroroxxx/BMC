@@ -118,7 +118,11 @@ public:
   }
 
   void clockBeat(uint16_t speed){
+#if BMC_MAX_PIXELS > 0
     updateRainbowColor(60000/speed);
+#else
+    speed = 0;
+#endif
   }
 
   void reassign(){
@@ -536,7 +540,6 @@ private:
        // if the target color BMC_COLOR_RAINBOW then we will go thru all colors
        t_color = rainbowCurrentColor;
        setDimColor(t_index, t_color);
-       //updateRainbowColor();
 #endif
     }
 
