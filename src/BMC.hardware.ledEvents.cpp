@@ -286,7 +286,6 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #endif
 #if BMC_MAX_PIXEL_PROGRAMS > 0
     case BMC_LED_EVENT_TYPE_PIXEL_PROGRAM:
-      //return pixelPrograms.getColor()>0;
       break;
 #endif
     case BMC_LED_EVENT_TYPE_USER_1:
