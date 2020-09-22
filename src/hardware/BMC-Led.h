@@ -71,9 +71,6 @@ public:
         flags.on(BMC_FLAG_LED_MUX);
         pin = t_pin;
         reset();
-        #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-          test();
-        #endif
         blinker.start(BMC_LED_BLINK_TIMEOUT);
         return;
       } else {
@@ -106,10 +103,6 @@ public:
 #endif
 
     reset();
-
-#if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-    test();
-#endif
 
     blinker.start(BMC_LED_BLINK_TIMEOUT);
   }

@@ -29,6 +29,7 @@ void BMC::assignPot(BMCPot& pot, bmcStorePot& storeData, bmcStoreGlobalPotCalibr
     calibration.max
   );
   uint32_t event = storeData.event;
+  pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
   switch(event & 0xF0){
     case BMC_MIDI_CONTROL_CHANGE:
     case BMC_MIDI_PROGRAM_CHANGE:

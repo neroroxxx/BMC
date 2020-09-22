@@ -10,16 +10,19 @@
 // SETUP
 void BMC::setupLeds(){
 #if BMC_MAX_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
-    leds[index].begin(BMCBuildData::getLedPin(index));
+  for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
+    leds[i].begin(BMCBuildData::getLedPin(i));
 
     #if BMC_PAGE_LED_DIM == true
-    leds[index].setPwmOffValue(settings.getPwmDimWhenOff());
+    leds[i].setPwmOffValue(settings.getPwmDimWhenOff());
     #endif
     #if BMC_MAX_MUX_OUT > 0
       if(leds[i].muxTesting()){
         mux.testDigital(leds[i].getMuxPin());
       }
+    #endif
+    #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
+      leds[i].test();
     #endif
   }
 #endif
@@ -36,6 +39,9 @@ void BMC::setupLeds(){
       if(globalLeds[i].muxTesting()){
         mux.testDigital(globalLeds[i].getMuxPin());
       }
+    #endif
+    #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
+      globalLeds[i].test();
     #endif
   }
   assignGlobalLeds();

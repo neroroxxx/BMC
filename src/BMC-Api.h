@@ -861,6 +861,12 @@ public:
       buttons[n].triggerRelease();
     }
   }
+  // returns the raw state of a button, this is a pre-debounce value
+  bool getButtonRawValue(uint8_t n){
+    if(n<BMC_MAX_BUTTONS){
+      return buttons[n].readState();
+    }
+  }
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
@@ -887,6 +893,12 @@ public:
   void triggerGlobalButtonRelease(uint8_t n){
     if(n<BMC_MAX_GLOBAL_BUTTONS){
       globalButtons[n].triggerRelease();
+    }
+  }
+  // returns the raw state of a button, this is a pre-debounce value
+  bool getGlobalButtonRawValue(uint8_t n){
+    if(n<BMC_MAX_GLOBAL_BUTTONS){
+      return globalButtons[n].readState();
     }
   }
 #endif

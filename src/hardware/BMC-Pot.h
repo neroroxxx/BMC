@@ -32,9 +32,19 @@
 
 #define BMC_FLAG_POT_REASSIGNED 0
 #define BMC_FLAG_POT_MUX 1
-#define BMC_FLAG_POT_TOE_SWITCH_AVAILABLE 2
-#define BMC_FLAG_POT_TOE_SWITCH_STATE 3
-#define BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED 4
+#define BMC_FLAG_POT_LOG 2
+#define BMC_FLAG_POT_TOE_SWITCH_AVAILABLE 3
+#define BMC_FLAG_POT_TOE_SWITCH_STATE 4
+#define BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED 5
+
+// position where logarithmic taper starts it's steep curve
+// this value should range from 10 to 100
+#define BMC_POT_LOG_POSITION_CUTOFF     60
+// before the position above is reached, we will cover this much range
+#define BMC_POT_LOG_PERCENTAGE_CUTOFF   20
+// the values above will be used for the the final values used
+#define BMC_POT_LOG_POS   ((uint16_t) ((10.23*BMC_POT_LOG_POSITION_CUTOFF)+0.5))
+#define BMC_POT_LOG_PERC  ((uint16_t) ((10.23*BMC_POT_LOG_PERCENTAGE_CUTOFF)+0.5))
 
 
 class BMCPot {
@@ -119,6 +129,9 @@ public:
     }
     rangeMin = t_min;
     rangeMax = t_max;
+  }
+  void setTaper(bool t_log){
+    flags.write(BMC_FLAG_POT_LOG, t_log);
   }
   // reassign the POT behaviour, used when switching pages or the editor
   // has updated EEPROM
@@ -248,7 +261,6 @@ public:
 #if defined(BMC_USE_POT_TOE_SWITCH)
     handleToeSwitch(lastValue);
 #endif
-
     return (lastValue != value);
   }
   // get the current reading of the pot mapped to the range min/max
@@ -342,6 +354,7 @@ private:
   uint8_t readPot(){
     uint8_t lastRawValue = rawValue;
     rawValue = readPin();
+
     if(rawValue != lastRawValue){
       stableSteps = 0;
     }
@@ -365,10 +378,19 @@ private:
   uint8_t readPin(){
 #if BMC_MAX_MUX_IN_ANALOG > 0
     if(flags.read(BMC_FLAG_POT_MUX)){
-      return map(muxValue, calMin, calMax, 0, 128);
+      return map(parseTaper(muxValue), calMin, calMax, 0, 128);
     }
 #endif
-    return map(analogRead(pin), calMin, calMax, 0, 128);
+    return map(parseTaper(analogRead(pin)), calMin, calMax, 0, 128);
+  }
+  uint16_t parseTaper(uint16_t t_value){
+    if(flags.read(BMC_FLAG_POT_LOG)){
+      if(t_value<=BMC_POT_LOG_POS){
+        return map(t_value, 0, BMC_POT_LOG_POS, 0, BMC_POT_LOG_PERC);
+      }
+      return map(t_value, BMC_POT_LOG_POS+1, 1023, BMC_POT_LOG_PERC+1, 1023);
+    }
+    return t_value;
   }
 };
 #endif

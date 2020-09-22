@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  See https://www.BMCXxtar.com/bmc for more details
+  Copyright (c) 2020 BMCXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -29,28 +29,42 @@
   BMCMicroEndless = same as BMCEndlessTimer but it uses the micros() function
                   making a little more accurate, this is used by BMC's MIDI Clock
 */
-#ifndef BMC_TIMER_H
-#define BMC_TIMER_H
-
+#ifndef BMCTimer_h
+#define BMCTimer_h
 #include <Arduino.h>
-class BMCTimer {
+// classes used to get the time in milliseconds or microseconds
+class BMCTimingMillis {
+  public: static unsigned long get(){ return (unsigned long) millis(); }
+};
+class BMCTimingMicros {
+  public: static unsigned long get(){ return (unsigned long) micros(); }
+};
+
+// ***************************************
+// ***************************************
+//                BMCTimerBase
+// base class for timers
+// ***************************************
+// ***************************************
+template <typename _BMCTiming, typename intervalType_t>
+class BMCTimerBase {
 private:
-  uint16_t interval = 1000;
-  unsigned long prevTime = 0;
+  intervalType_t interval = 1000;
+  unsigned long  prevTime = 0;
 public:
-  BMCTimer(){
+  BMCTimerBase(){
     stop();
   }
   operator bool(){
     return complete();
   }
   // start the timer, pass number of milliseconds as the parameter
-  void start(uint16_t value){
+  void start(intervalType_t value){
     interval = value;
-    prevTime = millis();
+    prevTime = (unsigned long) _BMCTiming::get();
   }
   // update the number of milliseconds that need to pass
-  void update(uint16_t value){
+  void update(intervalType_t value){
     if(active()){
       interval = value;
     }
@@ -70,7 +84,7 @@ public:
   // after that point the complete() method will return false until
   // start() has been called again
   bool complete(){
-    if(active() && (unsigned long)(millis() - prevTime) >= interval) {
+    if(active() && (unsigned long)(_BMCTiming::get() - prevTime) >= interval) {
       stop();
       return true;
     }
@@ -81,7 +95,7 @@ public:
   // return the number of milliseconds remaining before complete is triggered
   unsigned long remaining(){
     if(active()){
-      return (unsigned long)(millis() - prevTime);
+      return (unsigned long)(_BMCTiming::get() - prevTime);
     }
     return 0;
   }
@@ -90,79 +104,23 @@ public:
     prevTime = 0;
   }
 };
-/***************************************************************************/
-class BMCMicroTimer {
+
+// ***************************************
+// ***************************************
+//          BMCEndlessTimerBase
+// ***************************************
+// ***************************************
+template <typename _BMCTiming, typename intervalType_t>
+class BMCEndlessTimerBase {
 private:
-  unsigned long interval = 1000;
-  unsigned long prevTime = 0;
+  BMCTimerBase <_BMCTiming, intervalType_t> timer;
+  intervalType_t interval = 1000;
 public:
-  BMCMicroTimer(){
-    stop();
-  }
+  BMCEndlessTimerBase(){}
   operator bool(){
     return complete();
   }
-  // start the timer, pass number of microseconds as the parameter
-  void start(uint32_t value){
-    interval = value;
-    prevTime = micros();
-  }
-  // update the number of microseconds that need to pass
-  void update(uint32_t value){
-    if(active()){
-      interval = value;
-    }
-  }
-  // trigger the timer as complete,
-  // this will make the complete() method return true the next time
-  // useful if something you were waiting for happened already
-  // elsewhere in your code
-  void trigger(){
-    start(0);
-  }
-  // returns true if the timer is currently running
-  bool active(){
-    return (prevTime>0);
-  }
-  // returns true if the time specified has been reached
-  // after that point the complete() method will return false until
-  // start() has been called again
-  bool complete(){
-    if(active() && (unsigned long)(micros() - prevTime) >= interval) {
-      stop();
-      return true;
-    }
-    return false;
-  }
-  bool reached(){ return complete(); }
-  bool expired(){ return complete(); }
-  // return the number of milliseconds remaining before complete is triggered
-  unsigned long remaining(){
-    if(active()){
-      return (unsigned long)(micros() - prevTime);
-    }
-    return 0;
-  }
-  // stop the timer
-  void stop(){
-    prevTime = 0;
-  }
-};
-/***************************************************************************/
-class BMCEndlessTimer {
-private:
-  BMCTimer timer;
-  uint16_t interval = 1000;
-public:
-  BMCEndlessTimer(uint16_t value=0){
-    if(value>0){
-      start(value);
-    }
-  }
-  operator bool(){
-    return complete();
-  }
-  void start(uint16_t value){
+  void start(intervalType_t value){
     interval = value;
     timer.start(interval);
   }
@@ -182,42 +140,17 @@ public:
     timer.stop();
   }
 };
-/***************************************************************************/
-class BMCMicroEndless {
-private:
-  BMCTimer timer;
-  unsigned long interval = 0xF4240;// start at 1 minute
-  unsigned long prevTime = 0;
-public:
-  BMCMicroEndless(unsigned long value=0){
-    if(value>0){
-      start(value);
-    }
-  }
-  operator bool(){
-    return complete();
-  }
-  void start(unsigned long value){
-    interval = value;
-    prevTime = micros();
-  }
-  bool reached(){ return complete(); }
-  bool expired(){ return complete(); }
-  bool complete(){
-    if(active() && (unsigned long)(micros() - prevTime) >= interval) {
-      prevTime = micros();
-      return true;
-    }
-    return false;
-  }
-  bool active(){
-    return (prevTime>0);
-  }
-  void stop(){
-    end();
-  }
-  void end(){
-    prevTime = 0;
-  }
-};
+
+
+// uses millis() for timing
+class BMCTimer : public BMCTimerBase <BMCTimingMillis, uint16_t> {};
+// uses micros() for timing
+class BMCMicroTimer : public BMCTimerBase <BMCTimingMicros, unsigned long> {};
+
+// uses millis() for timing
+class BMCEndlessTimer : public BMCEndlessTimerBase <BMCTimingMillis, uint16_t> {};
+// uses micros() for timing
+class BMCMicroEndless : public BMCEndlessTimerBase <BMCTimingMicros, unsigned long> {};
+
+
 #endif
