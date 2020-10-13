@@ -110,8 +110,11 @@ public:
         // set a flat that a beat has accured (24 PPQN)
         flags.on(BMC_MIDI_CLOCK_FLAG_BEAT);
         // check if the timer is active and has reached the 1000ms
-        if(bpmSetTimer.complete()){
-          // 250ms have passed since the last time the tempo changed
+        // also check if the BPM has changed, we'll store the previous bpm
+        // in tmpBpm
+        if(bpmSetTimer.complete() && tmpBpm!=bpm){
+          tmpBpm = bpm;
+          // 100ms have passed since the last time the tempo changed
           // now callbacks can be triggered
           BMC_PRINTLN("NEW BPM",bpm,"Received");
           flags.on(BMC_MIDI_CLOCK_FLAG_BPM_CHANGED);

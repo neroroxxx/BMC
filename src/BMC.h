@@ -41,10 +41,15 @@
 #endif
 
 // Includes
+// main definitions for BMC
 #include "utility/BMC-Def.h"
+// the MIDI I/O object
 #include "midi/BMC-Midi.h"
+// the MIDI clock master/slave handler
 #include "midi/BMC-MidiClock.h"
+// the MIDI Active Sense master/slave handler
 #include "midi/BMC-MidiActiveSense.h"
+// the Editor MIDI I/O and EEPROM handler
 #include "editor/BMC-Editor.h"
 
 #if defined(BMC_USE_FAS)

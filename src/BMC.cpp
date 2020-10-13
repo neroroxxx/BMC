@@ -245,6 +245,24 @@ void BMC::update(){
     #endif
   #endif
 
+#if BMC_MAX_LIBRARY > 0
+  if(library.changeAvailable()){
+    #if BMC_MAX_PAGES > 1
+      if(library.pageChanged()){
+        setPage(library.getPageChange());
+      }
+    #endif
+    if(library.bpmChanged()){
+      midiClock.setBpm(library.getBpmChange());
+    }
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+      if(library.pixelProgramChanged()){
+        pixelPrograms.setProgram(library.getPixelProgramChange());
+      }
+    #endif
+  }
+#endif
+
   //
   #ifdef BMC_USE_CLICK_TRACK
     // this is only used if the editor is connected, tells the editor app

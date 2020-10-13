@@ -189,7 +189,7 @@ struct BMCMidiEvent {
   }
   void setEvent(uint8_t port=0, uint8_t status=0, uint8_t channel=0, uint8_t data1=0, uint8_t data2=0){
     // don't mask data2 to 7 bits since we can allow for 128 as a value to toggle
-    if(status<0xF0){
+    if(status>127 && status<0xF0){
       status = ((status & 0xF0) | (channel & 0x0F));
     }
     event = BMC_MERGE_BYTES(port, data2, data1 & 0x7F, status);
@@ -202,7 +202,7 @@ struct BMCMidiEvent {
   }
   uint8_t getStatus(){
     uint8_t status = BMC_GET_BYTE(0,event);
-    return (status < 0xF0) ? (status & 0xF0) : status;
+    return (status > 127 && status < 0xF0) ? (status & 0xF0) : status;
   }
   uint8_t getChannel(){
     return BMC_GET_BYTE(0,event) & 0x0F;

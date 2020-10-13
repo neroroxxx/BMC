@@ -39,6 +39,11 @@
   #include "utility/BMC-CustomSysEx.h"
 #endif
 
+#define BMC_LIBRARY_FLAG_CHANGE_AVAILABLE 0
+#define BMC_LIBRARY_FLAG_SET_PAGE 1
+#define BMC_LIBRARY_FLAG_SET_BPM  2
+#define BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM  3
+
 class BMCLibrary {
 public:
   #if BMC_MAX_CUSTOM_SYSEX > 0
@@ -59,26 +64,51 @@ public:
   #endif
   void send(bmcLibrary_t index){
     uint8_t status = (global.library[index].event & 0xFF);
-    if(index < BMC_MAX_LIBRARY && status>0x7F){
-      if(status<0xF0){
+    if(index < BMC_MAX_LIBRARY){
+      if(status>127 && status<0xF0){
         midi.send(global.library[index].event);
       } else if(status>=0xF0 && status<=0xF2){
         #if BMC_MAX_CUSTOM_SYSEX > 0
           uint8_t ports = BMC_GET_BYTE(3, global.library[index].event);
           sendCustomSysEx(index, status, ports);
         #endif
+      } else if(status==1){// page
+        page = BMC_GET_BYTE(1, global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+      } else if(status==2){// bmp
+        bpm = mergeDataBytes(global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_BPM);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+      } else if(status==3){// bmp
+        pixelProgram = BMC_GET_BYTE(1, global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
       }
+
     }
   }
   void sendWithDifferentPorts(bmcLibrary_t index, uint8_t ports){
     uint8_t status = (global.library[index].event & 0xFF);
-    if(index < BMC_MAX_LIBRARY && status > 0x7F){
-      if(status<0xF0){
+    if(index < BMC_MAX_LIBRARY){
+      if(status>127 && status<0xF0){
         midi.send((global.library[index].event & 0xFFFFFF) | ports<<24);
       } else if(status>=0xF0 && status<=0xF2){
         #if BMC_MAX_CUSTOM_SYSEX > 0
         sendCustomSysEx(index, status, ports);
         #endif
+      } else if(status==1){// page
+        page = BMC_GET_BYTE(1, global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+      } else if(status==2){// bmp
+        bpm = mergeDataBytes(global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_BPM);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+      } else if(status==3){// bmp
+        pixelProgram = BMC_GET_BYTE(1, global.library[index].event);
+        flags.on(BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM);
+        flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
       }
     }
   }
@@ -90,6 +120,27 @@ public:
     send(index);
     send(index2);
     send(index3);
+  }
+  bool changeAvailable(){
+    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+  }
+  bool pageChanged(){
+    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_PAGE);
+  }
+  uint8_t getPageChange(){
+    return page;
+  }
+  bool bpmChanged(){
+    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_BPM);
+  }
+  uint16_t getBpmChange(){
+    return bpm;
+  }
+  bool pixelProgramChanged(){
+    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM);
+  }
+  uint8_t getPixelProgramChange(){
+    return pixelProgram;
   }
 
   // these are here to make it easier to access a library message from the outside
@@ -152,6 +203,15 @@ private:
   // reference to midi object from BMC
   BMCMidi& midi;
   bmcStoreGlobal& global;
+  BMCFlags <uint8_t> flags;
+  uint8_t page = 0;
+  uint8_t pixelProgram = 0;
+  uint16_t bpm = 0;
+
+  uint16_t mergeDataBytes(uint32_t t_event){
+    uint16_t b = (t_event>>8) & 0xFFFF;
+    return (BMC_GET_BYTE(0, b) & 0x7F) | ((BMC_GET_BYTE(1, b) & 0x7F)<<7);
+  }
 
   #if BMC_MAX_CUSTOM_SYSEX > 0
     BMCCustomSysEx& customSysEx;
