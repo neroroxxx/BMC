@@ -21,6 +21,14 @@ public:
     typerCommand = 0;
     typerCustomCommand = 0;
 
+#if BMC_MAX_TRIGGERS > 0
+    triggerCustom = 0;
+#endif
+
+#if BMC_MAX_LIBRARY > 0
+    libraryCustom = 0;
+#endif
+
     buttonDualPress = 0;
     buttonActivity = 0;
     encoderActivity = 0;
@@ -116,6 +124,14 @@ public:
   void (*menuCommand)(uint8_t t_command);
   void (*typerCommand)(uint16_t t_value, uint16_t t_rawValue);
   void (*typerCustomCommand)(uint16_t t_value, uint16_t t_rawValue);
+
+#if BMC_MAX_TRIGGERS > 0
+  void (*triggerCustom)(uint8_t id);
+#endif
+
+#if BMC_MAX_LIBRARY > 0
+  void (*libraryCustom)(uint8_t id);
+#endif
 
 
   void (*buttonDualPress)(uint8_t btn1, uint8_t btn2);

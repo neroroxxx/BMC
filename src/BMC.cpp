@@ -32,9 +32,9 @@ BMC::BMC():
   #endif
   #if BMC_MAX_LIBRARY > 0
     #if BMC_MAX_CUSTOM_SYSEX > 0
-      ,library(midi, store.global, customSysEx)
+      ,library(midi, store.global, callback, customSysEx)
     #else
-      ,library(midi, store.global)
+      ,library(midi, store.global, callback)
     #endif
     #if BMC_MAX_PRESETS > 0
       ,presets(midi, store.global, library)

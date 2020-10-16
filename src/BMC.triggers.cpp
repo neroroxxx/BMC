@@ -32,6 +32,11 @@
     uint8_t byteC = BMC_GET_BYTE(3,event);
 
     switch(parseMidiEventType(type)){
+      case BMC_TRIGGER_EVENT_TYPE_CUSTOM:
+        if(callback.triggerCustom){
+          callback.triggerCustom(byteA);
+        }
+        break;
       case BMC_MIDI_NOTE_OFF:
       case BMC_MIDI_NOTE_ON:
       case BMC_MIDI_CONTROL_CHANGE:

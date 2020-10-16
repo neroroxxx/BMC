@@ -181,6 +181,11 @@ public:
   void onPageChange(void (*fptr)(uint8_t page)){
     callback.pageChanged = fptr;
   }
+  void onTriggerCustom(void (*fptr)(uint8_t id)){
+#if BMC_MAX_TRIGGERS > 0
+    callback.triggerCustom = fptr;
+#endif
+  }
   // triggered when EEPROM has been updated either by the editor or the API
   void onStoreUpdate(void (*fptr)()){
     callback.storeUpdated = fptr;
