@@ -851,6 +851,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_FAS_LOOPER_CONTROL_REC_PLAY_DUB 8
 #define BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY 9
 #define BMC_FAS_LOOPER_CONTROL_CLEAR 10
+#define BMC_FAS_LOOPER_CONTROL_PLAY_STOP 11
 
 
 // Line 6 Helix ID per Device

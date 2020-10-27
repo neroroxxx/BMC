@@ -285,6 +285,17 @@ public:
         }
         break;
       }
+      // stop if either playing/recording/dubbing, otherwise play
+      case BMC_FAS_LOOPER_CONTROL_PLAY_STOP:{
+        if(device.looper.getStates()>0){
+          sendControlChange(BMC_FAS_CC_LOOPER_RECORD, 0);
+          sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 0);
+          sendControlChange(BMC_FAS_CC_LOOPER_DUB, 0);
+        } else {
+          sendControlChange(BMC_FAS_CC_LOOPER_PLAY, 127);
+        }
+        break;
+      }
     }
   }
   bool looperGetState(){
@@ -297,10 +308,10 @@ public:
     return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
   }
   bool looperRecording(){
-    return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+    return looperStatus(BMC_FAS_LOOPER_STATE_RECORDING);
   }
   bool looperDubbing(){
-    return looperStatus(BMC_FAS_LOOPER_STATE_PLAYING);
+    return looperStatus(BMC_FAS_LOOPER_STATE_OVERDUBBING);
   }
   bool looperRecordingOrDubbing(){
     return looperRecording() || looperDubbing();
