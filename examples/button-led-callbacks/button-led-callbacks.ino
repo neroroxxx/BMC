@@ -4,6 +4,8 @@
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
+  READ THE README FILE FIRST AND MAKE SURE YOU DID THE boards.txt MOD!!
+
   This is a basic BMC example
 
   For all examples of the library the pins will be:
