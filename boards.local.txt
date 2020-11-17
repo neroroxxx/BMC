@@ -1,10 +1,19 @@
 # BMC Config File Mod
-# copy all this text and paste it at the bottom of Teensyduino's boards.txt file
-# to locate boards.txt on mac, open your Applications folder, right click on Arduino or Teensyduino (which ever you are using)
-# then select "Show Package Contents" and navigate to "Contents/Java/hardware/teensy/avr/boards.txt"
-# On Windows: go to "Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"
 
-# ----- Include BMC Config Mod Starts -----
+# thanks to manicksan for pointing out the boards.local.txt method
+# https://forum.pjrc.com/threads/64509-Adding-an-optional-global-config-h-file-per-sketch
+# copy this file and paste in the same location as the boards.txt file.
+
+# To locate boards.txt
+
+# On mac, open your Applications folder, right click on Arduino or Teensyduino (which ever you are using)
+# then select "Show Package Contents" and navigate to "Contents/Java/hardware/teensy/avr/boards.txt"
+
+# On Windows: go to "Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"
+# After doing this you can restart Teensyduino and you will then see the "Require BMC Config" option under tools
+
+
+# ----- BMC Config File -----
 menu.bmcsketchconfig=Require BMC Config
 teensy41.menu.bmcsketchconfig.no=No
 teensy41.menu.bmcsketchconfig.yes=Yes
@@ -24,4 +33,4 @@ teensy31.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -
 teensyLC.menu.bmcsketchconfig.no=No
 teensyLC.menu.bmcsketchconfig.yes=Yes
 teensyLC.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-# ----- Include BMC Config Mod Ends -----
+# ----- BMC Config File -----

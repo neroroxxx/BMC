@@ -108,12 +108,12 @@ You can use any combination of Hardware as long as your Teensy supports it!
 ### [View installation instruction on YouTube](https://www.youtube.com/watch?v=FuYEk7bobh8)
 
 #### Step 1
-First you will need to instal the Teensyduino addon for Arduino with all it's libraries, you can downloaded and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
+First you will need to install the Teensyduino addon for Arduino with all it's libraries, you can downloaded and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
 
 #### Step 2
 Once Arudino/Teensyduino are installed you have to make one modification to Teensyduino.
 
-As mentioned before, BMC requires a config file which has all the instructions for how to compile the library, the idea of this mod is to allow you to keep that config file inside the sketch's folder, unfortunately the Arduino IDE doesn't have the option to load this file globally, so we have to do this manually by copying and pasting some text to the boards.txt.
+As mentioned before, BMC requires a config file which has all the instructions for how to compile the library, the idea of this mod is to allow you to keep that config file inside the sketch's folder, unfortunately the Arduino IDE doesn't have the option to load this file globally, so we have to do this manually by copying a file into the directory of the boards.txt file.
 
 All we are doing is adding a new option in the **Tools** Menu in Arduino, this mod just tells the compiler to include the ***config.h*** file in your sketch's folder globally.
 
@@ -124,34 +124,11 @@ First Locate the boards.txt file:
 * On Windows it should be available at *"Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"*
 
 
-Once you locate it, open it with a text editor and add the following text at the very bottom. *(this text is also available in a text file within the library contents under boards-txt-mod.txt)*
+Once you locate it, copy the file **boards.local.txt** into the same location as **boards.txt**
 
-```
-# ----- Include BMC Config Mod Starts -----
-menu.bmcsketchconfig=Require BMC Config
-teensy41.menu.bmcsketchconfig.no=No
-teensy41.menu.bmcsketchconfig.yes=Yes
-teensy41.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
-teensy40.menu.bmcsketchconfig.no=No
-teensy40.menu.bmcsketchconfig.yes=Yes
-teensy40.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
-teensy36.menu.bmcsketchconfig.no=No
-teensy36.menu.bmcsketchconfig.yes=Yes
-teensy36.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-teensy35.menu.bmcsketchconfig.no=No
-teensy35.menu.bmcsketchconfig.yes=Yes
-teensy35.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-teensy31.menu.bmcsketchconfig.no=No
-teensy31.menu.bmcsketchconfig.yes=Yes
-teensy31.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-teensyLC.menu.bmcsketchconfig.no=No
-teensyLC.menu.bmcsketchconfig.yes=Yes
-teensyLC.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-# ----- Include BMC Config Mod Ends -----
-```
-Once you do this mod save the file and restart Arduino/Teensyduino. You will now see a new option under **Tools** named **Require BMC Config** if you select **Yes** a *config.h* file will be required inside the sketch folder for any sketch to compile, if you want to compile a sketch that doen't include the BMC library then you want to set that option to **No**. Also any BMC build requires a **MIDI Usb Type**
+That's it! You will now see a new option under **Tools** named **Require BMC Config** if you select **Yes** a *config.h* file will be required inside the sketch folder for any sketch to compile, if you want to compile a sketch that doen't include the BMC library then you want to set that option to **No**. Also any BMC build requires a **MIDI Usb Type**
 
-**NOTE: YOU WILL NEED TO DO THIS MOD TO THE boards.txt FILE EVERYTIME YOU UPDATE TEENSYDUINO AS AN UPDATE WILL REPLACE THE boards.txt FILE.**
+**NOTE: IF YOU UPDATE TEENSYDUINO AND THE OPTION TO REQUIRE THE CONFIG FILE IS NO LONGER THERE, JUST DO THE MOD AGAIN.**
 
 ![Tools Menu with BMC Installed](images/tools-menu.jpg)
 
