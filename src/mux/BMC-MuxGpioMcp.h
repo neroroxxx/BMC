@@ -9,7 +9,7 @@
 
 #include "utility/BMC-Def.h"
 
-#if BMC_MAX_MUX_GPIO > 0 && BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP2301X
+#if BMC_MAX_MUX_GPIO > 0 && BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
 
 // pin mode
 #define BMC_MCP2301X_IO_MODE 0x00
@@ -23,6 +23,39 @@
 // read
 #define BMC_MCP2301X_IO 0x12
 
+
+#define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1}
+#define BMC_MUX_GPIO_CHIP_COUNT 1
+
+#if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
+  #undef BMC_MUX_GPIO_CHIP_COUNT
+  #define BMC_MUX_GPIO_CHIP_COUNT 2
+  #undef BMC_MUX_GPIO_CHIP_ADDR
+  #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2}
+
+  #if defined(BMC_MUX_GPIO_ADDR_3) && BMC_MAX_MUX_GPIO > 32
+    #undef BMC_MUX_GPIO_CHIP_COUNT
+    #define BMC_MUX_GPIO_CHIP_COUNT 3
+    #undef BMC_MUX_GPIO_CHIP_ADDR
+    #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3}
+
+    #if defined(BMC_MUX_GPIO_ADDR_4) && BMC_MAX_MUX_GPIO > 48
+      #undef BMC_MUX_GPIO_CHIP_COUNT
+      #define BMC_MUX_GPIO_CHIP_COUNT 4
+      #undef BMC_MUX_GPIO_CHIP_ADDR
+      #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3, BMC_MUX_GPIO_ADDR_4}
+    #endif
+  #endif
+#endif
+
+
+
+#define BMC_MUX_GPIO_FLAGS_UPDATE   0
+#define BMC_MUX_GPIO_FLAGS_UPDATE_1 1
+#define BMC_MUX_GPIO_FLAGS_UPDATE_2 2
+#define BMC_MUX_GPIO_FLAGS_UPDATE_3 3
+
+
 #include <Wire.h>
 
 class BMCMuxGpioMCP {
@@ -32,64 +65,174 @@ public:
     BMC_PRINTLN("Mux GPIO using MCP23017/MCP23018");
     Wire.begin();
     Wire.setClock(BMC_I2C_FREQ);
-    setupPins(BMC_MUX_GPIO_ADDR_1);
-
-    #if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
-      setupPins(BMC_MUX_GPIO_ADDR_2);
-
-      #if defined(BMC_MUX_GPIO_ADDR_3) && BMC_MAX_MUX_GPIO > 32
-        setupPins(BMC_MUX_GPIO_ADDR_3);
-
-        #if defined(BMC_MUX_GPIO_ADDR_4) && BMC_MAX_MUX_GPIO > 48
-          setupPins(BMC_MUX_GPIO_ADDR_4);
-        #endif
-      #endif
-    #endif
+    initializePins();
   }
-  void setupPins(uint8_t addr){
-    // set all pins of first MCP2301X as outputs
-    // bit set to 1 is input, 0 is output
-    writeData(addr, BMC_MCP2301X_IO_MODE, 0x00);
-    writeData(addr, BMC_MCP2301X_IO_MODE+1, 0x00);
-
-    // set all pins of first MCP2301X to use built-in pullup
-    // if you have external pullup resistors then set 0xFF to 0 on both
-    // if bit is 0 internal pullup is off, 1 internal pullup is on
-    writeData(addr, BMC_MCP2301X_PULLUP, 0x00);
-    writeData(addr, BMC_MCP2301X_PULLUP+1, 0x00);
+  void initializePins(){
+    // check which pins are inputs and outputs
+#if BMC_MAX_BUTTONS > 0
+    for(uint8_t i=0;i<BMC_MAX_BUTTONS;i++){
+      uint8_t pin = BMCBuildData::getButtonPin(i);
+      if(BMCBuildData::isMuxGpioPin(pin)){
+        setupPin(pin, INPUT);
+      }
+    }
+#endif
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+    for(uint8_t i=0;i<BMC_MAX_GLOBAL_BUTTONS;i++){
+      uint8_t pin = BMCBuildData::getGlobalButtonPin(i);
+      if(BMCBuildData::isMuxGpioPin(pin)){
+        setupPin(pin, INPUT);
+      }
+    }
+#endif
+#if BMC_MAX_ENCODERS > 0
+    for(uint8_t i=0;i<BMC_MAX_ENCODERS;i++){
+      uint8_t pinA = BMCBuildData::getEncoderPinA(i);
+      uint8_t pinB = BMCBuildData::getEncoderPinB(i);
+      if(BMCBuildData::isMuxGpioPin(pinA)){
+        setupPin(pinA, INPUT);
+      }
+      if(BMCBuildData::isMuxGpioPin(pinB)){
+        setupPin(pinB, INPUT);
+      }
+    }
+#endif
+#if BMC_MAX_GLOBAL_ENCODERS > 0
+    for(uint8_t i=0;i<BMC_MAX_GLOBAL_ENCODERS;i++){
+      uint8_t pinA = BMCBuildData::getGlobalEncoderPinA(i);
+      uint8_t pinB = BMCBuildData::getGlobalEncoderPinB(i);
+      if(BMCBuildData::isMuxGpioPin(pinA)){
+        setupPin(pinA, INPUT);
+      }
+      if(BMCBuildData::isMuxGpioPin(pinB)){
+        setupPin(pinB, INPUT);
+      }
+    }
+#endif
+#if BMC_MAX_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_LEDS;i++){
+      uint8_t pin = BMCBuildData::getLedPin(i);
+      if(BMCBuildData::isMuxGpioPin(pin)){
+        setupPin(pin, OUTPUT);
+      }
+    }
+#endif
+#if BMC_MAX_GLOBAL_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_GLOBAL_LEDS;i++){
+      uint8_t pin = BMCBuildData::getGlobalLedPin(i);
+      if(BMCBuildData::isMuxGpioPin(pin)){
+        setupPin(pin, OUTPUT);
+      }
+    }
+#endif
+    for(uint8_t i=0;i<BMC_MUX_GPIO_CHIP_COUNT;i++){
+      // bit set to 1 is input, 0 is output
+      controlSetDirection(i);
+      // if bit is 0 internal pullup is off, 1 internal pullup is on
+      controlSetPullup(i);
+      // value for the pin
+      controlSetValue(i);
+    }
+    delay(5);
+    readAllPins();
+    delay(5);
+  }
+  void setupPin(uint8_t t_pin, uint8_t t_mode){
+    if(t_pin>=64+BMC_MAX_MUX_GPIO){
+      return;
+    }
+    t_pin -= 64;
+    uint8_t mux = (uint8_t) (t_pin/16);
+    uint8_t pin = t_pin-(mux*16);
+    if(t_mode==OUTPUT){
+      bitWrite(pinDirection[mux], pin, 0);
+      bitWrite(states[mux], pin, 0);
+    } else {
+      // is input, BMC will always set inputs as input pullup
+      bitWrite(pinDirection[mux], pin, 1);
+      bitWrite(states[mux], pin, 1);
+    }
   }
 
   void update(){
+    if((flags.read()&0x0F)>0){
+      // a mux has been updated so write the values only to the mux that was updated
+      for(uint8_t i=0;i<BMC_MUX_GPIO_CHIP_COUNT;i++){
+        if(flags.toggleIfTrue(BMC_MUX_GPIO_FLAGS_UPDATE+i)){
+          controlSetValue(i);
+        }
+      }
+    }
     readAllPins();
   }
-
-
-  uint32_t read1To32(){
-    return states;
+  bool readPin(uint8_t t_pin){
+    if(t_pin<BMC_MAX_MUX_GPIO){
+      uint8_t mux = (uint8_t) (t_pin/16);
+      uint8_t pin = t_pin-(mux*16);
+      // we can read inputs and outputs
+      return bitRead(states[mux], pin);
+    }
+    return false;
   }
-#if BMC_MAX_MUX_GPIO > 32
-  uint32_t read33To64(){
-    return states2;
+  void writePin(uint8_t t_pin, bool state){
+    if(t_pin>=BMC_MAX_MUX_GPIO){
+      return;
+    }
+    uint8_t mux = (uint8_t) (t_pin/16);
+    uint8_t pin = t_pin-(mux*16);
+    // check if pin is an output pin, we don't write to input pins.
+    if(bitRead(pinDirection[mux], pin) == 0){
+      // prepare to update a mux pin on the next update
+      if(bitRead(states[mux], pin) != state){
+        bitWrite(states[mux], pin, state);
+        flags.on(BMC_MUX_GPIO_FLAGS_UPDATE+mux);
+      }
+    }
   }
-#endif
+  void test(uint8_t t_pin){
+    if(t_pin>=BMC_MAX_MUX_GPIO){
+      return;
+    }
+    bool currentState = getPinState(t_pin);
+
+    for(uint8_t i=0;i<3;i++){
+      // now tell the update function that a change has happened
+      writePin(t_pin, !currentState);
+      update();
+      delay(BMC_MAX_LED_TEST_DELAY);
+
+      writePin(t_pin, currentState);
+      update();
+      delay(BMC_MAX_LED_TEST_DELAY);
+    }
+  }
+  bool getPinState(uint8_t t_pin){
+    if(t_pin>=BMC_MAX_MUX_GPIO){
+      return false;
+    }
+    uint8_t mux = (uint8_t) (t_pin/16);
+    uint8_t pin = t_pin-(mux*16);
+    return bitRead(states[mux], pin);
+  }
 
 private:
-  uint32_t states = 0;
-#if BMC_MAX_MUX_GPIO > 32
-  uint32_t states2 = 0;
-#endif
+  BMCFlags <uint8_t> flags;
+  const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = BMC_MUX_GPIO_CHIP_ADDR;
+  uint16_t states[BMC_MUX_GPIO_CHIP_COUNT];
+  uint16_t pinDirection[BMC_MUX_GPIO_CHIP_COUNT];
+
   void readAllPins(){
-    states = readPins(BMC_MUX_GPIO_ADDR_1);
+    states[0] = readPins(BMC_MUX_GPIO_ADDR_1);
 
     #if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
-      states = (readPins(BMC_MUX_GPIO_ADDR_2)<<16) | states;
+      states[1] = readPins(BMC_MUX_GPIO_ADDR_2);
     #endif
 
     #if defined(BMC_MUX_GPIO_ADDR_3) && BMC_MAX_MUX_GPIO > 32
-      states2 = readPins(BMC_MUX_GPIO_ADDR_3);
+      states[2] = readPins(BMC_MUX_GPIO_ADDR_3);
 
       #if defined(BMC_MUX_GPIO_ADDR_4) && BMC_MAX_MUX_GPIO > 48
-        states2 = (readPins(BMC_MUX_GPIO_ADDR_4)<<16) | states2;
+        states[3] = readPins(BMC_MUX_GPIO_ADDR_4);
       #endif
     #endif
   }
@@ -117,6 +260,21 @@ private:
     uint8_t a = Wire.read();
     uint8_t b = Wire.read();
     return (uint16_t) ((b << 8) | a);
+  }
+
+
+
+  void controlSetDirection(uint8_t n){
+    writeData(addrList[n], BMC_MCP2301X_IO_MODE, pinDirection[n] & 0xFF); // is input or ouput, 0 = output
+    writeData(addrList[n], BMC_MCP2301X_IO_MODE+1, (pinDirection[n]>>8) & 0xFF);
+  }
+  void controlSetPullup(uint8_t n){
+    writeData(addrList[n], BMC_MCP2301X_PULLUP, pinDirection[n] & 0xFF);
+    writeData(addrList[n], BMC_MCP2301X_PULLUP+1, (pinDirection[n]>>8) & 0xFF);
+  }
+  void controlSetValue(uint8_t n){
+    writeData(addrList[n], BMC_MCP2301X_IO, states[n] & 0xFF); // writes a state to the pin
+    writeData(addrList[n], BMC_MCP2301X_IO+1, (states[n]>>8) & 0xFF);
   }
 
 };

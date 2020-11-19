@@ -278,6 +278,10 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TO_PRESET_NUM(e) ((bmcPreset_t) ((e) & 0x3FF))
 #define BMC_EVENT_TO_LIBRARY_NUM(e) ((bmcLibrary_t) ((e) & 0x3FF))
 
+// Supported chipsets for Mux GPIO
+#define BMC_MUX_GPIO_CHIPSET_OTHER 1
+#define BMC_MUX_GPIO_CHIPSET_MCP 2
+
 // Supported chipsets for Mux In
 #define BMC_MUX_IN_CHIPSET_OTHER 1
 #define BMC_MUX_IN_CHIPSET_MCP2301X 2
@@ -310,6 +314,19 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MORE_OR_EQUAL_TO  2
 #define BMC_LESS_OR_EQUAL_TO  3
 #define BMC_NOT_EQUAL_TO      4
+
+
+// used for MCP23017/8 control
+#define BMC_MCP2301X_IO_MODE 0x00// pin mode
+#define BMC_MCP2301X_INT_ENABLE 0x04// Interrupts
+#define BMC_MCP2301X_DEFAULT_VALUE 0x06
+#define BMC_MCP2301X_INT_CONFIG 0x08
+#define BMC_MCP2301X_IO_CONFIG 0x0A
+#define BMC_MCP2301X_PULLUP 0x0C // pullups
+#define BMC_MCP2301X_IO 0x12// read
+
+
+
 
 // used for number scrolling
 #define BMC_SCROLL_DOWN 0

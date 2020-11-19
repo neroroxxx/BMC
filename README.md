@@ -82,7 +82,7 @@ BMC includes support for:
 * **Messenger** *(send strings back and forth between editor and sketch)*
 * **String Library** *(editable array of strings to be used in sketch)*
 * **SetList**
-* up to 64 Mux inputs using the MCP23017/MCP23018/74HC165 and/or 74HC4067/74HC4051
+* up to 64 Mux inputs/outputs using the MCP23017, MCP23018, 74HC165, 74HC595, 74HC4067 and/or 74HC4051
 * Lots More!
 
 ## Hardware Limits
@@ -94,14 +94,14 @@ Hardware like Buttons, Leds, Pots, etc. have a limit which is based on the board
 |Leds                 |32   |27  |Max  |Max  |Max  |Max  |
 |Pwm Leds             |16   |10  |12   |Max  |Max  |Max  |
 |Global Leds          |16   |16  |Max  |Max  |Max  |Max  |
-|Pots                 |64   |13  |Max  |Max  |Max  |14   |
+|Pots                 |128   |13  |Max  |Max  |Max  |14   |
 |Encoder              |64   |13  |Max  |Max  |Max  |Max  |
 |Latching Relays      |16   |13  |Max  |Max  |Max  |Max  |
 |Non-Latching Relays  |16   |16  |Max  |Max  |Max  |Max  |
 
 You can use any combination of Hardware as long as your Teensy supports it!
 
-**NOTE:** using Mux Inputs will not increase the maximum number of items that can be used, Mux Inputs just allow you to reach that maximum.
+**NOTE:** using Mux Inputs/Outputs will not increase the maximum number of items that can be used, Muxes just allow you to reach that maximum.
 
 ## Installation
 

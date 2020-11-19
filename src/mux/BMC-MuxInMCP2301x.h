@@ -11,6 +11,8 @@
 
 #if BMC_MAX_MUX_IN > 0 && BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_MCP2301X
 
+/*
+// THESE ARE NOT MOVED TO BMC-Def.h to be used across other mux handlers
 // pin mode
 #define BMC_MCP2301X_IO_MODE 0x00
 // Interrupts
@@ -22,6 +24,7 @@
 #define BMC_MCP2301X_PULLUP 0x0C
 // read
 #define BMC_MCP2301X_IO 0x12
+*/
 
 #include <Wire.h>
 

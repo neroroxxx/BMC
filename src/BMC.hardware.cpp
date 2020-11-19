@@ -16,7 +16,7 @@ void BMC::setupHardware(){
   BMC_PRINTLN("BMC_MAX_AUX_JACKS", BMC_MAX_AUX_JACKS);
   for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
 
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       if(
         BMCBuildData::getPotPin(BMCBuildData::getPotMergeItem(i, 0))>=64 ||
         BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 1))>=64 ||

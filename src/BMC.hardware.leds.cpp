@@ -16,13 +16,15 @@ void BMC::setupLeds(){
     #if BMC_PAGE_LED_DIM == true
     leds[i].setPwmOffValue(settings.getPwmDimWhenOff());
     #endif
-    #if BMC_MAX_MUX_OUT > 0
+
+    #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
+      leds[i].test();
+    #endif
+
+    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       if(leds[i].muxTesting()){
         mux.testDigital(leds[i].getMuxPin());
       }
-    #endif
-    #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-      leds[i].test();
     #endif
   }
 #endif
@@ -35,13 +37,14 @@ void BMC::setupLeds(){
     globalLeds[i].setPwmOffValue(settings.getPwmDimWhenOff());
     #endif
 
-    #if BMC_MAX_MUX_OUT > 0
+    #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
+      globalLeds[i].test();
+    #endif
+
+    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       if(globalLeds[i].muxTesting()){
         mux.testDigital(globalLeds[i].getMuxPin());
       }
-    #endif
-    #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
-      globalLeds[i].test();
     #endif
   }
   assignGlobalLeds();
@@ -84,8 +87,8 @@ void BMC::readLeds(){
     }
     bitWrite(_ledStates, i, leds[i].update());
 
-#if BMC_MAX_MUX_OUT > 0
-    mux.writeDigital(leds[i].getPin(), leds[i].getMuxState());
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    mux.writeDigital(leds[i].getMuxPin(), leds[i].getMuxState());
     if(leds[i].muxTesting()){
       mux.testDigital(leds[i].getMuxPin());
     }
@@ -133,8 +136,8 @@ void BMC::readGlobalLeds(){
       globalLeds[i].setState(bitRead(state, 3));
     }
     bitWrite(_globalLedStates,i,globalLeds[i].update());
-#if BMC_MAX_MUX_OUT > 0
-    mux.writeDigital(globalLeds[i].getPin(), globalLeds[i].getMuxState());
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    mux.writeDigital(globalLeds[i].getMuxPin(), globalLeds[i].getMuxState());
     if(globalLeds[i].muxTesting()){
       mux.testDigital(globalLeds[i].getMuxPin());
     }

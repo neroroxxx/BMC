@@ -790,50 +790,32 @@ public:
   }
 #endif
 
-#if BMC_MAX_MUX_IN > 0
-  #if BMC_MUX_IN_CHIPSET==BMC_MUX_IN_CHIPSET_OTHER
-    // set the value of a custom mux input pin
-    void setMuxDigitalValue(uint8_t pin, bool value){
-      mux.setDigitalValue(pin, value);
-    }
-  #else
-    // get the value of a mux input pin
-    bool getMuxValue(uint8_t n){
-      return mux.readDigital(n);
-    }
-  #endif
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+  // for those using a custom Digital In Multiplexer you would handle reading
+  // it's pins then you pass the value of each of those Pins to BMC with this
+  // API call, digital inputs must be Active LOW, that is if a button was pressed
+  // the value should be LOW if it's not being pressed it's value should be HIGH
+  // BMC will debounce these values so don't bother debouncing them on your own.
+  void setMuxDigitalValue(uint8_t pin, bool value){
+    mux.setDigitalValue(pin, value);
+  }
 #endif
 
-#if BMC_MAX_MUX_OUT > 0
-  #if BMC_MUX_OUT_CHIPSET==BMC_MUX_OUT_CHIPSET_OTHER
-    // set the value of a custom mux output pin
-    void setMuxDigitalOutValue(uint8_t pin, bool value){
-      mux.writeDigital(pin, value);
-    }
-  #else
-    // get the value of a mux output pin
-    bool getMuxOutValue(uint8_t n){
-      return mux.getDigitalValue(n);
-    }
-  #endif
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+  // for those using a custom Digital Out Multiplexer BMC will hold the state
+  // that that pin should be at, for example if the pins is being used to turn
+  // leds on/off then BMC will tell you weather that pin should be on or off
+  // you would then handle turning those LEDS on/off with your mux.
+  void getMuxDigitalOutValue(uint8_t pin){
+    mux.getDigitalValue(pin);
+  }
 #endif
 
 #if BMC_MAX_MUX_IN_ANALOG > 0
-  #if BMC_MUX_IN_ANALOG_CHIPSET==BMC_MUX_IN_ANALOG_CHIPSET_OTHER
-    // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
-    // @value the 10-bit analog value 0 to 1023
-    void setMuxAnalogValue(uint8_t n, uint16_t value){
-      mux.setAnalogValue(n, value);
-    }
-  #else
-    // available for supported Analog Mux ICs, useful when you want to read pins
-    // to be handled by your sketch
-    // @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
-    // returns a 10-bit value
-    uint16_t getMuxAnalogValue(uint8_t n){
-      return mux.readAnalog(n);
-    }
-  #endif
+  // same setMuxDigitalValue as but you must pass it a value from 0 to 1024.
+  void setMuxAnalogValue(uint8_t n, uint16_t value){
+    mux.setAnalogValue(n, value);
+  }
 #endif
 
 #if BMC_MAX_BUTTONS > 0

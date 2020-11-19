@@ -47,7 +47,7 @@ public:
     // if either is pin is 255 it means the begin method has not been called
     pinA = 255;
     pinB = 255;
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
     states.on(BMC_ENCODER_MUX_FLAG_A_VALUE);
     states.on(BMC_ENCODER_MUX_FLAG_B_VALUE);
     states.off(BMC_ENCODER_MUX_FLAG_A_IS_MUX);
@@ -72,7 +72,7 @@ public:
     pinB = t_pinB;
 
 
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
     if(pinA>=64){
       if(!BMCBuildData::isMuxInPin(pinA)){
         BMC_ERROR(
@@ -149,12 +149,12 @@ public:
     return flags.read(BMC_ENCODER_FLAG_INCREASED);
   }
 
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
   uint8_t getMuxPin(uint8_t _pin){
     if(_pin==0){
-      return (pinA>63) ? pinA-64 : 0;
+      return (pinA>=64) ? pinA-64 : 0;
     }
-    return (pinB>63) ? pinB-64 : 0;
+    return (pinB>=64) ? pinB-64 : 0;
   }
   void setMuxValue(uint8_t _pin, bool value){
     if(isMux(_pin)){
@@ -173,7 +173,7 @@ private:
   BMCFlags <uint8_t> flags;
   uint8_t pinA = 255;
   uint8_t pinB = 255;
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
   BMCFlags <uint8_t> states;
 #endif
 
@@ -200,7 +200,7 @@ void tick(){
   }
 }
   bool readA(){
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
     if(pinA >= 64){
       return states.read(BMC_ENCODER_MUX_FLAG_A_VALUE);
     }
@@ -208,7 +208,7 @@ void tick(){
     return (digitalRead(pinA)==BMC_ENCODER_ACTIVE);
   }
   bool readB(){
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
     if(pinB >= 64){
       return states.read(BMC_ENCODER_MUX_FLAG_B_VALUE);
     }

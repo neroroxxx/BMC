@@ -60,7 +60,31 @@ public:
       );
       BMC_HALT();
     }
-#if BMC_MAX_MUX_OUT > 0
+/*
+#if BMC_MAX_MUX_GPIO > 0
+// all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
+// BMC will group them in this order MUX_IN then MUX_IN_ANALOG
+// so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
+// then MUX_IN_ANALOG pins start at pin 74 and so on
+// so we want to make sure this pot was set to a MUX_IN_ANALOG
+if(t_pin>=64){
+  if(BMCBuildData::isMuxOutPin(t_pin)){
+    flags.on(BMC_FLAG_LED_MUX);
+    pin = t_pin;
+    reset();
+    blinker.start(BMC_LED_BLINK_TIMEOUT);
+    return;
+  } else {
+    BMC_ERROR(
+      "Mux Pin:", t_pin,
+      "Can NOT be used with Leds as it is NOT a Mux Out Pin"
+    );
+    BMC_HALT();
+  }
+}
+#endif
+*/
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     // all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
     // BMC will group them in this order MUX_IN then MUX_IN_ANALOG
     // so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
@@ -110,9 +134,9 @@ public:
     return pin;
   }
 
-#if BMC_MAX_MUX_OUT > 0
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
   uint8_t getMuxPin(){
-#if BMC_MAX_MUX_OUT > 0
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     if(flags.read(BMC_FLAG_LED_MUX)){
       return pin-64;
     }
@@ -144,7 +168,7 @@ public:
   // at startup or if the editor is triggering a test of the LED
   // the LED will return to it's state before the test began
   void test(){
-#if BMC_MAX_MUX_OUT > 0
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.on(BMC_FLAG_LED_MUX_TESTING);
       return;
@@ -279,7 +303,7 @@ public:
   }
 private:
   uint8_t pin = 255;
-#if BMC_MAX_MUX_OUT == 0
+#if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
   BMCFlags <uint8_t> flags;
 #else
   BMCFlags <uint16_t> flags;
@@ -301,7 +325,7 @@ private:
     bool userPwmOffValue = flags.read(BMC_FLAG_LED_USE_OFF_VALUE);
     bool blinkerState = flags.read(BMC_FLAG_LED_BLINKER_STATE);
 
-    #if BMC_MAX_MUX_OUT == 0
+    #if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
       flags.reset();
     #else
       flags.reset((1 << BMC_FLAG_LED_MUX));
@@ -321,7 +345,7 @@ private:
     t_value = !t_value;
 #endif
 
-#if BMC_MAX_MUX_OUT > 0
+#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.write(BMC_FLAG_LED_MUX_VALUE, t_value);
       return;

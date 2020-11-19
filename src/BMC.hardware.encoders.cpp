@@ -39,7 +39,7 @@ void BMC::readEncoders(){
   bmcStorePage& pageData = store.pages[page];
   for(uint8_t i = 0; i < BMC_MAX_ENCODERS; i++){
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
       if(encoders[i].hasMux()){
         encoders[i].setMuxValue(0, mux.readDigital(encoders[i].getMuxPin(0)));
         encoders[i].setMuxValue(1, mux.readDigital(encoders[i].getMuxPin(1)));
@@ -76,7 +76,7 @@ void BMC::assignGlobalEncoders(){
 void BMC::readGlobalEncoders(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
     // GET THE PIN STATE FROM MUX
-#if BMC_MAX_MUX_IN > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
     if(globalEncoders[i].hasMux()){
       globalEncoders[i].setMuxValue(0, mux.readDigital(globalEncoders[i].getMuxPin(0)));
       globalEncoders[i].setMuxValue(1, mux.readDigital(globalEncoders[i].getMuxPin(1)));

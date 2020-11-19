@@ -42,9 +42,7 @@ private:
 #endif
 
   uint8_t parsePinNumber(uint8_t t_pin){
-    if(t_pin>=64){
-      t_pin -= 64;
-    }
+    t_pin -= (BMC_MAX_MUX_GPIO);
     return constrain(t_pin, 0, (BMC_MAX_MUX_IN-1));
   }
 public:
@@ -126,17 +124,11 @@ public:
   }
 
   void setPinValues(uint8_t t_pin, bool t_value){
-#if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER
     t_pin = parsePinNumber(t_pin);
-    if(t_pin<BMC_MAX_MUX_IN){
-
-#if BMC_MAX_MUX_IN > 32
-      if(t_pin>=32){
-        return bitRead(states[1], (t_pin-32));
-      }
-#endif
-      bitWrite(states[0], t_pin, t_value);
-    }
+#if BMC_MUX_IN_CHIPSET == BMC_MUX_IN_CHIPSET_OTHER
+    uint8_t mux = (uint8_t) (t_pin/32);
+    uint8_t pin = t_pin-(mux*32);
+    bitWrite(states[mux], pin, t_value);
 #endif
   }
 };

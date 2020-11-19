@@ -6,23 +6,24 @@
 
 # Multiplexers
 ***********************************************
-***BMC now allows for up to 127 Analog Mux Pins, Digital Mux In will still be limited to 64 pins***
-***********************************************
-***********************************************
-***BMC now supports Mux Out with the 74HC595***
+***BMC now allows for up to 127 Analog Mux Pins, Digital Mux will still be limited to 64 pins***
 ***********************************************
 
-While BMC uses a Teensy's pins to read inputs it also has support for up 64 Mux inputs.
+While BMC uses a Teensy's pins to read inputs and write to outputs it also has support for up 64 Mux pins (127 analog mux).
 
 These include:
+
+#### MUX GPIO (any pin can be used as either an input or output):
+IC | Type | Inputs | Pins Required
+-|-|-|-
+**MCP23017** | Digital In/Out | 16 | 2 *(uses i2c pins 18 & 19)*
+**MCP23018** | Digital In/Out | 16 | 2 *(uses i2c pins 18 & 19)*
+
+#### MUX IN:
 
 IC | Input Type | Inputs | Pins Required
 -|-|-|-
 **74HC165** | Digital Only | 8 | 3
-**MCP23017** | Digital Only | 16 | 2 *(uses i2c pins 18 & 19)*
-**MCP23018** | Digital Only | 16 | 2 *(uses i2c pins 18 & 19)*
-**74HC4067** | Analog Only | 16 | 5 *(1 must be analog)*
-**74HC4051** | Analog Only | 8 | 4 *(1 must be analog)*
 
 #### MUX OUT:
 
@@ -30,12 +31,36 @@ IC | Output Type | Outputs | Pins Required
 -|-|-|-
 **74HC595** | Digital Only | 8 | 3 (4 optional for PWM)
 
+#### MUX IN ANALOG:
 
-BMC has code to read all chips above however there are a few limits. For digital inputs you can only use one type of chip, so if you want to have 32 inputs you can either use four 74HC165 or two MCP23017 or two MCP23018, you can not combine them.
+IC | Input Type | Inputs | Pins Required
+-|-|-|-
+**74HC4067** | Analog Only | 16 | 5 *(1 must be analog)*
+**74HC4051** | Analog Only | 8 | 4 *(1 must be analog)*
 
-For Analog input you can only use a chain of 74HC4067 or 74HC4051, not a mix of them.
 
-You can however have a digital mux chain and an analog mux chain at the same time as long as the total number of pins doesn't exceed 64.
+As you can see above there are 4 types of MUX drivers in BMC:
+
+* **MUX GPIO** these chips can be used as either digital inputs or outputs or both, in other words you can mix and match and of it's pins are any combination of inputs and outputs, so you could have pin 1 as an input, pin 2 as an output, pins 3 to 6 as an input, and the rest as outputs or any other combination you may need, ***these are limited to 64 pins all together, so you can have up to 4 MCP23017/MCP23018 and use any of their pins as inputs or outputs***
+
+* **MUX IN** these chips can only be used as digital inputs for buttons and/or encoders. ***these are limited to 64 pins all together, so you can have up to eight 74HC165 and use any of their pins as inputs***
+
+* **MUX OUT** these chips can only be used as digital outputs leds and/or global leds. ***these are limited to 64 pins all together, so you can have up to eight 74HC595 and use any of their pins as outputs for Leds/Global Leds***
+
+* **MUX IN ANALOG** these chips can only be used as analog inputs for pots. ***these are limited to 127 pins all together, so you can have up to eight 74HC165 and use any of their pins as inputs. You can only use a chain of 74HC4067 or 74HC4051, not a mix of them.***
+
+Digital Mux are limited to 64 pins all together so you can have any combination of **MUX GPIO**, **MUX IN** and **MUX OUT** as long as the sum of their pins doesn't exceed 64 pins. **MUX IN ANALOG** can have up to 127 pins but these pins also linked to the 64 pin limit, in other words you can't have 64 DIGITAL MUX pins and 127 MUX IN ANALOG pins.
+
+These pins are defined in BMC starting at pin 64 and they are summed in this order:
+
+* MUX GPIO
+* MUX IN
+* MUX OUT
+* MUX IN ANALOG
+
+if for example you have all 4 types of muxes, the the pins of MUX GPIO will start at pin 64, if you have 16 MUX GPIO pins then the first pin of MUX IN will be pin 80 and so on, now, if you don't have MUX GPIO pins then MUX IN would start at 64 and so on.
+
+TODO: add a graph and better explanations on how mux works
 
 More chips may be added in the future, however, I picked these chips because they're common and easy to find online.
 
@@ -94,39 +119,30 @@ There are many API callbacks and functions available for use, these may not refl
 
 ##### FUNCTIONS
 
-For Digital Input
+For Digital Inputs
 ```c++
-// @n the digital pin index, this is the actual index, that is if it's the very first digital pin, n will be 0
-// @value false if button is pressed, true is released
-void setMuxDigitalValue(uint8_t n, bool value);
-
-// Only available for supported Mux ICs, useful when you want to read pins
-// to be handled by your sketch
-// read a digital mux in pin
-bool getMuxValue(uint8_t n);
+// for those using a custom Digital In Multiplexer you would handle reading
+// it's pins then you pass the value of each of those Pins to BMC with this
+// API call, digital inputs must be Active LOW, that is if a button was pressed
+// the value should be LOW if it's not being pressed it's value should be HIGH
+// BMC will debounce these values so don't bother debouncing them on your own.
+void setMuxDigitalValue(uint8_t pin, bool value);
 ```
 
-For Digital Output
+For Digital Outputs
 ```c++
-// set the value of a custom mux output pin
-void setMuxDigitalOutValue(uint8_t pin, bool value);
-
-// get the value of a mux output pin
-bool getMuxOutValue(uint8_t n);
+// for those using a custom Digital Out Multiplexer BMC will hold the state
+// that that pin should be at, for example if the pins is being used to turn
+// leds on/off then BMC will tell you weather that pin should be on or off
+// you would then handle turning those LEDS on/off with your mux.
+void getMuxDigitalOutValue(uint8_t pin)
 ```
 
 For Analog Inputs you can use these API functions:
 
 ```c++
-// @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
-// @value the 10-bit analog value 0 to 1023
-void setMuxAnalogValue(uint8_t n, uint16_t value);
-
-// Only available for supported Analog Mux ICs, useful when you want to read pins
-// to be handled by your sketch
-// @n the analog pin index, this is the actual index, that is if it's the very first analog pin, n will be 0
-// returns a 10-bit value
-uint16_t getMuxAnalogValue(uint8_t n);
+// same setMuxDigitalValue as but you must pass it a value from 0 to 1024.
+void setMuxAnalogValue(uint8_t n, uint16_t value)
 ```
 
 

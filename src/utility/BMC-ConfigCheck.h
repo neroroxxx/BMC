@@ -93,13 +93,6 @@
     #error "BMC supports up to 64 Mux GPIO Pins"
   #endif
 
-  #if BMC_MAX_MUX_GPIO > 0
-    #undef BMC_MAX_MUX_IN
-    #undef BMC_MAX_MUX_OUT
-    #define BMC_MAX_MUX_IN 0
-    #define BMC_MAX_MUX_OUT 0
-  #endif
-
   #ifndef BMC_MAX_MUX_IN_ANALOG
     #define BMC_MAX_MUX_IN_ANALOG 0
   #endif
@@ -107,15 +100,15 @@
     #error "BMC supports up to 127 Analog Mux Pins"
   #endif
 
-  #if (BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT)>64
-    #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_IN & BMC_MAX_MUX_OUT"
+  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT)>64
+    #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN & BMC_MAX_MUX_OUT"
   #endif
 
-  #if (BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)>127
-    #error "BMC supports a maximum of 127 Mux Pins total, that inclues a sum of BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_ANALOG"
+  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)>127
+    #error "BMC supports a maximum of 127 Mux Pins total, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_ANALOG"
   #endif
 
-  #if BMC_MAX_MUX_IN > 0 && (BMC_MAX_BUTTONS==0 && BMC_MAX_ENCODERS==0)
+  #if BMC_MAX_MUX_IN > 0 && (BMC_MAX_BUTTONS==0 && BMC_MAX_ENCODERS==0 && BMC_MAX_GLOBAL_BUTTONS==0 && BMC_MAX_GLOBAL_ENCODERS==0)
     #undef BMC_MAX_MUX_IN
     #define BMC_MAX_MUX_IN 0
   #endif
@@ -124,6 +117,8 @@
     #undef BMC_MAX_MUX_OUT
     #define BMC_MAX_MUX_OUT 0
   #endif
+
+
 
   #if BMC_MAX_MUX_IN_ANALOG > 0 && BMC_MAX_POTS==0
     #undef BMC_MAX_MUX_IN_ANALOG
@@ -138,9 +133,9 @@
     #define BMC_MUX_IN_CHIPSET 0
   #endif
 
-  #define BMC_TOTAL_MUX_PINS (BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)
+  #define BMC_TOTAL_MUX_PINS (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)
 
-  #if (BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG) > 0
+  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG) > 0
     #define BMC_MUX_AVAILABLE
   #endif
 

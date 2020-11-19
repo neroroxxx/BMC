@@ -279,7 +279,7 @@ public:
   }
 #if BMC_MAX_MUX_IN_ANALOG > 0
     uint8_t getMuxPin(){
-      return flags.read(BMC_FLAG_POT_MUX) ? pin-(64+BMC_MAX_MUX_IN) : 0;
+      return flags.read(BMC_FLAG_POT_MUX) ? pin-64 : 0;
     }
     bool isMux(){
       return flags.read(BMC_FLAG_POT_MUX);

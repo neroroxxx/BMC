@@ -33,9 +33,7 @@ private:
 #endif
 
   uint8_t parsePinNumber(uint8_t t_pin){
-    if(t_pin>=64){
-      t_pin -= (64+BMC_MAX_MUX_IN);
-    }
+    t_pin -= (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN);
     return constrain(t_pin, 0, (BMC_MAX_MUX_OUT-1));
   }
 public:
@@ -68,32 +66,28 @@ public:
 #endif
   }
   void test(uint8_t t_pin){
+    t_pin = parsePinNumber(t_pin);
 #if BMC_MUX_OUT_CHIPSET != BMC_MUX_OUT_CHIPSET_OTHER
     mux.test(t_pin);
 #endif
   }
+
   void setPinValue(uint8_t t_pin, bool on){
-    if(t_pin>=64){
-      t_pin -= (64+BMC_MAX_MUX_IN);
-    }
+    t_pin = parsePinNumber(t_pin);
 #if BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_OTHER
-    uint8_t index = 0;
-    #if BMC_MAX_MUX_OUT > 32
-      if(t_pin>=32){
-        index = 1;
-        t_pin -= 32;
-      }
-    #endif
-    bitWrite(states[index], t_pin, on);
+    uint8_t mux = (uint8_t) (t_pin/32);
+    uint8_t pin = t_pin-(mux*32);
+    bitWrite(states[mux], pin, on);
 #elif BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_74HC595
     mux.writePin(t_pin, on);
 #endif
   }
+
   void setPinValues1To32(uint32_t t_states){
 #if BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_OTHER
     states[0] = t_states;
 #elif BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_74HC595
-    //mux.write1To32(t_states);
+    mux.write1To32(t_states);
 #endif
   }
 
@@ -107,10 +101,8 @@ public:
 #endif
   }
 
-
   bool getPinValue(uint8_t t_pin){
     t_pin = parsePinNumber(t_pin);
-
 #if BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_OTHER
   #if BMC_MAX_MUX_OUT > 32
       if(t_pin>=32){

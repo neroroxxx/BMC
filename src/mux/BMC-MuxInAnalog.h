@@ -26,9 +26,7 @@ private:
   BMCMuxInAnalog74HC40XX mux;
 #endif
   uint8_t parsePinNumber(uint8_t t_pin){
-    if(t_pin>=64){
-      t_pin -= (64+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT);
-    }
+    t_pin -= (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT);
     return constrain(t_pin, 0, (BMC_MAX_MUX_IN_ANALOG-1));
   }
 public:

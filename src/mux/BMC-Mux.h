@@ -30,7 +30,7 @@
 class BMCMux {
 private:
 #if BMC_MAX_MUX_GPIO > 0
-  BMCMuxGPIO muxGPIO;
+  BMCMuxGpio muxGpio;
 #endif
 #if BMC_MAX_MUX_IN > 0
   BMCMuxIn muxIn;
@@ -47,7 +47,7 @@ public:
   }
   void begin(){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.begin();
+    muxGpio.begin();
 #endif
 #if BMC_MAX_MUX_IN > 0
     muxIn.begin();
@@ -62,7 +62,7 @@ public:
   // update the muxes
   void update(){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.update();
+    muxGpio.update();
 #endif
 #if BMC_MAX_MUX_IN > 0
     muxIn.update();
@@ -78,44 +78,77 @@ public:
   // digitalRead equivalent
   bool readDigital(uint8_t n){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.readPin(n);
-#elif BMC_MAX_MUX_IN > 0
-    return muxIn.getPinValue(n);
-#else
-    return 0;
+    if(n < BMC_MAX_MUX_GPIO){
+      return muxGpio.readPin(n);
+    }
 #endif
+
+#if BMC_MAX_MUX_IN > 0
+    return muxIn.getPinValue(n);
+#endif
+
+  return 0;
   }
   // digitalWrite equivalent
   void writeDigital(uint8_t n, bool on){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.writePin(n, on);
-#elif BMC_MAX_MUX_OUT > 0
+    if(n < BMC_MAX_MUX_GPIO){
+      muxGpio.writePin(n, on);
+      return;
+    }
+#endif
+
+#if BMC_MAX_MUX_OUT > 0
     muxOut.setPinValue(n, on);
 #endif
   }
 
+
+
+
+
   // when using custom MUX
   void setDigitalValue(uint8_t t_pin, bool t_value){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.setPinValue(t_pin, t_value);
-#elif BMC_MAX_MUX_IN > 0
+    if(t_pin < BMC_MAX_MUX_GPIO){
+      muxGpio.setPinValue(t_pin, t_value);
+      return;
+    }
+#endif
+
+#if BMC_MAX_MUX_IN > 0
     muxIn.setPinValues(t_pin, t_value);
 #endif
   }
+
+  
   bool getDigitalValue(uint8_t t_pin){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.getPinValue(t_pin);
-#elif BMC_MAX_MUX_OUT > 0
-    return muxOut.getPinValue(t_pin);
-#else
-    return 0;
+    if(t_pin < BMC_MAX_MUX_GPIO){
+      return muxGpio.getPinValue(t_pin);
+    }
 #endif
+
+#if BMC_MAX_MUX_OUT > 0
+    return muxOut.getPinValue(t_pin);
+#endif
+    return 0;
   }
+
+
+
+
+
 
   void testDigital(uint8_t n){
 #if BMC_MAX_MUX_GPIO > 0
-    muxGPIO.test(n);
-#elif BMC_MAX_MUX_OUT > 0
+    if(n < BMC_MAX_MUX_GPIO){
+      muxGpio.test(n);
+      return;
+    }
+#endif
+
+#if BMC_MAX_MUX_OUT > 0
     muxOut.test(n);
 #endif
   }

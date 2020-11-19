@@ -17,7 +17,11 @@
   #include "mux/BMC-MuxGpioMcp.h"
 #endif
 
-#if BMC_MAX_MUX_GPIO > 32
+#if BMC_MAX_MUX_GPIO > 48
+  #define BMC_MUX_GPIO_COUNT 4
+#elif BMC_MAX_MUX_GPIO > 32
+  #define BMC_MUX_GPIO_COUNT 3
+#elif BMC_MAX_MUX_GPIO > 16
   #define BMC_MUX_GPIO_COUNT 2
 #else
   #define BMC_MUX_GPIO_COUNT 1
@@ -25,8 +29,9 @@
 
 class BMCMuxGpio {
 private:
+
 #if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_OTHER
-  uint32_t states[BMC_MUX_GPIO_COUNT];
+  uint16_t states[BMC_MUX_GPIO_COUNT];
 #elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
   BMCMuxGpioMCP mux;
 #endif
@@ -50,33 +55,59 @@ public:
     BMC_PRINTLN("BMC MUX OUT set to use a chip other than the MCP23017.");
     BMC_PRINTLN("");
     for(uint8_t i=0;i<BMC_MUX_GPIO_COUNT;i++){
-      states[i] = 0xFFFFFFFF;
+      states[i] = 0;
     }
 #else
     mux.begin();
-    delay(50);
+    delay(10);
     mux.update();
 #endif
     BMC_PRINTLN("");
   }
 
   void update(){
-
+#if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
+    mux.update();
+#endif
   }
   void test(uint8_t t_pin){
-
+    if(t_pin < BMC_MAX_MUX_GPIO){
+      mux.test(t_pin);
+    }
+  }
+  void setupPin(uint8_t t_pin, uint8_t t_mode){
+    if(t_pin < BMC_MAX_MUX_GPIO){
+      mux.setupPin(t_pin, t_mode);
+    }
   }
   bool readPin(uint8_t t_pin){
-
+    if(t_pin < BMC_MAX_MUX_GPIO){
+#if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_OTHER
+      uint8_t mux = (uint8_t) (t_pin/16);
+      uint8_t pin = t_pin-(mux*16);
+      return bitRead(states[mux], pin);
+#elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
+      return mux.readPin(t_pin);
+#endif
+    }
+    return false;
   }
   void writePin(uint8_t t_pin, bool t_value){
-
+    if(t_pin < BMC_MAX_MUX_GPIO){
+#if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_OTHER
+      uint8_t mux = (uint8_t) (t_pin/16);
+      uint8_t pin = t_pin-(mux*16);
+      bitWrite(states[mux], pin, t_value);
+#elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
+      mux.writePin(t_pin, t_value);
+#endif
+    }
   }
-  bool getPinValue(uint8_t t_pin)}{
-
+  bool getPinValue(uint8_t t_pin){
+    return readPin(t_pin);
   }
   void setPinValue(uint8_t t_pin, bool t_value){
-
+    writePin(t_pin, t_value);
   }
 
 

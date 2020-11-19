@@ -82,7 +82,7 @@ void BMC::readButtons(){
     #endif
 
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
@@ -139,6 +139,7 @@ void BMC::handleButton(uint8_t index, uint8_t t_trigger){
     bmcStoreButtonEvent &data = store.pages[page].buttons[index].events[e];
     uint8_t type = BMC_GET_BYTE(0,data.event);
     uint8_t trigger = (data.mode & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
+
     if(trigger == BMC_NONE || type == BMC_NONE){
       continue;
     }
@@ -195,9 +196,11 @@ void BMC::readGlobalButtons(){
   uint32_t _globalButtonStates = globalButtonStates;
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
       globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
     #endif
+
+    uint8_t buttonTrigger = globalButtons[i].read();
 
     #if BMC_MAX_GLOBAL_BUTTONS == 1
       // if only one button is compiled don't use this feature
@@ -206,7 +209,6 @@ void BMC::readGlobalButtons(){
       bool dual = dualPressGlobal.read(i, buttonTrigger, globalButtons[i].isClosed(), globalButtonStates);
     #endif
 
-    uint8_t buttonTrigger = globalButtons[i].read();
     if(buttonTrigger != BMC_NONE && !dual){
       handleGlobalButton(i, buttonTrigger);
       #if defined(BMC_DEBUG)
