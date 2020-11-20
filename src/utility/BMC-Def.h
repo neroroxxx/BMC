@@ -284,8 +284,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // Supported chipsets for Mux In
 #define BMC_MUX_IN_CHIPSET_OTHER 1
-#define BMC_MUX_IN_CHIPSET_MCP2301X 2
-#define BMC_MUX_IN_CHIPSET_74HC165 3
+#define BMC_MUX_IN_CHIPSET_74HC165 2
 
 // Supported chipsets for Mux OUT
 #define BMC_MUX_OUT_CHIPSET_OTHER 1
