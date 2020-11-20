@@ -805,7 +805,7 @@ public:
   // for those using a custom Digital Out Multiplexer BMC will hold the state
   // that that pin should be at, for example if the pins is being used to turn
   // leds on/off then BMC will tell you weather that pin should be on or off
-  // you would then handle turning those LEDS on/off with your mux.
+  // you would then handle turning those LEDS on/off with your Mux.
   void getMuxDigitalOutValue(uint8_t pin){
     mux.getDigitalValue(pin);
   }

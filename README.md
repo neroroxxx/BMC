@@ -6,15 +6,15 @@
 
 # BMC the Badass MIDI Controller For Teensy LC, 3.x & 4.x!
 
-**PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE INSTALLATION REQUIREMENTS FOR THE LIBRARY, BMC IS NOT A TYPICAL LIBRARY AND REQUIRES AN EASY MOD TO THE TEENSYDUINO IDE boards.txt FILE.**
+**PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC IS NOT A TYPICAL LIBRARY AND REQUIRES AN EASY MOD TO THE TEENSYDUINO IDE boards.txt FILE.**
 
-**ALWAYS DOWNLOAD THE LIBRARY RELEASES AS THEY ARE ALWAYS COMPATIBLE WITH THE LATEST VERSION OF THE EDITOR APP**
+**YOU CAN DOWNLOAD THE BMC LIBRARY FROM THE ARDUINO LIBRARY MANAGER AND KEEP IT UP TO DATE THERE!**
 
 BMC is an all-in-one Scalable MIDI Controller library with a companion Desktop/Browser Editor App specifically designed for the Arduino-Compatible **Teensy** development Boards. BMC allows you to build your own MIDI Controllers with a mixed number of Buttons/Leds/Encoders/Pots/Relays etc with only a few lines of code!
 
 BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
 
-## [READ THE DOCUMENTATION](docs/README.md)
+## [BMC DOCUMENTATION](docs/README.md)
 
 ***You can access they web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
