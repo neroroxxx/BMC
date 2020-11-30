@@ -4,7 +4,9 @@
 
 [Official BMC Website >> RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)
 
-# BMC the Badass MIDI Controller For Teensy LC, 3.x & 4.x!
+# BMC the Badass MIDI Controller For Teensy 3.x & 4.x!
+
+***Version 1.2.0 Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
 
 **PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC IS NOT A TYPICAL LIBRARY AND REQUIRES AN EASY MOD TO THE TEENSYDUINO IDE boards.txt FILE.**
 
@@ -12,7 +14,7 @@
 
 BMC is an all-in-one Scalable MIDI Controller library with a companion Desktop/Browser Editor App specifically designed for the Arduino-Compatible **Teensy** development Boards. BMC allows you to build your own MIDI Controllers with a mixed number of Buttons/Leds/Encoders/Pots/Relays etc with only a few lines of code!
 
-BMC is only available for Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1.
+BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1.
 
 ## [BMC DOCUMENTATION](docs/README.md)
 
@@ -49,11 +51,13 @@ BMC will use many libraries included with Teensyduino, however, here are some of
 * Source code has comments with credits if the code comes from another library, if I missed any please let me know.
 
 ## Compatible Boards
-I haven't had a chance to test BMC on all Teensy boards out there only the Teensy 3.2/3.6/4.0/4.1 however the Editor and Library are compatible with the boards below even tho they are not tested, If you have those boards please let me know how they work with BMC! Keep in mind BMC uses a good amount of RAM so the Teeny LC should only be used for very small/basic projects
+I haven't had a chance to test BMC on all Teensy boards out there only the Teensy 3.2/3.6/4.0/4.1 however the Editor and Library are compatible with the boards below even tho they are not tested, If you have those boards please let me know how they work with BMC!
+
+***Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
 
 |Board             |Compatible  |Tested      |
 |------------------|------------|------------|
-|Teensy LC         |Yes         |No          |
+|Teensy LC         |No         |No          |
 |Teensy 3.2        |Yes         |Yes         |
 |Teensy 3.5        |Yes         |No          |
 |Teensy 3.6        |Yes         |Yes         |
@@ -88,16 +92,16 @@ BMC includes support for:
 ## Hardware Limits
 Hardware like Buttons, Leds, Pots, etc. have a limit which is based on the board you use, for example if your board only has 8 Analog Pins then you can only have 8 Pots, etc. The table below is a general limit to each that can not be exceeded as these are hard-coded. *These may change*
 
-|Hardware             |Max  | LC | 3.2 | 3.5 | 3.6 | 4.0 |
-|---------------------|-----|----|-----|-----|-----|-----|
-|Buttons              |64   |27  |Max  |Max  |Max  |Max  |
-|Leds                 |32   |27  |Max  |Max  |Max  |Max  |
-|Pwm Leds             |16   |10  |12   |Max  |Max  |Max  |
-|Global Leds          |16   |16  |Max  |Max  |Max  |Max  |
-|Pots                 |128   |13  |Max  |Max  |Max  |14   |
-|Encoder              |64   |13  |Max  |Max  |Max  |Max  |
-|Latching Relays      |16   |13  |Max  |Max  |Max  |Max  |
-|Non-Latching Relays  |16   |16  |Max  |Max  |Max  |Max  |
+|Hardware             |Max  | 3.2 | 3.5 | 3.6 | 4.0 |
+|---------------------|-----|-----|-----|-----|-----|
+|Buttons              |64   |Max  |Max  |Max  |Max  |
+|Leds                 |32   |Max  |Max  |Max  |Max  |
+|Pwm Leds             |16   |12   |Max  |Max  |Max  |
+|Global Leds          |16   |Max  |Max  |Max  |Max  |
+|Pots                 |128   |Max  |Max  |Max  |14   |
+|Encoder              |64   |Max  |Max  |Max  |Max  |
+|Latching Relays      |16   |Max  |Max  |Max  |Max  |
+|Non-Latching Relays  |16   |Max  |Max  |Max  |Max  |
 
 You can use any combination of Hardware as long as your Teensy supports it!
 

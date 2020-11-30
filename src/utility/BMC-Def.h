@@ -3,6 +3,7 @@
   Copyright (c) 2020 RoxXxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
+
 #include <Arduino.h>
 
 #if !defined(BMC_CONFIG_H)
@@ -115,16 +116,18 @@
     #define BMC_TEENSY_TOTAL_PWM_PINS 10
     #define BMC_TEENSY_TOTAL_ANALOG_PINS 13
 
+    #error "Teensy LC is no longer supported due to Flash size."
+
   #else
-    #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
+    #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
   #endif
 
 #else
-  #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
+  #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
 #if !defined(BMC_TEENSY_MODEL)
-  #error "BMC is only Compatible with Teensy LC, 3.2, 3.5, 3.6, 4.0, 4.1"
+  #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
 // MIDI STATUS, keep them here as they are used throut BMC
