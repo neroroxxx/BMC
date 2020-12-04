@@ -6903,38 +6903,6 @@ return buffer;
 }
 
 static bool isDigitalPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 10
-switch(index){
-case 0:
-case 1:
-case 2:
-case 3:
-case 4:
-case 5:
-case 6:
-case 7:
-case 8:
-case 9:
-case 10:
-case 11:
-case 12:
-case 13:
-case 14:
-case 15:
-case 16:
-case 17:
-case 18:
-case 19:
-case 20:
-case 21:
-case 22:
-case 23:
-case 24:
-case 25:
-case 26:
-return true;
-}
-#endif
 #if BMC_TEENSY_MODEL == 32
 switch(index){
 case 0:
@@ -7194,24 +7162,6 @@ return true;
 return false;
 }
 static bool isAnalogPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 10
-switch(index){
-case 14:
-case 15:
-case 16:
-case 17:
-case 18:
-case 19:
-case 20:
-case 21:
-case 22:
-case 23:
-case 24:
-case 25:
-case 26:
-return true;
-}
-#endif
 #if BMC_TEENSY_MODEL == 32
 switch(index){
 case 14:
@@ -7345,21 +7295,6 @@ return true;
 return false;
 }
 static bool isPwmPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 10
-switch(index){
-case 3:
-case 4:
-case 6:
-case 9:
-case 10:
-case 16:
-case 17:
-case 20:
-case 22:
-case 23:
-return true;
-}
-#endif
 #if BMC_TEENSY_MODEL == 32
 switch(index){
 case 3:
@@ -7509,11 +7444,10 @@ return false;
     // MUX GPIO
 static bool isMuxGpioPin(uint8_t n){
 #if BMC_MAX_MUX_GPIO > 0
-  return (n >= 64 && n < (64+BMC_MAX_MUX_GPIO));
+  return (n >= 64 && n < BMC_MAX_MUX_GPIO);
 #else
   return false;
 #endif
-
 }
 
 // MUX IN
