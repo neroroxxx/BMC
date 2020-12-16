@@ -194,6 +194,13 @@ void tick(){
     newState += lookupTable[now | (lastState<<2)];
     if(now == 3){
       output = (newState >> 2) + (lastState>>1);
+      // output should never be 0 in this cases, but encoders can be a bit
+      // temperamental in my experience, sometimes output will return a 0 when
+      // the encoder is rotated counterClockwise after it was just rotated
+      // clockwise, this will always make sure that it works properly
+      if(output==0){
+        output -= 1;
+      }
       newState = 0;
     }
     lastState = now;

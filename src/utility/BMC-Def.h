@@ -137,7 +137,7 @@
 #define BMC_MIDI_AFTER_TOUCH_POLY 0xA0 // 3 bytes
 #define BMC_MIDI_CONTROL_CHANGE 0xB0 // 3 bytes
 #define BMC_MIDI_PROGRAM_CHANGE 0xC0 // 2 bytes
-#define BMC_MIDI_AFTER_TOUCH 0xD0 // 3 bytes
+#define BMC_MIDI_AFTER_TOUCH 0xD0 // 2 bytes
 #define BMC_MIDI_PITCH_BEND 0xE0 // 3 bytes
 // *************** System Exclusive ***************
 #define BMC_MIDI_SYSTEM_EXCLUSIVE 0xF0 // variable bytes
