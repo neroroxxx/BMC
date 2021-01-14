@@ -4,6 +4,8 @@
 
 [< Back to Documentation](README.md)
 
+- [Wiring Your Multiplexers](#wiring-your-multiplexers)
+
 # Multiplexers
 ***********************************************
 ***BMC now allows for up to 127 Analog Mux Pins, Digital Mux will still be limited to 64 pins***
@@ -149,3 +151,17 @@ void setMuxAnalogValue(uint8_t n, uint16_t value)
 ##### CALLBACKS
 ```c++
 ```
+
+### Wiring Your Multiplexers
+
+##### 74HC4067 / 74HC4051
+These are usually SMD parts and you can find modules for cheap, you would have to follow the wiring instruction of your module.
+***********************************************
+##### 74HC165
+![74HC165](../images/74HC165-Wiring.jpg)
+***********************************************
+##### 74HC595
+![74HC595](../images/74HC595-Wiring.jpg)
+***********************************************
+##### MCP23017
+![MCP23017](../images/MCP23017-Wiring.jpg)
