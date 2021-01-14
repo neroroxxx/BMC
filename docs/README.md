@@ -38,3 +38,7 @@ For now here are some topics I want to cover tho they are not complete:
 - [Import/Export Build Data](import-export.md)
 - [API](api.md)
 - [Debug](debug.md)
+
+## In-Depth
+- [Names & Strings](advanced-names-and-strings.md)
+- [Callbacks](advanced-callbacks.md)
