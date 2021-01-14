@@ -1104,6 +1104,23 @@ public:
   #endif
 #endif
 
+#if BMC_MAX_GLOBAL_ENCODERS > 0
+  // Get Global encoder Data
+  void getGlobalEncoder(uint8_t t_index, bmcStoreEncoder& t_item){
+    if(t_index<BMC_MAX_GLOBAL_ENCODERS){
+      t_item = store.global.encoders[t_index];
+    }
+  }
+  #if BMC_NAME_LEN_ENCODERS > 1
+    // get global encoder name passing a pointer string
+    void getGlobalEncoderName(uint8_t t_index, char* t_string){
+      if(t_index<BMC_MAX_GLOBAL_ENCODERS){
+        strcpy(t_string, store.global.encoders[t_index].name);
+      }
+    }
+  #endif
+#endif
+
 #if BMC_MAX_POTS > 0
   // Get POT Data on current page
   void getPot(uint8_t n, bmcStorePot& t_item){
@@ -1130,6 +1147,28 @@ public:
   // start/stop pot calibration, pot calibration data is global
   // so the calibration set is for that pot no matter what page you are in.
   bool calibratePot(uint8_t n){
+    potCalibration.toggle(n);
+    return potCalibration.active();
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_POTS > 0
+  // get global pot Data on current page
+  void getGlobalPot(uint8_t n, bmcStorePot& t_item){
+    if(n<BMC_MAX_GLOBAL_POTS){
+      t_item = store.global.pots[n];
+    }
+  }
+  #if BMC_NAME_LEN_POTS > 1
+    // get global pot name on current page passing a pointer string
+    void getGlobalPotName(uint8_t n, char* t_string){
+      if(n<BMC_MAX_GLOBAL_POTS){
+        strcpy(t_string, store.global.pots[n].name);
+      }
+    }
+  #endif
+  // start/stop global pot calibration, pot calibration data is global
+  bool calibrateGlobalPot(uint8_t n){
     potCalibration.toggle(n);
     return potCalibration.active();
   }
