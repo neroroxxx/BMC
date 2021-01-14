@@ -8,7 +8,7 @@
 
 BMC has constants that contain the total number of specific items compiled, for example you may want to loop thru all your pages and list the names of your pages on your display, in this case you can use `BMC_MAX_PAGES` this constant will always have the total number of pages compitled.
 
-There are **TONS* of these so it's hard to list them all but i'll list the most usefull here, keep in mind these all start with `BMC_MAX_`:
+There are **TONS** of these so it's hard to list them all but i'll list the most usefull here, keep in mind these all start with `BMC_MAX_`:
 
 - `BMC_MAX_PAGES`
 - `BMC_MAX_BUTTONS`
