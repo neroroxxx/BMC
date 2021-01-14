@@ -864,9 +864,6 @@ public:
   }
   #if BMC_NAME_LEN_BUTTONS > 1
     void getGlobalButtonName(uint8_t n, char* t_string){
-      getGlobalButtonName(page, n, t_string);
-    }
-    void getGlobalButtonName(uint8_t n, char* t_string){
       if(n<BMC_MAX_GLOBAL_BUTTONS){
         strcpy(t_string, store.global.buttons[n].name);
       }
