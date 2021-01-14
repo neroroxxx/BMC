@@ -42,4 +42,4 @@ For now here are some topics I want to cover tho they are not complete:
 ## In-Depth
 - [Names & Strings](advanced-names-and-strings.md)
 - [Callbacks](advanced-callbacks.md)
-- [Max Length Constants][max-length-constants.md]
+- [Max Length Constants](max-length-constants.md)
