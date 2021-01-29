@@ -113,7 +113,7 @@ public:
       if(!BMCBuildData::isMuxInPin(pin)){
         BMC_ERROR(
           "Mux Pin:", pin,
-          "Can NOT be used with buttons as it is NOT a valid Mux In"
+          "Can NOT be used with buttons as it is NOT a valid Mux In Pin"
         );
         BMC_HALT();
       }
