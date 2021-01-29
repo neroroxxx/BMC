@@ -52,12 +52,12 @@ BMC::BMC():
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     ,pixelPrograms(store.global)
   #endif
-  #if BMC_MAX_BUTTONS > 0
+  #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
     ,dualPress(callback, false)
   #endif
-  #if BMC_MAX_GLOBAL_BUTTONS > 0
+  #if BMC_MAX_GLOBAL_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
     ,dualPressGlobal(callback, true)
