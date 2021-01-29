@@ -4,6 +4,8 @@
 
 [< Back to Documentation](README.md)
 
+[24LC256 wiring](#24LC256 wiring)
+
 # EEPROM / Store
 
 All data for you BMC device that's editable via the editor is stored in EEPROM, all that data is grouped in a Struct known within BMC as the **Store**, you can have up to 32 Stores depending on how much EEPROM you have, for example, on the Teensy 3.6 you have 4K of EEPROM, if your **Store** is 1K or less then you would have 4 **Stores**.
@@ -39,3 +41,7 @@ void onEepromErased(void (*fptr)());
 // use this to refresh displays, etc.
 void onStoreUpdate(void (*fptr)());
 ```
+
+
+### 24LC256 Wiring
+![24LC256 Wiring](../images/24LC256-Wiring)
