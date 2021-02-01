@@ -82,21 +82,17 @@ public:
     mux.writePin(t_pin, on);
 #endif
   }
-
+  // for custom chips only
   void setPinValues1To32(uint32_t t_states){
 #if BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_OTHER
     states[0] = t_states;
-#elif BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_74HC595
-    mux.write1To32(t_states);
 #endif
   }
-
+  // for custom chips only
   void setPinValues33To64(uint32_t t_states){
 #if BMC_MAX_MUX_OUT > 32
   #if BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_OTHER
     states[1] = t_states;
-  #elif BMC_MUX_OUT_CHIPSET == BMC_MUX_OUT_CHIPSET_74HC595
-    mux.write33To64(t_states);
   #endif
 #endif
   }
