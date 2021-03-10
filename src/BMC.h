@@ -79,7 +79,8 @@
   #if defined(BMC_BUTTON_DELAY_ENABLED)
     #include "hardware/BMC-ButtonsDelayHandler.h"
   #endif
-  #if BMC_MAX_BUTTONS > 0
+
+  #if BMC_MAX_BUTTONS > 1 || BMC_MAX_GLOBAL_BUTTONS > 1
     #include "hardware/BMC-ButtonsDualHandler.h"
   #endif
 #endif

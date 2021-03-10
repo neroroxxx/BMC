@@ -55,12 +55,12 @@ BMC::BMC():
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
-    ,dualPress(callback, false)
+    ,dualPress(callback, false, BMC_MAX_BUTTONS)
   #endif
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
-    ,dualPressGlobal(callback, true)
+    ,dualPressGlobal(callback, true, BMC_MAX_GLOBAL_BUTTONS)
   #endif
   #ifdef BMC_DEBUG
     ,serialMonitor()

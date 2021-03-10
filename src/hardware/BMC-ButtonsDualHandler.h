@@ -52,7 +52,7 @@
 */
 #ifndef BMC_BUTTONS_DUAL_HANDLER_H
 #define BMC_BUTTONS_DUAL_HANDLER_H
-#if BMC_MAX_BUTTONS > 1 && BMC_MAX_BUTTON_EVENTS > 0
+#if (BMC_MAX_BUTTONS > 1 || BMC_MAX_GLOBAL_BUTTONS > 1) && BMC_MAX_BUTTON_EVENTS > 0
 #include "utility/BMC-Def.h"
 #include "hardware/BMC-Button.h"
 
@@ -61,8 +61,9 @@
 
 class BMCButtonsDualHandler {
 public:
-  BMCButtonsDualHandler(BMCCallbacks& cb, bool isGlobal):callback(cb){
+  BMCButtonsDualHandler(BMCCallbacks& cb, bool isGlobal, uint8_t _count):callback(cb){
     reset();
+    itemsCount = _count;
     flags.reset();
     flags.write(BMC_BUTTONS_DUAL_GLOBAL, isGlobal);
   }
@@ -71,13 +72,10 @@ public:
     // only check for dual button press if there's a callback setup
     if(callbackAvailable()){
       uint8_t btn = n;
-
-#if BMC_MAX_BUTTONS > 32
-      if(n >= 32){
+      if(itemsCount>=32 && n >= 32){
         btn = n-32;
         states = states2;
       }
-#endif
       if(flags.read(BMC_BUTTONS_DUAL_WAITING_FOR_RELEASE)){
         // at this point we are waiting for the buttons to be released and any
         // events of these buttons will be ignored.
@@ -161,6 +159,7 @@ private:
   int8_t last = -1;
   int8_t releaseA = -1;
   int8_t releaseB = -1;
+  uint8_t itemsCount = 0;
   BMCTimer timeout;
   BMCFlags <uint8_t> flags;
   BMCCallbacks& callback;
