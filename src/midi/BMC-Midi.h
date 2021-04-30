@@ -218,7 +218,7 @@ public:
   void sendNoteOff(uint8_t port, uint8_t channel,
                     uint8_t note, uint8_t velocity, uint8_t cable=0);
   void sendPitchBend(uint8_t port, uint8_t channel,
-                      uint16_t value, uint8_t cable=0);
+                      int16_t value, uint8_t cable=0);
   void sendAfterTouch(uint8_t port, uint8_t channel,
                       uint8_t pressure, uint8_t cable=0);
   void sendAfterTouchPoly(uint8_t port, uint8_t channel,
@@ -289,6 +289,10 @@ public:
   uint8_t getLocalControl(uint8_t t_channel, uint8_t t_control){
     return midiData.getControl(t_channel, t_control);
   }
+  uint8_t getLocalPitch(uint8_t t_channel){
+    return midiData.getPitch(t_channel);
+  }
+
   void setLocalMidiData(uint32_t t_event){
     midiData.set(t_event);
   }
@@ -307,6 +311,10 @@ public:
   }
   void setLocalControl(uint8_t t_channel, uint8_t t_control, uint8_t t_value){
     midiData.setControl(t_channel, t_control, t_value);
+    globals.setMidiLocalUpdate(true);
+  }
+  void setLocalPitch(uint8_t t_channel, uint8_t t_value){
+    midiData.setPitch(t_channel, t_value);
     globals.setMidiLocalUpdate(true);
   }
 

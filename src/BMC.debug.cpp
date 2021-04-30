@@ -561,7 +561,6 @@ void BMC::printBoardInfo(){
   BMC_PRINTLN("Hardware Serial Ports:", BMC_TEENSY_TOTAL_SERIAL_PORTS);
 }
 void BMC::midiInDebug(BMCMidiMessage message){
-
   if(!globals.getMidiInDebug() || message.getStatus()==BMC_NONE){
     return;
   }
@@ -614,6 +613,19 @@ void BMC::midiInDebug(BMCMidiMessage message){
       "Incoming",BMCTools::getMidiStatusName(message.getStatus()),
       "data1:",message.getData1(),
       "data2:",message.getData2());
+  } else if(message.getStatus()==BMC_MIDI_PITCH_BEND){
+    uint8_t d1 = message.getData1();
+    uint8_t d2 = message.getData2();
+    int p = map(((d1 & 0x7F) | ((d2 & 0x7F) << 7)), 0, 16383, -8192, 8191);
+    BMC_PRINTLN(
+      millis(),
+      BMCTools::getPortName(message.getSource()),
+      "Incoming",BMCTools::getMidiStatusName(message.getStatus()),
+      message.getChannel(),
+      d1,
+      d2,
+      ">>>",p
+    );
   } else {
     BMC_PRINTLN(
       millis(),

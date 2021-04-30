@@ -224,6 +224,53 @@ void BMC::handlePot(bmcStorePot& data, uint8_t value){
         midiClock.setBpm(map(value, 0, 127, min, max));
       }
       break;
+    case BMC_POT_EVENT_TYPE_PITCH:
+      {
+        uint8_t channel = (byteA&0x0F)+1;
+        int8_t pitch = midi.getLocalPitch(channel);
+        if(value<59){
+          // pitch down
+          uint16_t newPitch = map(value, 0, 58, -8192, -1);
+          midi.sendPitchBend(data.ports, channel, newPitch);
+        } else if(value>68){
+          // pitch up
+          uint16_t newPitch = map(value, 69, 127, 1, 8191);
+          midi.sendPitchBend(data.ports, channel, newPitch);
+        } else if(pitch!=0){
+          // center
+          midi.sendPitchBend(data.ports, channel, 0);
+          midi.setLocalPitch(channel, 0);
+        }
+      }
+      break;
+    case BMC_POT_EVENT_TYPE_PITCH_UP:
+      {
+        uint8_t channel = (byteA&0x0F)+1;
+        // leave the first 10 values of the pot as a buffer for a flat pitch
+        if(value>9){
+          // move pitch up
+          uint16_t newPitch = map(value, 10, 127, 1, 8191);
+          midi.sendPitchBend(data.ports, channel, newPitch);
+        } else if(midi.getLocalPitch(channel)!=0){
+          midi.sendPitchBend(data.ports, channel, 0);
+          midi.setLocalPitch(channel, 0);
+        }
+      }
+      break;
+    case BMC_POT_EVENT_TYPE_PITCH_DOWN:
+      {
+        uint8_t channel = (byteA&0x0F)+1;
+        // leave the first 10 values of the pot as a buffer for a flat pitch
+        if(value>9){
+          // move pitch up
+          int16_t newPitch = map(value, 10, 127, -1, -8192);
+          midi.sendPitchBend(data.ports, channel, newPitch);
+        } else if(midi.getLocalPitch(channel)!=0){
+          midi.sendPitchBend(data.ports, channel, 0);
+          midi.setLocalPitch(channel, 0);
+        }
+      }
+      break;
 
 #ifdef BMC_USE_BEATBUDDY
     case BMC_POT_EVENT_TYPE_BEATBUDDY_CMD:

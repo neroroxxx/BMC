@@ -131,6 +131,7 @@ struct BMCFracTunerData {
 };
 struct BMCMidiDataChannel {
   uint8_t program = 0;
+  int8_t pitch = 0;
   uint8_t control[128];
 };
 struct BMCMidiData {
@@ -180,6 +181,16 @@ struct BMCMidiData {
     uint8_t ch = ((t_channel-1) & 0x0F);
     uint8_t cc = (t_control & 0x7F);
     return (ch<BMC_MAX_MIDI_CHANNEL_TRACKING) ? channel[ch].control[cc] : 0;
+  }
+  void setPitch(uint8_t t_channel, uint8_t t_value){
+    uint8_t ch = ((t_channel-1) & 0x0F);
+    if(ch<BMC_MAX_MIDI_CHANNEL_TRACKING){
+      channel[ch].pitch = (t_value & 0x7F);
+    }
+  }
+  uint8_t getPitch(uint8_t t_channel){
+    uint8_t ch = ((t_channel-1) & 0x0F);
+    return (ch<BMC_MAX_MIDI_CHANNEL_TRACKING) ? channel[ch].pitch : 0;
   }
 };
 struct BMCMidiEvent {

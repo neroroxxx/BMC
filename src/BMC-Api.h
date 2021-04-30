@@ -1614,7 +1614,7 @@ public:
   void sendNoteOff(uint8_t port, uint8_t channel, uint8_t note, uint8_t velocity, uint8_t cable=0){
     midi.sendNoteOff(port, channel, note, velocity, cable);
   }
-  void sendPitchBend(uint8_t port, uint8_t channel, uint16_t value, uint8_t cable=0){
+  void sendPitchBend(uint8_t port, uint8_t channel, int16_t value, uint8_t cable=0){
     midi.sendPitchBend(port, channel, value, cable);
   }
   void sendAfterTouch(uint8_t port, uint8_t channel, uint8_t pressure, uint8_t cable=0){

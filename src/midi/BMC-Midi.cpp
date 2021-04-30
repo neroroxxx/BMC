@@ -497,7 +497,8 @@ void BMCMidi::sendNoteOff(uint8_t port, uint8_t channel,
   #endif
 }
 void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
-                            uint16_t value, uint8_t cable){
+                            int16_t value, uint8_t cable){
+  // value range for pitch bend -8192 to 8191, 0 is center
   if(isMidiUsbPort(port)){
     usbMIDI.sendPitchBend(value, channel, cable);
   }
@@ -532,6 +533,13 @@ void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
     }
   #endif
   globals.setMidiOutActivity();
+  if(value==0){
+    setLocalPitch(channel, 0);
+  } else if(value>0){
+    setLocalPitch(channel, map(value, 1, 8191, 1, 127));
+  } else {
+    setLocalPitch(channel, map(value, -8192, -1, -127, -1));
+  }
   #ifdef BMC_DEBUG
   if(globals.getMidiOutDebug()){
     BMC_PRINTLN(

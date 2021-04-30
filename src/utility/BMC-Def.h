@@ -1950,6 +1950,10 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_POT_EVENT_TYPE_BEATBUDDY_CMD 2
 #define BMC_POT_EVENT_TYPE_CLICK_TRACK_FREQ 3
 #define BMC_POT_EVENT_TYPE_CLICK_TRACK_LEVEL 4
+#define BMC_POT_EVENT_TYPE_PITCH 5
+#define BMC_POT_EVENT_TYPE_PITCH_UP 6
+#define BMC_POT_EVENT_TYPE_PITCH_DOWN 7
+
 // 8 user defined events
 // this feature will be added to the editor and documented later on
 #define BMC_POT_EVENT_TYPE_USER_1 118
