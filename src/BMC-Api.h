@@ -1,9 +1,6 @@
-/*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
-*/
+// See https://www.RoxXxtar.com/bmc for more details
+// See LICENSE file in the project root for full license information.
+
 // ************************************************************
 // ************************************************************
 // ************************************************************

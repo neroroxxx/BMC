@@ -6,6 +6,7 @@
 # Classes/Structs (KEYWORD1)
 ####################################################
 BMC	KEYWORD1
+BMCApi	KEYWORD1
 BMCTimer	KEYWORD1
 BMCFlags	KEYWORD1
 BMCMidiDataChannel	KEYWORD1
