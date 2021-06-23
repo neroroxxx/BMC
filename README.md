@@ -16,6 +16,8 @@ BMC is an all-in-one Scalable MIDI Controller library with a companion Desktop/B
 
 BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1, support for Teensy LC is no longer available due to RAM usage.
 
+**If you have any experience with HUI control and would like to help me implement it's functionality in BMC please email me at [https://www.RoxXxtar.com/contact](https://www.roxxxtar.com/contact)**
+
 ## [BMC DOCUMENTATION](docs/README.md)
 
 ***You can access they web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
