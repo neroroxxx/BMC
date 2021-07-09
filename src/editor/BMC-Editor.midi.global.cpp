@@ -76,6 +76,9 @@ void BMCEditor::globalProcessMessage(){
     case BMC_GLOBALF_TRIGGERS:
       globalTriggers(isWriteMessage());
       break;
+    case BMC_GLOBALF_TIMED_EVENTS:
+      globalTimedEvents(isWriteMessage());
+      break;
     case BMC_GLOBALF_TEMPO_TO_TAP:
       globalTempoToTap(isWriteMessage());
       break;
@@ -308,7 +311,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_POTS);
     buff.appendToSysEx7Bits(BMC_MAX_PIXEL_PROGRAMS);
-    buff.appendToSysEx7Bits(0);
+    buff.appendToSysEx7Bits(BMC_MAX_TIMED_EVENTS);
     buff.appendToSysEx7Bits(0);
     buff.appendToSysEx7Bits(0);
     buff.appendToSysEx7Bits(0);
@@ -1458,7 +1461,6 @@ void BMCEditor::globalCustomSysEx(bool write){//BMC_GLOBALF_CUSTOM_SYSEX
   #endif
   sendToEditor(buff);
 }
-
 void BMCEditor::globalTriggers(bool write){//BMC_GLOBALF_TRIGGERS
   if(!isValidGlobalMessage()){
     return;
@@ -1484,8 +1486,6 @@ void BMCEditor::globalTriggers(bool write){//BMC_GLOBALF_TRIGGERS
     bmcStoreGlobalTriggers& item = store.global.triggers[index];
     item.event = incoming.get32Bits(9);
     item.source = incoming.get32Bits(14);
-    //item.event = BMC_MIDI_ARRAY_TO_32BITS(9,incoming.sysex);
-    //item.source = BMC_MIDI_ARRAY_TO_32BITS(14,incoming.sysex);
     if(!backupActive()){
       // used by BMC to check if a trigger has been updated
       // if so BMC will go thru triggers and rebuild it's listener
@@ -1511,6 +1511,61 @@ void BMCEditor::globalTriggers(bool write){//BMC_GLOBALF_TRIGGERS
   #endif
   sendToEditor(buff);
 }
+
+void BMCEditor::globalTimedEvents(bool write){//BMC_GLOBALF_TIMED_EVENTS
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  uint8_t sysExLength = 21;
+  // handle backup
+  if(write && backupActive()){
+    backupGlobalTimedEvents(sysExLength);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+  uint16_t index = getMessagePageNumber();
+  if(index>0 && index>=BMC_MAX_TIMED_EVENTS){
+    sendNotification(BMC_NOTIFY_INVALID_TIMED_EVENT, index, true);
+    return;
+  }
+#if BMC_MAX_TIMED_EVENTS > 0
+  if(write){
+    // write new data and save, starts at byte 9
+    bmcStoreGlobalTimedEvents& item = store.global.timedEvents[index];
+    item.event = incoming.get32Bits(9);
+    item.timeout = incoming.get32Bits(14);
+    if(!backupActive()){
+      // used by BMC to check if a timedEvent has been updated
+      // if so BMC will go thru timedEvents and rebuild it's listener
+      // this allows BMC to skip timedEvents if there are none
+      // or only look at specific MIDI messages to speed things up
+      flags.on(BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED);
+      saveTimedEvent(index);
+      reloadData();
+    }
+  }
+#endif
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_GLOBALF_TIMED_EVENTS, 0,
+    index
+  );
+  buff.appendToSysEx8Bits(BMC_MAX_TIMED_EVENTS);
+  #if BMC_MAX_TIMED_EVENTS > 0
+    bmcStoreGlobalTimedEvents& item = store.global.timedEvents[index];
+    buff.appendToSysEx32Bits(item.event);
+    buff.appendToSysEx32Bits(item.timeout);
+  #endif
+  sendToEditor(buff);
+}
+
+
+
+
 
 void BMCEditor::globalTempoToTap(bool write){//BMC_GLOBALF_TEMPO_TO_TAP
   if(!isValidGlobalMessage()){

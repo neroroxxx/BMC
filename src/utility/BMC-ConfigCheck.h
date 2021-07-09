@@ -36,6 +36,9 @@
   #define BMC_LIMIT_MIN_TRIGGERS 0
   #define BMC_LIMIT_MAX_TRIGGERS 127
 
+  #define BMC_LIMIT_MIN_TIMED_EVENTS 0
+  #define BMC_LIMIT_MAX_TIMED_EVENTS 127
+
   #define BMC_LIMIT_MIN_TEMPO_TO_TAP 0
   #define BMC_LIMIT_MAX_TEMPO_TO_TAP 32
 
@@ -352,6 +355,16 @@
     #error "BMC_MAX_SETLISTS_SONGS MUST BE SET"
   #endif
 
+  // timed events check
+  #if !defined(BMC_MAX_TIMED_EVENTS)
+    #define BMC_MAX_TIMED_EVENTS BMC_LIMIT_MIN_TIMED_EVENTS
+  #endif
+  #if BMC_MAX_TIMED_EVENTS > BMC_LIMIT_MAX_TIMED_EVENTS
+    #undef BMC_MAX_TIMED_EVENTS
+    #define BMC_MAX_TIMED_EVENTS BMC_LIMIT_MAX_TIMED_EVENTS
+  #endif
+
+
   // hardware check
   #if !defined(BMC_MAX_BUTTON_EVENTS) && BMC_MAX_BUTTON > 0
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MIN_BUTTON_EVENTS
@@ -650,9 +663,24 @@
   #define _____BMC_PRESETNAMES        0
   #define _____BMC_SETLISTNAMES       0
   #define _____BMC_PAGENAMES          0
+  #define _____BMC_TIMEDEVENTSNAMES   0
+
+  // TIMED EVENTS NAMES ****************************************************
+  #if !defined(BMC_NAME_LEN_TIMED_EVENTS)
+    #define BMC_NAME_LEN_TIMED_EVENTS 0
+  #endif
+  #if BMC_NAME_LEN_TIMED_EVENTS == 1
+    #undef BMC_NAME_LEN_TIMED_EVENTS
+    #define BMC_NAME_LEN_TIMED_EVENTS 0
+  #endif
+  // create the value to use within the CRC
+  #if BMC_MAX_TIMED_EVENTS > 0 && BMC_NAME_LEN_TIMED_EVENTS > 1
+    #undef _____BMC_TIMEDEVENTSNAMES
+    #define _____BMC_TIMEDEVENTSNAMES (0x22AA*(BMC_NAME_LEN_TIMED_EVENTS+1))
+  #endif
 
 
-// STRING LIBRARY NAMES ****************************************************
+  // STRING LIBRARY NAMES ****************************************************
   #ifndef BMC_NAME_LEN_STRING_LIBRARY
     #define BMC_NAME_LEN_STRING_LIBRARY 0
   #endif
@@ -691,8 +719,6 @@
     #define _____BMC_LIBRARYNAMES (0x66BB*(BMC_NAME_LEN_LIBRARY+1))
   #endif
   // LIBRARY NAMES ****************************************************
-
-
 
 
   // PRESET NAMES ****************************************************
@@ -743,8 +769,6 @@
     #define _____BMC_SETLISTNAMES (0x77CC*(BMC_NAME_LEN_SETLISTS+1))
   #endif
   // SETLIST NAMES ****************************************************
-
-
 
   #if !defined(BMC_DEFAUL_DEVICE_ID)
     #define BMC_DEFAUL_DEVICE_ID 0
@@ -826,9 +850,9 @@
   #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44)+(_____BMC_POT_TOE_SWITCH*55))
 
   // Create a CRC based on the current build
-  #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
+  #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
   #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_PIXEL_PROGRAMS*12))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12))
   #define BMC_CRC (uint16_t)((((_____BMC_NAMES)+(_____BMC_GLOBAL)+(_____BMC_NAMES)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

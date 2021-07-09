@@ -6,7 +6,7 @@
 */
 #include <BMC.h>
 
-#if BMC_MAX_TRIGGERS
+#if BMC_MAX_TRIGGERS > 0
   void BMC::readTrigger(){
     if(!triggers.isAllowed()){
       return;
@@ -58,11 +58,11 @@
         midiClock.tap();
         BMC_PRINTLN("BMCTriggers BMC_TRIGGER_EVENT_TYPE_CLOCK_TAP");
         break;
-      case BMC_TRIGGER_EVENT_TYPE_PAGE_ACTIVE_SENSE:
+      case BMC_TRIGGER_EVENT_TYPE_ACTIVE_SENSE:
         // event (bits 08 to 15) = Command
         // event (bits 16 to 23) = Ports
         midiActiveSense.command(byteA, byteB);
-        BMC_PRINTLN("BMCTriggers BMC_TRIGGER_EVENT_TYPE_PAGE_ACTIVE_SENSE");
+        BMC_PRINTLN("BMCTriggers BMC_TRIGGER_EVENT_TYPE_ACTIVE_SENSE");
         break;
       case BMC_TRIGGER_EVENT_TYPE_PAGE:
         // event (bits 08 to 15) = Page Number

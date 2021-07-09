@@ -23,19 +23,17 @@ public:
 
   }
   void buildListeners(){
-    BMC_PRINT("BMCTriggers::buildListeners() ");
+
     flags.off(BMC_TRIGGERS_FLAG_AVAILABLE);
     totalReadableTriggers = 0;
     for(uint8_t i=0;i<BMC_MAX_TRIGGERS;i++){
       bmcStoreGlobalTriggers& trigger = global.triggers[i];
       if(active(trigger.source) != BMC_NONE){
-        if(flags.read(BMC_TRIGGERS_FLAG_AVAILABLE)){
-          flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
-        }
+        flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
         totalReadableTriggers = i+1;
       }
     }
-    BMC_PRINTLN(totalReadableTriggers);
+    BMC_PRINTLN("BMCTriggers::buildListeners() ",totalReadableTriggers);
   }
   uint8_t available(){
     return totalReadableTriggers;

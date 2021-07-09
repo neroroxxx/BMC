@@ -144,11 +144,15 @@ public:
 
 // uses millis() for timing
 class BMCTimer : public BMCTimerBase <BMCTimingMillis, uint16_t> {};
+// uses millis() for timing but allows for times longer than 1 minute
+class BMCTimerLong : public BMCTimerBase <BMCTimingMillis, uint32_t> {};
 // uses micros() for timing
 class BMCMicroTimer : public BMCTimerBase <BMCTimingMicros, unsigned long> {};
 
 // uses millis() for timing
 class BMCEndlessTimer : public BMCEndlessTimerBase <BMCTimingMillis, uint16_t> {};
+// uses millis() for timing but allows for times longer than 1 minute
+class BMCEndlessTimerLong : public BMCEndlessTimerBase <BMCTimingMillis, uint32_t> {};
 // uses micros() for timing
 class BMCMicroEndless : public BMCEndlessTimerBase <BMCTimingMicros, unsigned long> {};
 

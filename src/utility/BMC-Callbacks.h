@@ -25,6 +25,10 @@ public:
     triggerCustom = 0;
 #endif
 
+#if BMC_MAX_TIMED_EVENTS > 0
+    timedEventCustom = 0;
+#endif
+
 #if BMC_MAX_LIBRARY > 0
     libraryCustom = 0;
 #endif
@@ -127,6 +131,10 @@ public:
 
 #if BMC_MAX_TRIGGERS > 0
   void (*triggerCustom)(uint8_t id);
+#endif
+
+#if BMC_MAX_TIMED_EVENTS > 0
+  void (*timedEventCustom)(uint8_t id, uint8_t a, uint8_t b, uint8_t c);
 #endif
 
 #if BMC_MAX_LIBRARY > 0

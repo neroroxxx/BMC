@@ -141,6 +141,10 @@
 #if BMC_MAX_TRIGGERS > 0
   #include "utility/BMC-Triggers.h"
 #endif
+#if BMC_MAX_TIMED_EVENTS > 0
+  #include "utility/BMC-TimedEvents.h"
+#endif
+
 // see BMC-Api.h for API calls
 class BMC {
 private:
@@ -257,6 +261,12 @@ private:
     BMCTriggers triggers;
 #endif
 
+#if BMC_MAX_TIMED_EVENTS > 0
+    BMCTimedEvents timedEvents;
+#endif
+
+
+
   uint8_t page = 0;
   uint8_t programBank = 0;
 
@@ -322,6 +332,11 @@ private:
 #if BMC_MAX_TRIGGERS > 0
   void readTrigger();
   void processTrigger(uint8_t index);
+#endif
+
+#if BMC_MAX_TIMED_EVENTS > 0
+  void readTimedEvent();
+  void processTimedEvent(uint8_t n);
 #endif
 
 // ** HARDWARE **

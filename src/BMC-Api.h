@@ -183,6 +183,11 @@ public:
     callback.triggerCustom = fptr;
 #endif
   }
+  void onTimedEventCustom(void (*fptr)(uint8_t id, uint8_t a, uint8_t b, uint8_t c)){
+#if BMC_MAX_TIMED_EVENTS > 0
+    callback.timedEventCustom = fptr;
+#endif
+  }
   // triggered when EEPROM has been updated either by the editor or the API
   void onStoreUpdate(void (*fptr)()){
     callback.storeUpdated = fptr;

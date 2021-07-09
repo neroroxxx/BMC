@@ -317,9 +317,6 @@ void BMCEditor::backupPixelProgram(uint16_t t_minLength){
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
-
-
-
 void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
 #if BMC_MAX_TRIGGERS > 0
   uint8_t index = getMessagePageNumber();
@@ -332,6 +329,22 @@ void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
     bmcStoreGlobalTriggers& item = store.global.triggers[index];
     item.event = incoming.get32Bits(9);
     item.source = incoming.get32Bits(14);
+  }
+#endif
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+void BMCEditor::backupGlobalTimedEvents(uint16_t t_minLength){
+#if BMC_MAX_TIMED_EVENTS > 0
+  uint8_t index = getMessagePageNumber();
+  if(index >= BMC_MAX_TIMED_EVENTS){
+    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
+    return;
+  }
+  // does NOT require additional bytes from write message
+  if(incoming.size() == t_minLength){
+    bmcStoreGlobalTimedEvents& item = store.global.timedEvents[index];
+    item.event = incoming.get32Bits(9);
+    item.timeout = incoming.get32Bits(14);
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);

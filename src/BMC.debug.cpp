@@ -235,6 +235,7 @@ void BMC::readDebug(){
     BMC_PRINTLN("BMC_MAX_PRESET_ITEMS", BMC_MAX_PRESET_ITEMS);
     BMC_PRINTLN("BMC_MAX_CUSTOM_SYSEX", BMC_MAX_CUSTOM_SYSEX);
     BMC_PRINTLN("BMC_MAX_TRIGGERS", BMC_MAX_TRIGGERS);
+    BMC_PRINTLN("BMC_MAX_TIMED_EVENTS", BMC_MAX_TIMED_EVENTS);
     BMC_PRINTLN("BMC_MAX_TEMPO_TO_TAP", BMC_MAX_TEMPO_TO_TAP);
     BMC_PRINTLN("BMC_MAX_SKETCH_BYTES", BMC_MAX_SKETCH_BYTES);
     BMC_PRINTLN("BMC_MAX_GLOBAL_BUTTONS", BMC_MAX_GLOBAL_BUTTONS);
@@ -404,6 +405,10 @@ void BMC::readDebug(){
     #if BMC_MAX_TRIGGERS > 0
       BMC_PRINTLN("store.global.triggers",sizeof(store.global.triggers),"bytes");
       BMC_PRINTLN("store.global.triggers[0]",sizeof(store.global.triggers[0]),"bytes");
+    #endif
+    #if BMC_MAX_TIMED_EVENTS > 0
+      BMC_PRINTLN("store.global.timedEvents",sizeof(store.global.timedEvents),"bytes");
+      BMC_PRINTLN("store.global.timedEvents[0]",sizeof(store.global.timedEvents[0]),"bytes");
     #endif
     #if BMC_MAX_TEMPO_TO_TAP > 0
       BMC_PRINTLN("store.global.tempoToTap",sizeof(store.global.tempoToTap),"bytes");

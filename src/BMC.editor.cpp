@@ -147,6 +147,12 @@ void BMC::assignSettings(){
     }
   #endif
 
+  #if BMC_MAX_TIMED_EVENTS > 0
+    if(editor.timedEventsUpdated()){
+      timedEvents.buildListeners();
+    }
+  #endif
+
   #if BMC_MAX_BUTTONS > 32
     buttonStates = ~buttonStates;
     buttonStates2 = ~buttonStates2;

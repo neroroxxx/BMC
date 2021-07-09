@@ -1148,6 +1148,26 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
+    case BMC_ITEM_ID_TIMED_EVENT:
+#if BMC_MAX_TIMED_EVENTS > 0
+      if(mode==BMC_PAGEF_HARDWARE_COPY){
+        bmcStoreGlobalTimedEvents x = store.global.timedEvents[sourceItem];
+        store.global.timedEvents[targetItem] = x;
+        saveTimedEvent(targetItem);
+        reloadData();
+        success = true;
+      } else {
+        bmcStoreGlobalTimedEvents source = store.global.timedEvents[sourceItem];
+        bmcStoreGlobalTimedEvents target = store.global.timedEvents[targetItem];
+        store.global.timedEvents[sourceItem] = target;
+        store.global.timedEvents[targetItem] = source;
+        saveTimedEvent(sourceItem);
+        saveTimedEvent(targetItem);
+        reloadData();
+        success = true;
+      }
+#endif
+      break;
     case BMC_ITEM_ID_TEMPO_TO_TAP:
 #if BMC_MAX_TEMPO_TO_TAP > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){

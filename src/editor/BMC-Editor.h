@@ -28,13 +28,14 @@
 #define BMC_EDITOR_FLAG_EDITOR_FEEDBACK 5
 #define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED 6
 #define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED 7
-#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 8
-#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 9
+#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 8
+#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 9
+#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 10
 
-#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 10
-#define BMC_EDITOR_FLAG_BACKUP_STARTED 11
-#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 12
-#define BMC_EDITOR_FLAG_BACKUP_CANCELED 13
+#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 11
+#define BMC_EDITOR_FLAG_BACKUP_STARTED 12
+#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 13
+#define BMC_EDITOR_FLAG_BACKUP_CANCELED 14
 
 
 class BMCEditor {
@@ -145,6 +146,13 @@ public:
   bool triggersUpdated(){
     #if BMC_MAX_TRIGGERS > 0
       return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
+    #else
+      return false;
+    #endif
+  }
+  bool timedEventsUpdated(){
+    #if BMC_MAX_TIMED_EVENTS > 0
+      return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED);
     #else
       return false;
     #endif
@@ -281,6 +289,9 @@ private:
       #if BMC_MAX_TRIGGERS > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
       #endif
+      #if BMC_MAX_TIMED_EVENTS > 0
+        flags.on(BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED);
+      #endif
       saveStore();
       reloadData();
     }
@@ -329,6 +340,7 @@ private:
       case BMC_ITEM_ID_PRESET:          return BMC_MAX_PRESETS;
       case BMC_ITEM_ID_CUSTOM_SYSEX:    return BMC_MAX_CUSTOM_SYSEX;
       case BMC_ITEM_ID_TRIGGER:         return BMC_MAX_TRIGGERS;
+      case BMC_ITEM_ID_TIMED_EVENT:     return BMC_MAX_TIMED_EVENTS;
       case BMC_ITEM_ID_TEMPO_TO_TAP:    return BMC_MAX_TEMPO_TO_TAP;
       case BMC_ITEM_ID_SKETCH_BYTES:    return BMC_MAX_SKETCH_BYTES;
       case BMC_ITEM_ID_NL_RELAY:        return BMC_MAX_NL_RELAYS;
@@ -349,45 +361,47 @@ private:
 
   // EEPROM address offsets
   uint8_t getCrcAndVersionSize();
-  uint16_t getStoreOffset();
-  uint16_t getGlobalOffset();
-  uint16_t getSettingsOffset();
-  uint16_t getSketchBytesOffset();
-  uint16_t getStringLibraryOffset();
-  uint16_t getStringLibraryOffset(uint8_t index);
-  uint16_t getLibraryOffset();
-  uint16_t getLibraryOffset(bmcLibrary_t index);
-  uint16_t getPresetOffset();
-  uint16_t getPresetOffset(bmcPreset_t index);
-  uint16_t getSetListOffset();
-  uint16_t getSetListOffset(uint8_t index);
-  uint16_t getGlobalLedOffset();
-  uint16_t getGlobalLedOffset(uint8_t index);
+  uint32_t getStoreOffset();
+  uint32_t getGlobalOffset();
+  uint32_t getSettingsOffset();
+  uint32_t getSketchBytesOffset();
+  uint32_t getStringLibraryOffset();
+  uint32_t getStringLibraryOffset(uint8_t index);
+  uint32_t getLibraryOffset();
+  uint32_t getLibraryOffset(bmcLibrary_t index);
+  uint32_t getPresetOffset();
+  uint32_t getPresetOffset(bmcPreset_t index);
+  uint32_t getSetListOffset();
+  uint32_t getSetListOffset(uint8_t index);
+  uint32_t getGlobalLedOffset();
+  uint32_t getGlobalLedOffset(uint8_t index);
 
-  uint16_t getGlobalButtonOffset();
-  uint16_t getGlobalButtonOffset(uint8_t index);
-  uint16_t getGlobalEncoderOffset();
-  uint16_t getGlobalEncoderOffset(uint8_t index);
-  uint16_t getGlobalPotOffset();
-  uint16_t getGlobalPotOffset(uint8_t index);
-  uint16_t getGlobalPotCalibrationOffset();
-  uint16_t getGlobalPotCalibrationOffset(uint8_t index);
+  uint32_t getGlobalButtonOffset();
+  uint32_t getGlobalButtonOffset(uint8_t index);
+  uint32_t getGlobalEncoderOffset();
+  uint32_t getGlobalEncoderOffset(uint8_t index);
+  uint32_t getGlobalPotOffset();
+  uint32_t getGlobalPotOffset(uint8_t index);
+  uint32_t getGlobalPotCalibrationOffset();
+  uint32_t getGlobalPotCalibrationOffset(uint8_t index);
 
-  uint16_t getPotCalibrationOffset();
-  uint16_t getPotCalibrationOffset(uint8_t index);
-  uint16_t getCustomSysExOffset();
-  uint16_t getCustomSysExOffset(uint8_t index);
-  uint16_t getTriggerOffset();
-  uint16_t getTriggerOffset(uint8_t index);
-  uint16_t getTempoToTapOffset();
-  uint16_t getTempoToTapOffset(uint8_t index);
-  uint16_t getNLRelayOffset();
-  uint16_t getNLRelayOffset(uint8_t index);
-  uint16_t getLRelayOffset();
-  uint16_t getLRelayOffset(uint8_t index);
-  uint16_t getPortPresetsOffset();
-  uint16_t getPixelProgramsOffset();
-  uint16_t getPixelProgramsOffset(uint8_t index);
+  uint32_t getPotCalibrationOffset();
+  uint32_t getPotCalibrationOffset(uint8_t index);
+  uint32_t getCustomSysExOffset();
+  uint32_t getCustomSysExOffset(uint8_t index);
+  uint32_t getTriggerOffset();
+  uint32_t getTriggerOffset(uint8_t index);
+  uint32_t getTempoToTapOffset();
+  uint32_t getTempoToTapOffset(uint8_t index);
+  uint32_t getNLRelayOffset();
+  uint32_t getNLRelayOffset(uint8_t index);
+  uint32_t getLRelayOffset();
+  uint32_t getLRelayOffset(uint8_t index);
+  uint32_t getPortPresetsOffset();
+  uint32_t getPixelProgramsOffset();
+  uint32_t getPixelProgramsOffset(uint8_t index);
+  uint32_t getTimedEventOffset();
+  uint32_t getTimedEventOffset(uint8_t n);
 
   // Clear the entire EEPROM
   void clearEEPROM(){
@@ -710,6 +724,21 @@ public:
     #endif
   }
 #endif
+#if BMC_MAX_TIMED_EVENTS > 0
+  // save a single "Timed Event" to EEPROM
+  void saveTimedEvent(uint8_t n){
+    if(n>=BMC_MAX_TIMED_EVENTS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getTimedEventOffset(n);
+      storage.set(address, store.global.timedEvents[n]);
+    #endif
+  }
+#endif
   // save a single page to EEPROM
   void savePage(uint8_t page){
     #if defined(BMC_SD_CARD_ENABLED)
@@ -941,6 +970,7 @@ private:
   void globalPotCalibration();
   void globalCustomSysEx(bool write);
   void globalTriggers(bool write);
+  void globalTimedEvents(bool write);
   void globalTempoToTap(bool write);
   void globalSketchBytes(bool write);
   void globalSketchBytesData();
@@ -1070,6 +1100,7 @@ private:
   void backupGlobalLed(uint16_t t_minLength);
   void backupGlobalCustomSysEx(uint16_t t_minLength);
   void backupGlobalTriggers(uint16_t t_minLength);
+  void backupGlobalTimedEvents(uint16_t t_minLength);
   void backupGlobalTempoToTap(uint16_t t_minLength);
   void backupGlobalSketchBytes(uint16_t t_minLength);
   void backupGlobalNLRelay(uint16_t t_minLength);

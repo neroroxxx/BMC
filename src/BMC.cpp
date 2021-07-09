@@ -52,6 +52,9 @@ BMC::BMC():
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     ,pixelPrograms(store.global)
   #endif
+  #if BMC_MAX_TIMED_EVENTS > 0
+    ,timedEvents(store.global)
+  #endif
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
@@ -168,6 +171,10 @@ void BMC::update(){
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
     tempoToTap.update();
+  #endif
+
+  #if BMC_MAX_TIMED_EVENTS > 0
+    readTimedEvent();
   #endif
 
   editor.update();

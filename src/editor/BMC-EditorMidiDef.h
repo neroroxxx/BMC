@@ -48,6 +48,7 @@
 #define BMC_GLOBALF_GLOBAL_POT_CALIBRATION 31
 #define BMC_GLOBALF_BUTTON_EVENT_SHIFT_POSITION 32
 #define BMC_GLOBALF_PIXEL_PROGRAM 33
+#define BMC_GLOBALF_TIMED_EVENTS 34
 
 // get build info, includes things like PINS, number of buttons, leds, etc. Page Number bytes specify the item being retrieved.
 #define BMC_GLOBALF_BUILD_INFO 125
@@ -162,6 +163,7 @@
     #define BMC_NOTIFY_INVALID_GLOBAL_ENCODER 37
     #define BMC_NOTIFY_INVALID_GLOBAL_POT 38
     #define BMC_NOTIFY_INVALID_PIXEL_PROGRAM 39
+    #define BMC_NOTIFY_INVALID_TIMED_EVENT 40
 
 // PAGE FUNCTIONS
 #define BMC_PAGEF_PAGE 0

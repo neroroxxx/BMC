@@ -150,6 +150,11 @@
     uint8_t length = 0;
     uint8_t events[8];
   };
+  // Timed Events
+  struct __attribute__ ((packed)) bmcStoreGlobalTimedEvents {
+    uint32_t event = 0;
+    uint32_t timeout = 0;
+  };
   // Settings object
   struct __attribute__ ((packed)) bmcStoreGlobalSettings {
     uint32_t flags = 0;
@@ -211,6 +216,9 @@
     bmcStorePortPresets portPresets;
     #if BMC_MAX_PIXEL_PROGRAMS > 0 && BMC_MAX_PIXELS > 0
       bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
+    #endif
+    #if BMC_MAX_TIMED_EVENTS > 0
+      bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };
 

@@ -138,7 +138,7 @@ void BMC::handleButton(uint8_t index, uint8_t t_trigger){
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     bmcStoreButtonEvent &data = store.pages[page].buttons[index].events[e];
     uint8_t type = BMC_GET_BYTE(0,data.event);
-    uint8_t trigger = (data.mode & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
+    uint8_t trigger = ((data.mode&0x0F)==t_trigger) ? t_trigger : BMC_NONE;
 
     if(trigger == BMC_NONE || type == BMC_NONE){
       continue;
@@ -780,6 +780,15 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         customSysEx.send((byteA & 0x03), ports, byteB, byteC);
         break;
   #endif
+
+  #if BMC_MAX_TIMED_EVENTS > 0
+    case BMC_BUTTON_EVENT_TYPE_TIMED_EVENT:
+      // byteA = timed event Index
+      timedEvents.trigger(byteA);
+      break;
+  #endif
+
+
 
   #if BMC_MAX_LIBRARY > 0
       case BMC_BUTTON_EVENT_TYPE_LIBRARY:
