@@ -90,6 +90,8 @@ For Analog Mux In, the values read are held in an array of 16-bit unsigned int (
 ### Other Mux In ICs
 BMC also lets you use other ICs, however you have to write the code to read them and then provide BMC the state of each via the API.
 
+You could also use these API calls to read from other sensors to act as buttons/pots/encoders.
+
 For Digital Inputs you can use these API functions:
 
 ```c++
@@ -117,7 +119,7 @@ Additionally, BMC reads digital inputs **Active Low** that is when a button is i
 With the API could use a touch sensor to trigger a Pot and send MIDI messages from assigned to that Pot, MIDI Theremin anybody?
 
 ### API
-There are many API callbacks and functions available for use, these may not reflect the latest version
+There are many API callbacks and functions available for use, these may not reflect the latest version.
 
 ##### FUNCTIONS
 
