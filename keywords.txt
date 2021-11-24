@@ -125,7 +125,7 @@ onButtonActivity	KEYWORD2
 onEncoderActivity	KEYWORD2
 onPotActivity	KEYWORD2
 onPageChange	KEYWORD2
-onEditorUpdate	KEYWORD2
+onStoreUpdate	KEYWORD2
 onEditorConnection	KEYWORD2
 onValueStream	KEYWORD2
 onTrigger	KEYWORD2

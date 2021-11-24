@@ -188,6 +188,10 @@ public:
     callback.timedEventCustom = fptr;
 #endif
   }
+  //DEPRECATED, USE onStoreUpdate INSTEAD
+  void onEditorUpdate(void (*fptr)()){
+    onStoreUpdate(fptr);
+  }
   // triggered when EEPROM has been updated either by the editor or the API
   void onStoreUpdate(void (*fptr)()){
     callback.storeUpdated = fptr;
