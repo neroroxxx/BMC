@@ -66,7 +66,7 @@ void setup(){
   bmc.onPageChange(onPageChange);
 
   // when the editor has updated EEPROM
-  bmc.onEditorUpdate(onEditorUpdate);
+  bmc.onStoreUpdate(onStoreUpdate);
 
   // when the editor was connected/disconnected
   bmc.onEditorConnection(onEditorConnection);
@@ -115,7 +115,7 @@ void onMidiActivity(bool in, bool out){
 void onPageChange(uint8_t page){
   BMC_PRINTLN("Page Changed", page);
 }
-void onEditorUpdate(){
+void onStoreUpdate(){
   BMC_PRINTLN("Editor has Updated EEPROM");
 }
 void onEditorConnection(bool state){

@@ -66,7 +66,7 @@ void setup(){
   bmc.onPageChange(onPageChange);
 
   // when the editor has updated EEPROM
-  bmc.onEditorUpdate(onEditorUpdate);
+  bmc.onStoreUpdate(onStoreUpdate);
 
   // when the editor was connected/disconnected
   bmc.onEditorConnection(onEditorConnection);
@@ -76,12 +76,19 @@ void setup(){
 void loop(){
   bmc.update();
 }
-void onButtonActivity(uint8_t index, uint8_t trigger,
-                      bmcStoreButton button, bmcStoreButtonEvent event)
+
+
+
+
+
+
+void onButtonActivity(uint8_t index, uint8_t eventIndex, uint8_t pressType,
+                                  bmcStoreButton button,
+                                  bmcStoreButtonEvent data)
 {
   BMC_PRINT("Button", index);
   BMC_PRINT("");
-  BMC_PRINTLN(BMCGlobal::getButtonTriggerName(trigger));
+  BMC_PRINTLN(eventIndex, pressType);
 
 }
 // BMCMidiMessage class has tons of features, it copies data from any of the
@@ -114,7 +121,7 @@ void onMidiActivity(bool in, bool out){
 void onPageChange(uint8_t page){
   BMC_PRINTLN("Page Changed", page);
 }
-void onEditorUpdate(){
+void onStoreUpdate(){
   BMC_PRINTLN("Editor has Updated EEPROM");
 }
 void onEditorConnection(bool state){
