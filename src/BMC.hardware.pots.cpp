@@ -81,6 +81,11 @@ void BMC::readPots(){
     if(pots[i].update()){
 
       uint8_t value = pots[i].getValue();
+#if defined(BMC_DEBUG)
+      if(globals.getPotsDebug()){
+        BMC_PRINTLN("Page Pot #",i," > value:",value);
+      }
+#endif
       handlePot(store.pages[page].pots[i], value);
       // HANDLE CALLBACKS
       uint32_t event = store.pages[page].pots[i].event;
@@ -165,6 +170,11 @@ void BMC::readGlobalPots(){
 
     if(globalPots[i].update()){
       uint8_t value = globalPots[i].getValue();
+#if defined(BMC_DEBUG)
+      if(globals.getPotsDebug()){
+        BMC_PRINTLN("Global Pot #",i," > value:",value);
+      }
+#endif
       handlePot(globalData.pots[i], value);
       // HANDLE CALLBACKS
       uint32_t event = globalData.pots[i].event;
@@ -212,6 +222,13 @@ void BMC::handlePot(bmcStorePot& data, uint8_t value){
     case BMC_MIDI_NOTE_OFF:
       midi.send(data.ports, ((data.event & 0xFFFF) | value << 16));
       streamMidi(type & 0xF0, BMC_TO_MIDI_CHANNEL(type), byteA, value);
+
+//#if defined(BMC_DEBUG)
+//      if(globals.getPotsDebug()){
+//        BMC_PRINTLN("Pot Sending CC#",byteA,"ch:",BMC_TO_MIDI_CHANNEL(type),"value:", value);
+//      }
+//#endif
+
       break;
     case BMC_MIDI_PROGRAM_CHANGE:
       midi.sendProgramChange(data.ports, BMC_TO_MIDI_CHANNEL(type), value);

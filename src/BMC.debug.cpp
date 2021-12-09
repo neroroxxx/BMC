@@ -50,6 +50,10 @@ void BMC::readDebug(){
     BMC_PRINTLN("pins = Displays the pins for buttons/leds/pots/encoders");
     #endif
 
+    #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
+      BMC_PRINTLN("pots = Toggle debugging page and global pots output.");
+    #endif
+
     #ifdef BMC_MIDI_BLE_ENABLED
     BMC_PRINTLN("bleDebug = Toggles BLE MIDI Debugging, displays Incoming/Outgoing BLE Packet arrays.");
     BMC_PRINTLN("disconnectBLE = Disconnect the BLE Module if connected.");
@@ -104,6 +108,11 @@ void BMC::readDebug(){
     BMC_PRINTLN(runTime.getMinutes(), "minutes");
     BMC_PRINTLN(runTime.getHours(), "hours");
     BMC_PRINTLN(runTime.getDays(), "days");
+    printDebugHeader(debugInput);
+
+  } else if(BMC_STR_MATCH(debugInput,"pots")){
+    printDebugHeader(debugInput);
+    BMC_PRINTLN("pots debug", globals.togglePotsDebug());
     printDebugHeader(debugInput);
 
   } else if(BMC_STR_MATCH(debugInput,"stopwatch")){

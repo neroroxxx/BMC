@@ -171,7 +171,7 @@ void BMCEditor::pageButtonMessage(bool write){
 
         #if BMC_NAME_LEN_BUTTONS > 1
           // starts at 18
-          incoming.getStringFromSysEx(20,button.name,BMC_NAME_LEN_BUTTONS);
+          incoming.getStringFromSysEx(20, button.name, BMC_NAME_LEN_BUTTONS);
         #endif
       }
       if(!backupActive()){
@@ -190,7 +190,7 @@ void BMCEditor::pageButtonMessage(bool write){
       button.events[0].mode = m;
 
       #if BMC_NAME_LEN_BUTTONS > 1
-        incoming.getStringFromSysEx(20,button.name,BMC_NAME_LEN_BUTTONS);
+        incoming.getStringFromSysEx(20, button.name, BMC_NAME_LEN_BUTTONS);
       #endif
       if(!backupActive()){
         savePagesAndReloadData(page);
@@ -567,7 +567,7 @@ void BMCEditor::pagePotMessage(bool write){
           #endif
         #else
           #if BMC_NAME_LEN_POTS > 1
-            incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+            incoming.getStringFromSysEx(17, item.name, BMC_NAME_LEN_POTS);
           #endif
         #endif
       }
@@ -586,7 +586,7 @@ void BMCEditor::pagePotMessage(bool write){
         #endif
       #else
         #if BMC_NAME_LEN_POTS > 1
-          incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+          incoming.getStringFromSysEx(17, item.name, BMC_NAME_LEN_POTS);
         #endif
       #endif
       if(!backupActive()){

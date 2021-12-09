@@ -1327,13 +1327,13 @@ void BMCEditor::globalPot(bool write){
     item.event = incoming.get32Bits(12);
     #if defined(BMC_USE_POT_TOE_SWITCH)
       item.toeSwitch = incoming.get32Bits(17);
-      item.toeSwitchFlags = incoming.get32Bits(22);
+      item.toeSwitchFlags = incoming.get16Bits(22);
       #if BMC_NAME_LEN_POTS > 1
         incoming.getStringFromSysEx(25, item.name, BMC_NAME_LEN_POTS);
       #endif
     #else
       #if BMC_NAME_LEN_POTS > 1
-        incoming.getStringFromSysEx(22, item.name, BMC_NAME_LEN_POTS);
+        incoming.getStringFromSysEx(17, item.name, BMC_NAME_LEN_POTS);
       #endif
     #endif
 

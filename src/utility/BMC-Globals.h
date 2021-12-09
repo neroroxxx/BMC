@@ -33,6 +33,7 @@
 #define BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT_WITH_CLOCK 6
 #define BMC_GLOBALS_DEBUG_FLAG_BUTTONS 7
 #define BMC_GLOBALS_DEBUG_FLAG_FAS 8
+#define BMC_GLOBALS_DEBUG_FLAG_POTS 9
 
 
 // https://github.com/mpflaga/Arduino-MemoryFree
@@ -199,6 +200,12 @@ public:
   }
   bool getFasDebug(){
     return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_FAS);
+  }
+  bool togglePotsDebug(){
+    return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_POTS);
+  }
+  bool getPotsDebug(){
+    return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_POTS);
   }
 #endif
 
