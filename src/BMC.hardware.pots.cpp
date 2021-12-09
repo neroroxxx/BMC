@@ -83,7 +83,7 @@ void BMC::readPots(){
       uint8_t value = pots[i].getValue();
 #if defined(BMC_DEBUG)
       if(globals.getPotsDebug()){
-        BMC_PRINTLN("Page Pot #",i," > value:",value);
+        BMC_PRINTLN("Page Pot #",i," > value:",value,"raw:",getPotAnalogValue(i));
       }
 #endif
       handlePot(store.pages[page].pots[i], value);
@@ -152,6 +152,11 @@ void BMC::assignGlobalPots(){
 void BMC::readGlobalPots(){
   if(potCalibration.active()){
     potCalibration.setValue(getGlobalPotAnalogValue(potCalibration.getIndex()));
+#if defined(BMC_DEBUG)
+  if(globals.getPotsDebug()){
+    BMC_PRINTLN("potCalibration.getIndex() >> ",getGlobalPotAnalogValue(potCalibration.getIndex()));
+  }
+#endif
     return;
   }
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
@@ -172,7 +177,7 @@ void BMC::readGlobalPots(){
       uint8_t value = globalPots[i].getValue();
 #if defined(BMC_DEBUG)
       if(globals.getPotsDebug()){
-        BMC_PRINTLN("Global Pot #",i," > value:",value);
+        BMC_PRINTLN("Global Pot #",i," > value:",value,"raw:",getGlobalPotAnalogValue(i));
       }
 #endif
       handlePot(globalData.pots[i], value);
