@@ -100,7 +100,7 @@ Hardware like Buttons, Leds, Pots, etc. have a limit which is based on the board
 |Leds                 |32   |Max  |Max  |Max  |Max  |
 |Pwm Leds             |16   |12   |Max  |Max  |Max  |
 |Global Leds          |16   |Max  |Max  |Max  |Max  |
-|Pots                 |128   |Max  |Max  |Max  |14   |
+|Pots                 |128   |Max  |Max  |Max  |Max  |
 |Encoder              |64   |Max  |Max  |Max  |Max  |
 |Latching Relays      |16   |Max  |Max  |Max  |Max  |
 |Non-Latching Relays  |16   |Max  |Max  |Max  |Max  |
