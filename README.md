@@ -94,16 +94,16 @@ BMC includes support for:
 ## Hardware Limits
 Hardware like Buttons, Leds, Pots, etc. have a limit which is based on the board you use, for example if your board only has 8 Analog Pins then you can only have 8 Pots, etc. The table below is a general limit to each that can not be exceeded as these are hard-coded. *These may change*
 
-|Hardware             |Max  | 3.2 | 3.5 | 3.6 | 4.0 |
-|---------------------|-----|-----|-----|-----|-----|
-|Buttons              |64   |Max  |Max  |Max  |Max  |
-|Leds                 |32   |Max  |Max  |Max  |Max  |
-|Pwm Leds             |16   |12   |Max  |Max  |Max  |
-|Global Leds          |16   |Max  |Max  |Max  |Max  |
-|Pots                 |128   |Max  |Max  |Max  |Max  |
-|Encoder              |64   |Max  |Max  |Max  |Max  |
-|Latching Relays      |16   |Max  |Max  |Max  |Max  |
-|Non-Latching Relays  |16   |Max  |Max  |Max  |Max  |
+|Hardware             |Max  | 3.2 | 3.5 | 3.6 | 4.0 | 4.1 |
+|---------------------|-----|-----|-----|-----|-----|-----|
+|Buttons              |64   |Max  |Max  |Max  |Max  |Max  |
+|Leds                 |32   |Max  |Max  |Max  |Max  |Max  |
+|Pwm Leds             |16   |12   |Max  |Max  |Max  |Max  |
+|Global Leds          |16   |Max  |Max  |Max  |Max  |Max  |
+|Pots                 |128  |Max  |Max  |Max  |Max  |Max  |
+|Encoder              |64   |Max  |Max  |Max  |Max  |Max  |
+|Latching Relays      |16   |Max  |Max  |Max  |Max  |Max  |
+|Non-Latching Relays  |16   |Max  |Max  |Max  |Max  |Max  |
 
 You can use any combination of Hardware as long as your Teensy supports it!
 
