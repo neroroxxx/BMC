@@ -107,7 +107,7 @@ public:
       case BMC_MIDI_NOTE_ON:
         return "Note On";
       case BMC_MIDI_NOTE_OFF:
-        return "Note Onff";
+        return "Note Off";
       case BMC_MIDI_RT_ACTIVE_SENSE:
         return "Active Sense";
       case BMC_MIDI_PITCH_BEND:
