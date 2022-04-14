@@ -175,12 +175,10 @@ if(t_pin>=64){
     }
 #endif
     bool state = flags.read(BMC_FLAG_LED_STATE);
-    for(uint8_t i=0;i<3;i++){
-      writeToPin(!state);
-      delay(BMC_MAX_LED_TEST_DELAY);
-      writeToPin(state);
-      delay(BMC_MAX_LED_TEST_DELAY);
-    }
+    writeToPin(!state);
+    delay(BMC_MAX_LED_TEST_DELAY);
+    writeToPin(state);
+    delay(BMC_MAX_LED_TEST_DELAY+5);
   }
   // used to blink an led temporarily, similar to the test() method but
   // it can be used to blink an led temporarily then reset back to its

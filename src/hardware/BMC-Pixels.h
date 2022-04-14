@@ -144,19 +144,14 @@ public:
     if(n >= BMC_TOTAL_PIXELS){
       return;
     }
-    // blink the pixel 3 times, once for red, green and blue using BMC colors
-    // since BMC_COLOR_RED is 1, BMC_COLOR_GREEN is 2 and BMC_COLOR_BLUE 4
-    // we start the loop with i at 1 and skip 3 since that's BMC_COLOR_YELLOW
-    for(uint8_t i=1; i<5; i++){
-      // skip yellow
-      if(i==3){continue;}
-      setPixelValue(n, BMCPixelColors::getRgbColor(i));
-      pixels.show();
-      delay(BMC_MAX_LED_TEST_DELAY);
-      setPixelValue(n, 0);
-      pixels.show();
-      delay(BMC_MAX_LED_TEST_DELAY);
-    }
+    // turn pixel on and off
+    setPixelValue(n, BMCPixelColors::getRgbColor(random(1,13)));
+    pixels.show();
+    delay(BMC_MAX_LED_TEST_DELAY);
+    setPixelValue(n, 0);
+    pixels.show();
+    delay(BMC_MAX_LED_TEST_DELAY);
+
     // return pixel to original state
     uint8_t prev = currentColor[n];
     if(bitRead(prev, 7)){
@@ -165,7 +160,7 @@ public:
       turnPixelOff(n);
     }
     pixels.show();
-    delay(50);
+    delay(5);
   }
 #if BMC_MAX_RGB_PIXELS > 0
   void testRgb(uint8_t n){
