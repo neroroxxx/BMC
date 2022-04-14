@@ -32,6 +32,13 @@
   #define BMC_BLE_MAX_PACKETS 2
 
 #elif BMC_MIDI_BLE_BOARD == 1
+  // ESP32
+  #include "midi/BMC-BMC-MidiBleBoardEsp32.h"
+  #define BMC_BLE_MIDI_TX_BUFFER_SIZE 20
+  #define BMC_BLE_PACKET_TX_INTERVAL 20
+  #define BMC_BLE_PACKET_RESEND_TX_INTERVAL 10
+  #define BMC_BLE_MAX_PACKETS 2
+#elif BMC_MIDI_BLE_BOARD == 2
   // ADAFRUIT BLUEFRUIT LE SPI FRIEND
   #include "midi/BMC-MidiBleBoardSpiFriend.h"
   #define BMC_BLE_MIDI_TX_BUFFER_SIZE 30

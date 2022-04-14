@@ -21,7 +21,7 @@
 
 #include "utility/BMC-Def.h"
 
-#if defined(BMC_MIDI_BLE_ENABLED) && BMC_MIDI_BLE_BOARD == 1
+#if defined(BMC_MIDI_BLE_ENABLED) && BMC_MIDI_BLE_BOARD == 2
 
 #include <SPI.h>
 #include <Adafruit_BLE.h>
