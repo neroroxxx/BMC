@@ -124,6 +124,9 @@ public:
     interval = value;
     timer.start(interval);
   }
+  void restart(){
+    start(interval);
+  }
   bool reached(){ return complete(); }
   bool expired(){ return complete(); }
   bool complete(){
