@@ -134,11 +134,25 @@ void BMC::readButtons(){
   dualPress.update();
 #endif
 }
+
 void BMC::handleButton(uint8_t index, uint8_t t_trigger){
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     bmcStoreButtonEvent &data = store.pages[page].buttons[index].events[e];
-    uint8_t type = BMC_GET_BYTE(0,data.event);
+    uint8_t type = BMC_GET_BYTE(0, data.event);
     uint8_t trigger = ((data.mode&0x0F)==t_trigger) ? t_trigger : BMC_NONE;
+
+#ifdef BMC_USE_DAW_LC
+    if(type==BMC_BUTTON_EVENT_TYPE_DAW &&
+      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
+      uint8_t cmd = BMC_GET_BYTE(1, data.event);
+      uint8_t ch = BMC_GET_BYTE(2, data.event);
+      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
+        daw.sendButtonCommand(cmd, ch, false);
+      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
+        daw.sendButtonCommand(cmd, ch, true);
+      }
+    }
+#endif
 
     if(trigger == BMC_NONE || type == BMC_NONE){
       continue;
@@ -155,6 +169,7 @@ void BMC::handleButton(uint8_t index, uint8_t t_trigger){
     }
 #endif
     handleButtonEvent(type, data);
+
     if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
       callback.buttonsCustomActivity(index, e,
                             BMC_GET_BYTE(1,data.event),
@@ -232,6 +247,19 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
     bmcStoreButtonEvent &data = globalData.buttons[index].events[e];
     uint8_t type = BMC_GET_BYTE(0,data.event);
     uint8_t trigger = (data.mode & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
+
+#ifdef BMC_USE_DAW_LC
+    if(type==BMC_BUTTON_EVENT_TYPE_DAW &&
+      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
+      uint8_t cmd = BMC_GET_BYTE(1, data.event);
+      uint8_t ch = BMC_GET_BYTE(2, data.event);
+      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
+        daw.sendButtonCommand(cmd, ch, false);
+      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
+        daw.sendButtonCommand(cmd, ch, true);
+      }
+    }
+#endif
     if(trigger == BMC_NONE || type == BMC_NONE){
       continue;
     }
@@ -247,6 +275,7 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
       }
 #endif
     handleButtonEvent(type, data);
+
     if(type==BMC_EVENT_TYPE_CUSTOM && callback.globalButtonsCustomActivity){
       callback.globalButtonsCustomActivity(index, e,
                             BMC_GET_BYTE(1,data.event),
@@ -271,6 +300,9 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
       if(type==BMC_BUTTON_EVENT_TYPE_DELAY){
         return;
       }
+    #endif
+    #if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
+      encoderFixTimer.start(BMC_ENCODER_BUTTON_DEBOUNCE_TIME);
     #endif
     uint32_t event = data.event;
     uint8_t ports = data.ports;
@@ -868,6 +900,11 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         break;
     #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
   #endif // BMC_MAX_LIBRARY > 0
+
+  #ifdef BMC_USE_DAW_LC
+      case BMC_BUTTON_EVENT_TYPE_DAW: break;// handled in the press type handler
+  #endif
+
       case BMC_BUTTON_EVENT_TYPE_USER_1:
       case BMC_BUTTON_EVENT_TYPE_USER_2:
       case BMC_BUTTON_EVENT_TYPE_USER_3:

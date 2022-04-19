@@ -12,7 +12,7 @@
 
 class BMCCustomSysEx {
 public:
-  BMCCustomSysEx(BMCMidi& t_midi,bmcStoreGlobal& t_global):
+  BMCCustomSysEx(BMCMidi& t_midi, bmcStoreGlobal& t_global):
                 midi(t_midi),
                 global(t_global)
   {

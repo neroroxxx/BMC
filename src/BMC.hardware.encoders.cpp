@@ -48,7 +48,8 @@ void BMC::readEncoders(){
 
     if(encoders[i].update()){
       bool increased = encoders[i].increased();
-      handleEncoder(pageData.encoders[i], increased);
+      uint8_t ticks = encoders[i].getTicks();
+      handleEncoder(pageData.encoders[i], increased, ticks);
 
       uint32_t event = pageData.encoders[i].event;
       if(BMC_GET_BYTE(0, event)==BMC_EVENT_TYPE_CUSTOM && callback.encoderCustomActivity){
@@ -56,9 +57,9 @@ void BMC::readEncoders(){
                               BMC_GET_BYTE(1, event),
                               BMC_GET_BYTE(2, event),
                               BMC_GET_BYTE(3, event),
-                              increased);
+                              increased, ticks);
       } else if(callback.encoderActivity){
-        callback.encoderActivity(i,increased,pageData.encoders[i]);
+        callback.encoderActivity(i, increased, pageData.encoders[i], ticks);
       }
       editor.utilitySendEncoderActivity(i, increased);
     }
@@ -85,7 +86,8 @@ void BMC::readGlobalEncoders(){
 
     if(globalEncoders[i].update()){
       bool increased = globalEncoders[i].increased();
-      handleEncoder(globalData.encoders[i], increased);
+      uint8_t ticks = globalEncoders[i].getTicks();
+      handleEncoder(globalData.encoders[i], increased, ticks);
 
       uint32_t event = globalData.encoders[i].event;
       if(BMC_GET_BYTE(0, event)==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
@@ -93,9 +95,9 @@ void BMC::readGlobalEncoders(){
                               BMC_GET_BYTE(1, event),
                               BMC_GET_BYTE(2, event),
                               BMC_GET_BYTE(3, event),
-                              increased);
+                              increased, ticks);
       } else if(callback.globalEncoderActivity){
-        callback.globalEncoderActivity(i, increased, globalData.encoders[i]);
+        callback.globalEncoderActivity(i, increased, globalData.encoders[i], ticks);
       }
       editor.utilitySendGlobalEncoderActivity(i, increased);
     }
@@ -104,13 +106,22 @@ void BMC::readGlobalEncoders(){
 #endif
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
-void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
+void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
   uint32_t event  = data.event;
   uint8_t type    = BMC_GET_BYTE(0,event);
   if(type == BMC_NONE){
     // inactive event
     return;
   }
+  #if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
+    // ignore encoder readings right after a button press
+    // this is to avoid issues when you press the button on an encoder and a reading
+    // of the encoder is triggered by mechanical noise
+    // default time 50ms
+    if(encoderFixTimer.active() && !encoderFixTimer.complete()){
+      return;
+    }
+  #endif
   uint8_t ports   = data.ports;
   uint8_t mode    = data.mode;
   uint8_t byteA   = BMC_GET_BYTE(1,event);
@@ -191,6 +202,18 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
       pixelPrograms.setProgram(tmp);
       break;
 #endif
+    case BMC_ENCODER_EVENT_TYPE_CC_RELATIVE:
+      tmp = increased ? 1 : 65;
+      midi.sendControlChangeNoLocalLog(ports, byteA, byteB,  increased ? 1 : 65);
+      break;
+    case BMC_ENCODER_EVENT_TYPE_NON_RELATIVE:
+      tmp = increased ? 1 : 65;
+      midi.sendNoteOn(ports, byteA, byteB,  increased ? 1 : 65);
+      break;
+    case BMC_ENCODER_EVENT_TYPE_NOFF_RELATIVE:
+      tmp = increased ? 1 : 65;
+      midi.sendNoteOff(ports, byteA, byteB,  increased ? 1 : 65);
+      break;
     case BMC_ENCODER_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
       // byteA (bits 0 and 1) = flags, bit-0 direction, bit-1 endless
       // byteA (bits 2 to 7) = amount (0 to 63 max then add 1 here)
@@ -317,6 +340,21 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased){
       }
       break;
 #endif
+
+#ifdef BMC_USE_DAW_LC
+    case BMC_ENCODER_EVENT_TYPE_DAW:
+      if(byteA==BMC_DAW_ENC_CMD_VPOT){
+        daw.sendVPot(byteB, increased, ticks);
+      } else if(byteA==BMC_DAW_ENC_CMD_FADER){
+        daw.sendEncoderFader(byteB, increased, ticks);
+      } else if(byteA==BMC_DAW_ENC_CMD_FADER_MASTER){
+        daw.sendEncoderMasterFader(increased, ticks);
+      } else if(byteA==BMC_DAW_ENC_CMD_SCRUB){
+        daw.sendTransportScrubWheel(increased, ticks);
+      }
+      break;
+#endif
+
     case BMC_ENCODER_EVENT_TYPE_USER_1:
     case BMC_ENCODER_EVENT_TYPE_USER_2:
     case BMC_ENCODER_EVENT_TYPE_USER_3:

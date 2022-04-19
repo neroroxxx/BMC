@@ -461,4 +461,355 @@ struct BMCMidiTimeSignature {
   }
 };
 
+struct BMCLogicControlChannelVU {
+  // bits 0=overload, 1=changed
+  BMCFlags <uint8_t> flags;
+  BMCEndlessTimer meterDecayTimer;
+  uint8_t meter = 0;
+  uint8_t lastPeak = 0;
+  void reset(){
+    flags.reset();
+    meter = 0;
+    lastPeak = 0;
+  }
+
+  BMCLogicControlChannelVU(){
+    meterDecayTimer.start(300);
+  }
+  void update(){
+    if(meter>0 && meterDecayTimer){
+      meter--;
+      flags.on(1);
+    }
+  }
+  bool hasChanged(){
+    return flags.toggleIfTrue(1);
+  }
+  bool getOverload(){
+    return flags.read(0);
+  }
+  uint8_t getPeak(){
+    return lastPeak;
+  }
+  uint8_t getMeter(uint8_t max=0){
+    if(max > 0 && (meter < max)){
+      return 0;
+    }
+    return meter;
+  }
+  void setMeter(uint8_t value){
+    if(assignMeterValue(value)){
+      meterDecayTimer.restart();
+    }
+  }
+  bool assignMeterValue(uint8_t value){
+    switch(value){
+      case 0x0D:
+        break;
+      case 0x0E:
+        // set the overload
+        if(!flags.read(0)){flags.on(1);}
+        flags.on(0);
+        return true;
+      case 0x0F:
+        // remove the overload
+        if(flags.read(0)){flags.on(1);}
+        flags.off(0);
+        return true;
+      default:
+        // get the last peak state
+        if(value != lastPeak){
+          meter = value;
+          flags.on(1);
+        }
+        lastPeak = value;
+        return true;
+    }
+    return false;
+  }
+};
+struct BMCLogicControlChannel {
+  // state bits: 0=rec, 1=solo, 2=mute, 3=select, 4=signal
+  uint8_t states = 0;
+  int fader = 0;
+  uint8_t vPot = 0;
+  BMCLogicControlChannelVU vu;
+  void reset(){
+    vu.reset();
+    states = 0;
+    fader = 0;
+    vPot = 0;
+  }
+  // get the state
+  bool getRecState(){     return bitRead(states, 0);}
+  bool getSoloState(){    return bitRead(states, 1);}
+  bool getMuteState(){    return bitRead(states, 2);}
+  bool getSelectState(){  return bitRead(states, 3);}
+  bool getSignalState(){  return bitRead(states, 4);}
+
+  void update(){
+    vu.update();
+  }
+  uint8_t getVPot(){
+    return vPot;
+  }
+  uint8_t getVPotCentered(){
+    return bitRead(vPot, 6);
+  }
+  uint8_t getVPotMode(){
+    return (vPot>>4)&0x03;
+  }
+  uint8_t getVPotValue(uint8_t ledN=0){
+    if(ledN>0 && ledN<=11){
+      switch(getVPotMode()){
+        case 0: return getVPotMode0SingleDot(ledN);
+        case 1: return getVPotMode1BoostCut(ledN);
+        case 2: return getVPotMode2Wrap(ledN);
+        case 3: return getVPotMode3Spread(ledN);
+      }
+    }
+    return vPot & 0x0F;
+  }
+  uint8_t getVPotMode0SingleDot(uint8_t ledN=0){ // ok
+    uint8_t value = vPot & 0x0F;
+    return (ledN == value) ? value : 0;
+  }
+  uint8_t getVPotMode1BoostCut(uint8_t ledN=0){ // ok
+    uint8_t value = vPot & 0x0F;
+    if(ledN==6){
+      return value;
+    } else if(ledN<6){
+      return (ledN >= value)?value:0;
+    }
+    return (ledN <= value)?value:0;// ledN > 6
+  }
+  uint8_t getVPotMode2Wrap(uint8_t ledN=0){ // ok
+    uint8_t value = vPot & 0x0F;
+    return (ledN > value) ? 0 : value;
+  }
+  uint8_t getVPotMode3Spread(uint8_t ledN=0){ // ok
+    uint8_t value = vPot & 0x0F;
+    if((ledN==6 && value==1) || value>6){
+      return value;
+    }
+    if(value==1 && ledN!=6){
+      return 0;
+    }
+    for(uint8_t i=2,e=0;i<7;i++,e++){
+      if(value==i){
+        if(ledN>=(5-e) && ledN<=(7+e)){
+          return value;
+        }
+        return 0;
+      }
+    }
+    return ledN==value ? value : 0;
+  }
+
+  // set the state
+  void setRecState(bool value){     bitWrite(states, 0, value);}
+  void setSoloState(bool value){    bitWrite(states, 1, value);}
+  void setMuteState(bool value){    bitWrite(states, 2, value);}
+  void setSelectState(bool value){  bitWrite(states, 3, value);}
+  void setSignalState(bool value){  bitWrite(states, 4, value);}
+
+  void setVPot(uint8_t value){
+    vPot = value;
+  }
+  void setVolume(int value){
+    fader = value;
+  }
+  int getVolume(){
+    return fader;
+  }
+};
+struct BMCLogicControlData {
+  // flag bits: 0=online,
+  uint8_t flags = 0;
+  uint8_t selected = 0;
+  uint32_t states = 0;
+  uint8_t states2 = 0;
+  int masterVolume = 0;
+  BMCLogicControlChannel channel[8];
+
+  void reset(){
+    flags = 0;
+    selected = 0;
+    states = 0;
+    for(uint8_t i=0;i<9;i++){
+      channel[i].reset();
+    }
+  }
+
+  void update(){
+    for(uint8_t i=0;i<9;i++){
+      channel[i].update();
+    }
+  }
+  void setOnline(){
+    reset();
+    bitWrite(flags, 0, 1);
+  }
+  void setOffline(){
+    reset();
+    bitWrite(flags, 0, 0);
+  }
+  bool isOnline(){
+    return bitRead(flags, 0);
+  }
+  uint8_t getSelectedChannel(){
+    return selected;
+  }
+  void setSelectedChannel(uint8_t value){
+    selected = value;
+  }
+  // GET
+  bool getAssignTrack(){ return bitRead(states, 0); }
+  bool getAssignSend(){ return bitRead(states, 1); }
+  bool getAssignPan(){ return bitRead(states, 2); }
+  bool getAssignPlugin(){ return bitRead(states, 3); }
+  bool getAssignEQ(){ return bitRead(states, 4); }
+  bool getAssignInstr(){ return bitRead(states, 5); }
+  bool getFaderViewFlip(){ return bitRead(states, 6); }
+  bool getFaderViewGlobal(){ return bitRead(states, 7); }
+  bool getAutomationRead(){ return bitRead(states, 8); }
+  bool getAutomationWrite(){ return bitRead(states, 9); }
+  bool getAutomationTrim(){ return bitRead(states, 10); }
+  bool getAutomationTouch(){ return bitRead(states, 11); }
+  bool getAutomationLatch(){ return bitRead(states, 12); }
+  bool getAutomationGroup(){ return bitRead(states, 13); }
+  bool getUtilitySave(){ return bitRead(states, 14); }
+  bool getUtilityUndo(){ return bitRead(states, 15); }
+  bool getTransportMarker(){ return bitRead(states, 16); }
+  bool getTransportNudge(){ return bitRead(states, 17); }
+  bool getTransportCycle(){ return bitRead(states, 18); }
+  bool getTransportDrop(){ return bitRead(states, 19); }
+  bool getTransportReplace(){ return bitRead(states, 20); }
+  bool getTransportClick(){ return bitRead(states, 21); }
+  bool getTransportSolo(){ return bitRead(states, 22); }
+  bool getTransportRewind(){ return bitRead(states, 23); }
+  bool getTransportForward(){ return bitRead(states, 24); }
+  bool getTransportStop(){ return bitRead(states, 25); }
+  bool getTransportPlay(){ return bitRead(states, 26); }
+  bool getTransportRecord(){ return bitRead(states, 27); }
+  bool getTransportCursorZoom(){ return bitRead(states, 28); }
+  bool getTransportScrub(){ return bitRead(states, 29); }
+  bool getSMPTE(){ return bitRead(states, 30); }
+  bool getBeats(){ return bitRead(states, 31); }
+  bool getRudeSolo(){ return bitRead(states2, 0); }
+  bool getRelay(){ return bitRead(states2, 1); }
+  // SET
+  void setAssignTrack(bool value){ bitWrite(states, 0, value); }
+  void setAssignSend(bool value){ bitWrite(states, 1, value); }
+  void setAssignPan(bool value){ bitWrite(states, 2, value); }
+  void setAssignPlugin(bool value){ bitWrite(states, 3, value); }
+  void setAssignEQ(bool value){ bitWrite(states, 4, value); }
+  void setAssignInstr(bool value){ bitWrite(states, 5, value); }
+  void setFaderViewFlip(bool value){ bitWrite(states, 6, value); }
+  void setFaderViewGlobal(bool value){ bitWrite(states, 7, value); }
+  void setAutomationRead(bool value){ bitWrite(states, 8, value); }
+  void setAutomationWrite(bool value){ bitWrite(states, 9, value); }
+  void setAutomationTrim(bool value){ bitWrite(states, 10, value); }
+  void setAutomationTouch(bool value){ bitWrite(states, 11, value); }
+  void setAutomationLatch(bool value){ bitWrite(states, 12, value); }
+  void setAutomationGroup(bool value){ bitWrite(states, 13, value); }
+  void setUtilitySave(bool value){ bitWrite(states, 14, value); }
+  void setUtilityUndo(bool value){ bitWrite(states, 15, value); }
+  void setTransportMarker(bool value){ bitWrite(states, 16, value); }
+  void setTransportNudge(bool value){ bitWrite(states, 17, value); }
+  void setTransportCycle(bool value){ bitWrite(states, 18, value); }
+  void setTransportDrop(bool value){ bitWrite(states, 19, value); }
+  void setTransportReplace(bool value){ bitWrite(states, 20, value); }
+  void setTransportClick(bool value){ bitWrite(states, 21, value); }
+  void setTransportSolo(bool value){ bitWrite(states, 22, value); }
+  void setTransportRewind(bool value){ bitWrite(states, 23, value); }
+  void setTransportForward(bool value){ bitWrite(states, 24, value); }
+  void setTransportStop(bool value){ bitWrite(states, 25, value); }
+  void setTransportPlay(bool value){ bitWrite(states, 26, value); }
+  void setTransportRecord(bool value){ bitWrite(states, 27, value); }
+  void setTransportCursorZoom(bool value){ bitWrite(states, 28, value); }
+  void setTransportScrub(bool value){ bitWrite(states, 29, value); }
+
+  void setSMPTE(bool value){ bitWrite(states, 30, value); }
+  void setBeats(bool value){ bitWrite(states, 31, value); }
+  void setRudeSolo(bool value){ bitWrite(states2, 0, value); }
+  void setRelay(bool value){ bitWrite(states2, 1, value); }
+
+  // CHANNELS
+  // set the state
+  bool getRecState(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getRecState() : 0;
+  }
+  bool getSoloState(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getSoloState() : 0;
+  }
+  bool getMuteState(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getMuteState() : 0;
+  }
+  bool getSelectState(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getSelectState() : 0;
+  }
+  bool getSignalState(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getSignalState() : 0;
+  }
+  uint8_t getVPot(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getVPot() : 0;
+  }
+  uint8_t getVPotCentered(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getVPotCentered() : 0;
+  }
+  uint8_t getVPotMode(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getVPotMode() : 0;
+  }
+  uint8_t getVPotValue(uint8_t n, uint8_t ledN=0){
+    return chAllowed(n) ? channel[chCheck(n)].getVPotValue(ledN) : 0;
+  }
+
+  bool getMeterOverload(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].vu.getOverload() : false;
+  }
+  uint8_t getMeter(uint8_t n, uint8_t max=0){
+    return chAllowed(n) ? channel[chCheck(n)].vu.getMeter(max) : 0;
+  }
+  uint8_t getMeterPeak(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].vu.getPeak() : 0;
+  }
+  uint8_t getMeterChanged(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].vu.hasChanged() : 0;
+  }
+
+  // set the state
+  void setRecState(uint8_t n, bool value){     if(chAllowed(n)){channel[n].setRecState(value);}}
+  void setSoloState(uint8_t n, bool value){    if(chAllowed(n)){channel[n].setSoloState(value);}}
+  void setMuteState(uint8_t n, bool value){    if(chAllowed(n)){channel[n].setMuteState(value);}}
+  void setSelectState(uint8_t n, bool value){  if(chAllowed(n)){channel[n].setSelectState(value);}}
+  void setSignalState(uint8_t n, bool value){  if(chAllowed(n)){channel[n].setSignalState(value);}}
+  void setVPot(uint8_t n, uint8_t value){      if(chAllowed(n)){channel[n].setVPot(value);}}
+  void setMeter(uint8_t n, uint8_t value){     if(chAllowed(n)){channel[n].vu.setMeter(value);}}
+
+  void setVolume(uint8_t n, int value){
+    if(chAllowed(n)){
+      channel[n].setVolume(value);
+    }
+  }
+  int getVolume(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].getVolume() : 0;
+  }
+  void setMasterVolume(int value){
+    masterVolume = value;
+  }
+  int getMasterVolume(){
+    return masterVolume;
+  }
+
+
+
+
+  uint8_t chCheck(uint8_t n){
+    return (n>=8) ? selected : n;
+  }
+  bool chAllowed(uint8_t n){
+    return (n<=8);
+  }
+};
 #endif

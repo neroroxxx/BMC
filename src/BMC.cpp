@@ -15,6 +15,9 @@ BMC::BMC():
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
+  #ifdef BMC_USE_DAW_LC
+    ,daw(midi, store.global, callback)
+  #endif
   #ifdef BMC_USE_BEATBUDDY
     ,beatBuddy(midi,midiClock)
   #endif
@@ -162,6 +165,11 @@ void BMC::update(){
       delay(1);
       midiActiveSense.start();
     }
+
+    #ifdef BMC_USE_DAW_LC
+        daw.sendHostConnectionQuery();
+    #endif
+
     if(callback.firstLoop){
       callback.firstLoop();
     }
@@ -193,6 +201,9 @@ void BMC::update(){
   if(callback.midUpdate){
     callback.midUpdate();
   }
+#ifdef BMC_USE_DAW_LC
+    daw.update();
+#endif
 
 #ifdef BMC_USE_HELIX
     helix.update();

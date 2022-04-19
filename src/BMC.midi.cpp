@@ -71,6 +71,10 @@ void BMC::incomingMidi(BMCMidiMessage message){
   checkRelaysMidiInput(message);
 #endif
 
+#ifdef BMC_USE_DAW_LC
+  daw.incoming(message);
+#endif
+
 #ifdef BMC_USE_BEATBUDDY
   beatBuddy.incoming(message);
 #endif

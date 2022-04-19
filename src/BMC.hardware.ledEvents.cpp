@@ -302,6 +302,10 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
     case BMC_LED_EVENT_TYPE_PIXEL_PROGRAM:
       break;
 #endif
+#ifdef BMC_USE_DAW_LC
+    case BMC_LED_EVENT_TYPE_DAW:
+      return daw.getLedState(byteA, BMC_GET_BYTE(2, event));
+#endif
     case BMC_LED_EVENT_TYPE_USER_1:
     case BMC_LED_EVENT_TYPE_USER_2:
     case BMC_LED_EVENT_TYPE_USER_3:

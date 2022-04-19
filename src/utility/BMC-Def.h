@@ -33,7 +33,7 @@
 */
 #if defined(__arm__) && defined(CORE_TEENSY)
   #if defined(ARDUINO_TEENSY41)
-    // Teensy 4.0
+    // Teensy 4.1
     // __IMXRT1062__
     #define BMC_TEENSY_MODEL 41
     #define BMC_TEENSY_MODEL_STR "4.1"
@@ -255,6 +255,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_CALC_TOLERANCE(orignalVal, newVal, tol) ((orignalVal<(newVal-tol)) || (orignalVal>(newVal+tol)))
 
 #define BMC_STR_MATCH(str1,str2)((strcmp(str1,str2)==0))
+#define BMC_MANY_BITS_SET(val)((val & (val - 1)) != 0)
 
 // get the value of the bits in the range
 // for example value 231 (binary 11100111) if you want to get value of bits 4, 5 and 6
@@ -474,6 +475,13 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // part of your config file
 #ifndef BMC_EDITOR_SYSEX_ID
   #define BMC_EDITOR_SYSEX_ID 0x7D7D7D
+#endif
+
+// we need the size of the sysex to be at least 128 to properly work
+// with the editor functions
+#if BMC_MIDI_SYSEX_SIZE < 128
+  #undef BMC_MIDI_SYSEX_SIZE
+  #define BMC_MIDI_SYSEX_SIZE 128
 #endif
 
 // can be overloaded by config, must have a value
@@ -927,8 +935,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_BUTTON_EVENT_TYPE_CONTROL_TOGGLE_2 30
 #define BMC_BUTTON_EVENT_TYPE_PIXEL_PROGRAM 31
 #define BMC_BUTTON_EVENT_TYPE_PIXEL_PROGRAM_SCROLL 32
+#define BMC_BUTTON_EVENT_TYPE_DAW 33
 
-// available 31, 32 and 33
 #define BMC_BUTTON_EVENT_TYPE_NL_RELAY_CONTROL_TOGGLE 34
 #define BMC_BUTTON_EVENT_TYPE_L_RELAY_CONTROL_TOGGLE 35
 #define BMC_BUTTON_EVENT_TYPE_MIDI_REAL_TIME_BLOCK 36
@@ -1002,6 +1010,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_LED_EVENT_TYPE_PIXEL_PROGRAM 21
 #define BMC_LED_EVENT_TYPE_BUTTON_RAW 22
 #define BMC_LED_EVENT_TYPE_GLOBAL_BUTTON_RAW 23
+#define BMC_LED_EVENT_TYPE_DAW 24
 
 #define BMC_LED_EVENT_TYPE_FAS_STATE 80
 #define BMC_LED_EVENT_TYPE_FAS_PRESET 81
@@ -1037,6 +1046,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_LED_STATUS_STOPWATCH_STATE 9
 #define BMC_LED_STATUS_STOPWATCH_ACTIVE 10
 #define BMC_LED_STATUS_STOPWATCH_COMPLETE 11
+
 // **************************************
 // used for BMC_LED_EVENT_TYPE_BEATBUDDY
 // **************************************
@@ -1045,6 +1055,189 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_LED_BEATBUDDY_PART 2
 #define BMC_LED_BEATBUDDY_HALF_TIME 3
 #define BMC_LED_BEATBUDDY_DOUBLE_TIME 4
+
+// **********************************
+//         BMC DAW CMD BUTTONS
+// **********************************
+#define BMC_DAW_BTN_CMD_REC 0
+#define BMC_DAW_BTN_CMD_SOLO 1
+#define BMC_DAW_BTN_CMD_MUTE 2
+#define BMC_DAW_BTN_CMD_SELECT 3
+#define BMC_DAW_BTN_CMD_VPOT 4
+#define BMC_DAW_BTN_CMD_ASSIGN_TRACK 5
+#define BMC_DAW_BTN_CMD_ASSIGN_SEND 6
+#define BMC_DAW_BTN_CMD_ASSIGN_PAN 7
+#define BMC_DAW_BTN_CMD_ASSIGN_PLUGIN 8
+#define BMC_DAW_BTN_CMD_ASSIGN_EQ 9
+#define BMC_DAW_BTN_CMD_ASSIGN_INSTR 10
+#define BMC_DAW_BTN_CMD_BANK_LEFT 11
+#define BMC_DAW_BTN_CMD_BANK_RIGHT 12
+#define BMC_DAW_BTN_CMD_CHANNEL_LEFT 13
+#define BMC_DAW_BTN_CMD_CHANNEL_RIGHT 14
+#define BMC_DAW_BTN_CMD_FLIP 15
+#define BMC_DAW_BTN_CMD_GLOBAL 16
+#define BMC_DAW_BTN_CMD_NAMEVAL 17
+#define BMC_DAW_BTN_CMD_SMPTEBEATS 18
+#define BMC_DAW_BTN_CMD_F1 19
+#define BMC_DAW_BTN_CMD_F2 20
+#define BMC_DAW_BTN_CMD_F3 21
+#define BMC_DAW_BTN_CMD_F4 22
+#define BMC_DAW_BTN_CMD_F5 23
+#define BMC_DAW_BTN_CMD_F6 24
+#define BMC_DAW_BTN_CMD_F7 25
+#define BMC_DAW_BTN_CMD_F8 26
+#define BMC_DAW_BTN_CMD_VIEW_MIDI 27
+#define BMC_DAW_BTN_CMD_VIEW_INPUTS 28
+#define BMC_DAW_BTN_CMD_VIEW_AUDIO 29
+#define BMC_DAW_BTN_CMD_VIEW_INSTR 30
+#define BMC_DAW_BTN_CMD_VIEW_AUX 31
+#define BMC_DAW_BTN_CMD_VIEW_BUS 32
+#define BMC_DAW_BTN_CMD_VIEW_OUT 33
+#define BMC_DAW_BTN_CMD_VIEW_USER 34
+#define BMC_DAW_BTN_CMD_MOD_SHIFT 35
+#define BMC_DAW_BTN_CMD_MOD_OPTION 36
+#define BMC_DAW_BTN_CMD_MOD_CONTROL 37
+#define BMC_DAW_BTN_CMD_MOD_CMD 38
+#define BMC_DAW_BTN_CMD_AUTOMATION_READ 39
+#define BMC_DAW_BTN_CMD_AUTOMATION_WRITE 40
+#define BMC_DAW_BTN_CMD_AUTOMATION_TRIM 41
+#define BMC_DAW_BTN_CMD_AUTOMATION_TOUCH 42
+#define BMC_DAW_BTN_CMD_AUTOMATION_LATCH 43
+#define BMC_DAW_BTN_CMD_AUTOMATION_GROUP 44
+#define BMC_DAW_BTN_CMD_UTILITY_SAVE 45
+#define BMC_DAW_BTN_CMD_UTILITY_UNDO 46
+#define BMC_DAW_BTN_CMD_UTILITY_CANCEL 47
+#define BMC_DAW_BTN_CMD_UTILITY_ENTER 48
+#define BMC_DAW_BTN_CMD_TRANSPORT_MARKER 49
+#define BMC_DAW_BTN_CMD_TRANSPORT_NUDGE 50
+#define BMC_DAW_BTN_CMD_TRANSPORT_CYCLE 51
+#define BMC_DAW_BTN_CMD_TRANSPORT_DROP 52
+#define BMC_DAW_BTN_CMD_TRANSPORT_REPLACE 53
+#define BMC_DAW_BTN_CMD_TRANSPORT_CLICK 54
+#define BMC_DAW_BTN_CMD_TRANSPORT_SOLO 55
+#define BMC_DAW_BTN_CMD_TRANSPORT_REWIND 56
+#define BMC_DAW_BTN_CMD_TRANSPORT_FORWARD 57
+#define BMC_DAW_BTN_CMD_TRANSPORT_STOP 58
+#define BMC_DAW_BTN_CMD_TRANSPORT_PLAY 59
+#define BMC_DAW_BTN_CMD_TRANSPORT_REC 60
+#define BMC_DAW_BTN_CMD_CURSOR_UP 61
+#define BMC_DAW_BTN_CMD_CURSOR_DOWN 62
+#define BMC_DAW_BTN_CMD_CURSOR_LEFT 63
+#define BMC_DAW_BTN_CMD_CURSOR_RIGHT 64
+#define BMC_DAW_BTN_CMD_CURSOR_ZOOM 65
+#define BMC_DAW_BTN_CMD_SCRUB 66
+#define BMC_DAW_BTN_CMD_FADER_TOUCH 67
+#define BMC_DAW_BTN_CMD_FADER_TOUCH_MASTER 68
+
+
+// **********************************
+//         BMC DAW CMD ENCODERS
+// **********************************
+#define BMC_DAW_ENC_CMD_VPOT 0
+#define BMC_DAW_ENC_CMD_FADER 1
+#define BMC_DAW_ENC_CMD_FADER_MASTER 2
+#define BMC_DAW_ENC_CMD_SCRUB 3
+// **********************************
+//         BMC DAW CMD LEDS
+// **********************************
+#define BMC_DAW_LED_CMD_REC 0
+#define BMC_DAW_LED_CMD_SOLO 1
+#define BMC_DAW_LED_CMD_MUTE 2
+#define BMC_DAW_LED_CMD_SELECT 3
+#define BMC_DAW_LED_CMD_ASSIGN_TRACK 4
+#define BMC_DAW_LED_CMD_ASSIGN_PAN 5
+#define BMC_DAW_LED_CMD_ASSIGN_EQ 6
+#define BMC_DAW_LED_CMD_ASSIGN_SEND 7
+#define BMC_DAW_LED_CMD_ASSIGN_PLUGIN 8
+#define BMC_DAW_LED_CMD_ASSIGN_INSTR 9
+#define BMC_DAW_LED_CMD_GLOBAL 10
+#define BMC_DAW_LED_CMD_FLIP 11
+#define BMC_DAW_LED_CMD_TRANSPORT_PLAY 12
+#define BMC_DAW_LED_CMD_TRANSPORT_STOP 13
+#define BMC_DAW_LED_CMD_TRANSPORT_REC 14
+#define BMC_DAW_LED_CMD_TRANSPORT_FORWARD 15
+#define BMC_DAW_LED_CMD_TRANSPORT_REWIND 16
+#define BMC_DAW_LED_CMD_TRANSPORT_MARKER 17
+#define BMC_DAW_LED_CMD_TRANSPORT_NUDGE 18
+#define BMC_DAW_LED_CMD_TRANSPORT_CYCLE 19
+#define BMC_DAW_LED_CMD_TRANSPORT_DROP 20
+#define BMC_DAW_LED_CMD_TRANSPORT_REPLACE 21
+#define BMC_DAW_LED_CMD_TRANSPORT_CLICK 22
+#define BMC_DAW_LED_CMD_TRANSPORT_SOLO 23
+#define BMC_DAW_LED_CMD_TRANSPORT_ZOOM 24
+#define BMC_DAW_LED_CMD_TRANSPORT_SCRUB 25
+#define BMC_DAW_LED_CMD_AUTOMATION_READ 26
+#define BMC_DAW_LED_CMD_AUTOMATION_WRITE 27
+#define BMC_DAW_LED_CMD_AUTOMATION_TRIM 28
+#define BMC_DAW_LED_CMD_AUTOMATION_TOUCH 29
+#define BMC_DAW_LED_CMD_AUTOMATION_LATCH 30
+#define BMC_DAW_LED_CMD_AUTOMATION_GROUP 31
+#define BMC_DAW_LED_CMD_UTILITY_SAVE 32
+#define BMC_DAW_LED_CMD_UTILITY_UNDO 33
+#define BMC_DAW_LED_CMD_METER_PEAK 34
+#define BMC_DAW_LED_CMD_METER_1 35
+#define BMC_DAW_LED_CMD_METER_2 36
+#define BMC_DAW_LED_CMD_METER_3 37
+#define BMC_DAW_LED_CMD_METER_4 38
+#define BMC_DAW_LED_CMD_METER_5 39
+#define BMC_DAW_LED_CMD_METER_6 40
+#define BMC_DAW_LED_CMD_METER_7 41
+#define BMC_DAW_LED_CMD_METER_8 42
+#define BMC_DAW_LED_CMD_METER_9 43
+#define BMC_DAW_LED_CMD_METER_10 44
+#define BMC_DAW_LED_CMD_METER_11 45
+#define BMC_DAW_LED_CMD_METER_12 46
+#define BMC_DAW_LED_CMD_VPOT_1 47
+#define BMC_DAW_LED_CMD_VPOT_2 48
+#define BMC_DAW_LED_CMD_VPOT_3 49
+#define BMC_DAW_LED_CMD_VPOT_4 50
+#define BMC_DAW_LED_CMD_VPOT_5 51
+#define BMC_DAW_LED_CMD_VPOT_6 52
+#define BMC_DAW_LED_CMD_VPOT_7 53
+#define BMC_DAW_LED_CMD_VPOT_8 54
+#define BMC_DAW_LED_CMD_VPOT_9 55
+#define BMC_DAW_LED_CMD_VPOT_10 56
+#define BMC_DAW_LED_CMD_VPOT_11 57
+#define BMC_DAW_LED_CMD_VPOT_CENTER 58
+#define BMC_DAW_LED_CMD_SMPTE 59
+#define BMC_DAW_LED_CMD_BEATS 60
+#define BMC_DAW_LED_CMD_RUDE_SOLO 61
+#define BMC_DAW_LED_CMD_RELAY 62
+// **********************************
+//         BMC DAW LED NOTES
+// **********************************
+#define BMC_DAW_NOTE_TRACK 0x28
+#define BMC_DAW_NOTE_SEND 0x29
+#define BMC_DAW_NOTE_PAN 0x2A
+#define BMC_DAW_NOTE_PLUGIN 0x2B
+#define BMC_DAW_NOTE_EQ 0x2C
+#define BMC_DAW_NOTE_INSTR 0x2D
+#define BMC_DAW_NOTE_FLIP 0x32
+#define BMC_DAW_NOTE_GLOBAL 0x33
+#define BMC_DAW_NOTE_READ 0x4A
+#define BMC_DAW_NOTE_WRITE 0x4B
+#define BMC_DAW_NOTE_TRIM 0x4C
+#define BMC_DAW_NOTE_TOUCH 0x4D
+#define BMC_DAW_NOTE_LATCH 0x4E
+#define BMC_DAW_NOTE_GROUP 0x4F
+#define BMC_DAW_NOTE_SAVE 0x50
+#define BMC_DAW_NOTE_UNDO 0x51
+#define BMC_DAW_NOTE_MARKER 0x54
+#define BMC_DAW_NOTE_NUDGE 0x55
+#define BMC_DAW_NOTE_CYCLE 0x56
+#define BMC_DAW_NOTE_DROP 0x57
+#define BMC_DAW_NOTE_REPLACE 0x58
+#define BMC_DAW_NOTE_CLICK 0x59
+#define BMC_DAW_NOTE_SOLO 0x5A
+#define BMC_DAW_NOTE_REWIND 0x5B
+#define BMC_DAW_NOTE_FORWARD 0x5C
+#define BMC_DAW_NOTE_STOP 0x5D
+#define BMC_DAW_NOTE_PLAY 0x5E
+#define BMC_DAW_NOTE_RECORD 0x5F
+#define BMC_DAW_NOTE_ZOOM 0x64
+#define BMC_DAW_NOTE_SCRUB 0x65
+
+
 
 // **********************************
 //            BMC Colors
@@ -1977,6 +2170,12 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ENCODER_EVENT_TYPE_CUSTOM_SYSEX 8
 #define BMC_ENCODER_EVENT_TYPE_PROGRAM_BANKING_SCROLL 9
 #define BMC_ENCODER_EVENT_TYPE_PIXEL_PROGRAM_SCROLL 10
+
+#define BMC_ENCODER_EVENT_TYPE_CC_RELATIVE 11
+#define BMC_ENCODER_EVENT_TYPE_NON_RELATIVE 12
+#define BMC_ENCODER_EVENT_TYPE_NOFF_RELATIVE 13
+#define BMC_ENCODER_EVENT_TYPE_DAW 14
+
 #define BMC_ENCODER_EVENT_TYPE_CLICK_TRACK_FREQ 20
 #define BMC_ENCODER_EVENT_TYPE_CLICK_TRACK_LEVEL 21
 #define BMC_ENCODER_EVENT_TYPE_FAS_PRESET 80
@@ -2113,6 +2312,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // INCLUDE ALL DEPENDENCIES
 #include "BMC-Version.h"
+#include "utility/BMC-Timer.h"
+#include "utility/BMC-Flags.h"
 #include "utility/BMC-SerialMonitor.h"
 #include "utility/BMC-Debug.h"
 #include "storage/BMC-Store.h"
@@ -2122,8 +2323,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #include "utility/BMC-BuildData.h"
 #include "utility/BMC-MidiMessage.h"
 #include "utility/BMC-MidiControl.h"
-#include "utility/BMC-Timer.h"
-#include "utility/BMC-Flags.h"
 #include "utility/BMC-Typer.h"
 #include "utility/BMC-Tools.h"
 #include "utility/BMC-Settings.h"

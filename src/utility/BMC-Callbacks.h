@@ -98,6 +98,25 @@ public:
     bleConnection = 0;
 #endif
 
+#ifdef BMC_USE_DAW_LC
+    dawOnline = 0;
+    dawRecievedLCD = 0;
+    dawRecievedTimeDisplay = 0;
+    dawRecievedAssignmentDisplay = 0;
+    dawRecievedChannelMeter = 0;
+    dawChannelMeterUpdate = 0;
+    dawChannelVPotUpdate = 0;
+    dawRecievedChannelFaderPosition = 0;
+    dawRecievedMasterFaderPosition = 0;
+    dawRecievedChannelVPotPosition = 0;
+    dawRecievedChannelSelect = 0;
+    dawRecievedChannelSolo = 0;
+    dawRecievedChannelMute = 0;
+    dawRecievedChannelRecReady = 0;
+    dawRecievedLedState = 0;
+    dawReceivedTimeCodeDigit = 0;
+#endif
+
 #ifdef BMC_USE_BEATBUDDY
     beatBuddyBeatLocation = 0;
 #endif
@@ -147,7 +166,7 @@ public:
                           bmcStoreButton button,
                           bmcStoreButtonEvent data);
   void (*encoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data);
+                          bmcStoreEncoder data, uint8_t ticks);
   void (*potActivity)(uint8_t index, uint8_t value,
                       bmcStorePot data);
   void (*ledsActivity)(uint32_t states);
@@ -160,7 +179,7 @@ public:
                           bmcStoreButton button,
                           bmcStoreButtonEvent data);
   void (*globalEncoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data);
+                          bmcStoreEncoder data, uint8_t ticks);
   void (*globalPotActivity)(uint8_t index, uint8_t value,
                       bmcStorePot data);
 
@@ -173,10 +192,10 @@ public:
 #endif
 
   void (*buttonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*encoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction);
+  void (*encoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
   void (*potCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
   void (*globalButtonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*globalEncoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction);
+  void (*globalEncoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
   void (*globalPotCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
 
   void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
@@ -217,6 +236,27 @@ public:
 
 #ifdef BMC_MIDI_BLE_ENABLED
     void (*bleConnection)(bool state);
+#endif
+
+#ifdef BMC_USE_DAW_LC
+    void (*dawOnline)(bool state);
+    void (*dawRecievedLCD)(BMCMidiMessage data);
+    void (*dawRecievedTimeDisplay)(uint8_t digit, char character);
+    void (*dawRecievedAssignmentDisplay)(uint8_t digit, char character);
+    void (*dawRecievedChannelMeter)(uint8_t channel, uint8_t value);
+    void (*dawChannelMeterUpdate)(uint8_t channel, uint8_t value, uint8_t overload);
+    void (*dawChannelVPotUpdate)(uint8_t channel, uint8_t value, uint8_t centered, uint8_t mode);
+    void (*dawRecievedChannelFaderPosition)(uint8_t channel, int value);
+    void (*dawRecievedMasterFaderPosition)(int value);
+    void (*dawRecievedChannelVPotPosition)(uint8_t channel, uint8_t value);
+    void (*dawRecievedChannelSelect)(uint8_t channel, bool state);
+    void (*dawRecievedChannelSolo)(uint8_t channel, bool state);
+    void (*dawRecievedChannelMute)(uint8_t channel, bool state);
+    void (*dawRecievedChannelRecReady)(uint8_t channel, bool state);
+    void (*dawRecievedLedState)(uint8_t channel, bool state);
+    void (*dawReceivedTimeCodeDigit)(uint8_t digit, uint8_t value);
+
+
 #endif
 
 #ifdef BMC_USE_BEATBUDDY

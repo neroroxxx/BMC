@@ -270,6 +270,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_USE_FAS3
       bitWrite(buildData,18,1);
     #endif
+    #ifdef BMC_USE_DAW_LC
+      bitWrite(buildData,19,1);
+    #endif
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);

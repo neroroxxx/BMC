@@ -142,15 +142,6 @@
     #define BMC_MUX_AVAILABLE
   #endif
 
-
-
-  // we need the size of the sysex to be at least 100 to properly work
-  // with the editor functions
-  #if BMC_MIDI_SYSEX_SIZE < 100
-    #undef BMC_MIDI_SYSEX_SIZE
-    #define BMC_MIDI_SYSEX_SIZE 100
-  #endif
-
   #if defined(BMC_USE_TIME) && !defined(BMC_TIME_ADJUST)
     #define BMC_TIME_ADJUST 20
   #endif
@@ -832,6 +823,23 @@
     typedef uint16_t bmcLibrary_t;
   #else
     typedef uint8_t bmcLibrary_t;
+  #endif
+
+
+  #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
+    #define BMC_HAS_ENCODERS
+  #endif
+
+  #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
+    #define BMC_HAS_BUTTONS
+  #endif
+
+  #if defined(BMC_HAS_ENCODERS) && defined(BMC_HAS_BUTTONS)
+    #define BMC_ENABLE_ENCODER_BUTTON_FILTERING
+  #endif
+
+  #if !defined(BMC_ENCODER_BUTTON_DEBOUNCE_TIME)
+    #define BMC_ENCODER_BUTTON_DEBOUNCE_TIME 50
   #endif
 
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when

@@ -60,6 +60,10 @@
   #include "sync/kemp/BMC-Kemp.h"
 #endif
 
+#if defined(BMC_USE_DAW_LC)
+  #include "sync/daw/BMC-DawLogicControl.h"
+#endif
+
 #if defined(BMC_USE_BEATBUDDY)
   #include "sync/beatbuddy/BMC-BeatBuddy.h"
 #endif
@@ -145,6 +149,8 @@
   #include "utility/BMC-TimedEvents.h"
 #endif
 
+//const uint8_t bmcLogCurve[128] = {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,16,17,17,18,19,20,21,22,23,24,25,26,27,28,30,31,32,34,35,37,39,40,42,44,46,48,50,53,55,58,60,63,66,69,72,75,78,82,85,89,93,98,102,106,111,116,121,127,133,139,145,151,158,165,172,180,188,197,205,215,224,234,245,255};
+
 // see BMC-Api.h for API calls
 class BMC {
 private:
@@ -217,6 +223,14 @@ private:
   BMCMidiClock midiClock;
   // handles active sense
   BMCMidiActiveSense midiActiveSense;
+
+#if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
+  BMCTimer encoderFixTimer;
+#endif
+
+#if defined(BMC_USE_DAW_LC)
+  BMCDawLogicControl daw;
+#endif
 
 #if defined(BMC_USE_BEATBUDDY)
   // handles beatbuddy syncing and commands
@@ -606,7 +620,7 @@ private:
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   void setupEncoders();
   void assignEncoder(BMCEncoder& encoder, bmcStoreEncoder& data);
-  void handleEncoder(bmcStoreEncoder& data, bool increased=false);
+  void handleEncoder(bmcStoreEncoder& data, bool increased=false, uint8_t ticks=0);
   uint16_t getNewEncoderValue(uint8_t mode, uint16_t value,
                               uint16_t lowest, uint16_t highest,
                               uint16_t min, uint16_t max,

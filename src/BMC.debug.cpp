@@ -21,6 +21,9 @@ void BMC::setupDebug(){
   );
   printBoardInfo();
   BMC_PRINTLN("");
+#ifdef BMC_USE_DAW_LC
+  BMC_PRINTLN(">>>>> BMC_USE_DAW_LC <<<<<");
+#endif
 }
 void BMC::printDebugHeader(char* str){
   BMC_PRINTLN("");

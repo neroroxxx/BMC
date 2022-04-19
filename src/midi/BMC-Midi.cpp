@@ -339,7 +339,7 @@ void BMCMidi::sendProgramChange(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendControlChange(uint8_t port, uint8_t channel,
                                 uint8_t control, uint8_t value,
-                                uint8_t cable){
+                                uint8_t cable, bool localLog){
   if(value>127){
     if(getLocalControl(channel,control)>0){
       value = 0;
@@ -380,7 +380,10 @@ void BMCMidi::sendControlChange(uint8_t port, uint8_t channel,
       midiBle.Port.sendControlChange(control, value, channel);
     }
   #endif
-  setLocalControl(channel,control,value);
+  if(localLog){
+    setLocalControl(channel,control,value);
+  }
+
   globals.setMidiOutActivity();
   #ifdef BMC_DEBUG
   if(globals.getMidiOutDebug()){
@@ -395,6 +398,11 @@ void BMCMidi::sendControlChange(uint8_t port, uint8_t channel,
   }
   //
   #endif
+}
+void BMCMidi::sendControlChangeNoLocalLog(uint8_t port, uint8_t channel,
+                                uint8_t control, uint8_t value,
+                                uint8_t cable){
+  sendControlChange(port,channel,control,value,cable,false);
 }
 void BMCMidi::sendNoteOn(uint8_t port, uint8_t channel,
                         uint8_t note, uint8_t velocity,

@@ -212,6 +212,8 @@ public:
   void sendProgramChange(uint8_t port, uint8_t channel,
                           uint8_t program, uint8_t cable=0);
   void sendControlChange(uint8_t port, uint8_t channel,
+                          uint8_t control, uint8_t value, uint8_t cable=0, bool localLog=true);
+  void sendControlChangeNoLocalLog(uint8_t port, uint8_t channel,
                           uint8_t control, uint8_t value, uint8_t cable=0);
   void sendNoteOn(uint8_t port, uint8_t channel, uint8_t note,
                   uint8_t velocity, uint8_t cable=0);

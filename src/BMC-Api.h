@@ -47,7 +47,7 @@ public:
   }
   // triggered when an encoder is rotated
   void onEncoderActivity(void (*fptr)(uint8_t index, bool increased,
-                                      bmcStoreEncoder data)){
+                                      bmcStoreEncoder data, uint8_t ticks)){
     callback.encoderActivity = fptr;
   }
   // triggered when a pot is rotated
@@ -83,7 +83,7 @@ public:
   }
   // triggered when a global encoder is rotated
   void onGlobalEncoderActivity(void (*fptr)(uint8_t index, bool increased,
-                                      bmcStoreEncoder data)){
+                                      bmcStoreEncoder data, uint8_t ticks)){
     callback.globalEncoderActivity = fptr;
   }
   // triggered when a global pot is rotated
@@ -101,7 +101,7 @@ public:
     callback.buttonsCustomActivity = fptr;
   }
   // triggered when a custom encoder event is handled
-  void onEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction)){
+  void onEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks)){
     callback.encoderCustomActivity = fptr;
   }
   // triggered when a custom pot event is handled
@@ -113,7 +113,7 @@ public:
     callback.globalButtonsCustomActivity = fptr;
   }
   // triggered when a custom global encoder event is handled
-  void onGlobalEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction)){
+  void onGlobalEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks)){
     callback.globalEncoderCustomActivity = fptr;
   }
   // triggered when a custom global pot event is handled
@@ -366,7 +366,65 @@ public:
   void onEepromErased(void (*fptr)()){
     callback.eepromErased = fptr;
   }
-
+  // ******************************
+  // *****  DAW  *****
+  // ******************************
+#ifdef BMC_USE_DAW_LC
+  void onDawOnline(void (*fptr)(bool state)){
+    callback.dawOnline = fptr;
+  }
+  void onDawRecievedLCD(void (*fptr)(BMCMidiMessage data)){
+    callback.dawRecievedLCD = fptr;
+  }
+  void onDawRecievedTimeDisplay(void (*fptr)(uint8_t digit, char character)){
+    callback.dawRecievedTimeDisplay = fptr;
+  }
+  void onDawRecievedAssignmentDisplay(void (*fptr)(uint8_t digit, char character)){
+    callback.dawRecievedAssignmentDisplay = fptr;
+  }
+  void onDawRecievedChannelMeter(void (*fptr)(uint8_t channel, uint8_t value)){
+    callback.dawRecievedChannelMeter = fptr;
+  }
+  void onDawChannelMeterUpdate(void (*fptr)(uint8_t channel, uint8_t value, uint8_t overload)){
+    callback.dawChannelMeterUpdate = fptr;
+  }
+  void onDawReceivedTimeCodeDigit(void (*fptr)(uint8_t digit, uint8_t value)){
+    callback.dawReceivedTimeCodeDigit = fptr;
+  }
+  void onDawChannelVPotUpdate(void (*fptr)(uint8_t channel, uint8_t value, uint8_t centered, uint8_t mode)){
+    callback.dawChannelVPotUpdate = fptr;
+  }
+  void onDawRecievedChannelFaderPosition(void (*fptr)(uint8_t channel, int value)){
+    callback.dawRecievedChannelFaderPosition = fptr;
+  }
+  void onDawRecievedMasterFaderPosition(void (*fptr)(int value)){
+    callback.dawRecievedMasterFaderPosition = fptr;
+  }
+  void onDawRecievedChannelVPotPosition(void (*fptr)(uint8_t channel, uint8_t value)){
+    callback.dawRecievedChannelVPotPosition = fptr;
+  }
+  void onDawRecievedChannelSelect(void (*fptr)(uint8_t channel, bool state)){
+    callback.dawRecievedChannelSelect = fptr;
+  }
+  void onDawRecievedChannelSolo(void (*fptr)(uint8_t channel, bool state)){
+    callback.dawRecievedChannelSolo = fptr;
+  }
+  void onDawRecievedChannelMute(void (*fptr)(uint8_t channel, bool state)){
+    callback.dawRecievedChannelMute = fptr;
+  }
+  void onDawRecievedChannelRecReady(void (*fptr)(uint8_t channel, bool state)){
+    callback.dawRecievedChannelRecReady = fptr;
+  }
+  void onDawRecievedLedState(void (*fptr)(uint8_t cmd, bool state)){
+    callback.dawRecievedLedState = fptr;
+  }
+  uint8_t getDawSelectedTrack(){
+    return daw.getSelectedChannel();
+  }
+  uint8_t getDawVPotLedState(uint8_t channel, uint8_t ledN){
+    return daw.getVPotLedState(channel, ledN);
+  }
+#endif
   // ******************************
   // *****  STOPWATCH  *****
   // ******************************

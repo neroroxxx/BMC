@@ -6,6 +6,8 @@
 
 # BMC the Badass MIDI Controller For Teensy 3.x & 4.x!
 
+***Version 1.5.0 Now includes Logic Control Support, make your own DAW MIDI Controller!***
+
 ***Version 1.2.0 Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
 
 **PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC IS NOT A TYPICAL LIBRARY AND REQUIRES AN EASY MOD TO THE TEENSYDUINO IDE boards.txt FILE.**
@@ -23,6 +25,8 @@ BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1, support for Teensy LC 
 ***You can access they web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
 ![BMC Editor App](images/bmc-editor-preview.jpg)
+
+### [Click here to Support BMC Development with a Donation](https://www.paypal.com/donate/?hosted_button_id=9XHQP5P4TPWKY)
 
 **Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
 

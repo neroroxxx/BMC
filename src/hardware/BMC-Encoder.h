@@ -139,7 +139,27 @@ public:
       //BMC_PRINTLN(output, readB(), readA());
       flags.on(BMC_ENCODER_FLAG_ACTIVITY);
       flags.write(BMC_ENCODER_FLAG_INCREASED,(output>0));
+      uint16_t currentTurn = millis()&0xFFFF;
+      uint16_t subs = (currentTurn-lastTurn);
+      if(lastTurnDirection==flags.read(BMC_ENCODER_FLAG_INCREASED)){
+        if(subs < 10){
+          ticks = 6;
+        } else if(subs < 20){
+          ticks = 5;
+        } else if(subs < 30){
+          ticks = 4;
+        } else if(subs < 40){
+          ticks = 2;
+        } else {
+          ticks = 1;
+        }
+      }
+      lastTurnDirection = (output>0)?1:0;
+      lastTurn = millis()&0xFFFF;
       return true;
+    }
+    if((millis()&0xFFFF)-lastTurn>50){
+      lastTurn = 0;
     }
     flags.off(BMC_ENCODER_FLAG_INCREASED);
     flags.off(BMC_ENCODER_FLAG_ACTIVITY);
@@ -147,6 +167,9 @@ public:
   }
   bool increased(){
     return flags.read(BMC_ENCODER_FLAG_INCREASED);
+  }
+  uint8_t getTicks(){
+    return ticks;
   }
 
 #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
@@ -173,6 +196,9 @@ private:
   BMCFlags <uint8_t> flags;
   uint8_t pinA = 255;
   uint8_t pinB = 255;
+  uint8_t ticks = 0;
+  uint8_t lastTurnDirection = 0;
+  uint16_t lastTurn = 0;
 #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
   BMCFlags <uint8_t> states;
 #endif
@@ -188,6 +214,7 @@ const int8_t lookupTable[16] = {
    0, 1, -1,  0
 };
 void tick(){
+  ticks = 0;
   output = 0;
   uint8_t now = (readA() << 1) | readB();
   if(lastState != now){
