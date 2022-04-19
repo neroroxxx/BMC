@@ -136,9 +136,9 @@
       case BMC_TRIGGER_EVENT_TYPE_GLOBAL_ENCODER:
         if(byteA < BMC_MAX_GLOBAL_ENCODERS){
           if(byteB==0){
-            encoders[byteA].triggerDown();
+            globalEncoders[byteA].triggerDown();
           } else {
-            encoders[byteA].triggerUp();
+            globalEncoders[byteA].triggerUp();
           }
         }
         BMC_PRINTLN("processTrigger BMC_TRIGGER_EVENT_TYPE_GLOBAL_ENCODER");
