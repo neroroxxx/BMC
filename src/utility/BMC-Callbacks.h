@@ -108,7 +108,6 @@ public:
     dawChannelVPotUpdate = 0;
     dawRecievedChannelFaderPosition = 0;
     dawRecievedMasterFaderPosition = 0;
-    dawRecievedChannelVPotPosition = 0;
     dawRecievedChannelSelect = 0;
     dawRecievedChannelSolo = 0;
     dawRecievedChannelMute = 0;
@@ -248,7 +247,6 @@ public:
     void (*dawChannelVPotUpdate)(uint8_t channel, uint8_t value, uint8_t centered, uint8_t mode);
     void (*dawRecievedChannelFaderPosition)(uint8_t channel, int value);
     void (*dawRecievedMasterFaderPosition)(int value);
-    void (*dawRecievedChannelVPotPosition)(uint8_t channel, uint8_t value);
     void (*dawRecievedChannelSelect)(uint8_t channel, bool state);
     void (*dawRecievedChannelSolo)(uint8_t channel, bool state);
     void (*dawRecievedChannelMute)(uint8_t channel, bool state);

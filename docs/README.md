@@ -8,7 +8,8 @@ Due to the large size of this project, documentation will be added and updated o
 For now here are some topics I want to cover tho they are not complete:
 
 - [API](api.md)
-- [Bluetooth LE MIDI](ble.md)
+- [DAW Logic Control](user-events.md)
+- [Bluetooth LE MIDI](daw.md)
 - [Buttons](buttons.md)
 - [Custom SysEx](custom-sysex.md)
 - [Debug](debug.md)

@@ -370,57 +370,73 @@ public:
   // *****  DAW  *****
   // ******************************
 #ifdef BMC_USE_DAW_LC
+  // passes the state of the connect, true if a project is loaded
   void onDawOnline(void (*fptr)(bool state)){
     callback.dawOnline = fptr;
   }
+  // passes the sysex message containing the updated LCD string
   void onDawRecievedLCD(void (*fptr)(BMCMidiMessage data)){
     callback.dawRecievedLCD = fptr;
   }
+  // more info to come
   void onDawRecievedTimeDisplay(void (*fptr)(uint8_t digit, char character)){
     callback.dawRecievedTimeDisplay = fptr;
   }
+  // more info to come
   void onDawRecievedAssignmentDisplay(void (*fptr)(uint8_t digit, char character)){
     callback.dawRecievedAssignmentDisplay = fptr;
   }
+  // passes the meter value for a channel
   void onDawRecievedChannelMeter(void (*fptr)(uint8_t channel, uint8_t value)){
     callback.dawRecievedChannelMeter = fptr;
   }
+  // passes the meter value for a channel, includes the overload led status
   void onDawChannelMeterUpdate(void (*fptr)(uint8_t channel, uint8_t value, uint8_t overload)){
     callback.dawChannelMeterUpdate = fptr;
   }
+  // more info to come
   void onDawReceivedTimeCodeDigit(void (*fptr)(uint8_t digit, uint8_t value)){
     callback.dawReceivedTimeCodeDigit = fptr;
   }
+  // passes the value of the VPOT ring for the specified channel
   void onDawChannelVPotUpdate(void (*fptr)(uint8_t channel, uint8_t value, uint8_t centered, uint8_t mode)){
     callback.dawChannelVPotUpdate = fptr;
   }
+  // passes the specified channel's fader position
   void onDawRecievedChannelFaderPosition(void (*fptr)(uint8_t channel, int value)){
     callback.dawRecievedChannelFaderPosition = fptr;
   }
+  // passes the master channel's fader position
   void onDawRecievedMasterFaderPosition(void (*fptr)(int value)){
     callback.dawRecievedMasterFaderPosition = fptr;
   }
-  void onDawRecievedChannelVPotPosition(void (*fptr)(uint8_t channel, uint8_t value)){
-    callback.dawRecievedChannelVPotPosition = fptr;
-  }
+  // receive the state of a channel, true if the channel is currently selected
   void onDawRecievedChannelSelect(void (*fptr)(uint8_t channel, bool state)){
     callback.dawRecievedChannelSelect = fptr;
   }
+  // receive the solo state of a channel, true if the channel is currently in solo
   void onDawRecievedChannelSolo(void (*fptr)(uint8_t channel, bool state)){
     callback.dawRecievedChannelSolo = fptr;
   }
+  // receive the mute state of a channel, true if the channel is currently in mute
   void onDawRecievedChannelMute(void (*fptr)(uint8_t channel, bool state)){
     callback.dawRecievedChannelMute = fptr;
   }
+  // receive the rec/ready state of a channel, true if the channel is currently in rec/ready
   void onDawRecievedChannelRecReady(void (*fptr)(uint8_t channel, bool state)){
     callback.dawRecievedChannelRecReady = fptr;
   }
+  // receive the state leds, @cmd will carry the function of the LED, see documentation
   void onDawRecievedLedState(void (*fptr)(uint8_t cmd, bool state)){
     callback.dawRecievedLedState = fptr;
   }
+  //returns the selected channel number
   uint8_t getDawSelectedTrack(){
     return daw.getSelectedChannel();
   }
+  //returns state of a specified LED in the led ring of a VPOT.
+  // you can use this for a custom led ring to update weather that led should
+  // be on or off
   uint8_t getDawVPotLedState(uint8_t channel, uint8_t ledN){
     return daw.getVPotLedState(channel, ledN);
   }
