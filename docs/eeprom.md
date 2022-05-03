@@ -44,4 +44,4 @@ void onStoreUpdate(void (*fptr)());
 
 
 ### 24LC256 Wiring
-![24LC256 Wiring](../images/24LC256-Wiring)
+![24LC256 Wiring](../images/24LC256-Wiring.jpg)
