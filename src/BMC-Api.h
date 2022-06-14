@@ -440,6 +440,12 @@ public:
   uint8_t getDawVPotLedState(uint8_t channel, uint8_t ledN){
     return daw.getVPotLedState(channel, ledN);
   }
+  void sendDawVPot(uint8_t ch, bool clockwise, uint8_t ticks){
+    daw.sendVPot(ch, clockwise, ticks);
+  }
+  void sendDawButton(uint8_t cmd, uint8_t ch, bool release){
+    daw.sendButtonCommand(cmd, ch, release);
+  }
 #endif
   // ******************************
   // *****  STOPWATCH  *****
