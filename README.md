@@ -30,6 +30,10 @@ BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1, support for Teensy LC 
 ## Support BMC Development
 To support BMC Development you can can buy products from the BMC Shop @ [BadassMIDI.com](http://www.badassmidi.com) or [Click here to Donate to BMC](https://www.paypal.com/donate/?hosted_button_id=9XHQP5P4TPWKY)
 
+### Meet MIDI CHIP
+MIDI CHIP is a tiny board meassuring at 0.7" x 0.85" with a MIDI Input and Output Circuit ready to drop into any BMC project. It includes all the circuitry needed for Serial MIDI Communication including an Optocoupler Isolated  Input and a Buffered Output and 5v or 3.3v Operation!
+[![Meet MIDI CHIP](images/midi-chip-all-in-one-midi-io-board.jpg)](https://www.roxxxtar.com/badassmidi-midi-chip)
+
 
 **Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
 
