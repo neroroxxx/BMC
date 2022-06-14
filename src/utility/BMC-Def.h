@@ -32,7 +32,22 @@
 
 */
 #if defined(__arm__) && defined(CORE_TEENSY)
-  #if defined(ARDUINO_TEENSY41)
+
+  #if defined(ARDUINO_TEENSY_MICROMOD)
+    // Teensy 4.1
+    // __IMXRT1062__
+    #define BMC_TEENSY_MODEL 42
+    #define BMC_TEENSY_MODEL_STR "MM"
+    #define BMC_TEENSY_RAM_SIZE 1024000
+    #define BMC_TEENSY_EEPROM_SIZE 4284
+    #define BMC_TEENSY_HAS_USB_HOST true
+    #define BMC_TEENSY_HAS_SD_CARD false
+    #define BMC_TEENSY_TOTAL_SERIAL_PORTS 8
+    #define BMC_TEENSY_TOTAL_DIGITAL_PINS 46
+    #define BMC_TEENSY_TOTAL_PWM_PINS 27
+    #define BMC_TEENSY_TOTAL_ANALOG_PINS 18
+
+  #el#if defined(ARDUINO_TEENSY41)
     // Teensy 4.1
     // __IMXRT1062__
     #define BMC_TEENSY_MODEL 41

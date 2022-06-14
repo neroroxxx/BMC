@@ -85,13 +85,21 @@ public:
 #if BMC_MAX_MUX_GPIO > 0
     // if MUX GPIO is available we'll check it first
     // muxGpio.readPin() will check to see if this pin is assigned to this mux
-    if(n < BMC_MAX_MUX_GPIO){
+    if(!BMCBuildData::isMuxInAnalogPinIndex(n) && n < BMC_MAX_MUX_GPIO){
       return muxGpio.readPin(n);
     }
 #endif
 
 #if BMC_MAX_MUX_IN > 0
-    return muxIn.getPinValue(n);
+    if(!BMCBuildData::isMuxInAnalogPinIndex(n) && n < BMC_MAX_MUX_IN){
+      return muxIn.getPinValue(n);
+    }
+#endif
+
+#if BMC_MAX_MUX_IN_ANALOG > 0
+    if(BMCBuildData::isMuxInAnalogPinIndex(n)){
+      return (muxInAnalog.getPinValue(n) > 500);
+    }
 #endif
 
   return 0;
@@ -113,9 +121,8 @@ public:
   uint16_t readAnalog(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
     return muxInAnalog.getPinValue(n);
-#else
-    return 0;
 #endif
+    return 0;
   }
 
   // testing for LEDs

@@ -1,6 +1,6 @@
 /*
 See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2020 RoxXxtar.com
+Copyright (c) 2022 RoxXxtar.com
 See BMC Documentation for License
 See LICENSE file in the project root for full license information.
 */
@@ -7159,6 +7159,57 @@ case 41:
 return true;
 }
 #endif
+#if BMC_TEENSY_MODEL == 42
+switch(index){
+case 0:
+case 1:
+case 2:
+case 3:
+case 4:
+case 5:
+case 6:
+case 7:
+case 8:
+case 9:
+case 10:
+case 11:
+case 12:
+case 13:
+case 14:
+case 15:
+case 16:
+case 17:
+case 18:
+case 19:
+case 20:
+case 21:
+case 22:
+case 23:
+case 24:
+case 25:
+case 26:
+case 27:
+case 28:
+case 29:
+case 30:
+case 31:
+case 32:
+case 33:
+case 34:
+case 35:
+case 36:
+case 37:
+case 38:
+case 39:
+case 40:
+case 41:
+case 42:
+case 43:
+case 44:
+case 45:
+return true;
+}
+#endif
 return false;
 }
 static bool isAnalogPin(uint8_t index){
@@ -7287,6 +7338,27 @@ case 26:
 case 27:
 case 38:
 case 39:
+case 40:
+case 41:
+return true;
+}
+#endif
+#if BMC_TEENSY_MODEL == 42
+switch(index){
+case 14:
+case 15:
+case 16:
+case 17:
+case 18:
+case 19:
+case 20:
+case 21:
+case 22:
+case 23:
+case 24:
+case 25:
+case 26:
+case 27:
 case 40:
 case 41:
 return true;
@@ -7437,6 +7509,42 @@ case 37:
 return true;
 }
 #endif
+#if BMC_TEENSY_MODEL == 42
+switch(index){
+case 0:
+case 1:
+case 2:
+case 3:
+case 4:
+case 5:
+case 6:
+case 7:
+case 8:
+case 9:
+case 10:
+case 11:
+case 12:
+case 13:
+case 14:
+case 15:
+case 18:
+case 19:
+case 22:
+case 23:
+case 24:
+case 25:
+case 28:
+case 29:
+case 33:
+case 34:
+case 35:
+case 36:
+case 37:
+case 38:
+case 39:
+return true;
+}
+#endif
 return false;
 }
 
@@ -7480,6 +7588,13 @@ static bool isMuxOutPin(uint8_t n){
 static bool isMuxInAnalogPin(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
   return (n>=(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT) && n<(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG));
+#endif
+  return false;
+}
+// MUX IN ANALOG
+static bool isMuxInAnalogPinIndex(uint8_t n){
+#if BMC_MAX_MUX_IN_ANALOG > 0
+  return (n>=(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT) && n<(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG));
 #endif
   return false;
 }

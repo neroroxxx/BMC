@@ -107,10 +107,10 @@ public:
     buttonFlags.reset();
     pin = t_pin;
 
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
-// if the pin number is 64 or higher it's a mux pin but also check that's it's not an analog mux pin
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+// if the pin number is 64 or higher it's a mux pin
     if(pin>=64){
-      if(!BMCBuildData::isMuxInPin(pin)){
+      if(!BMCBuildData::isMuxInPin(pin) && !BMCBuildData::isMuxInAnalogPin(pin)){
         BMC_ERROR(
           "Mux Pin:", pin,
           "Can NOT be used with buttons as it is NOT a valid Mux In Pin"
@@ -430,7 +430,7 @@ public:
   bool isClosed(){
     return flags.read(BMC_BTN_FLAG_STATE);
   }
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
   void setMuxValue(bool t_state){
     buttonFlags.write(BMC_BTN_FLAG_MUX_STATE, t_state);
   }
@@ -444,7 +444,7 @@ public:
 
   void changePin(uint8_t t_pin){
     if(pin!=255
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     && !isMux()
 #endif
     ){
@@ -473,7 +473,7 @@ private:
   // that was set for the pin.
   // during testing putting this function in FASTRUN gave me about 0.5% more LPS
   FASTRUN bool _digitalRead(){
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     if(assignedFlags.read(BMC_BTN_FLAG_MUX_IN)){
       return buttonFlags.read(BMC_BTN_FLAG_MUX_STATE);
     }

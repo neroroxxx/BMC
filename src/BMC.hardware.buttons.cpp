@@ -82,7 +82,7 @@ void BMC::readButtons(){
     #endif
 
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
@@ -211,7 +211,7 @@ void BMC::readGlobalButtons(){
   uint32_t _globalButtonStates = globalButtonStates;
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
     #endif
 

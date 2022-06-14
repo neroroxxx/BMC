@@ -47,7 +47,7 @@ public:
     // if either is pin is 255 it means the begin method has not been called
     pinA = 255;
     pinB = 255;
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     states.on(BMC_ENCODER_MUX_FLAG_A_VALUE);
     states.on(BMC_ENCODER_MUX_FLAG_B_VALUE);
     states.off(BMC_ENCODER_MUX_FLAG_A_IS_MUX);
@@ -72,9 +72,9 @@ public:
     pinB = t_pinB;
 
 
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     if(pinA>=64){
-      if(!BMCBuildData::isMuxInPin(pinA)){
+      if(!BMCBuildData::isMuxInPin(pinA) && !BMCBuildData::isMuxInAnalogPin(pinA)){
         BMC_ERROR(
           "Mux Pin:", pinA,
           "Can NOT be used with Encoders as it is NOT a valid Mux In"
@@ -87,7 +87,7 @@ public:
       setupPin(pinA);
     }
     if(pinB>=64){
-      if(!BMCBuildData::isMuxInPin(pinB)){
+      if(!BMCBuildData::isMuxInPin(pinB) && !BMCBuildData::isMuxInAnalogPin(pinB)){
         BMC_ERROR(
           "Mux Pin:", pinB,
           "Can NOT be used with Encoders as it is NOT a valid Mux In"
@@ -172,7 +172,7 @@ public:
     return ticks;
   }
 
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
   uint8_t getMuxPin(uint8_t _pin){
     if(_pin==0){
       return (pinA>=64) ? pinA-64 : 0;
@@ -199,7 +199,7 @@ private:
   uint8_t ticks = 0;
   uint8_t lastTurnDirection = 0;
   uint16_t lastTurn = 0;
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
   BMCFlags <uint8_t> states;
 #endif
 
@@ -234,7 +234,7 @@ void tick(){
   }
 }
   bool readA(){
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     if(pinA >= 64){
       return states.read(BMC_ENCODER_MUX_FLAG_A_VALUE);
     }
@@ -242,7 +242,7 @@ void tick(){
     return (digitalRead(pinA)==BMC_ENCODER_ACTIVE);
   }
   bool readB(){
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0
+#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     if(pinB >= 64){
       return states.read(BMC_ENCODER_MUX_FLAG_B_VALUE);
     }

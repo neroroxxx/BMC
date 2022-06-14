@@ -26,7 +26,10 @@ BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1, support for Teensy LC 
 
 ![BMC Editor App](images/bmc-editor-preview.jpg)
 
-### [Click here to Support BMC Development with a Donation](https://www.paypal.com/donate/?hosted_button_id=9XHQP5P4TPWKY)
+
+## Support BMC Development
+To support BMC Development you can can buy products from the BMC Shop @ [BadassMIDI.com](http://www.badassmidi.com) or [Click here to Donate to BMC](https://www.paypal.com/donate/?hosted_button_id=9XHQP5P4TPWKY)
+
 
 **Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
 
