@@ -12,9 +12,11 @@
 # On Windows: go to "Program Files (x86)/Arduino/hardware/teensy/avr/"
 # After doing this you can restart Teensyduino and you will then see the "Require BMC Config" option under tools
 
-
 # ----- BMC Config File -----
 menu.bmcsketchconfig=Require BMC Config
+teensyMM.menu.bmcsketchconfig.no=No
+teensyMM.menu.bmcsketchconfig.yes=Yes
+teensyMM.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
 teensy41.menu.bmcsketchconfig.no=No
 teensy41.menu.bmcsketchconfig.yes=Yes
 teensy41.menu.bmcsketchconfig.yes.build.flags.cpp=-std=gnu++14 -fno-exceptions -fpermissive -fno-rtti -fno-threadsafe-statics -felide-constructors -Wno-error=narrowing -include "{build.source.path}/config.h"
@@ -30,7 +32,4 @@ teensy35.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -
 teensy31.menu.bmcsketchconfig.no=No
 teensy31.menu.bmcsketchconfig.yes=Yes
 teensy31.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
-teensyLC.menu.bmcsketchconfig.no=No
-teensyLC.menu.bmcsketchconfig.yes=Yes
-teensyLC.menu.bmcsketchconfig.yes.build.flags.cpp=-fno-exceptions -fpermissive -felide-constructors -std=gnu++14 -Wno-error=narrowing -fno-rtti -include "{build.source.path}/config.h"
 # ----- BMC Config File -----
