@@ -140,74 +140,47 @@ void onButtonsUserEvent(void (*fptr)(uint8_t n, uint32_t event, uint8_t ports, u
 // @t_index the index of the button you want to retrieve
 // @t_item a reference to the bmcStoreButton to put data in
 void getButton(uint8_t t_index, bmcStoreButton& t_item);
-```
 
-
-```c++
 // get button data of a specific page
 void getButton(uint8_t t_page, uint8_t t_index, bmcStoreButton& t_item);
-```
 
-
-```c++
 // get button name in the current page
 // @n the index of the button
 // @t_string a pointer to a string to put the button name in
-// the length of the pointer must be BMC_NAME_LEN_BUTTONS
+// see "advanced names and strings" documentation for length of char string
 void getButtonName(uint8_t n, char* t_string);
-```
 
-
-```c++
-// get button name of a specific page
+// get button name of a specific button
+// see "advanced names and strings" documentation for length of char string
 void getButtonName(uint8_t t_page, uint8_t n, char* t_string);
-```
 
-
-```c++
 // Trigger a button being pressed, this button will remain pressed until you call triggerButtonRelease
 // @n the index of the button being triggered
 void triggerButtonPress(uint8_t n);
-```
 
-
-```c++
 // Trigger a button being depressed, this function will only work on the button if triggerButtonPress was called before
 // @n the index of the button being triggered
 void triggerButtonRelease(uint8_t n);
-```
 
-
-```c++
 // Get a global button's data
 // @t_index the index of the button you want to retrieve
 // @t_item a reference to the bmcStoreButton to put data in
 void getGlobalButton(uint8_t t_index, bmcStoreButton& t_item);
-```
 
-```c++
 // get global button name
 // @n the index of the button
 // @t_string a pointer to a string to put the button name in
-// the length of the pointer must be BMC_NAME_LEN_BUTTONS
-void getButtonName(uint8_t n, char* t_string);
-```
+// see "advanced names and strings" documentation for length of char string
+void getGlobalButtonName(uint8_t n, char* t_string);
 
-```c++
 // Trigger a global button being pressed, this button will remain pressed until you call triggerButtonRelease
 // @n the index of the button being triggered
 void triggerGlobalButtonPress(uint8_t n);
-```
 
-
-```c++
 // Trigger a global button being depressed, this function will only work on the button if triggerButtonPress was called before
 // @n the index of the button being triggered
 void triggerGlobalButtonRelease(uint8_t n);
-```
 
-
-```c++
 // Change the Buttons Hold Time Setting for Buttons
 // if @save is true it will call the settingsSave() writing the store to EEPROM
 // @value must be a value from 0 to 15, where 0 is 500ms, 1 is 750ms, 2 is 1000ms, etc.
@@ -216,10 +189,7 @@ void triggerGlobalButtonRelease(uint8_t n);
 // this is so that with a value of 0 the hold threshold is 500ms, that's the minimum
 // since during testing i've found that a value any lower than that is unusable.
 void settingsSetButtonHold(uint8_t value, bool save=false);
-```
 
-
-```c++
 // Get the Buttons Hold Threshold Setting for Buttons
 // this value will range from 0 to 15
 // to get the actual time in milliseconds set inMillis to true

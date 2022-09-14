@@ -21,9 +21,11 @@ void getEncoder(uint8_t t_index, bmcStoreEncoder& t_item);
 void getEncoder(uint8_t t_page, uint8_t t_index, bmcStoreEncoder& t_item);
 
 // get encoder name on current page passing a pointer string
+// see "advanced names and strings" documentation for length of char string
 void getEncoderName(uint8_t t_index, char* t_string);
 
 // get encoder name on specified page passing a pointer string
+// see "advanced names and strings" documentation for length of char string
 void getEncoderName(uint8_t t_page, uint8_t t_index, char* t_string);
 ```
 

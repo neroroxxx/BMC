@@ -41,6 +41,7 @@ For now here are some topics I want to cover tho they are not complete:
 - [User Defined Events](user-events.md)
 
 ## In-Depth
+- [Constants](constants.md)
 - [Callbacks](advanced-callbacks.md)
 - [Max Length Constants](advanced-max-length-constants.md)
 - [Names & Strings](advanced-names-and-strings.md)

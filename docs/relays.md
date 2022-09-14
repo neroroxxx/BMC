@@ -26,6 +26,32 @@ Relays have 1 event each and have the ability to be reverse polarity.
 ### API
 There are many API callbacks and functions available for use, these may not reflect the latest version
 
+```c++
+// *******************
+// NON-LATCHING RELAYS
+// *******************
+
+// get NL RELAY Data
+void getRelayNL(uint8_t n, bmcStoreGlobalRelay& t_item);
+
+// get NL RELAY Name Data
+// see "advanced names and strings" documentation for length of char string
+void getRelayNLName(uint8_t n, char* t_string);
+
+// ***************
+// LATCHING RELAYS
+// ***************
+
+// get L RELAY Data
+void getRelayL(uint8_t t_index, bmcStoreGlobalRelay& t_item);
+
+// get L RELAY Name Data
+// see "advanced names and strings" documentation for length of char string
+void getRelayLName(uint8_t t_index, char* t_string);
+
+```
+
+
 ##### FUNCTIONS
 
 ##### CALLBACKS

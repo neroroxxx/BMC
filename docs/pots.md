@@ -21,9 +21,11 @@ void getPot(uint8_t n, bmcStorePot& t_item);
 void getPot(uint8_t t_page, uint8_t n, bmcStorePot& t_item);
 
 // get pot name on current page passing a pointer string
+// see "advanced names and strings" documentation for length of char string
 void getPotName(uint8_t n, char* t_string);
 
 // get pot name on specified page passing a pointer string
+// see "advanced names and strings" documentation for length of char string
 void getPotName(uint8_t t_page, uint8_t n, char* t_string);
 
 // start/stop pot calibration, pot calibration data is global

@@ -842,6 +842,9 @@
     #define BMC_ENCODER_BUTTON_DEBOUNCE_TIME 50
   #endif
 
+
+
+
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch
   // the test of alls LED and PIXELS should not exceed more than 4 seconds.

@@ -32,6 +32,9 @@
 #define BMC_PIXELS_FLAG_SHOW 0
 #define BMC_PIXELS_FLAG_USE_DIM 1
 #define BMC_PIXELS_FLAG_RAINBOW_CHANGED 2
+#define BMC_PIXELS_FLAG_RAINBOW_FADE_CHANGED 3
+// --------------------------------------
+#define BMC_PIXELS_RAINBOW_AMOUNT 25
 
 // Default Data Trasmition order is RGB, most WS2812 however are GRB
 // I made this the default since the first NeoPixels I tried were the 5mm diffused
@@ -120,6 +123,7 @@ public:
   void clockBeat(uint16_t speed){
 #if BMC_MAX_PIXELS > 0
     updateRainbowColor(60000/speed);
+    updateRainbowFadeColor(15000/speed);
 #else
     speed = 0;
 #endif
@@ -179,7 +183,7 @@ public:
       color = getDefaultColor(n);
 
 #if BMC_MAX_PIXELS > 0
-    } else if(color==BMC_COLOR_RAINBOW){
+    } else if(color==BMC_COLOR_RAINBOW || color==BMC_COLOR_RAINBOW_FADE){
       // only Pixels (not RGB) use rainbow
       color = rainbowCurrentColor;
 #endif
@@ -227,6 +231,7 @@ public:
     if(flags.toggleIfTrue(BMC_PIXELS_FLAG_SHOW)){
       pixels.show();
       flags.off(BMC_PIXELS_FLAG_RAINBOW_CHANGED);
+      flags.off(BMC_PIXELS_FLAG_RAINBOW_FADE_CHANGED);
     }
   }
 
@@ -260,7 +265,10 @@ public:
   }
   // this would be very complicated to do for RGB pixels so it's not used
   void setBrightness(uint8_t t_index, uint8_t t_brightness=127, uint8_t t_color=255){
-    if(t_color==BMC_COLOR_RAINBOW || t_index >= BMC_MAX_PIXELS){
+    if(t_color==BMC_COLOR_RAINBOW ||
+      t_color==BMC_COLOR_RAINBOW_FADE ||
+      t_index >= BMC_MAX_PIXELS
+    ){
       return;
     }
     // we start by writting the new color to that pixel
@@ -448,15 +456,21 @@ private:
 
 #if BMC_MAX_PIXELS > 0
   // RAINBOW
+  uint8_t rainbowRGB[3] = {250, 0, 0};
+  uint8_t rainbowTarget = 1;
+  bool rainbowUp = true;
   // in Rainbow mode the led uses a different color anytime you set the color
   // the rainbowCurrentColor variable is changed only when pixels.show() is called
   uint8_t rainbowCurrentColor = BMC_COLOR_RED;
+  uint8_t rainbowFadeCurrentColor = BMC_COLOR_RED;
   // time the rainbow to be triggered after 10ms
   elapsedMillis rainbowTimeout;
+  elapsedMillis rainbowFadeTimeout;
 
   void updateRainbowColor(uint16_t speed=500){
     if(rainbowTimeout >= speed){
       if(!flags.read(BMC_PIXELS_FLAG_RAINBOW_CHANGED)){
+
         rainbowCurrentColor++;
         // BMC_COLOR_RAINBOW is the highest index number
         // once we reach it we go back to the start of the colors
@@ -470,6 +484,34 @@ private:
         rainbowTimeout = 0;
       }
       flags.on(BMC_PIXELS_FLAG_RAINBOW_CHANGED);
+    }
+  }
+  void updateRainbowFadeColor(uint16_t speed=500){
+    if(rainbowFadeTimeout >= speed){
+      if(!flags.read(BMC_PIXELS_FLAG_RAINBOW_FADE_CHANGED)){
+        bool cycleComplete = false;
+        rainbowFadeCurrentColor++;
+        if(rainbowFadeCurrentColor >= 15){
+          rainbowFadeCurrentColor = 1;
+        }
+        if(rainbowUp){
+          cycleComplete = (rainbowRGB[rainbowTarget] == 250);
+          if(!cycleComplete){
+            rainbowRGB[rainbowTarget] += BMC_PIXELS_RAINBOW_AMOUNT;
+          }
+        } else {
+          cycleComplete = (rainbowRGB[rainbowTarget] < 10);
+          if(!cycleComplete){
+            rainbowRGB[rainbowTarget] -= BMC_PIXELS_RAINBOW_AMOUNT;
+          }
+        }
+        if(cycleComplete){
+          rainbowUp = !rainbowUp;
+          rainbowTarget = rainbowTarget==0 ? 2 : (rainbowTarget-1);
+        }
+        rainbowFadeTimeout = 0;
+      }
+      flags.on(BMC_PIXELS_FLAG_RAINBOW_FADE_CHANGED);
     }
   }
 #endif
@@ -521,6 +563,7 @@ private:
     }
     // hold the current color assigned to the pixel
     uint8_t cColor = getState(t_index);
+    uint8_t _t_color = t_color;
 
     if(t_color==255){
       // if target color is 255 we use the last assigned color
@@ -535,6 +578,11 @@ private:
        // if the target color BMC_COLOR_RAINBOW then we will go thru all colors
        t_color = rainbowCurrentColor;
        setDimColor(t_index, t_color);
+#endif
+    } else if(t_color==BMC_COLOR_RAINBOW_FADE){
+#if BMC_MAX_PIXELS > 0
+      t_color = rainbowFadeCurrentColor;
+      setDimColor(t_index, rainbowCurrentColor);
 #endif
     }
 
@@ -569,12 +617,18 @@ private:
         show();
       }
     } else {
+
       // we are setting a color aka turning the pixel ON
       // we are going to check if the pixel if OFF or if the color is different
       // than the current color, in either case we want to update the pixel
       if(!bitRead(cColor,7) || (cColor&0x7F)!=t_color){
         // convert the 4 bit color to the full rgb value
-        setPixelValue(t_index, BMCPixelColors::getRgbColor(t_color));
+        if(_t_color==BMC_COLOR_RAINBOW_FADE){
+          setPixelValue(t_index, (rainbowRGB[0] | (rainbowRGB[1]<<8) | (rainbowRGB[2]<<16)));
+          //setPixelValue(t_index, BMCPixelColors::getRgbColor(t_color));
+        } else {
+          setPixelValue(t_index, BMCPixelColors::getRgbColor(t_color));
+        }
         // set bit 7 to 0
         // thats the bit that tells you if the led is on(1) or off(0)
 

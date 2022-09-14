@@ -135,8 +135,10 @@ void getLed(uint8_t t_index, bmcStoreLed& t_item);
 
 void getLed(uint8_t t_page, uint8_t t_index, bmcStoreLed& t_item);
 
+// see "advanced names and strings" documentation for length of char string
 void getLedName(uint8_t t_index, char* t_string);
 
+// see "advanced names and strings" documentation for length of char string
 void getLedName(uint8_t t_page, uint8_t t_index, char* t_string);
 
 // used to control leds only by the sketch, no matter what page
@@ -150,6 +152,7 @@ uint32_t getLedStates();
 // get GLOBAL_LED Data
 void getGlobalLed(uint8_t n, bmcStoreLed& t_item);
 
+// see "advanced names and strings" documentation for length of char string
 void getGlobalLedName(uint8_t n, char* t_string);
 
 // used to control leds only by the sketch, no matter what page
@@ -166,8 +169,10 @@ void getPwmLed(uint8_t n, bmcStoreLed& t_item);
 
 void getPwmLed(uint8_t t_page, uint8_t n, bmcStoreLed& t_item);
 
+// see "advanced names and strings" documentation for length of char string
 void getPwmLedName(uint8_t n, char* t_string);
 
+// see "advanced names and strings" documentation for length of char string
 void getPwmLedName(uint8_t t_page, uint8_t n, char* t_string);
 
 // used to control pwm leds only by the sketch, no matter what page
@@ -184,8 +189,10 @@ void getPixel(uint8_t n, bmcStoreLed& t_item);
 
 void getPixel(uint8_t t_page, uint8_t n, bmcStoreLed& t_item);
 
+// see "advanced names and strings" documentation for length of char string
 void getPixelName(uint8_t n, char* t_string);
 
+// see "advanced names and strings" documentation for length of char string
 void getPixelName(uint8_t t_page, uint8_t n, char* t_string);
 
 // used to control pixels only by the sketch, no matter what page
@@ -214,8 +221,10 @@ void getRgbPixel(uint8_t n, bmcStoreRgbLed& t_item);
 
 void getRgbPixel(uint8_t t_page, uint8_t n, bmcStoreRgbLed& t_item);
 
+// see "advanced names and strings" documentation for length of char string
 void getRgbPixelName(uint8_t n, char* t_string);
 
+// see "advanced names and strings" documentation for length of char string
 void getRgbPixelName(uint8_t t_page, uint8_t n, char* t_string);
 
 // used to control rgb pixels only by the sketch, no matter what page

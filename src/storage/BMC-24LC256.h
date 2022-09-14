@@ -22,11 +22,7 @@
  * to not exceed the maximum address for the EEPROM.                           *
  *                                                                             *
  * Library tested with:                                                        *
- *   Microchip 24AA02E48 (2k bit)                                              *
- *   24xx32 (32k bit, thanks to Richard M)                                     *
  *   Microchip 24LC256 (256k bit)                                              *
- *   Microchip 24FC1026 (1M bit, thanks to Gabriele B on the Arduino forum)    *
- *   ST Micro M24M02 (2M bit)                                                  *
  *                                                                             *
  * Library will NOT work with Microchip 24xx1025 as its control byte does not  *
  * conform to the following assumptions.                                       *

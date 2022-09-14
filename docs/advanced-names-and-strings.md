@@ -45,10 +45,12 @@ This list represents the current list of names available at the time of this wri
 * `BMC_NAME_LEN_ENCODERS` applies to encoders and global encoders
 * `BMC_NAME_LEN_RELAYS` applies to Latching and Non-Latching Relays
 * `BMC_NAME_LEN_PAGES` applies to Pages
-* `BMC_NAME_LEN_STRING_LIBRARY` applies to String Library names
 * `BMC_NAME_LEN_LIBRARY` applies to midi library
 * `BMC_NAME_LEN_PRESETS` applies to BMC presets
 * `BMC_NAME_LEN_SETLISTS` applies to set lists
+* `BMC_NAME_LEN_STRING_LIBRARY` applies to String Library names
+* `BMC_NAME_LEN_TIMED_EVENTS` applies to Timed Event names
+
 
 ### Name retrieving methods
 

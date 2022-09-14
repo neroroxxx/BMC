@@ -145,12 +145,12 @@ private:
   // RELAY has changed states
   // t_value = true (RELAY on position), false (RELAY off position)
   void write(bool t_value){
-    #if !defined(BMC_FAST_MODE)
+#if !defined(BMC_FAST_MODE)
     // ignore if RELAY was not enabled
     if(pin==255){
       return;
     }
-    #endif
+#endif
     // if new value is different than the current state we set it
     if(t_value == getState()){
       return;

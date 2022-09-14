@@ -1276,14 +1276,15 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_COLOR_ORANGE 11
 #define BMC_COLOR_TEAL 12
 #define BMC_COLOR_CORAL 13
-#define BMC_COLOR_LIGHT_BLUE 14
-#define BMC_COLOR_RAINBOW 15
+#define BMC_COLOR_RAINBOW 14
+#define BMC_COLOR_RAINBOW_FADE 15
 
 
 // PIXEL COLORS
 // kept here for old configs
 #define BMC_PIXEL_BLACK BMC_COLOR_BLACK
 #define BMC_PIXEL_RAINBOW BMC_COLOR_RAINBOW
+#define BMC_PIXEL_RAINBOW_FADE BMC_COLOR_RAINBOW_FADE
 #define BMC_PIXEL_RED BMC_COLOR_RED
 #define BMC_PIXEL_GREEN BMC_COLOR_GREEN
 #define BMC_PIXEL_BLUE BMC_COLOR_BLUE
@@ -1293,7 +1294,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_PIXEL_CYAN BMC_COLOR_CYAN
 #define BMC_PIXEL_PINK BMC_COLOR_PINK
 #define BMC_PIXEL_PURPLE BMC_COLOR_PURPLE
-#define BMC_PIXEL_LIGHT_BLUE BMC_COLOR_LIGHT_BLUE
 #define BMC_PIXEL_ORANGE BMC_COLOR_ORANGE
 #define BMC_PIXEL_CORAL BMC_COLOR_CORAL
 #define BMC_PIXEL_TEAL BMC_COLOR_TEAL
@@ -2345,5 +2345,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #include "utility/BMC-Callbacks.h"
 #include "utility/BMC-Globals.h"
 #include "utility/SSD1306.h"
+#include "utility/SSD1306_OLED.h"
 
 #endif
