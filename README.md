@@ -10,7 +10,7 @@
 
 ***Version 1.2.0 Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
 
-**PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC IS NOT A TYPICAL LIBRARY AND REQUIRES AN EASY MOD TO THE TEENSYDUINO IDE boards.txt FILE.**
+**PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC REQUIRES TEENSYDUINO AND THE BMC FOR TEENSY BOARDS TO BE INSTALLED.**
 
 **YOU CAN DOWNLOAD THE BMC LIBRARY FROM THE ARDUINO LIBRARY MANAGER AND KEEP IT UP TO DATE THERE!**
 
@@ -51,7 +51,7 @@ My advice to you is to start with a breadboard and your teensy since you likely 
 * [3rd Party Dependencies](#3rd-party-dependencies)
 * [Compatible Boards](#compatible-boards)
 * [Hardware Limits](#hardware-limits)
-* [Installation](#installation)
+* [Installation Instructions](#installation)
 * [Coding](#coding)
 * [Library File Structure](#library-file-structure)
 * [About BMC](#about-bmc)
@@ -79,6 +79,7 @@ I haven't had a chance to test BMC on all Teensy boards out there only the Teens
 |Teensy 3.6        |Yes         |Yes         |
 |Teensy 4.0        |Yes         |Yes         |
 |Teensy 4.1        |Yes         |Yes         |
+|Teensy MicroMod   |Yes         |Yes         |
 
 
 BMC includes support for:
@@ -125,62 +126,7 @@ You can use any combination of Hardware as long as your Teensy supports it!
 
 ## Installation
 
-### [View installation instruction on YouTube](https://www.youtube.com/watch?v=FuYEk7bobh8)
-
-#### Step 1
-First you will need to install the Teensyduino addon for Arduino with all it's libraries, you can downloaded and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
-
-#### Step 2
-Once Arudino/Teensyduino are installed you have to make one modification to Teensyduino.
-
-As mentioned before, BMC requires a config file which has all the instructions for how to compile the library, the idea of this mod is to allow you to keep that config file inside the sketch's folder, unfortunately the Arduino IDE doesn't have the option to load this file globally, so we have to do this manually by copying a file into the directory of the boards.txt file.
-
-All we are doing is adding a new option in the **Tools** Menu in Arduino, this mod just tells the compiler to include the ***config.h*** file in your sketch's folder globally.
-
-You config file only contains pre-processors all with `BMC_` prepended, these pre-processors will not affect other libraries unless they also start with `BMC_`.
-
-First Locate the boards.txt file:
-* On Mac open your Applications folder, find the Arduino app and do a right click, click on **Show Package Contents** then go to *"Contents/Java/hardware/teensy/avr/boards.txt"*
-* On Windows it should be available at *"Program Files (x86)/Arduino/hardware/teensy/avr/boards.txt"*
-
-
-Once you locate it, copy the file **boards.local.txt** into the same location as **boards.txt**
-
-That's it! You will now see a new option under **Tools** named **Require BMC Config** if you select **Yes** a *config.h* file will be required inside the sketch folder for any sketch to compile, if you want to compile a sketch that doen't include the BMC library then you want to set that option to **No**. Also any BMC build requires a **MIDI Usb Type**
-
-**NOTE: IF YOU UPDATE TEENSYDUINO AND THE OPTION TO REQUIRE THE CONFIG FILE IS NO LONGER THERE, JUST DO THE MOD AGAIN.**
-
-![Tools Menu with BMC Installed](images/tools-menu.jpg)
-
-#### Step 3
-Download and Install the BMC Library, if you are planning on using the nRF8001 for BLE MIDI then you will also need to download the BLEPeripheral library, however you must use this forked version as it's modified to work with BMC and newer Teensy boards [https://github.com/neroroxxx/arduino-BLEPeripheral](https://github.com/neroroxxx/arduino-BLEPeripheral)
-
-#### Step 4
-Create a new sketch in your projects folder and start creating your config file with the Editor App *(make sure you set it to DEBUG so you can see helpful info on the Serial Monitor and to make sure you've set things up properly)*, once you have your config file save it to that new sketch's folder and make sure it's named **config.h**
-
-You can also open one of the BMC Examples and try them, in which case you don't have to write any code. *Just keep in mind that if you use an example with Pots then you must have a Pot wired otherwise the pin will be left floating and constantly send random readings*
-
-#### Step 5
-Under **Tools** select your Teensy board and **this is very important** select the **USB Type** to be a **MIDI** type, basically the **USB Type** should have the word **MIDI** on it, this is required by BMC since USB MIDI must always be available.
-
-If you created a new sketch you can replace all the default code with:
-
-```c++
-#include <BMC.h>
-
-BMC_DEFAULT();
-
-void setup(){
-  bmc.begin();
-}
-void loop(){
-  bmc.update();
-}
-```
-#### Step 6
-Open the Serial Monitor on Arduino and Upload your sketch, you will start seeing messages on the Serial Monitor as soon as the Sketch starts running.
-
-Once you are happy with your build and you are ready to take it to a stage you can disable DEBUG either by opening your config file with the Editor App or just by removing **#define BMC_DEBUG** from your config file.
+Moved to [docs/installation-instructions.md](docs/installation-instructions.md)
 
 ### Documentation
 As you can imagine this is a very large and ambitious project and requires a lot of documentation, the editor app has a ton of info about the events for buttons, leds, etc built-in and the library also has lots of comments in the code.
