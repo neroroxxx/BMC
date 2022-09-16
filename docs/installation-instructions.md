@@ -10,7 +10,7 @@ BMC consist of if a Library and a Custom Boards package.
 
 BMC will require you to have Teensyduino Installed on your Arduino IDE.
 
-You can watch BMC videos at [https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA/videos](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA/videos)
+Watch it on YouTube [https://youtu.be/bRwUn8diFnY](https://youtu.be/bRwUn8diFnY)
 
 ***If you are brand new to Arduino or Teensy, make sure you get your feet wet first before you try BMC.***
 
