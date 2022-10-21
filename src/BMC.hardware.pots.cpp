@@ -297,11 +297,11 @@ void BMC::handlePot(bmcStorePot& data, uint8_t value){
 #ifdef BMC_USE_BEATBUDDY
     case BMC_POT_EVENT_TYPE_BEATBUDDY_CMD:
       if(byteA == BMC_BEATBUDDY_CMD_MIX_VOL){
-        beatBuddy.mixVol(map(value, 0, 127, 0, 100));
+        sync.beatBuddy.mixVol(map(value, 0, 127, 0, 100));
       } else if(byteA == BMC_BEATBUDDY_CMD_HP_VOL){
-        beatBuddy.hpVol(map(value, 0, 127, 0, 100));
+        sync.beatBuddy.hpVol(map(value, 0, 127, 0, 100));
       } else if(byteA == BMC_BEATBUDDY_CMD_BPM_INC || BMC_BEATBUDDY_CMD_BPM_DEC){
-        beatBuddy.tempoExpression(value);
+        sync.beatBuddy.tempoExpression(value);
       }
       break;
 #endif

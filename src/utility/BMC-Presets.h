@@ -18,7 +18,8 @@ public:
   BMCPresets(BMCMidi& t_midi, bmcStoreGlobal& t_global, BMCLibrary& t_library):
             midi(t_midi),
             global(t_global),
-            library(t_library)
+            library(t_library),
+            preset(t_midi.globals.preset)
   {
   }
   void set(bmcPreset_t index=0, bool overridePorts=false, uint8_t ports=0){
@@ -145,29 +146,78 @@ public:
     }
     return 0;
   }
+  uint8_t getLength(){
+    return global.presets[preset].length;
+  }
   bmcLibrary_t getPresetItem(bmcPreset_t n, uint8_t e){
     if(n<BMC_MAX_PRESETS && e<BMC_MAX_PRESET_ITEMS){
       return global.presets[n].events[e];
     }
     return 0;
   }
+  bmcLibrary_t getPresetItem(uint8_t e){
+    if(e<BMC_MAX_PRESET_ITEMS){
+      return global.presets[preset].events[e];
+    }
+    return 0;
+  }
   void getName(bmcPreset_t n, char* t_string){
 #if BMC_NAME_LEN_PRESETS > 1
-    if(n<BMC_MAX_PRESETS){
+    if(n<BMC_MAX_PRESETS && strlen(global.presets[n].name)>0){
       strcpy(t_string, global.presets[n].name);
+    } else {
+      strcpy(t_string, "-");
     }
+#else
+    strcpy(t_string, "-");
+#endif
+  }
+  void getName(char* t_string){
+#if BMC_NAME_LEN_PRESETS > 1
+    if(strlen(global.presets[preset].name)>0){
+      strcpy(t_string, global.presets[preset].name);
+    } else {
+      strcpy(t_string, "-");
+    }
+#else
+    strcpy(t_string, "-");
+#endif
+  }
+  void getPresetItemName(uint8_t n, char* t_string){
+#if BMC_NAME_LEN_LIBRARY > 1
+    bmcLibrary_t e = getPresetItem(n);
+    if(getLength() > 0 && n < getLength() && strlen(global.library[e].name) > 0){
+      strcpy(t_string, global.library[e].name);
+    } else {
+      strcpy(t_string, "-");
+    }
+#else
+    strcpy(t_string, "-");
+#endif
+  }
+  void getNameInBank(bmcPreset_t n, char* t_string){
+#if BMC_NAME_LEN_PRESETS > 1
+    bmcPreset_t x = (bank * BMC_MAX_PRESETS_PER_BANK) + n;
+    if(n < BMC_MAX_PRESETS_PER_BANK && x < BMC_MAX_PRESETS && strlen(global.presets[x].name)>0){
+      //BMC_PRINTLN("PRESET IN BANK NAME",n,x,global.presets[x].name);
+      strcpy(t_string, global.presets[x].name);
+    } else {
+      strcpy(t_string, "-");
+    }
+#else
+    strcpy(t_string, "-");
 #endif
   }
   uint8_t getTotalBanks(){
     return totalBanks;
   }
 private:
-  uint8_t bank = 0;
-  bmcPreset_t preset = 0;
-  BMCMidi& midi;
-  bmcStoreGlobal& global;
-  BMCLibrary& library;
+  BMCMidi & midi;
+  bmcStoreGlobal & global;
+  BMCLibrary & library;
   BMCFlags <uint8_t> flags;
+  bmcPreset_t & preset;
+  uint8_t bank = 0;
   const uint8_t totalBanks = (uint8_t) ceil((BMC_MAX_PRESETS * 1.0) / BMC_MAX_PRESETS_PER_BANK);
 };
 

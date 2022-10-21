@@ -28,7 +28,7 @@
 
 class BMCMidiClock {
 public:
-  BMCMidiClock(BMCMidi& t_midi):midi(t_midi){
+  BMCMidiClock(BMCMidi& t_midi):midi(t_midi),bpm(t_midi.globals.bpm){
     flags.reset();
     masterTimer = 0;
     bpmCalc.begin();
@@ -242,7 +242,7 @@ public:
 private:
   BMCMidi& midi;
   uint8_t ticks = 0;
-  uint16_t bpm = 120;
+  uint16_t & bpm;
   uint16_t tmpBpm = 0;
   unsigned long interval = 0;
   #ifdef BMC_USE_CLICK_TRACK

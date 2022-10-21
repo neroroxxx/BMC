@@ -15,34 +15,45 @@ BMC::BMC():
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
+  #ifdef BMC_USE_SYNC
+    ,sync(midi, midiClock, store.global, callback)
+  #endif
+  /*
   #ifdef BMC_USE_DAW_LC
     ,daw(midi, store.global, callback)
   #endif
   #ifdef BMC_USE_BEATBUDDY
-    ,beatBuddy(midi,midiClock)
+    ,beatBuddy(midi, midiClock)
   #endif
   #ifdef BMC_USE_HELIX
     ,helix(midi)
   #endif
   #ifdef BMC_USE_FAS
-    ,fas(midi, globals)
+    ,fas(midi)
   #endif
   #ifdef BMC_USE_KEMPER
     ,kemper(midi)
   #endif
+  */
   #if BMC_MAX_CUSTOM_SYSEX > 0
     ,customSysEx(midi, store.global)
   #endif
   #if BMC_MAX_LIBRARY > 0
+    ,library(
+      midi,
+      store.global,
+      callback
     #if BMC_MAX_CUSTOM_SYSEX > 0
-      ,library(midi, store.global, callback, customSysEx)
-    #else
-      ,library(midi, store.global, callback)
+      ,customSysEx
     #endif
+    #if defined(BMC_USE_BEATBUDDY)
+      ,beatBuddy
+    #endif
+    )
     #if BMC_MAX_PRESETS > 0
       ,presets(midi, store.global, library)
       #if BMC_MAX_SETLISTS > 0
-        ,setLists(store.global, presets)
+        ,setLists(globals, store.global, presets)
       #endif
     #endif
   #endif
@@ -58,6 +69,24 @@ BMC::BMC():
   #if BMC_MAX_TIMED_EVENTS > 0
     ,timedEvents(store.global)
   #endif
+
+  #ifdef BMC_HAS_DISPLAY
+    ,display(midi, store, callback
+    #ifdef BMC_USE_SYNC
+      ,sync
+    #endif
+    #if BMC_MAX_PRESETS > 0
+      ,presets
+    #endif
+    #if BMC_MAX_SETLISTS > 0
+      ,setLists
+    #endif
+    )
+  #endif
+
+
+    ,page(globals.page)
+
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
@@ -76,10 +105,15 @@ BMC::BMC():
 }
 
 void BMC::begin(){
+
   // keep this order
   #ifdef BMC_DEBUG
     setupDebug();
     BMC_PRINTLN("BMC::begin");
+  #endif
+
+  #if defined(BMC_HAS_DISPLAY)
+    display.begin();
   #endif
 
   // setup all MIDI Ports being used
@@ -96,6 +130,7 @@ void BMC::begin(){
 
   // here we handle pin assignments during the initial setup
   setupHardware();
+
 
   #ifdef BMC_USE_CLICK_TRACK
     // the click track object is tied to the MIDI Clock since they work hand in hand.
@@ -122,9 +157,8 @@ void BMC::begin(){
   delay(100);
 
   #ifdef BMC_USE_FAS
-    fas.begin();
+    sync.fas.begin();
   #endif
-
   // this flag will allow BMC to execute some code only the first time update() runs
   // yes that code can run here instead HOWEVER by letting that code execute
   // after the first loop we are allowing other classes with a begin() method
@@ -143,6 +177,10 @@ void BMC::update(){
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
     BMC_PRINTLN("FIRST loop()");
     BMC_PRINTLN("");
+
+    #if defined(BMC_HAS_DISPLAY)
+      display.clearAll();
+    #endif
     // set the current page to page 1 (0)
     // also the second parameter specifies that we want to reassign settings
     // in this case since it's the initial setup we are assigning the curent
@@ -158,6 +196,11 @@ void BMC::update(){
         delay(1);
         presets.send(globalData.startup);
       }
+      #if BMC_MAX_SETLISTS > 0
+        // set the first setlist and trigger it's first song and part
+        setLists.set(0, true);
+        setLists.setPart(0);
+      #endif
     #endif
 
     // start sending active sense if stored in settings
@@ -167,7 +210,7 @@ void BMC::update(){
     }
 
     #ifdef BMC_USE_DAW_LC
-        daw.sendHostConnectionQuery();
+      sync.daw.sendHostConnectionQuery();
     #endif
 
     if(callback.firstLoop){
@@ -202,22 +245,22 @@ void BMC::update(){
     callback.midUpdate();
   }
 #ifdef BMC_USE_DAW_LC
-    daw.update();
+    sync.daw.update();
 #endif
 
 #ifdef BMC_USE_HELIX
-    helix.update();
+    sync.helix.update();
 #endif
 
 #ifdef BMC_USE_FAS
-    fas.update();
-    if(fas.connectionStateChanged()){
-      editor.utilitySendFasState(fas.getConnectedDeviceId());
+    sync.fas.update();
+    if(sync.fas.onnectionStateChanged()){
+      editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
     }
 #endif
 
 #ifdef BMC_USE_KEMPER
-    kemper.update();
+    sync.kemper.update();
 #endif
 
   // Read/Update the hardware: buttons, leds, pots, encoders
@@ -230,54 +273,24 @@ void BMC::update(){
   // handle callbacks for presets and setlist
   #if BMC_MAX_PRESETS > 0
     if(presets.presetChanged()){
-      editor.utilitySendPreset(presets.get());
-      char presetName[30] = "";
-      presets.getName(presets.get(), presetName);
-      streamToSketch(BMC_ITEM_ID_PRESET, presets.get(), presetName);
-      if(callback.presetChanged){
-        callback.presetChanged(presets.get());
-      }
+      runPresetChanged();
     }
     if(presets.bankChanged()){
-      if(callback.presetBankChanged){
-        callback.presetBankChanged(presets.getBank());
-      }
+      runBankChanged();
     }
     #if BMC_MAX_SETLISTS > 0
       if(setLists.setListChanged()){
-        char setListName[30] = "";
-        setLists.getName(setLists.get(), setListName);
-        streamToSketch(BMC_ITEM_ID_SETLIST, setLists.get(), setListName);
-        if(callback.setListChanged){
-          callback.setListChanged(setLists.get());
-        }
+        runSetListChanged();
       }
       if(setLists.songChanged()){
-        char songName[30] = "";
-        presets.getName(setLists.getSongPreset(), songName);
-        streamToSketch(BMC_ITEM_ID_SETLIST_SONG, setLists.getSong(), songName);
-        if(callback.setListSongChanged){
-          callback.setListSongChanged(setLists.getSong());
-        }
+        runSongChanged();
       }
     #endif
   #endif
 
 #if BMC_MAX_LIBRARY > 0
   if(library.changeAvailable()){
-    #if BMC_MAX_PAGES > 1
-      if(library.pageChanged()){
-        setPage(library.getPageChange());
-      }
-    #endif
-    if(library.bpmChanged()){
-      midiClock.setBpm(library.getBpmChange());
-    }
-    #if BMC_MAX_PIXEL_PROGRAMS > 0
-      if(library.pixelProgramChanged()){
-        pixelPrograms.setProgram(library.getPixelProgramChange());
-      }
-    #endif
+    runLibraryChanged();
   }
 #endif
 
@@ -301,14 +314,14 @@ void BMC::update(){
     }
   #endif
 
+
+  #if defined(BMC_HAS_DISPLAY)
+    display.update(page);
+  #endif
+
   // used specifically when pages have changed
   if(pageChanged()){
-    #if BMC_MAX_AUX_JACKS > 0
-      auxJacks.reAssignPins();
-    #endif
-    #if BMC_MAX_BUTTONS > 1
-      dualPress.pageChanged();
-    #endif
+    runPageChanged();
   }
 
   // read the input of the serial monitor

@@ -1990,6 +1990,404 @@ switch(index){
 #endif
 return 255;
 }
+static uint8_t getButtonStyle(uint8_t index=0){
+#if BMC_MAX_BUTTONS > 0
+switch(index){
+#if defined(BMC_BUTTON_1_PIN) && defined(BMC_BUTTON_1_STYLE) && BMC_MAX_BUTTONS > 0 && defined(BMC_BUTTON_1_X) && defined(BMC_BUTTON_1_Y)
+  case 0: return BMC_BUTTON_1_STYLE;
+#if defined(BMC_BUTTON_2_PIN) && defined(BMC_BUTTON_2_STYLE) && BMC_MAX_BUTTONS > 1 && defined(BMC_BUTTON_2_X) && defined(BMC_BUTTON_2_Y)
+  case 1: return BMC_BUTTON_2_STYLE;
+#if defined(BMC_BUTTON_3_PIN) && defined(BMC_BUTTON_3_STYLE) && BMC_MAX_BUTTONS > 2 && defined(BMC_BUTTON_3_X) && defined(BMC_BUTTON_3_Y)
+  case 2: return BMC_BUTTON_3_STYLE;
+#if defined(BMC_BUTTON_4_PIN) && defined(BMC_BUTTON_4_STYLE) && BMC_MAX_BUTTONS > 3 && defined(BMC_BUTTON_4_X) && defined(BMC_BUTTON_4_Y)
+  case 3: return BMC_BUTTON_4_STYLE;
+#if defined(BMC_BUTTON_5_PIN) && defined(BMC_BUTTON_5_STYLE) && BMC_MAX_BUTTONS > 4 && defined(BMC_BUTTON_5_X) && defined(BMC_BUTTON_5_Y)
+  case 4: return BMC_BUTTON_5_STYLE;
+#if defined(BMC_BUTTON_6_PIN) && defined(BMC_BUTTON_6_STYLE) && BMC_MAX_BUTTONS > 5 && defined(BMC_BUTTON_6_X) && defined(BMC_BUTTON_6_Y)
+  case 5: return BMC_BUTTON_6_STYLE;
+#if defined(BMC_BUTTON_7_PIN) && defined(BMC_BUTTON_7_STYLE) && BMC_MAX_BUTTONS > 6 && defined(BMC_BUTTON_7_X) && defined(BMC_BUTTON_7_Y)
+  case 6: return BMC_BUTTON_7_STYLE;
+#if defined(BMC_BUTTON_8_PIN) && defined(BMC_BUTTON_8_STYLE) && BMC_MAX_BUTTONS > 7 && defined(BMC_BUTTON_8_X) && defined(BMC_BUTTON_8_Y)
+  case 7: return BMC_BUTTON_8_STYLE;
+#if defined(BMC_BUTTON_9_PIN) && defined(BMC_BUTTON_9_STYLE) && BMC_MAX_BUTTONS > 8 && defined(BMC_BUTTON_9_X) && defined(BMC_BUTTON_9_Y)
+  case 8: return BMC_BUTTON_9_STYLE;
+#if defined(BMC_BUTTON_10_PIN) && defined(BMC_BUTTON_10_STYLE) && BMC_MAX_BUTTONS > 9 && defined(BMC_BUTTON_10_X) && defined(BMC_BUTTON_10_Y)
+  case 9: return BMC_BUTTON_10_STYLE;
+#if defined(BMC_BUTTON_11_PIN) && defined(BMC_BUTTON_11_STYLE) && BMC_MAX_BUTTONS > 10 && defined(BMC_BUTTON_11_X) && defined(BMC_BUTTON_11_Y)
+  case 10: return BMC_BUTTON_11_STYLE;
+#if defined(BMC_BUTTON_12_PIN) && defined(BMC_BUTTON_12_STYLE) && BMC_MAX_BUTTONS > 11 && defined(BMC_BUTTON_12_X) && defined(BMC_BUTTON_12_Y)
+  case 11: return BMC_BUTTON_12_STYLE;
+#if defined(BMC_BUTTON_13_PIN) && defined(BMC_BUTTON_13_STYLE) && BMC_MAX_BUTTONS > 12 && defined(BMC_BUTTON_13_X) && defined(BMC_BUTTON_13_Y)
+  case 12: return BMC_BUTTON_13_STYLE;
+#if defined(BMC_BUTTON_14_PIN) && defined(BMC_BUTTON_14_STYLE) && BMC_MAX_BUTTONS > 13 && defined(BMC_BUTTON_14_X) && defined(BMC_BUTTON_14_Y)
+  case 13: return BMC_BUTTON_14_STYLE;
+#if defined(BMC_BUTTON_15_PIN) && defined(BMC_BUTTON_15_STYLE) && BMC_MAX_BUTTONS > 14 && defined(BMC_BUTTON_15_X) && defined(BMC_BUTTON_15_Y)
+  case 14: return BMC_BUTTON_15_STYLE;
+#if defined(BMC_BUTTON_16_PIN) && defined(BMC_BUTTON_16_STYLE) && BMC_MAX_BUTTONS > 15 && defined(BMC_BUTTON_16_X) && defined(BMC_BUTTON_16_Y)
+  case 15: return BMC_BUTTON_16_STYLE;
+#if defined(BMC_BUTTON_17_PIN) && defined(BMC_BUTTON_17_STYLE) && BMC_MAX_BUTTONS > 16 && defined(BMC_BUTTON_17_X) && defined(BMC_BUTTON_17_Y)
+  case 16: return BMC_BUTTON_17_STYLE;
+#if defined(BMC_BUTTON_18_PIN) && defined(BMC_BUTTON_18_STYLE) && BMC_MAX_BUTTONS > 17 && defined(BMC_BUTTON_18_X) && defined(BMC_BUTTON_18_Y)
+  case 17: return BMC_BUTTON_18_STYLE;
+#if defined(BMC_BUTTON_19_PIN) && defined(BMC_BUTTON_19_STYLE) && BMC_MAX_BUTTONS > 18 && defined(BMC_BUTTON_19_X) && defined(BMC_BUTTON_19_Y)
+  case 18: return BMC_BUTTON_19_STYLE;
+#if defined(BMC_BUTTON_20_PIN) && defined(BMC_BUTTON_20_STYLE) && BMC_MAX_BUTTONS > 19 && defined(BMC_BUTTON_20_X) && defined(BMC_BUTTON_20_Y)
+  case 19: return BMC_BUTTON_20_STYLE;
+#if defined(BMC_BUTTON_21_PIN) && defined(BMC_BUTTON_21_STYLE) && BMC_MAX_BUTTONS > 20 && defined(BMC_BUTTON_21_X) && defined(BMC_BUTTON_21_Y)
+  case 20: return BMC_BUTTON_21_STYLE;
+#if defined(BMC_BUTTON_22_PIN) && defined(BMC_BUTTON_22_STYLE) && BMC_MAX_BUTTONS > 21 && defined(BMC_BUTTON_22_X) && defined(BMC_BUTTON_22_Y)
+  case 21: return BMC_BUTTON_22_STYLE;
+#if defined(BMC_BUTTON_23_PIN) && defined(BMC_BUTTON_23_STYLE) && BMC_MAX_BUTTONS > 22 && defined(BMC_BUTTON_23_X) && defined(BMC_BUTTON_23_Y)
+  case 22: return BMC_BUTTON_23_STYLE;
+#if defined(BMC_BUTTON_24_PIN) && defined(BMC_BUTTON_24_STYLE) && BMC_MAX_BUTTONS > 23 && defined(BMC_BUTTON_24_X) && defined(BMC_BUTTON_24_Y)
+  case 23: return BMC_BUTTON_24_STYLE;
+#if defined(BMC_BUTTON_25_PIN) && defined(BMC_BUTTON_25_STYLE) && BMC_MAX_BUTTONS > 24 && defined(BMC_BUTTON_25_X) && defined(BMC_BUTTON_25_Y)
+  case 24: return BMC_BUTTON_25_STYLE;
+#if defined(BMC_BUTTON_26_PIN) && defined(BMC_BUTTON_26_STYLE) && BMC_MAX_BUTTONS > 25 && defined(BMC_BUTTON_26_X) && defined(BMC_BUTTON_26_Y)
+  case 25: return BMC_BUTTON_26_STYLE;
+#if defined(BMC_BUTTON_27_PIN) && defined(BMC_BUTTON_27_STYLE) && BMC_MAX_BUTTONS > 26 && defined(BMC_BUTTON_27_X) && defined(BMC_BUTTON_27_Y)
+  case 26: return BMC_BUTTON_27_STYLE;
+#if defined(BMC_BUTTON_28_PIN) && defined(BMC_BUTTON_28_STYLE) && BMC_MAX_BUTTONS > 27 && defined(BMC_BUTTON_28_X) && defined(BMC_BUTTON_28_Y)
+  case 27: return BMC_BUTTON_28_STYLE;
+#if defined(BMC_BUTTON_29_PIN) && defined(BMC_BUTTON_29_STYLE) && BMC_MAX_BUTTONS > 28 && defined(BMC_BUTTON_29_X) && defined(BMC_BUTTON_29_Y)
+  case 28: return BMC_BUTTON_29_STYLE;
+#if defined(BMC_BUTTON_30_PIN) && defined(BMC_BUTTON_30_STYLE) && BMC_MAX_BUTTONS > 29 && defined(BMC_BUTTON_30_X) && defined(BMC_BUTTON_30_Y)
+  case 29: return BMC_BUTTON_30_STYLE;
+#if defined(BMC_BUTTON_31_PIN) && defined(BMC_BUTTON_31_STYLE) && BMC_MAX_BUTTONS > 30 && defined(BMC_BUTTON_31_X) && defined(BMC_BUTTON_31_Y)
+  case 30: return BMC_BUTTON_31_STYLE;
+#if defined(BMC_BUTTON_32_PIN) && defined(BMC_BUTTON_32_STYLE) && BMC_MAX_BUTTONS > 31 && defined(BMC_BUTTON_32_X) && defined(BMC_BUTTON_32_Y)
+  case 31: return BMC_BUTTON_32_STYLE;
+#if defined(BMC_BUTTON_33_PIN) && defined(BMC_BUTTON_33_STYLE) && BMC_MAX_BUTTONS > 32 && defined(BMC_BUTTON_33_X) && defined(BMC_BUTTON_33_Y)
+  case 32: return BMC_BUTTON_33_STYLE;
+#if defined(BMC_BUTTON_34_PIN) && defined(BMC_BUTTON_34_STYLE) && BMC_MAX_BUTTONS > 33 && defined(BMC_BUTTON_34_X) && defined(BMC_BUTTON_34_Y)
+  case 33: return BMC_BUTTON_34_STYLE;
+#if defined(BMC_BUTTON_35_PIN) && defined(BMC_BUTTON_35_STYLE) && BMC_MAX_BUTTONS > 34 && defined(BMC_BUTTON_35_X) && defined(BMC_BUTTON_35_Y)
+  case 34: return BMC_BUTTON_35_STYLE;
+#if defined(BMC_BUTTON_36_PIN) && defined(BMC_BUTTON_36_STYLE) && BMC_MAX_BUTTONS > 35 && defined(BMC_BUTTON_36_X) && defined(BMC_BUTTON_36_Y)
+  case 35: return BMC_BUTTON_36_STYLE;
+#if defined(BMC_BUTTON_37_PIN) && defined(BMC_BUTTON_37_STYLE) && BMC_MAX_BUTTONS > 36 && defined(BMC_BUTTON_37_X) && defined(BMC_BUTTON_37_Y)
+  case 36: return BMC_BUTTON_37_STYLE;
+#if defined(BMC_BUTTON_38_PIN) && defined(BMC_BUTTON_38_STYLE) && BMC_MAX_BUTTONS > 37 && defined(BMC_BUTTON_38_X) && defined(BMC_BUTTON_38_Y)
+  case 37: return BMC_BUTTON_38_STYLE;
+#if defined(BMC_BUTTON_39_PIN) && defined(BMC_BUTTON_39_STYLE) && BMC_MAX_BUTTONS > 38 && defined(BMC_BUTTON_39_X) && defined(BMC_BUTTON_39_Y)
+  case 38: return BMC_BUTTON_39_STYLE;
+#if defined(BMC_BUTTON_40_PIN) && defined(BMC_BUTTON_40_STYLE) && BMC_MAX_BUTTONS > 39 && defined(BMC_BUTTON_40_X) && defined(BMC_BUTTON_40_Y)
+  case 39: return BMC_BUTTON_40_STYLE;
+#if defined(BMC_BUTTON_41_PIN) && defined(BMC_BUTTON_41_STYLE) && BMC_MAX_BUTTONS > 40 && defined(BMC_BUTTON_41_X) && defined(BMC_BUTTON_41_Y)
+  case 40: return BMC_BUTTON_41_STYLE;
+#if defined(BMC_BUTTON_42_PIN) && defined(BMC_BUTTON_42_STYLE) && BMC_MAX_BUTTONS > 41 && defined(BMC_BUTTON_42_X) && defined(BMC_BUTTON_42_Y)
+  case 41: return BMC_BUTTON_42_STYLE;
+#if defined(BMC_BUTTON_43_PIN) && defined(BMC_BUTTON_43_STYLE) && BMC_MAX_BUTTONS > 42 && defined(BMC_BUTTON_43_X) && defined(BMC_BUTTON_43_Y)
+  case 42: return BMC_BUTTON_43_STYLE;
+#if defined(BMC_BUTTON_44_PIN) && defined(BMC_BUTTON_44_STYLE) && BMC_MAX_BUTTONS > 43 && defined(BMC_BUTTON_44_X) && defined(BMC_BUTTON_44_Y)
+  case 43: return BMC_BUTTON_44_STYLE;
+#if defined(BMC_BUTTON_45_PIN) && defined(BMC_BUTTON_45_STYLE) && BMC_MAX_BUTTONS > 44 && defined(BMC_BUTTON_45_X) && defined(BMC_BUTTON_45_Y)
+  case 44: return BMC_BUTTON_45_STYLE;
+#if defined(BMC_BUTTON_46_PIN) && defined(BMC_BUTTON_46_STYLE) && BMC_MAX_BUTTONS > 45 && defined(BMC_BUTTON_46_X) && defined(BMC_BUTTON_46_Y)
+  case 45: return BMC_BUTTON_46_STYLE;
+#if defined(BMC_BUTTON_47_PIN) && defined(BMC_BUTTON_47_STYLE) && BMC_MAX_BUTTONS > 46 && defined(BMC_BUTTON_47_X) && defined(BMC_BUTTON_47_Y)
+  case 46: return BMC_BUTTON_47_STYLE;
+#if defined(BMC_BUTTON_48_PIN) && defined(BMC_BUTTON_48_STYLE) && BMC_MAX_BUTTONS > 47 && defined(BMC_BUTTON_48_X) && defined(BMC_BUTTON_48_Y)
+  case 47: return BMC_BUTTON_48_STYLE;
+#if defined(BMC_BUTTON_49_PIN) && defined(BMC_BUTTON_49_STYLE) && BMC_MAX_BUTTONS > 48 && defined(BMC_BUTTON_49_X) && defined(BMC_BUTTON_49_Y)
+  case 48: return BMC_BUTTON_49_STYLE;
+#if defined(BMC_BUTTON_50_PIN) && defined(BMC_BUTTON_50_STYLE) && BMC_MAX_BUTTONS > 49 && defined(BMC_BUTTON_50_X) && defined(BMC_BUTTON_50_Y)
+  case 49: return BMC_BUTTON_50_STYLE;
+#if defined(BMC_BUTTON_51_PIN) && defined(BMC_BUTTON_51_STYLE) && BMC_MAX_BUTTONS > 50 && defined(BMC_BUTTON_51_X) && defined(BMC_BUTTON_51_Y)
+  case 50: return BMC_BUTTON_51_STYLE;
+#if defined(BMC_BUTTON_52_PIN) && defined(BMC_BUTTON_52_STYLE) && BMC_MAX_BUTTONS > 51 && defined(BMC_BUTTON_52_X) && defined(BMC_BUTTON_52_Y)
+  case 51: return BMC_BUTTON_52_STYLE;
+#if defined(BMC_BUTTON_53_PIN) && defined(BMC_BUTTON_53_STYLE) && BMC_MAX_BUTTONS > 52 && defined(BMC_BUTTON_53_X) && defined(BMC_BUTTON_53_Y)
+  case 52: return BMC_BUTTON_53_STYLE;
+#if defined(BMC_BUTTON_54_PIN) && defined(BMC_BUTTON_54_STYLE) && BMC_MAX_BUTTONS > 53 && defined(BMC_BUTTON_54_X) && defined(BMC_BUTTON_54_Y)
+  case 53: return BMC_BUTTON_54_STYLE;
+#if defined(BMC_BUTTON_55_PIN) && defined(BMC_BUTTON_55_STYLE) && BMC_MAX_BUTTONS > 54 && defined(BMC_BUTTON_55_X) && defined(BMC_BUTTON_55_Y)
+  case 54: return BMC_BUTTON_55_STYLE;
+#if defined(BMC_BUTTON_56_PIN) && defined(BMC_BUTTON_56_STYLE) && BMC_MAX_BUTTONS > 55 && defined(BMC_BUTTON_56_X) && defined(BMC_BUTTON_56_Y)
+  case 55: return BMC_BUTTON_56_STYLE;
+#if defined(BMC_BUTTON_57_PIN) && defined(BMC_BUTTON_57_STYLE) && BMC_MAX_BUTTONS > 56 && defined(BMC_BUTTON_57_X) && defined(BMC_BUTTON_57_Y)
+  case 56: return BMC_BUTTON_57_STYLE;
+#if defined(BMC_BUTTON_58_PIN) && defined(BMC_BUTTON_58_STYLE) && BMC_MAX_BUTTONS > 57 && defined(BMC_BUTTON_58_X) && defined(BMC_BUTTON_58_Y)
+  case 57: return BMC_BUTTON_58_STYLE;
+#if defined(BMC_BUTTON_59_PIN) && defined(BMC_BUTTON_59_STYLE) && BMC_MAX_BUTTONS > 58 && defined(BMC_BUTTON_59_X) && defined(BMC_BUTTON_59_Y)
+  case 58: return BMC_BUTTON_59_STYLE;
+#if defined(BMC_BUTTON_60_PIN) && defined(BMC_BUTTON_60_STYLE) && BMC_MAX_BUTTONS > 59 && defined(BMC_BUTTON_60_X) && defined(BMC_BUTTON_60_Y)
+  case 59: return BMC_BUTTON_60_STYLE;
+#if defined(BMC_BUTTON_61_PIN) && defined(BMC_BUTTON_61_STYLE) && BMC_MAX_BUTTONS > 60 && defined(BMC_BUTTON_61_X) && defined(BMC_BUTTON_61_Y)
+  case 60: return BMC_BUTTON_61_STYLE;
+#if defined(BMC_BUTTON_62_PIN) && defined(BMC_BUTTON_62_STYLE) && BMC_MAX_BUTTONS > 61 && defined(BMC_BUTTON_62_X) && defined(BMC_BUTTON_62_Y)
+  case 61: return BMC_BUTTON_62_STYLE;
+#if defined(BMC_BUTTON_63_PIN) && defined(BMC_BUTTON_63_STYLE) && BMC_MAX_BUTTONS > 62 && defined(BMC_BUTTON_63_X) && defined(BMC_BUTTON_63_Y)
+  case 62: return BMC_BUTTON_63_STYLE;
+#if defined(BMC_BUTTON_64_PIN) && defined(BMC_BUTTON_64_STYLE) && BMC_MAX_BUTTONS > 63 && defined(BMC_BUTTON_64_X) && defined(BMC_BUTTON_64_Y)
+  case 63: return BMC_BUTTON_64_STYLE;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+#endif
+return 0;
+}
+static uint8_t getGlobalButtonStyle(uint8_t index=0){
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+switch(index){
+#if defined(BMC_GLOBAL_BUTTON_1_PIN) && defined(BMC_GLOBAL_BUTTON_1_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 0 && defined(BMC_GLOBAL_BUTTON_1_X) && defined(BMC_GLOBAL_BUTTON_1_Y)
+  case 0: return BMC_GLOBAL_BUTTON_1_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_2_PIN) && defined(BMC_GLOBAL_BUTTON_2_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 1 && defined(BMC_GLOBAL_BUTTON_2_X) && defined(BMC_GLOBAL_BUTTON_2_Y)
+  case 1: return BMC_GLOBAL_BUTTON_2_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_3_PIN) && defined(BMC_GLOBAL_BUTTON_3_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 2 && defined(BMC_GLOBAL_BUTTON_3_X) && defined(BMC_GLOBAL_BUTTON_3_Y)
+  case 2: return BMC_GLOBAL_BUTTON_3_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_4_PIN) && defined(BMC_GLOBAL_BUTTON_4_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 3 && defined(BMC_GLOBAL_BUTTON_4_X) && defined(BMC_GLOBAL_BUTTON_4_Y)
+  case 3: return BMC_GLOBAL_BUTTON_4_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_5_PIN) && defined(BMC_GLOBAL_BUTTON_5_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 4 && defined(BMC_GLOBAL_BUTTON_5_X) && defined(BMC_GLOBAL_BUTTON_5_Y)
+  case 4: return BMC_GLOBAL_BUTTON_5_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_6_PIN) && defined(BMC_GLOBAL_BUTTON_6_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 5 && defined(BMC_GLOBAL_BUTTON_6_X) && defined(BMC_GLOBAL_BUTTON_6_Y)
+  case 5: return BMC_GLOBAL_BUTTON_6_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_7_PIN) && defined(BMC_GLOBAL_BUTTON_7_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 6 && defined(BMC_GLOBAL_BUTTON_7_X) && defined(BMC_GLOBAL_BUTTON_7_Y)
+  case 6: return BMC_GLOBAL_BUTTON_7_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_8_PIN) && defined(BMC_GLOBAL_BUTTON_8_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 7 && defined(BMC_GLOBAL_BUTTON_8_X) && defined(BMC_GLOBAL_BUTTON_8_Y)
+  case 7: return BMC_GLOBAL_BUTTON_8_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_9_PIN) && defined(BMC_GLOBAL_BUTTON_9_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 8 && defined(BMC_GLOBAL_BUTTON_9_X) && defined(BMC_GLOBAL_BUTTON_9_Y)
+  case 8: return BMC_GLOBAL_BUTTON_9_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_10_PIN) && defined(BMC_GLOBAL_BUTTON_10_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 9 && defined(BMC_GLOBAL_BUTTON_10_X) && defined(BMC_GLOBAL_BUTTON_10_Y)
+  case 9: return BMC_GLOBAL_BUTTON_10_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_11_PIN) && defined(BMC_GLOBAL_BUTTON_11_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 10 && defined(BMC_GLOBAL_BUTTON_11_X) && defined(BMC_GLOBAL_BUTTON_11_Y)
+  case 10: return BMC_GLOBAL_BUTTON_11_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_12_PIN) && defined(BMC_GLOBAL_BUTTON_12_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 11 && defined(BMC_GLOBAL_BUTTON_12_X) && defined(BMC_GLOBAL_BUTTON_12_Y)
+  case 11: return BMC_GLOBAL_BUTTON_12_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_13_PIN) && defined(BMC_GLOBAL_BUTTON_13_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 12 && defined(BMC_GLOBAL_BUTTON_13_X) && defined(BMC_GLOBAL_BUTTON_13_Y)
+  case 12: return BMC_GLOBAL_BUTTON_13_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_14_PIN) && defined(BMC_GLOBAL_BUTTON_14_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 13 && defined(BMC_GLOBAL_BUTTON_14_X) && defined(BMC_GLOBAL_BUTTON_14_Y)
+  case 13: return BMC_GLOBAL_BUTTON_14_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_15_PIN) && defined(BMC_GLOBAL_BUTTON_15_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 14 && defined(BMC_GLOBAL_BUTTON_15_X) && defined(BMC_GLOBAL_BUTTON_15_Y)
+  case 14: return BMC_GLOBAL_BUTTON_15_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_16_PIN) && defined(BMC_GLOBAL_BUTTON_16_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 15 && defined(BMC_GLOBAL_BUTTON_16_X) && defined(BMC_GLOBAL_BUTTON_16_Y)
+  case 15: return BMC_GLOBAL_BUTTON_16_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_17_PIN) && defined(BMC_GLOBAL_BUTTON_17_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 16 && defined(BMC_GLOBAL_BUTTON_17_X) && defined(BMC_GLOBAL_BUTTON_17_Y)
+  case 16: return BMC_GLOBAL_BUTTON_17_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_18_PIN) && defined(BMC_GLOBAL_BUTTON_18_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 17 && defined(BMC_GLOBAL_BUTTON_18_X) && defined(BMC_GLOBAL_BUTTON_18_Y)
+  case 17: return BMC_GLOBAL_BUTTON_18_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_19_PIN) && defined(BMC_GLOBAL_BUTTON_19_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 18 && defined(BMC_GLOBAL_BUTTON_19_X) && defined(BMC_GLOBAL_BUTTON_19_Y)
+  case 18: return BMC_GLOBAL_BUTTON_19_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_20_PIN) && defined(BMC_GLOBAL_BUTTON_20_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 19 && defined(BMC_GLOBAL_BUTTON_20_X) && defined(BMC_GLOBAL_BUTTON_20_Y)
+  case 19: return BMC_GLOBAL_BUTTON_20_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_21_PIN) && defined(BMC_GLOBAL_BUTTON_21_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 20 && defined(BMC_GLOBAL_BUTTON_21_X) && defined(BMC_GLOBAL_BUTTON_21_Y)
+  case 20: return BMC_GLOBAL_BUTTON_21_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_22_PIN) && defined(BMC_GLOBAL_BUTTON_22_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 21 && defined(BMC_GLOBAL_BUTTON_22_X) && defined(BMC_GLOBAL_BUTTON_22_Y)
+  case 21: return BMC_GLOBAL_BUTTON_22_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_23_PIN) && defined(BMC_GLOBAL_BUTTON_23_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 22 && defined(BMC_GLOBAL_BUTTON_23_X) && defined(BMC_GLOBAL_BUTTON_23_Y)
+  case 22: return BMC_GLOBAL_BUTTON_23_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_24_PIN) && defined(BMC_GLOBAL_BUTTON_24_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 23 && defined(BMC_GLOBAL_BUTTON_24_X) && defined(BMC_GLOBAL_BUTTON_24_Y)
+  case 23: return BMC_GLOBAL_BUTTON_24_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_25_PIN) && defined(BMC_GLOBAL_BUTTON_25_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 24 && defined(BMC_GLOBAL_BUTTON_25_X) && defined(BMC_GLOBAL_BUTTON_25_Y)
+  case 24: return BMC_GLOBAL_BUTTON_25_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_26_PIN) && defined(BMC_GLOBAL_BUTTON_26_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 25 && defined(BMC_GLOBAL_BUTTON_26_X) && defined(BMC_GLOBAL_BUTTON_26_Y)
+  case 25: return BMC_GLOBAL_BUTTON_26_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_27_PIN) && defined(BMC_GLOBAL_BUTTON_27_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 26 && defined(BMC_GLOBAL_BUTTON_27_X) && defined(BMC_GLOBAL_BUTTON_27_Y)
+  case 26: return BMC_GLOBAL_BUTTON_27_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_28_PIN) && defined(BMC_GLOBAL_BUTTON_28_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 27 && defined(BMC_GLOBAL_BUTTON_28_X) && defined(BMC_GLOBAL_BUTTON_28_Y)
+  case 27: return BMC_GLOBAL_BUTTON_28_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_29_PIN) && defined(BMC_GLOBAL_BUTTON_29_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 28 && defined(BMC_GLOBAL_BUTTON_29_X) && defined(BMC_GLOBAL_BUTTON_29_Y)
+  case 28: return BMC_GLOBAL_BUTTON_29_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_30_PIN) && defined(BMC_GLOBAL_BUTTON_30_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 29 && defined(BMC_GLOBAL_BUTTON_30_X) && defined(BMC_GLOBAL_BUTTON_30_Y)
+  case 29: return BMC_GLOBAL_BUTTON_30_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_31_PIN) && defined(BMC_GLOBAL_BUTTON_31_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 30 && defined(BMC_GLOBAL_BUTTON_31_X) && defined(BMC_GLOBAL_BUTTON_31_Y)
+  case 30: return BMC_GLOBAL_BUTTON_31_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_32_PIN) && defined(BMC_GLOBAL_BUTTON_32_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 31 && defined(BMC_GLOBAL_BUTTON_32_X) && defined(BMC_GLOBAL_BUTTON_32_Y)
+  case 31: return BMC_GLOBAL_BUTTON_32_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_33_PIN) && defined(BMC_GLOBAL_BUTTON_33_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 32 && defined(BMC_GLOBAL_BUTTON_33_X) && defined(BMC_GLOBAL_BUTTON_33_Y)
+  case 32: return BMC_GLOBAL_BUTTON_33_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_34_PIN) && defined(BMC_GLOBAL_BUTTON_34_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 33 && defined(BMC_GLOBAL_BUTTON_34_X) && defined(BMC_GLOBAL_BUTTON_34_Y)
+  case 33: return BMC_GLOBAL_BUTTON_34_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_35_PIN) && defined(BMC_GLOBAL_BUTTON_35_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 34 && defined(BMC_GLOBAL_BUTTON_35_X) && defined(BMC_GLOBAL_BUTTON_35_Y)
+  case 34: return BMC_GLOBAL_BUTTON_35_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_36_PIN) && defined(BMC_GLOBAL_BUTTON_36_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 35 && defined(BMC_GLOBAL_BUTTON_36_X) && defined(BMC_GLOBAL_BUTTON_36_Y)
+  case 35: return BMC_GLOBAL_BUTTON_36_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_37_PIN) && defined(BMC_GLOBAL_BUTTON_37_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 36 && defined(BMC_GLOBAL_BUTTON_37_X) && defined(BMC_GLOBAL_BUTTON_37_Y)
+  case 36: return BMC_GLOBAL_BUTTON_37_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_38_PIN) && defined(BMC_GLOBAL_BUTTON_38_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 37 && defined(BMC_GLOBAL_BUTTON_38_X) && defined(BMC_GLOBAL_BUTTON_38_Y)
+  case 37: return BMC_GLOBAL_BUTTON_38_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_39_PIN) && defined(BMC_GLOBAL_BUTTON_39_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 38 && defined(BMC_GLOBAL_BUTTON_39_X) && defined(BMC_GLOBAL_BUTTON_39_Y)
+  case 38: return BMC_GLOBAL_BUTTON_39_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_40_PIN) && defined(BMC_GLOBAL_BUTTON_40_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 39 && defined(BMC_GLOBAL_BUTTON_40_X) && defined(BMC_GLOBAL_BUTTON_40_Y)
+  case 39: return BMC_GLOBAL_BUTTON_40_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_41_PIN) && defined(BMC_GLOBAL_BUTTON_41_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 40 && defined(BMC_GLOBAL_BUTTON_41_X) && defined(BMC_GLOBAL_BUTTON_41_Y)
+  case 40: return BMC_GLOBAL_BUTTON_41_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_42_PIN) && defined(BMC_GLOBAL_BUTTON_42_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 41 && defined(BMC_GLOBAL_BUTTON_42_X) && defined(BMC_GLOBAL_BUTTON_42_Y)
+  case 41: return BMC_GLOBAL_BUTTON_42_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_43_PIN) && defined(BMC_GLOBAL_BUTTON_43_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 42 && defined(BMC_GLOBAL_BUTTON_43_X) && defined(BMC_GLOBAL_BUTTON_43_Y)
+  case 42: return BMC_GLOBAL_BUTTON_43_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_44_PIN) && defined(BMC_GLOBAL_BUTTON_44_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 43 && defined(BMC_GLOBAL_BUTTON_44_X) && defined(BMC_GLOBAL_BUTTON_44_Y)
+  case 43: return BMC_GLOBAL_BUTTON_44_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_45_PIN) && defined(BMC_GLOBAL_BUTTON_45_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 44 && defined(BMC_GLOBAL_BUTTON_45_X) && defined(BMC_GLOBAL_BUTTON_45_Y)
+  case 44: return BMC_GLOBAL_BUTTON_45_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_46_PIN) && defined(BMC_GLOBAL_BUTTON_46_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 45 && defined(BMC_GLOBAL_BUTTON_46_X) && defined(BMC_GLOBAL_BUTTON_46_Y)
+  case 45: return BMC_GLOBAL_BUTTON_46_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_47_PIN) && defined(BMC_GLOBAL_BUTTON_47_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 46 && defined(BMC_GLOBAL_BUTTON_47_X) && defined(BMC_GLOBAL_BUTTON_47_Y)
+  case 46: return BMC_GLOBAL_BUTTON_47_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_48_PIN) && defined(BMC_GLOBAL_BUTTON_48_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 47 && defined(BMC_GLOBAL_BUTTON_48_X) && defined(BMC_GLOBAL_BUTTON_48_Y)
+  case 47: return BMC_GLOBAL_BUTTON_48_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_49_PIN) && defined(BMC_GLOBAL_BUTTON_49_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 48 && defined(BMC_GLOBAL_BUTTON_49_X) && defined(BMC_GLOBAL_BUTTON_49_Y)
+  case 48: return BMC_GLOBAL_BUTTON_49_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_50_PIN) && defined(BMC_GLOBAL_BUTTON_50_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 49 && defined(BMC_GLOBAL_BUTTON_50_X) && defined(BMC_GLOBAL_BUTTON_50_Y)
+  case 49: return BMC_GLOBAL_BUTTON_50_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_51_PIN) && defined(BMC_GLOBAL_BUTTON_51_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 50 && defined(BMC_GLOBAL_BUTTON_51_X) && defined(BMC_GLOBAL_BUTTON_51_Y)
+  case 50: return BMC_GLOBAL_BUTTON_51_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_52_PIN) && defined(BMC_GLOBAL_BUTTON_52_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 51 && defined(BMC_GLOBAL_BUTTON_52_X) && defined(BMC_GLOBAL_BUTTON_52_Y)
+  case 51: return BMC_GLOBAL_BUTTON_52_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_53_PIN) && defined(BMC_GLOBAL_BUTTON_53_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 52 && defined(BMC_GLOBAL_BUTTON_53_X) && defined(BMC_GLOBAL_BUTTON_53_Y)
+  case 52: return BMC_GLOBAL_BUTTON_53_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_54_PIN) && defined(BMC_GLOBAL_BUTTON_54_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 53 && defined(BMC_GLOBAL_BUTTON_54_X) && defined(BMC_GLOBAL_BUTTON_54_Y)
+  case 53: return BMC_GLOBAL_BUTTON_54_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_55_PIN) && defined(BMC_GLOBAL_BUTTON_55_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 54 && defined(BMC_GLOBAL_BUTTON_55_X) && defined(BMC_GLOBAL_BUTTON_55_Y)
+  case 54: return BMC_GLOBAL_BUTTON_55_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_56_PIN) && defined(BMC_GLOBAL_BUTTON_56_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 55 && defined(BMC_GLOBAL_BUTTON_56_X) && defined(BMC_GLOBAL_BUTTON_56_Y)
+  case 55: return BMC_GLOBAL_BUTTON_56_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_57_PIN) && defined(BMC_GLOBAL_BUTTON_57_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 56 && defined(BMC_GLOBAL_BUTTON_57_X) && defined(BMC_GLOBAL_BUTTON_57_Y)
+  case 56: return BMC_GLOBAL_BUTTON_57_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_58_PIN) && defined(BMC_GLOBAL_BUTTON_58_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 57 && defined(BMC_GLOBAL_BUTTON_58_X) && defined(BMC_GLOBAL_BUTTON_58_Y)
+  case 57: return BMC_GLOBAL_BUTTON_58_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_59_PIN) && defined(BMC_GLOBAL_BUTTON_59_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 58 && defined(BMC_GLOBAL_BUTTON_59_X) && defined(BMC_GLOBAL_BUTTON_59_Y)
+  case 58: return BMC_GLOBAL_BUTTON_59_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_60_PIN) && defined(BMC_GLOBAL_BUTTON_60_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 59 && defined(BMC_GLOBAL_BUTTON_60_X) && defined(BMC_GLOBAL_BUTTON_60_Y)
+  case 59: return BMC_GLOBAL_BUTTON_60_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_61_PIN) && defined(BMC_GLOBAL_BUTTON_61_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 60 && defined(BMC_GLOBAL_BUTTON_61_X) && defined(BMC_GLOBAL_BUTTON_61_Y)
+  case 60: return BMC_GLOBAL_BUTTON_61_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_62_PIN) && defined(BMC_GLOBAL_BUTTON_62_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 61 && defined(BMC_GLOBAL_BUTTON_62_X) && defined(BMC_GLOBAL_BUTTON_62_Y)
+  case 61: return BMC_GLOBAL_BUTTON_62_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_63_PIN) && defined(BMC_GLOBAL_BUTTON_63_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 62 && defined(BMC_GLOBAL_BUTTON_63_X) && defined(BMC_GLOBAL_BUTTON_63_Y)
+  case 62: return BMC_GLOBAL_BUTTON_63_STYLE;
+#if defined(BMC_GLOBAL_BUTTON_64_PIN) && defined(BMC_GLOBAL_BUTTON_64_STYLE) && BMC_MAX_GLOBAL_BUTTONS > 63 && defined(BMC_GLOBAL_BUTTON_64_X) && defined(BMC_GLOBAL_BUTTON_64_Y)
+  case 63: return BMC_GLOBAL_BUTTON_64_STYLE;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+#endif
+return 0;
+}
 static uint8_t getGlobalPotStyle(uint8_t index=0){
 #if BMC_MAX_GLOBAL_POTS > 0
 switch(index){
@@ -5034,6 +5432,656 @@ switch(index){
 #endif
 #endif
 #endif
+}
+#endif
+return 0;
+}
+static uint16_t getOledDisplayPosition(uint8_t index, uint8_t requestType){
+#if BMC_MAX_OLED > 0
+if(requestType < 2){
+bool x = (requestType==0);
+switch(index){
+#if BMC_MAX_OLED > 0 && defined(BMC_OLED_ROTATION_1) && defined(BMC_OLED_ADDRESS_1) && defined(BMC_OLED_POS_1_X) && defined(BMC_OLED_POS_1_Y)
+  case 0: return (x) ? BMC_OLED_POS_1_X : BMC_OLED_POS_1_Y;
+#if BMC_MAX_OLED > 1 && defined(BMC_OLED_ROTATION_2) && defined(BMC_OLED_ADDRESS_2) && defined(BMC_OLED_POS_2_X) && defined(BMC_OLED_POS_2_Y)
+  case 1: return (x) ? BMC_OLED_POS_2_X : BMC_OLED_POS_2_Y;
+#if BMC_MAX_OLED > 2 && defined(BMC_OLED_ROTATION_3) && defined(BMC_OLED_ADDRESS_3) && defined(BMC_OLED_POS_3_X) && defined(BMC_OLED_POS_3_Y)
+  case 2: return (x) ? BMC_OLED_POS_3_X : BMC_OLED_POS_3_Y;
+#if BMC_MAX_OLED > 3 && defined(BMC_OLED_ROTATION_4) && defined(BMC_OLED_ADDRESS_4) && defined(BMC_OLED_POS_4_X) && defined(BMC_OLED_POS_4_Y)
+  case 3: return (x) ? BMC_OLED_POS_4_X : BMC_OLED_POS_4_Y;
+#if BMC_MAX_OLED > 4 && defined(BMC_OLED_ROTATION_5) && defined(BMC_OLED_ADDRESS_5) && defined(BMC_OLED_POS_5_X) && defined(BMC_OLED_POS_5_Y)
+  case 4: return (x) ? BMC_OLED_POS_5_X : BMC_OLED_POS_5_Y;
+#if BMC_MAX_OLED > 5 && defined(BMC_OLED_ROTATION_6) && defined(BMC_OLED_ADDRESS_6) && defined(BMC_OLED_POS_6_X) && defined(BMC_OLED_POS_6_Y)
+  case 5: return (x) ? BMC_OLED_POS_6_X : BMC_OLED_POS_6_Y;
+#if BMC_MAX_OLED > 6 && defined(BMC_OLED_ROTATION_7) && defined(BMC_OLED_ADDRESS_7) && defined(BMC_OLED_POS_7_X) && defined(BMC_OLED_POS_7_Y)
+  case 6: return (x) ? BMC_OLED_POS_7_X : BMC_OLED_POS_7_Y;
+#if BMC_MAX_OLED > 7 && defined(BMC_OLED_ROTATION_8) && defined(BMC_OLED_ADDRESS_8) && defined(BMC_OLED_POS_8_X) && defined(BMC_OLED_POS_8_Y)
+  case 7: return (x) ? BMC_OLED_POS_8_X : BMC_OLED_POS_8_Y;
+#if BMC_MAX_OLED > 8 && defined(BMC_OLED_ROTATION_9) && defined(BMC_OLED_ADDRESS_9) && defined(BMC_OLED_POS_9_X) && defined(BMC_OLED_POS_9_Y)
+  case 8: return (x) ? BMC_OLED_POS_9_X : BMC_OLED_POS_9_Y;
+#if BMC_MAX_OLED > 9 && defined(BMC_OLED_ROTATION_10) && defined(BMC_OLED_ADDRESS_10) && defined(BMC_OLED_POS_10_X) && defined(BMC_OLED_POS_10_Y)
+  case 9: return (x) ? BMC_OLED_POS_10_X : BMC_OLED_POS_10_Y;
+#if BMC_MAX_OLED > 10 && defined(BMC_OLED_ROTATION_11) && defined(BMC_OLED_ADDRESS_11) && defined(BMC_OLED_POS_11_X) && defined(BMC_OLED_POS_11_Y)
+  case 10: return (x) ? BMC_OLED_POS_11_X : BMC_OLED_POS_11_Y;
+#if BMC_MAX_OLED > 11 && defined(BMC_OLED_ROTATION_12) && defined(BMC_OLED_ADDRESS_12) && defined(BMC_OLED_POS_12_X) && defined(BMC_OLED_POS_12_Y)
+  case 11: return (x) ? BMC_OLED_POS_12_X : BMC_OLED_POS_12_Y;
+#if BMC_MAX_OLED > 12 && defined(BMC_OLED_ROTATION_13) && defined(BMC_OLED_ADDRESS_13) && defined(BMC_OLED_POS_13_X) && defined(BMC_OLED_POS_13_Y)
+  case 12: return (x) ? BMC_OLED_POS_13_X : BMC_OLED_POS_13_Y;
+#if BMC_MAX_OLED > 13 && defined(BMC_OLED_ROTATION_14) && defined(BMC_OLED_ADDRESS_14) && defined(BMC_OLED_POS_14_X) && defined(BMC_OLED_POS_14_Y)
+  case 13: return (x) ? BMC_OLED_POS_14_X : BMC_OLED_POS_14_Y;
+#if BMC_MAX_OLED > 14 && defined(BMC_OLED_ROTATION_15) && defined(BMC_OLED_ADDRESS_15) && defined(BMC_OLED_POS_15_X) && defined(BMC_OLED_POS_15_Y)
+  case 14: return (x) ? BMC_OLED_POS_15_X : BMC_OLED_POS_15_Y;
+#if BMC_MAX_OLED > 15 && defined(BMC_OLED_ROTATION_16) && defined(BMC_OLED_ADDRESS_16) && defined(BMC_OLED_POS_16_X) && defined(BMC_OLED_POS_16_Y)
+  case 15: return (x) ? BMC_OLED_POS_16_X : BMC_OLED_POS_16_Y;
+#if BMC_MAX_OLED > 16 && defined(BMC_OLED_ROTATION_17) && defined(BMC_OLED_ADDRESS_17) && defined(BMC_OLED_POS_17_X) && defined(BMC_OLED_POS_17_Y)
+  case 16: return (x) ? BMC_OLED_POS_17_X : BMC_OLED_POS_17_Y;
+#if BMC_MAX_OLED > 17 && defined(BMC_OLED_ROTATION_18) && defined(BMC_OLED_ADDRESS_18) && defined(BMC_OLED_POS_18_X) && defined(BMC_OLED_POS_18_Y)
+  case 17: return (x) ? BMC_OLED_POS_18_X : BMC_OLED_POS_18_Y;
+#if BMC_MAX_OLED > 18 && defined(BMC_OLED_ROTATION_19) && defined(BMC_OLED_ADDRESS_19) && defined(BMC_OLED_POS_19_X) && defined(BMC_OLED_POS_19_Y)
+  case 18: return (x) ? BMC_OLED_POS_19_X : BMC_OLED_POS_19_Y;
+#if BMC_MAX_OLED > 19 && defined(BMC_OLED_ROTATION_20) && defined(BMC_OLED_ADDRESS_20) && defined(BMC_OLED_POS_20_X) && defined(BMC_OLED_POS_20_Y)
+  case 19: return (x) ? BMC_OLED_POS_20_X : BMC_OLED_POS_20_Y;
+#if BMC_MAX_OLED > 20 && defined(BMC_OLED_ROTATION_21) && defined(BMC_OLED_ADDRESS_21) && defined(BMC_OLED_POS_21_X) && defined(BMC_OLED_POS_21_Y)
+  case 20: return (x) ? BMC_OLED_POS_21_X : BMC_OLED_POS_21_Y;
+#if BMC_MAX_OLED > 21 && defined(BMC_OLED_ROTATION_22) && defined(BMC_OLED_ADDRESS_22) && defined(BMC_OLED_POS_22_X) && defined(BMC_OLED_POS_22_Y)
+  case 21: return (x) ? BMC_OLED_POS_22_X : BMC_OLED_POS_22_Y;
+#if BMC_MAX_OLED > 22 && defined(BMC_OLED_ROTATION_23) && defined(BMC_OLED_ADDRESS_23) && defined(BMC_OLED_POS_23_X) && defined(BMC_OLED_POS_23_Y)
+  case 22: return (x) ? BMC_OLED_POS_23_X : BMC_OLED_POS_23_Y;
+#if BMC_MAX_OLED > 23 && defined(BMC_OLED_ROTATION_24) && defined(BMC_OLED_ADDRESS_24) && defined(BMC_OLED_POS_24_X) && defined(BMC_OLED_POS_24_Y)
+  case 23: return (x) ? BMC_OLED_POS_24_X : BMC_OLED_POS_24_Y;
+#if BMC_MAX_OLED > 24 && defined(BMC_OLED_ROTATION_25) && defined(BMC_OLED_ADDRESS_25) && defined(BMC_OLED_POS_25_X) && defined(BMC_OLED_POS_25_Y)
+  case 24: return (x) ? BMC_OLED_POS_25_X : BMC_OLED_POS_25_Y;
+#if BMC_MAX_OLED > 25 && defined(BMC_OLED_ROTATION_26) && defined(BMC_OLED_ADDRESS_26) && defined(BMC_OLED_POS_26_X) && defined(BMC_OLED_POS_26_Y)
+  case 25: return (x) ? BMC_OLED_POS_26_X : BMC_OLED_POS_26_Y;
+#if BMC_MAX_OLED > 26 && defined(BMC_OLED_ROTATION_27) && defined(BMC_OLED_ADDRESS_27) && defined(BMC_OLED_POS_27_X) && defined(BMC_OLED_POS_27_Y)
+  case 26: return (x) ? BMC_OLED_POS_27_X : BMC_OLED_POS_27_Y;
+#if BMC_MAX_OLED > 27 && defined(BMC_OLED_ROTATION_28) && defined(BMC_OLED_ADDRESS_28) && defined(BMC_OLED_POS_28_X) && defined(BMC_OLED_POS_28_Y)
+  case 27: return (x) ? BMC_OLED_POS_28_X : BMC_OLED_POS_28_Y;
+#if BMC_MAX_OLED > 28 && defined(BMC_OLED_ROTATION_29) && defined(BMC_OLED_ADDRESS_29) && defined(BMC_OLED_POS_29_X) && defined(BMC_OLED_POS_29_Y)
+  case 28: return (x) ? BMC_OLED_POS_29_X : BMC_OLED_POS_29_Y;
+#if BMC_MAX_OLED > 29 && defined(BMC_OLED_ROTATION_30) && defined(BMC_OLED_ADDRESS_30) && defined(BMC_OLED_POS_30_X) && defined(BMC_OLED_POS_30_Y)
+  case 29: return (x) ? BMC_OLED_POS_30_X : BMC_OLED_POS_30_Y;
+#if BMC_MAX_OLED > 30 && defined(BMC_OLED_ROTATION_31) && defined(BMC_OLED_ADDRESS_31) && defined(BMC_OLED_POS_31_X) && defined(BMC_OLED_POS_31_Y)
+  case 30: return (x) ? BMC_OLED_POS_31_X : BMC_OLED_POS_31_Y;
+#if BMC_MAX_OLED > 31 && defined(BMC_OLED_ROTATION_32) && defined(BMC_OLED_ADDRESS_32) && defined(BMC_OLED_POS_32_X) && defined(BMC_OLED_POS_32_Y)
+  case 31: return (x) ? BMC_OLED_POS_32_X : BMC_OLED_POS_32_Y;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 2){
+switch(index){
+#if BMC_MAX_OLED > 0 && defined(BMC_OLED_ROTATION_1) && defined(BMC_OLED_ADDRESS_1) && defined(BMC_OLED_POS_1_X) && defined(BMC_OLED_POS_1_Y)
+  case 0: return BMC_OLED_ROTATION_1;
+#if BMC_MAX_OLED > 1 && defined(BMC_OLED_ROTATION_2) && defined(BMC_OLED_ADDRESS_2) && defined(BMC_OLED_POS_2_X) && defined(BMC_OLED_POS_2_Y)
+  case 1: return BMC_OLED_ROTATION_2;
+#if BMC_MAX_OLED > 2 && defined(BMC_OLED_ROTATION_3) && defined(BMC_OLED_ADDRESS_3) && defined(BMC_OLED_POS_3_X) && defined(BMC_OLED_POS_3_Y)
+  case 2: return BMC_OLED_ROTATION_3;
+#if BMC_MAX_OLED > 3 && defined(BMC_OLED_ROTATION_4) && defined(BMC_OLED_ADDRESS_4) && defined(BMC_OLED_POS_4_X) && defined(BMC_OLED_POS_4_Y)
+  case 3: return BMC_OLED_ROTATION_4;
+#if BMC_MAX_OLED > 4 && defined(BMC_OLED_ROTATION_5) && defined(BMC_OLED_ADDRESS_5) && defined(BMC_OLED_POS_5_X) && defined(BMC_OLED_POS_5_Y)
+  case 4: return BMC_OLED_ROTATION_5;
+#if BMC_MAX_OLED > 5 && defined(BMC_OLED_ROTATION_6) && defined(BMC_OLED_ADDRESS_6) && defined(BMC_OLED_POS_6_X) && defined(BMC_OLED_POS_6_Y)
+  case 5: return BMC_OLED_ROTATION_6;
+#if BMC_MAX_OLED > 6 && defined(BMC_OLED_ROTATION_7) && defined(BMC_OLED_ADDRESS_7) && defined(BMC_OLED_POS_7_X) && defined(BMC_OLED_POS_7_Y)
+  case 6: return BMC_OLED_ROTATION_7;
+#if BMC_MAX_OLED > 7 && defined(BMC_OLED_ROTATION_8) && defined(BMC_OLED_ADDRESS_8) && defined(BMC_OLED_POS_8_X) && defined(BMC_OLED_POS_8_Y)
+  case 7: return BMC_OLED_ROTATION_8;
+#if BMC_MAX_OLED > 8 && defined(BMC_OLED_ROTATION_9) && defined(BMC_OLED_ADDRESS_9) && defined(BMC_OLED_POS_9_X) && defined(BMC_OLED_POS_9_Y)
+  case 8: return BMC_OLED_ROTATION_9;
+#if BMC_MAX_OLED > 9 && defined(BMC_OLED_ROTATION_10) && defined(BMC_OLED_ADDRESS_10) && defined(BMC_OLED_POS_10_X) && defined(BMC_OLED_POS_10_Y)
+  case 9: return BMC_OLED_ROTATION_10;
+#if BMC_MAX_OLED > 10 && defined(BMC_OLED_ROTATION_11) && defined(BMC_OLED_ADDRESS_11) && defined(BMC_OLED_POS_11_X) && defined(BMC_OLED_POS_11_Y)
+  case 10: return BMC_OLED_ROTATION_11;
+#if BMC_MAX_OLED > 11 && defined(BMC_OLED_ROTATION_12) && defined(BMC_OLED_ADDRESS_12) && defined(BMC_OLED_POS_12_X) && defined(BMC_OLED_POS_12_Y)
+  case 11: return BMC_OLED_ROTATION_12;
+#if BMC_MAX_OLED > 12 && defined(BMC_OLED_ROTATION_13) && defined(BMC_OLED_ADDRESS_13) && defined(BMC_OLED_POS_13_X) && defined(BMC_OLED_POS_13_Y)
+  case 12: return BMC_OLED_ROTATION_13;
+#if BMC_MAX_OLED > 13 && defined(BMC_OLED_ROTATION_14) && defined(BMC_OLED_ADDRESS_14) && defined(BMC_OLED_POS_14_X) && defined(BMC_OLED_POS_14_Y)
+  case 13: return BMC_OLED_ROTATION_14;
+#if BMC_MAX_OLED > 14 && defined(BMC_OLED_ROTATION_15) && defined(BMC_OLED_ADDRESS_15) && defined(BMC_OLED_POS_15_X) && defined(BMC_OLED_POS_15_Y)
+  case 14: return BMC_OLED_ROTATION_15;
+#if BMC_MAX_OLED > 15 && defined(BMC_OLED_ROTATION_16) && defined(BMC_OLED_ADDRESS_16) && defined(BMC_OLED_POS_16_X) && defined(BMC_OLED_POS_16_Y)
+  case 15: return BMC_OLED_ROTATION_16;
+#if BMC_MAX_OLED > 16 && defined(BMC_OLED_ROTATION_17) && defined(BMC_OLED_ADDRESS_17) && defined(BMC_OLED_POS_17_X) && defined(BMC_OLED_POS_17_Y)
+  case 16: return BMC_OLED_ROTATION_17;
+#if BMC_MAX_OLED > 17 && defined(BMC_OLED_ROTATION_18) && defined(BMC_OLED_ADDRESS_18) && defined(BMC_OLED_POS_18_X) && defined(BMC_OLED_POS_18_Y)
+  case 17: return BMC_OLED_ROTATION_18;
+#if BMC_MAX_OLED > 18 && defined(BMC_OLED_ROTATION_19) && defined(BMC_OLED_ADDRESS_19) && defined(BMC_OLED_POS_19_X) && defined(BMC_OLED_POS_19_Y)
+  case 18: return BMC_OLED_ROTATION_19;
+#if BMC_MAX_OLED > 19 && defined(BMC_OLED_ROTATION_20) && defined(BMC_OLED_ADDRESS_20) && defined(BMC_OLED_POS_20_X) && defined(BMC_OLED_POS_20_Y)
+  case 19: return BMC_OLED_ROTATION_20;
+#if BMC_MAX_OLED > 20 && defined(BMC_OLED_ROTATION_21) && defined(BMC_OLED_ADDRESS_21) && defined(BMC_OLED_POS_21_X) && defined(BMC_OLED_POS_21_Y)
+  case 20: return BMC_OLED_ROTATION_21;
+#if BMC_MAX_OLED > 21 && defined(BMC_OLED_ROTATION_22) && defined(BMC_OLED_ADDRESS_22) && defined(BMC_OLED_POS_22_X) && defined(BMC_OLED_POS_22_Y)
+  case 21: return BMC_OLED_ROTATION_22;
+#if BMC_MAX_OLED > 22 && defined(BMC_OLED_ROTATION_23) && defined(BMC_OLED_ADDRESS_23) && defined(BMC_OLED_POS_23_X) && defined(BMC_OLED_POS_23_Y)
+  case 22: return BMC_OLED_ROTATION_23;
+#if BMC_MAX_OLED > 23 && defined(BMC_OLED_ROTATION_24) && defined(BMC_OLED_ADDRESS_24) && defined(BMC_OLED_POS_24_X) && defined(BMC_OLED_POS_24_Y)
+  case 23: return BMC_OLED_ROTATION_24;
+#if BMC_MAX_OLED > 24 && defined(BMC_OLED_ROTATION_25) && defined(BMC_OLED_ADDRESS_25) && defined(BMC_OLED_POS_25_X) && defined(BMC_OLED_POS_25_Y)
+  case 24: return BMC_OLED_ROTATION_25;
+#if BMC_MAX_OLED > 25 && defined(BMC_OLED_ROTATION_26) && defined(BMC_OLED_ADDRESS_26) && defined(BMC_OLED_POS_26_X) && defined(BMC_OLED_POS_26_Y)
+  case 25: return BMC_OLED_ROTATION_26;
+#if BMC_MAX_OLED > 26 && defined(BMC_OLED_ROTATION_27) && defined(BMC_OLED_ADDRESS_27) && defined(BMC_OLED_POS_27_X) && defined(BMC_OLED_POS_27_Y)
+  case 26: return BMC_OLED_ROTATION_27;
+#if BMC_MAX_OLED > 27 && defined(BMC_OLED_ROTATION_28) && defined(BMC_OLED_ADDRESS_28) && defined(BMC_OLED_POS_28_X) && defined(BMC_OLED_POS_28_Y)
+  case 27: return BMC_OLED_ROTATION_28;
+#if BMC_MAX_OLED > 28 && defined(BMC_OLED_ROTATION_29) && defined(BMC_OLED_ADDRESS_29) && defined(BMC_OLED_POS_29_X) && defined(BMC_OLED_POS_29_Y)
+  case 28: return BMC_OLED_ROTATION_29;
+#if BMC_MAX_OLED > 29 && defined(BMC_OLED_ROTATION_30) && defined(BMC_OLED_ADDRESS_30) && defined(BMC_OLED_POS_30_X) && defined(BMC_OLED_POS_30_Y)
+  case 29: return BMC_OLED_ROTATION_30;
+#if BMC_MAX_OLED > 30 && defined(BMC_OLED_ROTATION_31) && defined(BMC_OLED_ADDRESS_31) && defined(BMC_OLED_POS_31_X) && defined(BMC_OLED_POS_31_Y)
+  case 30: return BMC_OLED_ROTATION_31;
+#if BMC_MAX_OLED > 31 && defined(BMC_OLED_ROTATION_32) && defined(BMC_OLED_ADDRESS_32) && defined(BMC_OLED_POS_32_X) && defined(BMC_OLED_POS_32_Y)
+  case 31: return BMC_OLED_ROTATION_32;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 3){
+switch(index){
+#if BMC_MAX_OLED > 0 && defined(BMC_OLED_ROTATION_1) && defined(BMC_OLED_ADDRESS_1) && defined(BMC_OLED_POS_1_X) && defined(BMC_OLED_POS_1_Y)
+  case 0: return BMC_OLED_ADDRESS_1;
+#if BMC_MAX_OLED > 1 && defined(BMC_OLED_ROTATION_2) && defined(BMC_OLED_ADDRESS_2) && defined(BMC_OLED_POS_2_X) && defined(BMC_OLED_POS_2_Y)
+  case 1: return BMC_OLED_ADDRESS_2;
+#if BMC_MAX_OLED > 2 && defined(BMC_OLED_ROTATION_3) && defined(BMC_OLED_ADDRESS_3) && defined(BMC_OLED_POS_3_X) && defined(BMC_OLED_POS_3_Y)
+  case 2: return BMC_OLED_ADDRESS_3;
+#if BMC_MAX_OLED > 3 && defined(BMC_OLED_ROTATION_4) && defined(BMC_OLED_ADDRESS_4) && defined(BMC_OLED_POS_4_X) && defined(BMC_OLED_POS_4_Y)
+  case 3: return BMC_OLED_ADDRESS_4;
+#if BMC_MAX_OLED > 4 && defined(BMC_OLED_ROTATION_5) && defined(BMC_OLED_ADDRESS_5) && defined(BMC_OLED_POS_5_X) && defined(BMC_OLED_POS_5_Y)
+  case 4: return BMC_OLED_ADDRESS_5;
+#if BMC_MAX_OLED > 5 && defined(BMC_OLED_ROTATION_6) && defined(BMC_OLED_ADDRESS_6) && defined(BMC_OLED_POS_6_X) && defined(BMC_OLED_POS_6_Y)
+  case 5: return BMC_OLED_ADDRESS_6;
+#if BMC_MAX_OLED > 6 && defined(BMC_OLED_ROTATION_7) && defined(BMC_OLED_ADDRESS_7) && defined(BMC_OLED_POS_7_X) && defined(BMC_OLED_POS_7_Y)
+  case 6: return BMC_OLED_ADDRESS_7;
+#if BMC_MAX_OLED > 7 && defined(BMC_OLED_ROTATION_8) && defined(BMC_OLED_ADDRESS_8) && defined(BMC_OLED_POS_8_X) && defined(BMC_OLED_POS_8_Y)
+  case 7: return BMC_OLED_ADDRESS_8;
+#if BMC_MAX_OLED > 8 && defined(BMC_OLED_ROTATION_9) && defined(BMC_OLED_ADDRESS_9) && defined(BMC_OLED_POS_9_X) && defined(BMC_OLED_POS_9_Y)
+  case 8: return BMC_OLED_ADDRESS_9;
+#if BMC_MAX_OLED > 9 && defined(BMC_OLED_ROTATION_10) && defined(BMC_OLED_ADDRESS_10) && defined(BMC_OLED_POS_10_X) && defined(BMC_OLED_POS_10_Y)
+  case 9: return BMC_OLED_ADDRESS_10;
+#if BMC_MAX_OLED > 10 && defined(BMC_OLED_ROTATION_11) && defined(BMC_OLED_ADDRESS_11) && defined(BMC_OLED_POS_11_X) && defined(BMC_OLED_POS_11_Y)
+  case 10: return BMC_OLED_ADDRESS_11;
+#if BMC_MAX_OLED > 11 && defined(BMC_OLED_ROTATION_12) && defined(BMC_OLED_ADDRESS_12) && defined(BMC_OLED_POS_12_X) && defined(BMC_OLED_POS_12_Y)
+  case 11: return BMC_OLED_ADDRESS_12;
+#if BMC_MAX_OLED > 12 && defined(BMC_OLED_ROTATION_13) && defined(BMC_OLED_ADDRESS_13) && defined(BMC_OLED_POS_13_X) && defined(BMC_OLED_POS_13_Y)
+  case 12: return BMC_OLED_ADDRESS_13;
+#if BMC_MAX_OLED > 13 && defined(BMC_OLED_ROTATION_14) && defined(BMC_OLED_ADDRESS_14) && defined(BMC_OLED_POS_14_X) && defined(BMC_OLED_POS_14_Y)
+  case 13: return BMC_OLED_ADDRESS_14;
+#if BMC_MAX_OLED > 14 && defined(BMC_OLED_ROTATION_15) && defined(BMC_OLED_ADDRESS_15) && defined(BMC_OLED_POS_15_X) && defined(BMC_OLED_POS_15_Y)
+  case 14: return BMC_OLED_ADDRESS_15;
+#if BMC_MAX_OLED > 15 && defined(BMC_OLED_ROTATION_16) && defined(BMC_OLED_ADDRESS_16) && defined(BMC_OLED_POS_16_X) && defined(BMC_OLED_POS_16_Y)
+  case 15: return BMC_OLED_ADDRESS_16;
+#if BMC_MAX_OLED > 16 && defined(BMC_OLED_ROTATION_17) && defined(BMC_OLED_ADDRESS_17) && defined(BMC_OLED_POS_17_X) && defined(BMC_OLED_POS_17_Y)
+  case 16: return BMC_OLED_ADDRESS_17;
+#if BMC_MAX_OLED > 17 && defined(BMC_OLED_ROTATION_18) && defined(BMC_OLED_ADDRESS_18) && defined(BMC_OLED_POS_18_X) && defined(BMC_OLED_POS_18_Y)
+  case 17: return BMC_OLED_ADDRESS_18;
+#if BMC_MAX_OLED > 18 && defined(BMC_OLED_ROTATION_19) && defined(BMC_OLED_ADDRESS_19) && defined(BMC_OLED_POS_19_X) && defined(BMC_OLED_POS_19_Y)
+  case 18: return BMC_OLED_ADDRESS_19;
+#if BMC_MAX_OLED > 19 && defined(BMC_OLED_ROTATION_20) && defined(BMC_OLED_ADDRESS_20) && defined(BMC_OLED_POS_20_X) && defined(BMC_OLED_POS_20_Y)
+  case 19: return BMC_OLED_ADDRESS_20;
+#if BMC_MAX_OLED > 20 && defined(BMC_OLED_ROTATION_21) && defined(BMC_OLED_ADDRESS_21) && defined(BMC_OLED_POS_21_X) && defined(BMC_OLED_POS_21_Y)
+  case 20: return BMC_OLED_ADDRESS_21;
+#if BMC_MAX_OLED > 21 && defined(BMC_OLED_ROTATION_22) && defined(BMC_OLED_ADDRESS_22) && defined(BMC_OLED_POS_22_X) && defined(BMC_OLED_POS_22_Y)
+  case 21: return BMC_OLED_ADDRESS_22;
+#if BMC_MAX_OLED > 22 && defined(BMC_OLED_ROTATION_23) && defined(BMC_OLED_ADDRESS_23) && defined(BMC_OLED_POS_23_X) && defined(BMC_OLED_POS_23_Y)
+  case 22: return BMC_OLED_ADDRESS_23;
+#if BMC_MAX_OLED > 23 && defined(BMC_OLED_ROTATION_24) && defined(BMC_OLED_ADDRESS_24) && defined(BMC_OLED_POS_24_X) && defined(BMC_OLED_POS_24_Y)
+  case 23: return BMC_OLED_ADDRESS_24;
+#if BMC_MAX_OLED > 24 && defined(BMC_OLED_ROTATION_25) && defined(BMC_OLED_ADDRESS_25) && defined(BMC_OLED_POS_25_X) && defined(BMC_OLED_POS_25_Y)
+  case 24: return BMC_OLED_ADDRESS_25;
+#if BMC_MAX_OLED > 25 && defined(BMC_OLED_ROTATION_26) && defined(BMC_OLED_ADDRESS_26) && defined(BMC_OLED_POS_26_X) && defined(BMC_OLED_POS_26_Y)
+  case 25: return BMC_OLED_ADDRESS_26;
+#if BMC_MAX_OLED > 26 && defined(BMC_OLED_ROTATION_27) && defined(BMC_OLED_ADDRESS_27) && defined(BMC_OLED_POS_27_X) && defined(BMC_OLED_POS_27_Y)
+  case 26: return BMC_OLED_ADDRESS_27;
+#if BMC_MAX_OLED > 27 && defined(BMC_OLED_ROTATION_28) && defined(BMC_OLED_ADDRESS_28) && defined(BMC_OLED_POS_28_X) && defined(BMC_OLED_POS_28_Y)
+  case 27: return BMC_OLED_ADDRESS_28;
+#if BMC_MAX_OLED > 28 && defined(BMC_OLED_ROTATION_29) && defined(BMC_OLED_ADDRESS_29) && defined(BMC_OLED_POS_29_X) && defined(BMC_OLED_POS_29_Y)
+  case 28: return BMC_OLED_ADDRESS_29;
+#if BMC_MAX_OLED > 29 && defined(BMC_OLED_ROTATION_30) && defined(BMC_OLED_ADDRESS_30) && defined(BMC_OLED_POS_30_X) && defined(BMC_OLED_POS_30_Y)
+  case 29: return BMC_OLED_ADDRESS_30;
+#if BMC_MAX_OLED > 30 && defined(BMC_OLED_ROTATION_31) && defined(BMC_OLED_ADDRESS_31) && defined(BMC_OLED_POS_31_X) && defined(BMC_OLED_POS_31_Y)
+  case 30: return BMC_OLED_ADDRESS_31;
+#if BMC_MAX_OLED > 31 && defined(BMC_OLED_ROTATION_32) && defined(BMC_OLED_ADDRESS_32) && defined(BMC_OLED_POS_32_X) && defined(BMC_OLED_POS_32_Y)
+  case 31: return BMC_OLED_ADDRESS_32;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 4){
+switch(index){
+#if BMC_MAX_OLED > 0 && defined(BMC_OLED_PORT_1) && defined(BMC_OLED_ADDRESS_1) && defined(BMC_OLED_POS_1_X) && defined(BMC_OLED_POS_1_Y)
+  case 0: return BMC_OLED_PORT_1;
+#if BMC_MAX_OLED > 1 && defined(BMC_OLED_PORT_2) && defined(BMC_OLED_ADDRESS_2) && defined(BMC_OLED_POS_2_X) && defined(BMC_OLED_POS_2_Y)
+  case 1: return BMC_OLED_PORT_2;
+#if BMC_MAX_OLED > 2 && defined(BMC_OLED_PORT_3) && defined(BMC_OLED_ADDRESS_3) && defined(BMC_OLED_POS_3_X) && defined(BMC_OLED_POS_3_Y)
+  case 2: return BMC_OLED_PORT_3;
+#if BMC_MAX_OLED > 3 && defined(BMC_OLED_PORT_4) && defined(BMC_OLED_ADDRESS_4) && defined(BMC_OLED_POS_4_X) && defined(BMC_OLED_POS_4_Y)
+  case 3: return BMC_OLED_PORT_4;
+#if BMC_MAX_OLED > 4 && defined(BMC_OLED_PORT_5) && defined(BMC_OLED_ADDRESS_5) && defined(BMC_OLED_POS_5_X) && defined(BMC_OLED_POS_5_Y)
+  case 4: return BMC_OLED_PORT_5;
+#if BMC_MAX_OLED > 5 && defined(BMC_OLED_PORT_6) && defined(BMC_OLED_ADDRESS_6) && defined(BMC_OLED_POS_6_X) && defined(BMC_OLED_POS_6_Y)
+  case 5: return BMC_OLED_PORT_6;
+#if BMC_MAX_OLED > 6 && defined(BMC_OLED_PORT_7) && defined(BMC_OLED_ADDRESS_7) && defined(BMC_OLED_POS_7_X) && defined(BMC_OLED_POS_7_Y)
+  case 6: return BMC_OLED_PORT_7;
+#if BMC_MAX_OLED > 7 && defined(BMC_OLED_PORT_8) && defined(BMC_OLED_ADDRESS_8) && defined(BMC_OLED_POS_8_X) && defined(BMC_OLED_POS_8_Y)
+  case 7: return BMC_OLED_PORT_8;
+#if BMC_MAX_OLED > 8 && defined(BMC_OLED_PORT_9) && defined(BMC_OLED_ADDRESS_9) && defined(BMC_OLED_POS_9_X) && defined(BMC_OLED_POS_9_Y)
+  case 8: return BMC_OLED_PORT_9;
+#if BMC_MAX_OLED > 9 && defined(BMC_OLED_PORT_10) && defined(BMC_OLED_ADDRESS_10) && defined(BMC_OLED_POS_10_X) && defined(BMC_OLED_POS_10_Y)
+  case 9: return BMC_OLED_PORT_10;
+#if BMC_MAX_OLED > 10 && defined(BMC_OLED_PORT_11) && defined(BMC_OLED_ADDRESS_11) && defined(BMC_OLED_POS_11_X) && defined(BMC_OLED_POS_11_Y)
+  case 10: return BMC_OLED_PORT_11;
+#if BMC_MAX_OLED > 11 && defined(BMC_OLED_PORT_12) && defined(BMC_OLED_ADDRESS_12) && defined(BMC_OLED_POS_12_X) && defined(BMC_OLED_POS_12_Y)
+  case 11: return BMC_OLED_PORT_12;
+#if BMC_MAX_OLED > 12 && defined(BMC_OLED_PORT_13) && defined(BMC_OLED_ADDRESS_13) && defined(BMC_OLED_POS_13_X) && defined(BMC_OLED_POS_13_Y)
+  case 12: return BMC_OLED_PORT_13;
+#if BMC_MAX_OLED > 13 && defined(BMC_OLED_PORT_14) && defined(BMC_OLED_ADDRESS_14) && defined(BMC_OLED_POS_14_X) && defined(BMC_OLED_POS_14_Y)
+  case 13: return BMC_OLED_PORT_14;
+#if BMC_MAX_OLED > 14 && defined(BMC_OLED_PORT_15) && defined(BMC_OLED_ADDRESS_15) && defined(BMC_OLED_POS_15_X) && defined(BMC_OLED_POS_15_Y)
+  case 14: return BMC_OLED_PORT_15;
+#if BMC_MAX_OLED > 15 && defined(BMC_OLED_PORT_16) && defined(BMC_OLED_ADDRESS_16) && defined(BMC_OLED_POS_16_X) && defined(BMC_OLED_POS_16_Y)
+  case 15: return BMC_OLED_PORT_16;
+#if BMC_MAX_OLED > 16 && defined(BMC_OLED_PORT_17) && defined(BMC_OLED_ADDRESS_17) && defined(BMC_OLED_POS_17_X) && defined(BMC_OLED_POS_17_Y)
+  case 16: return BMC_OLED_PORT_17;
+#if BMC_MAX_OLED > 17 && defined(BMC_OLED_PORT_18) && defined(BMC_OLED_ADDRESS_18) && defined(BMC_OLED_POS_18_X) && defined(BMC_OLED_POS_18_Y)
+  case 17: return BMC_OLED_PORT_18;
+#if BMC_MAX_OLED > 18 && defined(BMC_OLED_PORT_19) && defined(BMC_OLED_ADDRESS_19) && defined(BMC_OLED_POS_19_X) && defined(BMC_OLED_POS_19_Y)
+  case 18: return BMC_OLED_PORT_19;
+#if BMC_MAX_OLED > 19 && defined(BMC_OLED_PORT_20) && defined(BMC_OLED_ADDRESS_20) && defined(BMC_OLED_POS_20_X) && defined(BMC_OLED_POS_20_Y)
+  case 19: return BMC_OLED_PORT_20;
+#if BMC_MAX_OLED > 20 && defined(BMC_OLED_PORT_21) && defined(BMC_OLED_ADDRESS_21) && defined(BMC_OLED_POS_21_X) && defined(BMC_OLED_POS_21_Y)
+  case 20: return BMC_OLED_PORT_21;
+#if BMC_MAX_OLED > 21 && defined(BMC_OLED_PORT_22) && defined(BMC_OLED_ADDRESS_22) && defined(BMC_OLED_POS_22_X) && defined(BMC_OLED_POS_22_Y)
+  case 21: return BMC_OLED_PORT_22;
+#if BMC_MAX_OLED > 22 && defined(BMC_OLED_PORT_23) && defined(BMC_OLED_ADDRESS_23) && defined(BMC_OLED_POS_23_X) && defined(BMC_OLED_POS_23_Y)
+  case 22: return BMC_OLED_PORT_23;
+#if BMC_MAX_OLED > 23 && defined(BMC_OLED_PORT_24) && defined(BMC_OLED_ADDRESS_24) && defined(BMC_OLED_POS_24_X) && defined(BMC_OLED_POS_24_Y)
+  case 23: return BMC_OLED_PORT_24;
+#if BMC_MAX_OLED > 24 && defined(BMC_OLED_PORT_25) && defined(BMC_OLED_ADDRESS_25) && defined(BMC_OLED_POS_25_X) && defined(BMC_OLED_POS_25_Y)
+  case 24: return BMC_OLED_PORT_25;
+#if BMC_MAX_OLED > 25 && defined(BMC_OLED_PORT_26) && defined(BMC_OLED_ADDRESS_26) && defined(BMC_OLED_POS_26_X) && defined(BMC_OLED_POS_26_Y)
+  case 25: return BMC_OLED_PORT_26;
+#if BMC_MAX_OLED > 26 && defined(BMC_OLED_PORT_27) && defined(BMC_OLED_ADDRESS_27) && defined(BMC_OLED_POS_27_X) && defined(BMC_OLED_POS_27_Y)
+  case 26: return BMC_OLED_PORT_27;
+#if BMC_MAX_OLED > 27 && defined(BMC_OLED_PORT_28) && defined(BMC_OLED_ADDRESS_28) && defined(BMC_OLED_POS_28_X) && defined(BMC_OLED_POS_28_Y)
+  case 27: return BMC_OLED_PORT_28;
+#if BMC_MAX_OLED > 28 && defined(BMC_OLED_PORT_29) && defined(BMC_OLED_ADDRESS_29) && defined(BMC_OLED_POS_29_X) && defined(BMC_OLED_POS_29_Y)
+  case 28: return BMC_OLED_PORT_29;
+#if BMC_MAX_OLED > 29 && defined(BMC_OLED_PORT_30) && defined(BMC_OLED_ADDRESS_30) && defined(BMC_OLED_POS_30_X) && defined(BMC_OLED_POS_30_Y)
+  case 29: return BMC_OLED_PORT_30;
+#if BMC_MAX_OLED > 30 && defined(BMC_OLED_PORT_31) && defined(BMC_OLED_ADDRESS_31) && defined(BMC_OLED_POS_31_X) && defined(BMC_OLED_POS_31_Y)
+  case 30: return BMC_OLED_PORT_31;
+#if BMC_MAX_OLED > 31 && defined(BMC_OLED_PORT_32) && defined(BMC_OLED_ADDRESS_32) && defined(BMC_OLED_POS_32_X) && defined(BMC_OLED_POS_32_Y)
+  case 31: return BMC_OLED_PORT_32;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+}
+#endif
+return 0;
+}
+
+static uint16_t getIliDisplayPosition(uint8_t requestType){
+#if BMC_MAX_ILI9341_BLOCKS > 0
+
+  if(requestType < 2){
+
+    #if defined(BMC_ILI9341_ROTATION) && defined(BMC_ILI9341_POS_X) && defined(BMC_ILI9341_POS_Y)
+      return (requestType==0) ? BMC_ILI9341_POS_X : BMC_ILI9341_POS_Y;
+    #endif
+
+  } else if(requestType == 2){
+
+    #if defined(BMC_ILI9341_ROTATION) && defined(BMC_ILI9341_POS_X) && defined(BMC_ILI9341_POS_Y)
+      return BMC_ILI9341_ROTATION;
+    #endif
+
+  } else if(requestType == 3){
+
+    #if defined(BMC_ILI9341_ROTATION) && defined(BMC_ILI9341_POS_X) && defined(BMC_ILI9341_POS_Y)
+      #if defined(BMC_ILI9341_TOUCH_CS) && defined(BMC_ILI9341_TOUCH_IRQ)
+        return BMC_ILI9341_TOUCH_CS;
+      #endif
+    #endif
+
+  } else if(requestType == 4){
+
+    #if defined(BMC_ILI9341_ROTATION) && defined(BMC_ILI9341_POS_X) && defined(BMC_ILI9341_POS_Y)
+      #if defined(BMC_ILI9341_TOUCH_CS) && defined(BMC_ILI9341_TOUCH_IRQ)
+        return BMC_ILI9341_TOUCH_IRQ;
+      #endif
+    #endif
+
+  }
+#endif
+  return 0;
+}
+static uint16_t getIliDisplayBlockPosition(uint8_t index, uint8_t requestType){
+#if defined(BMC_USE_ILI9341) && BMC_MAX_ILI9341_BLOCKS > 0
+if(requestType < 2){
+bool x = (requestType==0);
+switch(index){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_ILI9341_BLOCK_SIZE_1) && defined(BMC_ILI9341_BLOCK_BACKGROUND_1) && defined(BMC_ILI9341_BLOCK_COLOR_1) && defined(BMC_ILI9341_BLOCK_POS_1_X) && defined(BMC_ILI9341_BLOCK_POS_1_Y)
+  case 0: return (x) ? BMC_ILI9341_BLOCK_POS_1_X : BMC_ILI9341_BLOCK_POS_1_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 1 && defined(BMC_ILI9341_BLOCK_SIZE_2) && defined(BMC_ILI9341_BLOCK_BACKGROUND_2) && defined(BMC_ILI9341_BLOCK_COLOR_2) && defined(BMC_ILI9341_BLOCK_POS_2_X) && defined(BMC_ILI9341_BLOCK_POS_2_Y)
+  case 1: return (x) ? BMC_ILI9341_BLOCK_POS_2_X : BMC_ILI9341_BLOCK_POS_2_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 2 && defined(BMC_ILI9341_BLOCK_SIZE_3) && defined(BMC_ILI9341_BLOCK_BACKGROUND_3) && defined(BMC_ILI9341_BLOCK_COLOR_3) && defined(BMC_ILI9341_BLOCK_POS_3_X) && defined(BMC_ILI9341_BLOCK_POS_3_Y)
+  case 2: return (x) ? BMC_ILI9341_BLOCK_POS_3_X : BMC_ILI9341_BLOCK_POS_3_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 3 && defined(BMC_ILI9341_BLOCK_SIZE_4) && defined(BMC_ILI9341_BLOCK_BACKGROUND_4) && defined(BMC_ILI9341_BLOCK_COLOR_4) && defined(BMC_ILI9341_BLOCK_POS_4_X) && defined(BMC_ILI9341_BLOCK_POS_4_Y)
+  case 3: return (x) ? BMC_ILI9341_BLOCK_POS_4_X : BMC_ILI9341_BLOCK_POS_4_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 4 && defined(BMC_ILI9341_BLOCK_SIZE_5) && defined(BMC_ILI9341_BLOCK_BACKGROUND_5) && defined(BMC_ILI9341_BLOCK_COLOR_5) && defined(BMC_ILI9341_BLOCK_POS_5_X) && defined(BMC_ILI9341_BLOCK_POS_5_Y)
+  case 4: return (x) ? BMC_ILI9341_BLOCK_POS_5_X : BMC_ILI9341_BLOCK_POS_5_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 5 && defined(BMC_ILI9341_BLOCK_SIZE_6) && defined(BMC_ILI9341_BLOCK_BACKGROUND_6) && defined(BMC_ILI9341_BLOCK_COLOR_6) && defined(BMC_ILI9341_BLOCK_POS_6_X) && defined(BMC_ILI9341_BLOCK_POS_6_Y)
+  case 5: return (x) ? BMC_ILI9341_BLOCK_POS_6_X : BMC_ILI9341_BLOCK_POS_6_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 6 && defined(BMC_ILI9341_BLOCK_SIZE_7) && defined(BMC_ILI9341_BLOCK_BACKGROUND_7) && defined(BMC_ILI9341_BLOCK_COLOR_7) && defined(BMC_ILI9341_BLOCK_POS_7_X) && defined(BMC_ILI9341_BLOCK_POS_7_Y)
+  case 6: return (x) ? BMC_ILI9341_BLOCK_POS_7_X : BMC_ILI9341_BLOCK_POS_7_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 7 && defined(BMC_ILI9341_BLOCK_SIZE_8) && defined(BMC_ILI9341_BLOCK_BACKGROUND_8) && defined(BMC_ILI9341_BLOCK_COLOR_8) && defined(BMC_ILI9341_BLOCK_POS_8_X) && defined(BMC_ILI9341_BLOCK_POS_8_Y)
+  case 7: return (x) ? BMC_ILI9341_BLOCK_POS_8_X : BMC_ILI9341_BLOCK_POS_8_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 8 && defined(BMC_ILI9341_BLOCK_SIZE_9) && defined(BMC_ILI9341_BLOCK_BACKGROUND_9) && defined(BMC_ILI9341_BLOCK_COLOR_9) && defined(BMC_ILI9341_BLOCK_POS_9_X) && defined(BMC_ILI9341_BLOCK_POS_9_Y)
+  case 8: return (x) ? BMC_ILI9341_BLOCK_POS_9_X : BMC_ILI9341_BLOCK_POS_9_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 9 && defined(BMC_ILI9341_BLOCK_SIZE_10) && defined(BMC_ILI9341_BLOCK_BACKGROUND_10) && defined(BMC_ILI9341_BLOCK_COLOR_10) && defined(BMC_ILI9341_BLOCK_POS_10_X) && defined(BMC_ILI9341_BLOCK_POS_10_Y)
+  case 9: return (x) ? BMC_ILI9341_BLOCK_POS_10_X : BMC_ILI9341_BLOCK_POS_10_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 10 && defined(BMC_ILI9341_BLOCK_SIZE_11) && defined(BMC_ILI9341_BLOCK_BACKGROUND_11) && defined(BMC_ILI9341_BLOCK_COLOR_11) && defined(BMC_ILI9341_BLOCK_POS_11_X) && defined(BMC_ILI9341_BLOCK_POS_11_Y)
+  case 10: return (x) ? BMC_ILI9341_BLOCK_POS_11_X : BMC_ILI9341_BLOCK_POS_11_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 11 && defined(BMC_ILI9341_BLOCK_SIZE_12) && defined(BMC_ILI9341_BLOCK_BACKGROUND_12) && defined(BMC_ILI9341_BLOCK_COLOR_12) && defined(BMC_ILI9341_BLOCK_POS_12_X) && defined(BMC_ILI9341_BLOCK_POS_12_Y)
+  case 11: return (x) ? BMC_ILI9341_BLOCK_POS_12_X : BMC_ILI9341_BLOCK_POS_12_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 12 && defined(BMC_ILI9341_BLOCK_SIZE_13) && defined(BMC_ILI9341_BLOCK_BACKGROUND_13) && defined(BMC_ILI9341_BLOCK_COLOR_13) && defined(BMC_ILI9341_BLOCK_POS_13_X) && defined(BMC_ILI9341_BLOCK_POS_13_Y)
+  case 12: return (x) ? BMC_ILI9341_BLOCK_POS_13_X : BMC_ILI9341_BLOCK_POS_13_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 13 && defined(BMC_ILI9341_BLOCK_SIZE_14) && defined(BMC_ILI9341_BLOCK_BACKGROUND_14) && defined(BMC_ILI9341_BLOCK_COLOR_14) && defined(BMC_ILI9341_BLOCK_POS_14_X) && defined(BMC_ILI9341_BLOCK_POS_14_Y)
+  case 13: return (x) ? BMC_ILI9341_BLOCK_POS_14_X : BMC_ILI9341_BLOCK_POS_14_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 14 && defined(BMC_ILI9341_BLOCK_SIZE_15) && defined(BMC_ILI9341_BLOCK_BACKGROUND_15) && defined(BMC_ILI9341_BLOCK_COLOR_15) && defined(BMC_ILI9341_BLOCK_POS_15_X) && defined(BMC_ILI9341_BLOCK_POS_15_Y)
+  case 14: return (x) ? BMC_ILI9341_BLOCK_POS_15_X : BMC_ILI9341_BLOCK_POS_15_Y;
+#if BMC_MAX_ILI9341_BLOCKS > 15 && defined(BMC_ILI9341_BLOCK_SIZE_16) && defined(BMC_ILI9341_BLOCK_BACKGROUND_16) && defined(BMC_ILI9341_BLOCK_COLOR_16) && defined(BMC_ILI9341_BLOCK_POS_16_X) && defined(BMC_ILI9341_BLOCK_POS_16_Y)
+  case 15: return (x) ? BMC_ILI9341_BLOCK_POS_16_X : BMC_ILI9341_BLOCK_POS_16_Y;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 2){
+switch(index){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_ILI9341_BLOCK_SIZE_1) && defined(BMC_ILI9341_BLOCK_BACKGROUND_1) && defined(BMC_ILI9341_BLOCK_COLOR_1) && defined(BMC_ILI9341_BLOCK_POS_1_X) && defined(BMC_ILI9341_BLOCK_POS_1_Y)
+  case 0: return BMC_ILI9341_BLOCK_SIZE_1;
+#if BMC_MAX_ILI9341_BLOCKS > 1 && defined(BMC_ILI9341_BLOCK_SIZE_2) && defined(BMC_ILI9341_BLOCK_BACKGROUND_2) && defined(BMC_ILI9341_BLOCK_COLOR_2) && defined(BMC_ILI9341_BLOCK_POS_2_X) && defined(BMC_ILI9341_BLOCK_POS_2_Y)
+  case 1: return BMC_ILI9341_BLOCK_SIZE_2;
+#if BMC_MAX_ILI9341_BLOCKS > 2 && defined(BMC_ILI9341_BLOCK_SIZE_3) && defined(BMC_ILI9341_BLOCK_BACKGROUND_3) && defined(BMC_ILI9341_BLOCK_COLOR_3) && defined(BMC_ILI9341_BLOCK_POS_3_X) && defined(BMC_ILI9341_BLOCK_POS_3_Y)
+  case 2: return BMC_ILI9341_BLOCK_SIZE_3;
+#if BMC_MAX_ILI9341_BLOCKS > 3 && defined(BMC_ILI9341_BLOCK_SIZE_4) && defined(BMC_ILI9341_BLOCK_BACKGROUND_4) && defined(BMC_ILI9341_BLOCK_COLOR_4) && defined(BMC_ILI9341_BLOCK_POS_4_X) && defined(BMC_ILI9341_BLOCK_POS_4_Y)
+  case 3: return BMC_ILI9341_BLOCK_SIZE_4;
+#if BMC_MAX_ILI9341_BLOCKS > 4 && defined(BMC_ILI9341_BLOCK_SIZE_5) && defined(BMC_ILI9341_BLOCK_BACKGROUND_5) && defined(BMC_ILI9341_BLOCK_COLOR_5) && defined(BMC_ILI9341_BLOCK_POS_5_X) && defined(BMC_ILI9341_BLOCK_POS_5_Y)
+  case 4: return BMC_ILI9341_BLOCK_SIZE_5;
+#if BMC_MAX_ILI9341_BLOCKS > 5 && defined(BMC_ILI9341_BLOCK_SIZE_6) && defined(BMC_ILI9341_BLOCK_BACKGROUND_6) && defined(BMC_ILI9341_BLOCK_COLOR_6) && defined(BMC_ILI9341_BLOCK_POS_6_X) && defined(BMC_ILI9341_BLOCK_POS_6_Y)
+  case 5: return BMC_ILI9341_BLOCK_SIZE_6;
+#if BMC_MAX_ILI9341_BLOCKS > 6 && defined(BMC_ILI9341_BLOCK_SIZE_7) && defined(BMC_ILI9341_BLOCK_BACKGROUND_7) && defined(BMC_ILI9341_BLOCK_COLOR_7) && defined(BMC_ILI9341_BLOCK_POS_7_X) && defined(BMC_ILI9341_BLOCK_POS_7_Y)
+  case 6: return BMC_ILI9341_BLOCK_SIZE_7;
+#if BMC_MAX_ILI9341_BLOCKS > 7 && defined(BMC_ILI9341_BLOCK_SIZE_8) && defined(BMC_ILI9341_BLOCK_BACKGROUND_8) && defined(BMC_ILI9341_BLOCK_COLOR_8) && defined(BMC_ILI9341_BLOCK_POS_8_X) && defined(BMC_ILI9341_BLOCK_POS_8_Y)
+  case 7: return BMC_ILI9341_BLOCK_SIZE_8;
+#if BMC_MAX_ILI9341_BLOCKS > 8 && defined(BMC_ILI9341_BLOCK_SIZE_9) && defined(BMC_ILI9341_BLOCK_BACKGROUND_9) && defined(BMC_ILI9341_BLOCK_COLOR_9) && defined(BMC_ILI9341_BLOCK_POS_9_X) && defined(BMC_ILI9341_BLOCK_POS_9_Y)
+  case 8: return BMC_ILI9341_BLOCK_SIZE_9;
+#if BMC_MAX_ILI9341_BLOCKS > 9 && defined(BMC_ILI9341_BLOCK_SIZE_10) && defined(BMC_ILI9341_BLOCK_BACKGROUND_10) && defined(BMC_ILI9341_BLOCK_COLOR_10) && defined(BMC_ILI9341_BLOCK_POS_10_X) && defined(BMC_ILI9341_BLOCK_POS_10_Y)
+  case 9: return BMC_ILI9341_BLOCK_SIZE_10;
+#if BMC_MAX_ILI9341_BLOCKS > 10 && defined(BMC_ILI9341_BLOCK_SIZE_11) && defined(BMC_ILI9341_BLOCK_BACKGROUND_11) && defined(BMC_ILI9341_BLOCK_COLOR_11) && defined(BMC_ILI9341_BLOCK_POS_11_X) && defined(BMC_ILI9341_BLOCK_POS_11_Y)
+  case 10: return BMC_ILI9341_BLOCK_SIZE_11;
+#if BMC_MAX_ILI9341_BLOCKS > 11 && defined(BMC_ILI9341_BLOCK_SIZE_12) && defined(BMC_ILI9341_BLOCK_BACKGROUND_12) && defined(BMC_ILI9341_BLOCK_COLOR_12) && defined(BMC_ILI9341_BLOCK_POS_12_X) && defined(BMC_ILI9341_BLOCK_POS_12_Y)
+  case 11: return BMC_ILI9341_BLOCK_SIZE_12;
+#if BMC_MAX_ILI9341_BLOCKS > 12 && defined(BMC_ILI9341_BLOCK_SIZE_13) && defined(BMC_ILI9341_BLOCK_BACKGROUND_13) && defined(BMC_ILI9341_BLOCK_COLOR_13) && defined(BMC_ILI9341_BLOCK_POS_13_X) && defined(BMC_ILI9341_BLOCK_POS_13_Y)
+  case 12: return BMC_ILI9341_BLOCK_SIZE_13;
+#if BMC_MAX_ILI9341_BLOCKS > 13 && defined(BMC_ILI9341_BLOCK_SIZE_14) && defined(BMC_ILI9341_BLOCK_BACKGROUND_14) && defined(BMC_ILI9341_BLOCK_COLOR_14) && defined(BMC_ILI9341_BLOCK_POS_14_X) && defined(BMC_ILI9341_BLOCK_POS_14_Y)
+  case 13: return BMC_ILI9341_BLOCK_SIZE_14;
+#if BMC_MAX_ILI9341_BLOCKS > 14 && defined(BMC_ILI9341_BLOCK_SIZE_15) && defined(BMC_ILI9341_BLOCK_BACKGROUND_15) && defined(BMC_ILI9341_BLOCK_COLOR_15) && defined(BMC_ILI9341_BLOCK_POS_15_X) && defined(BMC_ILI9341_BLOCK_POS_15_Y)
+  case 14: return BMC_ILI9341_BLOCK_SIZE_15;
+#if BMC_MAX_ILI9341_BLOCKS > 15 && defined(BMC_ILI9341_BLOCK_SIZE_16) && defined(BMC_ILI9341_BLOCK_BACKGROUND_16) && defined(BMC_ILI9341_BLOCK_COLOR_16) && defined(BMC_ILI9341_BLOCK_POS_16_X) && defined(BMC_ILI9341_BLOCK_POS_16_Y)
+  case 15: return BMC_ILI9341_BLOCK_SIZE_16;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 3){
+switch(index){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_ILI9341_BLOCK_SIZE_1) && defined(BMC_ILI9341_BLOCK_BACKGROUND_1) && defined(BMC_ILI9341_BLOCK_COLOR_1) && defined(BMC_ILI9341_BLOCK_POS_1_X) && defined(BMC_ILI9341_BLOCK_POS_1_Y)
+  case 0: return BMC_ILI9341_BLOCK_BACKGROUND_1;
+#if BMC_MAX_ILI9341_BLOCKS > 1 && defined(BMC_ILI9341_BLOCK_SIZE_2) && defined(BMC_ILI9341_BLOCK_BACKGROUND_2) && defined(BMC_ILI9341_BLOCK_COLOR_2) && defined(BMC_ILI9341_BLOCK_POS_2_X) && defined(BMC_ILI9341_BLOCK_POS_2_Y)
+  case 1: return BMC_ILI9341_BLOCK_BACKGROUND_2;
+#if BMC_MAX_ILI9341_BLOCKS > 2 && defined(BMC_ILI9341_BLOCK_SIZE_3) && defined(BMC_ILI9341_BLOCK_BACKGROUND_3) && defined(BMC_ILI9341_BLOCK_COLOR_3) && defined(BMC_ILI9341_BLOCK_POS_3_X) && defined(BMC_ILI9341_BLOCK_POS_3_Y)
+  case 2: return BMC_ILI9341_BLOCK_BACKGROUND_3;
+#if BMC_MAX_ILI9341_BLOCKS > 3 && defined(BMC_ILI9341_BLOCK_SIZE_4) && defined(BMC_ILI9341_BLOCK_BACKGROUND_4) && defined(BMC_ILI9341_BLOCK_COLOR_4) && defined(BMC_ILI9341_BLOCK_POS_4_X) && defined(BMC_ILI9341_BLOCK_POS_4_Y)
+  case 3: return BMC_ILI9341_BLOCK_BACKGROUND_4;
+#if BMC_MAX_ILI9341_BLOCKS > 4 && defined(BMC_ILI9341_BLOCK_SIZE_5) && defined(BMC_ILI9341_BLOCK_BACKGROUND_5) && defined(BMC_ILI9341_BLOCK_COLOR_5) && defined(BMC_ILI9341_BLOCK_POS_5_X) && defined(BMC_ILI9341_BLOCK_POS_5_Y)
+  case 4: return BMC_ILI9341_BLOCK_BACKGROUND_5;
+#if BMC_MAX_ILI9341_BLOCKS > 5 && defined(BMC_ILI9341_BLOCK_SIZE_6) && defined(BMC_ILI9341_BLOCK_BACKGROUND_6) && defined(BMC_ILI9341_BLOCK_COLOR_6) && defined(BMC_ILI9341_BLOCK_POS_6_X) && defined(BMC_ILI9341_BLOCK_POS_6_Y)
+  case 5: return BMC_ILI9341_BLOCK_BACKGROUND_6;
+#if BMC_MAX_ILI9341_BLOCKS > 6 && defined(BMC_ILI9341_BLOCK_SIZE_7) && defined(BMC_ILI9341_BLOCK_BACKGROUND_7) && defined(BMC_ILI9341_BLOCK_COLOR_7) && defined(BMC_ILI9341_BLOCK_POS_7_X) && defined(BMC_ILI9341_BLOCK_POS_7_Y)
+  case 6: return BMC_ILI9341_BLOCK_BACKGROUND_7;
+#if BMC_MAX_ILI9341_BLOCKS > 7 && defined(BMC_ILI9341_BLOCK_SIZE_8) && defined(BMC_ILI9341_BLOCK_BACKGROUND_8) && defined(BMC_ILI9341_BLOCK_COLOR_8) && defined(BMC_ILI9341_BLOCK_POS_8_X) && defined(BMC_ILI9341_BLOCK_POS_8_Y)
+  case 7: return BMC_ILI9341_BLOCK_BACKGROUND_8;
+#if BMC_MAX_ILI9341_BLOCKS > 8 && defined(BMC_ILI9341_BLOCK_SIZE_9) && defined(BMC_ILI9341_BLOCK_BACKGROUND_9) && defined(BMC_ILI9341_BLOCK_COLOR_9) && defined(BMC_ILI9341_BLOCK_POS_9_X) && defined(BMC_ILI9341_BLOCK_POS_9_Y)
+  case 8: return BMC_ILI9341_BLOCK_BACKGROUND_9;
+#if BMC_MAX_ILI9341_BLOCKS > 9 && defined(BMC_ILI9341_BLOCK_SIZE_10) && defined(BMC_ILI9341_BLOCK_BACKGROUND_10) && defined(BMC_ILI9341_BLOCK_COLOR_10) && defined(BMC_ILI9341_BLOCK_POS_10_X) && defined(BMC_ILI9341_BLOCK_POS_10_Y)
+  case 9: return BMC_ILI9341_BLOCK_BACKGROUND_10;
+#if BMC_MAX_ILI9341_BLOCKS > 10 && defined(BMC_ILI9341_BLOCK_SIZE_11) && defined(BMC_ILI9341_BLOCK_BACKGROUND_11) && defined(BMC_ILI9341_BLOCK_COLOR_11) && defined(BMC_ILI9341_BLOCK_POS_11_X) && defined(BMC_ILI9341_BLOCK_POS_11_Y)
+  case 10: return BMC_ILI9341_BLOCK_BACKGROUND_11;
+#if BMC_MAX_ILI9341_BLOCKS > 11 && defined(BMC_ILI9341_BLOCK_SIZE_12) && defined(BMC_ILI9341_BLOCK_BACKGROUND_12) && defined(BMC_ILI9341_BLOCK_COLOR_12) && defined(BMC_ILI9341_BLOCK_POS_12_X) && defined(BMC_ILI9341_BLOCK_POS_12_Y)
+  case 11: return BMC_ILI9341_BLOCK_BACKGROUND_12;
+#if BMC_MAX_ILI9341_BLOCKS > 12 && defined(BMC_ILI9341_BLOCK_SIZE_13) && defined(BMC_ILI9341_BLOCK_BACKGROUND_13) && defined(BMC_ILI9341_BLOCK_COLOR_13) && defined(BMC_ILI9341_BLOCK_POS_13_X) && defined(BMC_ILI9341_BLOCK_POS_13_Y)
+  case 12: return BMC_ILI9341_BLOCK_BACKGROUND_13;
+#if BMC_MAX_ILI9341_BLOCKS > 13 && defined(BMC_ILI9341_BLOCK_SIZE_14) && defined(BMC_ILI9341_BLOCK_BACKGROUND_14) && defined(BMC_ILI9341_BLOCK_COLOR_14) && defined(BMC_ILI9341_BLOCK_POS_14_X) && defined(BMC_ILI9341_BLOCK_POS_14_Y)
+  case 13: return BMC_ILI9341_BLOCK_BACKGROUND_14;
+#if BMC_MAX_ILI9341_BLOCKS > 14 && defined(BMC_ILI9341_BLOCK_SIZE_15) && defined(BMC_ILI9341_BLOCK_BACKGROUND_15) && defined(BMC_ILI9341_BLOCK_COLOR_15) && defined(BMC_ILI9341_BLOCK_POS_15_X) && defined(BMC_ILI9341_BLOCK_POS_15_Y)
+  case 14: return BMC_ILI9341_BLOCK_BACKGROUND_15;
+#if BMC_MAX_ILI9341_BLOCKS > 15 && defined(BMC_ILI9341_BLOCK_SIZE_16) && defined(BMC_ILI9341_BLOCK_BACKGROUND_16) && defined(BMC_ILI9341_BLOCK_COLOR_16) && defined(BMC_ILI9341_BLOCK_POS_16_X) && defined(BMC_ILI9341_BLOCK_POS_16_Y)
+  case 15: return BMC_ILI9341_BLOCK_BACKGROUND_16;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
+} else if(requestType == 4){
+switch(index){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_ILI9341_BLOCK_SIZE_1) && defined(BMC_ILI9341_BLOCK_BACKGROUND_1) && defined(BMC_ILI9341_BLOCK_COLOR_1) && defined(BMC_ILI9341_BLOCK_POS_1_X) && defined(BMC_ILI9341_BLOCK_POS_1_Y)
+  case 0: return BMC_ILI9341_BLOCK_COLOR_1;
+#if BMC_MAX_ILI9341_BLOCKS > 1 && defined(BMC_ILI9341_BLOCK_SIZE_2) && defined(BMC_ILI9341_BLOCK_BACKGROUND_2) && defined(BMC_ILI9341_BLOCK_COLOR_2) && defined(BMC_ILI9341_BLOCK_POS_2_X) && defined(BMC_ILI9341_BLOCK_POS_2_Y)
+  case 1: return BMC_ILI9341_BLOCK_COLOR_2;
+#if BMC_MAX_ILI9341_BLOCKS > 2 && defined(BMC_ILI9341_BLOCK_SIZE_3) && defined(BMC_ILI9341_BLOCK_BACKGROUND_3) && defined(BMC_ILI9341_BLOCK_COLOR_3) && defined(BMC_ILI9341_BLOCK_POS_3_X) && defined(BMC_ILI9341_BLOCK_POS_3_Y)
+  case 2: return BMC_ILI9341_BLOCK_COLOR_3;
+#if BMC_MAX_ILI9341_BLOCKS > 3 && defined(BMC_ILI9341_BLOCK_SIZE_4) && defined(BMC_ILI9341_BLOCK_BACKGROUND_4) && defined(BMC_ILI9341_BLOCK_COLOR_4) && defined(BMC_ILI9341_BLOCK_POS_4_X) && defined(BMC_ILI9341_BLOCK_POS_4_Y)
+  case 3: return BMC_ILI9341_BLOCK_COLOR_4;
+#if BMC_MAX_ILI9341_BLOCKS > 4 && defined(BMC_ILI9341_BLOCK_SIZE_5) && defined(BMC_ILI9341_BLOCK_BACKGROUND_5) && defined(BMC_ILI9341_BLOCK_COLOR_5) && defined(BMC_ILI9341_BLOCK_POS_5_X) && defined(BMC_ILI9341_BLOCK_POS_5_Y)
+  case 4: return BMC_ILI9341_BLOCK_COLOR_5;
+#if BMC_MAX_ILI9341_BLOCKS > 5 && defined(BMC_ILI9341_BLOCK_SIZE_6) && defined(BMC_ILI9341_BLOCK_BACKGROUND_6) && defined(BMC_ILI9341_BLOCK_COLOR_6) && defined(BMC_ILI9341_BLOCK_POS_6_X) && defined(BMC_ILI9341_BLOCK_POS_6_Y)
+  case 5: return BMC_ILI9341_BLOCK_COLOR_6;
+#if BMC_MAX_ILI9341_BLOCKS > 6 && defined(BMC_ILI9341_BLOCK_SIZE_7) && defined(BMC_ILI9341_BLOCK_BACKGROUND_7) && defined(BMC_ILI9341_BLOCK_COLOR_7) && defined(BMC_ILI9341_BLOCK_POS_7_X) && defined(BMC_ILI9341_BLOCK_POS_7_Y)
+  case 6: return BMC_ILI9341_BLOCK_COLOR_7;
+#if BMC_MAX_ILI9341_BLOCKS > 7 && defined(BMC_ILI9341_BLOCK_SIZE_8) && defined(BMC_ILI9341_BLOCK_BACKGROUND_8) && defined(BMC_ILI9341_BLOCK_COLOR_8) && defined(BMC_ILI9341_BLOCK_POS_8_X) && defined(BMC_ILI9341_BLOCK_POS_8_Y)
+  case 7: return BMC_ILI9341_BLOCK_COLOR_8;
+#if BMC_MAX_ILI9341_BLOCKS > 8 && defined(BMC_ILI9341_BLOCK_SIZE_9) && defined(BMC_ILI9341_BLOCK_BACKGROUND_9) && defined(BMC_ILI9341_BLOCK_COLOR_9) && defined(BMC_ILI9341_BLOCK_POS_9_X) && defined(BMC_ILI9341_BLOCK_POS_9_Y)
+  case 8: return BMC_ILI9341_BLOCK_COLOR_9;
+#if BMC_MAX_ILI9341_BLOCKS > 9 && defined(BMC_ILI9341_BLOCK_SIZE_10) && defined(BMC_ILI9341_BLOCK_BACKGROUND_10) && defined(BMC_ILI9341_BLOCK_COLOR_10) && defined(BMC_ILI9341_BLOCK_POS_10_X) && defined(BMC_ILI9341_BLOCK_POS_10_Y)
+  case 9: return BMC_ILI9341_BLOCK_COLOR_10;
+#if BMC_MAX_ILI9341_BLOCKS > 10 && defined(BMC_ILI9341_BLOCK_SIZE_11) && defined(BMC_ILI9341_BLOCK_BACKGROUND_11) && defined(BMC_ILI9341_BLOCK_COLOR_11) && defined(BMC_ILI9341_BLOCK_POS_11_X) && defined(BMC_ILI9341_BLOCK_POS_11_Y)
+  case 10: return BMC_ILI9341_BLOCK_COLOR_11;
+#if BMC_MAX_ILI9341_BLOCKS > 11 && defined(BMC_ILI9341_BLOCK_SIZE_12) && defined(BMC_ILI9341_BLOCK_BACKGROUND_12) && defined(BMC_ILI9341_BLOCK_COLOR_12) && defined(BMC_ILI9341_BLOCK_POS_12_X) && defined(BMC_ILI9341_BLOCK_POS_12_Y)
+  case 11: return BMC_ILI9341_BLOCK_COLOR_12;
+#if BMC_MAX_ILI9341_BLOCKS > 12 && defined(BMC_ILI9341_BLOCK_SIZE_13) && defined(BMC_ILI9341_BLOCK_BACKGROUND_13) && defined(BMC_ILI9341_BLOCK_COLOR_13) && defined(BMC_ILI9341_BLOCK_POS_13_X) && defined(BMC_ILI9341_BLOCK_POS_13_Y)
+  case 12: return BMC_ILI9341_BLOCK_COLOR_13;
+#if BMC_MAX_ILI9341_BLOCKS > 13 && defined(BMC_ILI9341_BLOCK_SIZE_14) && defined(BMC_ILI9341_BLOCK_BACKGROUND_14) && defined(BMC_ILI9341_BLOCK_COLOR_14) && defined(BMC_ILI9341_BLOCK_POS_14_X) && defined(BMC_ILI9341_BLOCK_POS_14_Y)
+  case 13: return BMC_ILI9341_BLOCK_COLOR_14;
+#if BMC_MAX_ILI9341_BLOCKS > 14 && defined(BMC_ILI9341_BLOCK_SIZE_15) && defined(BMC_ILI9341_BLOCK_BACKGROUND_15) && defined(BMC_ILI9341_BLOCK_COLOR_15) && defined(BMC_ILI9341_BLOCK_POS_15_X) && defined(BMC_ILI9341_BLOCK_POS_15_Y)
+  case 14: return BMC_ILI9341_BLOCK_COLOR_15;
+#if BMC_MAX_ILI9341_BLOCKS > 15 && defined(BMC_ILI9341_BLOCK_SIZE_16) && defined(BMC_ILI9341_BLOCK_BACKGROUND_16) && defined(BMC_ILI9341_BLOCK_COLOR_16) && defined(BMC_ILI9341_BLOCK_POS_16_X) && defined(BMC_ILI9341_BLOCK_POS_16_Y)
+  case 15: return BMC_ILI9341_BLOCK_COLOR_16;
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+}
 }
 #endif
 return 0;

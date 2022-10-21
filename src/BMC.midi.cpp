@@ -39,7 +39,7 @@ void BMC::readMidi(){
   #endif
 
 #ifdef BMC_USE_BEATBUDDY
-  beatBuddy.update();
+  sync.beatBuddy.update();
 #endif
 }
 void BMC::incomingMidi(BMCMidiMessage message){
@@ -72,19 +72,19 @@ void BMC::incomingMidi(BMCMidiMessage message){
 #endif
 
 #ifdef BMC_USE_DAW_LC
-  daw.incoming(message);
+  sync.daw.incoming(message);
 #endif
 
 #ifdef BMC_USE_BEATBUDDY
-  beatBuddy.incoming(message);
+  sync.beatBuddy.incoming(message);
 #endif
 
 #ifdef BMC_USE_FAS
-  fas.incoming(message);
+  sync.fas.incoming(message);
 #endif
 
 #ifdef BMC_USE_KEMPER
-  kemper.incoming(message);
+  sync.kemper.incoming(message);
 #endif
 
   if(midi.isIncoming()){
@@ -146,13 +146,7 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
       callback.midiClockBeat();
     }
     if(midiClock.tempoChanged()){
-      #if BMC_MAX_TEMPO_TO_TAP > 0
-        tempoToTap.send(midiClock.getBpm());
-      #endif
-      if(callback.midiClockBpmChange){
-        callback.midiClockBpmChange(midiClock.getBpm());
-      }
-      streamMidiClockBPM(midiClock.getBpm());
+      runBpmChanged();
     }
   }
 #if BMC_MAX_PIXELS > 0

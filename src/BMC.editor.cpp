@@ -76,6 +76,11 @@ void BMC::assignStoreData(){
     assignRelaysL();
   #endif
 
+
+  #if defined(BMC_HAS_DISPLAY)
+    display.update(page);
+  #endif
+
   if(callback.storeUpdated){
     callback.storeUpdated();
   }
@@ -115,15 +120,15 @@ void BMC::assignSettings(){
 #endif
 
 #ifdef BMC_USE_BEATBUDDY
-  beatBuddy.enableSync(settings.getBeatBuddySync());
-  beatBuddy.setChannel(settings.getBeatBuddyChannel()+1);
-  beatBuddy.setPortBit(settings.getBeatBuddyPort());
+  sync.beatBuddy.enableSync(settings.getBeatBuddySync());
+  sync.beatBuddy.setChannel(settings.getBeatBuddyChannel()+1);
+  sync.beatBuddy.setPortBit(settings.getBeatBuddyPort());
 #endif
 
 #ifdef BMC_USE_HELIX
-  helix.setDeviceId(settings.getHelixId());
-  helix.setChannel(settings.getHelixChannel()+1);
-  helix.setPortBit(settings.getHelixPort());
+  sync.helix.setDeviceId(settings.getHelixId());
+  sync.helix.setChannel(settings.getHelixChannel()+1);
+  sync.helix.setPortBit(settings.getHelixPort());
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
@@ -307,7 +312,7 @@ void BMC::ctrlHardware(){
 
 #if defined(BMC_USE_FAS)
     case BMC_CTRL_FAS_STATE:
-      editor.utilitySendFasState(fas.getConnectedDeviceId());
+      editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
       break;
 #endif
 

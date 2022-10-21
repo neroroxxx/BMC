@@ -103,6 +103,12 @@ void BMCEditor::globalProcessMessage(){
     case BMC_GLOBALF_SETLISTS:
       globalSetList(isWriteMessage());
       break;
+    case BMC_GLOBALF_SETLISTS_SONG:
+      globalSetListSong(isWriteMessage());
+      break;
+    case BMC_GLOBALF_SETLISTS_SONG_SHIFT_POSITION:
+      globalSetListSongPartShiftPosition(isWriteMessage());
+      break;
     case BMC_GLOBALF_EDITOR_FEEDBACK:
       globalEditorFeedback(isWriteMessage());
       break;
@@ -273,6 +279,10 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_USE_DAW_LC
       bitWrite(buildData,19,1);
     #endif
+    #ifdef BMC_USE_ILI9341
+      bitWrite(buildData,20,1);
+    #endif
+
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);
@@ -315,9 +325,11 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_POTS);
     buff.appendToSysEx7Bits(BMC_MAX_PIXEL_PROGRAMS);
     buff.appendToSysEx7Bits(BMC_MAX_TIMED_EVENTS);
-    buff.appendToSysEx7Bits(0);
-    buff.appendToSysEx7Bits(0);
-    buff.appendToSysEx7Bits(0);
+    buff.appendToSysEx7Bits(BMC_MAX_OLED);
+    buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
+    buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONG_PARTS);
+    buff.appendToSysEx7Bits(BMC_MAX_ILI9341_BLOCKS);
+    BMC_PRINTLN("**************BMC_MAX_ILI9341_BLOCKS",BMC_MAX_ILI9341_BLOCKS);
     // name lengths
     buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLISTS);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_BUTTONS);
@@ -329,6 +341,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_NAME_LEN_PAGES);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_RELAYS);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_STRING_LIBRARY);
+    buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG);
+    buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG_PART);
+
     buff.appendToSysEx8Bits(BMC_VERSION_PATCH);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_BUTTONS){
@@ -943,6 +958,8 @@ void BMCEditor::globalStartup(bool write){
 
   sendToEditor(buff);
 }
+
+
 void BMCEditor::globalSetList(bool write){
   if(!isValidGlobalMessage()){
     return;
@@ -1013,6 +1030,174 @@ void BMCEditor::globalSetList(bool write){
   #endif
   sendToEditor(buff);
 }
+
+
+
+
+
+
+
+
+
+
+void BMCEditor::globalSetListSong(bool write){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  uint8_t sysExLength = 22;
+  // handle backup
+  if(write && backupActive()){
+    backupGlobalSetListSong(sysExLength);
+    return;
+  }
+  bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+  uint8_t partIndex = incoming.sysex[11];
+  if(songIndex>0 && songIndex>=BMC_MAX_SETLISTS_SONGS_LIBRARY){
+    sendNotification(BMC_NOTIFY_INVALID_SETLIST_SONG_LIBRARY, songIndex, true);
+    BMC_PRINTLN("BMC_NOTIFY_INVALID_SETLIST_SONG_LIBRARY");
+    return;
+  } else if(partIndex>0 && partIndex>=BMC_MAX_SETLISTS_SONG_PARTS){
+    sendNotification(BMC_NOTIFY_INVALID_SETLIST_SONG_PART, partIndex, true);
+    BMC_PRINTLN("BMC_NOTIFY_INVALID_SETLIST_SONG_PART");
+    return;
+  }
+  sysExLength += BMC_NAME_LEN_SETLIST_SONG + BMC_NAME_LEN_SETLIST_SONG_PART;
+
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    BMC_PRINTLN("BMC_NOTIFY_INVALID_SIZE",incoming.size(),"expected:", sysExLength);
+    return;
+  }
+#if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 0
+  if(write){
+    // write new data and save, starts at byte 11
+
+    bmcStoreGlobalSetListSong& song = store.global.songLibrary[songIndex];
+    bmcStoreGlobalSetListSongPart& part = song.parts[partIndex];
+
+    song.settings  = incoming.get8Bits(12);//+2
+    song.length = incoming.get8Bits(14);//+2
+
+    part.length = incoming.get8Bits(16);//+2
+    part.preset = (bmcPreset_t) incoming.get14Bits(18);
+
+    #if BMC_NAME_LEN_SETLIST_SONG > 1
+      incoming.getStringFromSysEx(20, song.name, BMC_NAME_LEN_SETLIST_SONG);
+    #endif
+
+    #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
+      if(part.length>0){
+        strcpy(part.name, "");
+        incoming.getStringFromSysEx(20+BMC_NAME_LEN_SETLIST_SONG, part.name, BMC_NAME_LEN_SETLIST_SONG_PART);
+      } else {
+        strcpy(part.name, "");
+      }
+    #endif
+
+    if(!backupActive()){
+      saveSetListSong(songIndex);
+      if(partIndex >= (BMC_MAX_SETLISTS_SONG_PARTS-1)){
+        reloadData();
+      }
+    }
+  }
+#endif
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(port, deviceId, BMC_GLOBALF_SETLISTS_SONG, 0, songIndex);
+  buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
+  buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONG_PARTS);
+#if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 0
+  bmcStoreGlobalSetListSong& song = store.global.songLibrary[songIndex];
+  buff.appendToSysEx14Bits(songIndex);
+  buff.appendToSysEx7Bits(partIndex);
+  buff.appendToSysEx8Bits(song.settings);
+  buff.appendToSysEx8Bits(song.length);
+  buff.appendToSysEx8Bits(song.parts[partIndex].length);
+  buff.appendToSysEx14Bits(song.parts[partIndex].preset);
+  #if BMC_NAME_LEN_SETLIST_SONG > 1
+    buff.appendCharArrayToSysEx(song.name, BMC_NAME_LEN_SETLIST_SONG);
+  #endif
+  #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
+    buff.appendCharArrayToSysEx(song.parts[partIndex].name, BMC_NAME_LEN_SETLIST_SONG_PART);
+  #endif
+#endif
+  sendToEditor(buff);
+}
+
+void BMCEditor::globalSetListSongPartShiftPosition(bool write){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  // 11 minimumlength + 3 bytes
+  uint8_t sysExLength = 15;
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+  uint8_t resp = 0;
+#if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 1
+  if(write){
+    bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+    uint8_t partSource = incoming.sysex[11];
+    uint8_t partTarget = incoming.sysex[12];
+    if(songIndex < BMC_MAX_SETLISTS_SONGS_LIBRARY && partSource < BMC_MAX_SETLISTS_SONG_PARTS && partTarget < BMC_MAX_SETLISTS_SONG_PARTS){
+      if(partSource != partTarget){
+        bmcStoreGlobalSetListSongPart source = store.global.songLibrary[songIndex].parts[partSource];
+        if(partSource>partTarget){
+          // moved up
+          for(int i=(partSource-1);i>=partTarget;i--){
+            if(i>=0 && (i+1) < BMC_MAX_SETLISTS_SONG_PARTS){
+              bmcStoreGlobalSetListSongPart tmp = store.global.songLibrary[songIndex].parts[i];
+              store.global.songLibrary[songIndex].parts[i+1] = tmp;
+            }
+          }
+        } else if(partSource<partTarget){
+          // moved down
+          for(uint8_t i=partSource;i<partTarget;i++){
+            if((i+1)<BMC_MAX_SETLISTS_SONG_PARTS){
+              bmcStoreGlobalSetListSongPart tmp = store.global.songLibrary[songIndex].parts[i+1];
+              store.global.songLibrary[songIndex].parts[i] = tmp;
+            }
+
+          }
+        }
+        store.global.songLibrary[songIndex].parts[partTarget] = source;
+        resp = 1;
+      }
+      saveSetListSong(songIndex);
+      reloadData();
+    }
+  }
+#endif
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(port, deviceId, BMC_GLOBALF_SETLISTS_SONG_SHIFT_POSITION, 0, 0);
+  buff.appendToSysEx7Bits(resp);
+  sendToEditor(buff);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void BMCEditor::globalLeds(bool write){//BMC_GLOBALF_LEDS
   if(!isValidGlobalMessage()){
     return;
@@ -1188,6 +1373,7 @@ void BMCEditor::globalButton(bool write){
   #if BMC_NAME_LEN_BUTTONS > 1
     buff.appendCharArrayToSysEx(button.name, BMC_NAME_LEN_BUTTONS);
   #endif
+  buff.appendToSysEx7Bits(BMCBuildData::getGlobalButtonStyle(buttonIndex));
 #endif
   sendToEditor(buff);
 }
@@ -1565,6 +1751,20 @@ void BMCEditor::globalTimedEvents(bool write){//BMC_GLOBALF_TIMED_EVENTS
   #endif
   sendToEditor(buff);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

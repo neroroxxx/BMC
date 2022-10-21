@@ -453,10 +453,11 @@ private:
 
   // flags
   BMCFlags <uint16_t> flags;
+  uint8_t rainbowRGB[3] = {250, 0, 0};
 
 #if BMC_MAX_PIXELS > 0
   // RAINBOW
-  uint8_t rainbowRGB[3] = {250, 0, 0};
+
   uint8_t rainbowTarget = 1;
   bool rainbowUp = true;
   // in Rainbow mode the led uses a different color anytime you set the color

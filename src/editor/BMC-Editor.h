@@ -347,6 +347,9 @@ private:
       case BMC_ITEM_ID_L_RELAY:         return BMC_MAX_L_RELAYS;
       case BMC_ITEM_ID_SETLIST:         return BMC_MAX_SETLISTS;
       case BMC_ITEM_ID_SETLIST_SONG:    return BMC_MAX_SETLISTS_SONGS;
+      case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:    return BMC_MAX_SETLISTS_SONGS_LIBRARY;
+      case BMC_ITEM_ID_OLED:            return BMC_MAX_OLED;
+      case BMC_ITEM_ID_ILI:            return BMC_MAX_ILI9341_BLOCKS;
     }
     return 0;
   }
@@ -373,6 +376,8 @@ private:
   uint32_t getPresetOffset(bmcPreset_t index);
   uint32_t getSetListOffset();
   uint32_t getSetListOffset(uint8_t index);
+  uint32_t getSetListSongOffset();
+  uint32_t getSetListSongOffset(uint8_t index);
   uint32_t getGlobalLedOffset();
   uint32_t getGlobalLedOffset(uint8_t index);
 
@@ -511,19 +516,31 @@ public:
     #endif
   }
   #if BMC_MAX_SETLISTS > 0
-  // save a single "preset" to EEPROM
-  void saveSetList(uint8_t index){
-    if(index>=BMC_MAX_SETLISTS){
-      return;
+    // save a single "preset" to EEPROM
+    void saveSetList(uint8_t index){
+      if(index >= BMC_MAX_SETLISTS){
+        return;
+      }
+      #if defined(BMC_SD_CARD_ENABLED)
+        storage.set(storeAddress, store);
+      #else
+        uint16_t address = getGlobalOffset();
+        address += getSetListOffset(index);
+        storage.set(address, store.global.setLists[index]);
+      #endif
     }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getSetListOffset(index);
-      storage.set(address, store.global.setLists[index]);
-    #endif
-  }
+    void saveSetListSong(uint16_t index){
+      if(index >= BMC_MAX_SETLISTS_SONGS_LIBRARY){
+        return;
+      }
+      #if defined(BMC_SD_CARD_ENABLED)
+        storage.set(storeAddress, store);
+      #else
+        uint16_t address = getGlobalOffset();
+        address += getSetListSongOffset(index);
+        storage.set(address, store.global.songLibrary[index]);
+      #endif
+    }
   #endif
 #endif
 
@@ -984,6 +1001,8 @@ private:
   void globalEditorMessenger(bool write);
   void globalEditorPerformMode(bool write);
   void globalSetList(bool write);
+  void globalSetListSong(bool write);
+  void globalSetListSongPartShiftPosition(bool write);
 
 // BMC-Editor.midi.page.h
 private:
@@ -997,6 +1016,8 @@ private:
   void pageRgbPixelMessage(bool write);
   void pagePotMessage(bool write);
   void pageEncoderMessage(bool write);
+  void pageOledDisplay(bool write);
+  void pageIliDisplay(bool write);
   void pageHardwareCopySwapMessage(bool write);
   void pageButtonEventShiftPositionMessage(bool write);
   void globalButtonEventShiftPositionMessage(bool write);
@@ -1096,6 +1117,7 @@ private:
   void backupGlobalLibrary(uint16_t t_minLength);
   void backupGlobalPreset(uint16_t t_minLength);
   void backupGlobalSetList(uint16_t t_minLength);
+  void backupGlobalSetListSong(uint16_t t_minLength);
   void backupGlobalStartup(uint16_t t_minLength);
   void backupGlobalLed(uint16_t t_minLength);
   void backupGlobalCustomSysEx(uint16_t t_minLength);
@@ -1119,5 +1141,8 @@ private:
   void backupPageRgbPixel(uint16_t t_minLength);
   void backupPageEncoder(uint16_t t_minLength);
   void backupPagePot(uint16_t t_minLength);
+  void backupPageOled(uint16_t t_minLength);
+  void backupPageIli(uint16_t t_minLength);
+
 };
 #endif

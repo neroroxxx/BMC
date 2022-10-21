@@ -27,6 +27,12 @@
   #define BMC_LIMIT_MIN_SETLIST_SONGS 0
   #define BMC_LIMIT_MAX_SETLIST_SONGS 32
 
+  #define BMC_LIMIT_MIN_SETLIST_SONGS_LIBRARY 0
+  #define BMC_LIMIT_MAX_SETLIST_SONGS_LIBRARY 512
+
+  #define BMC_LIMIT_MIN_SETLIST_SONGS_PARTS 0
+  #define BMC_LIMIT_MAX_SETLIST_SONGS_PARTS 16
+
   #define BMC_LIMIT_MIN_CUSTOM_SYSEX 0
   #define BMC_LIMIT_MAX_CUSTOM_SYSEX 127
 
@@ -288,6 +294,7 @@
     #define BMC_MAX_PRESETS 0
   #endif
 
+
   #if !defined(BMC_MAX_PRESETS_PER_BANK)
     #if BMC_MAX_PRESETS > 0
       #define BMC_MAX_PRESETS_PER_BANK 8
@@ -324,6 +331,9 @@
   #endif
 
 
+
+
+
   #if !defined(BMC_MAX_SETLISTS)
     #define BMC_MAX_SETLISTS 0
   #endif
@@ -332,12 +342,27 @@
     #define BMC_MAX_SETLISTS_SONGS 0
   #endif
 
+  #if !defined(BMC_MAX_SETLISTS_SONGS_LIBRARY)
+    #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
+  #endif
+
+  #if !defined(BMC_MAX_SETLISTS_SONG_PARTS)
+    #define BMC_MAX_SETLISTS_SONG_PARTS 0
+  #endif
+
+
+
+
+
+
+
+
   #if BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS > BMC_LIMIT_MAX_SETLIST
     #undef BMC_MAX_SETLISTS
     #define BMC_MAX_SETLISTS BMC_LIMIT_MAX_SETLIST
   #endif
 
-  #if BMC_MAX_SETLISTS_SONGS > 0 && BMC_MAX_SETLISTS > BMC_LIMIT_MAX_SETLIST_SONGS
+  #if BMC_MAX_SETLISTS_SONGS > 0 && BMC_MAX_SETLISTS_SONGS > BMC_LIMIT_MAX_SETLIST_SONGS
     #undef BMC_MAX_SETLISTS_SONGS
     #define BMC_MAX_SETLISTS_SONGS BMC_LIMIT_MAX_SETLIST_SONGS
   #endif
@@ -345,6 +370,70 @@
   #if BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS == 0
     #error "BMC_MAX_SETLISTS_SONGS MUST BE SET"
   #endif
+
+
+
+
+  #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONGS_LIBRARY > BMC_LIMIT_MAX_SETLIST_SONGS_LIBRARY
+    #undef BMC_MAX_SETLISTS_SONGS_LIBRARY
+    #define BMC_MAX_SETLISTS_SONGS_LIBRARY BMC_LIMIT_MAX_SETLIST_SONGS_LIBRARY
+  #endif
+
+  #if BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS_LIBRARY == 0
+    #error "BMC_MAX_SETLISTS_SONGS_LIBRARY MUST BE SET"
+  #endif
+
+  #if BMC_MAX_SETLISTS_SONG_PARTS > 0 && BMC_MAX_SETLISTS_SONG_PARTS > BMC_LIMIT_MAX_SETLIST_SONGS_PARTS
+    #undef BMC_MAX_SETLISTS_SONG_PARTS
+    #define BMC_MAX_SETLISTS_SONG_PARTS BMC_LIMIT_MAX_SETLIST_SONGS_PARTS
+  #endif
+
+  #if BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONG_PARTS == 0
+    #error "BMC_MAX_SETLISTS_SONG_PARTS MUST BE SET"
+  #endif
+
+
+  // remove everything that requires library
+  #if BMC_MAX_LIBRARY == 0
+    #undef BMC_MAX_PRESETS
+    #undef BMC_MAX_PRESET_ITEMS
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #undef BMC_MAX_SETLISTS
+    #undef BMC_MAX_SETLISTS_SONGS
+    #undef BMC_MAX_SETLISTS_SONGS_LIBRARY
+    #undef BMC_MAX_SETLISTS_SONG_PARTS
+
+    #define BMC_MAX_PRESETS 0
+    #define BMC_MAX_PRESET_ITEMS 0
+    #define BMC_MAX_PRESETS_PER_BANK 0
+    #define BMC_MAX_SETLISTS 0
+    #define BMC_MAX_SETLISTS_SONGS 0
+    #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
+    #define BMC_MAX_SETLISTS_SONG_PARTS 0
+  #endif
+
+  // remove everything that requires presets
+  #if BMC_MAX_PRESETS == 0
+    #undef BMC_MAX_PRESET_ITEMS
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #undef BMC_MAX_SETLISTS
+    #undef BMC_MAX_SETLISTS_SONGS
+    #undef BMC_MAX_SETLISTS_SONGS_LIBRARY
+    #undef BMC_MAX_SETLISTS_SONG_PARTS
+
+    #define BMC_MAX_PRESET_ITEMS 0
+    #define BMC_MAX_PRESETS_PER_BANK 0
+    #define BMC_MAX_SETLISTS 0
+    #define BMC_MAX_SETLISTS_SONGS 0
+    #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
+    #define BMC_MAX_SETLISTS_SONG_PARTS 0
+  #endif
+
+
+
+
+
+
 
   // timed events check
   #if !defined(BMC_MAX_TIMED_EVENTS)
@@ -371,7 +460,7 @@
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MAX_BUTTON_EVENTS
   #endif
 
-  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_PWM_LEDS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0
+  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_PWM_LEDS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0
     #if BMC_MAX_PAGES != BMC_LIMIT_MIN_PAGES
       #undef BMC_MAX_PAGES
       #define BMC_MAX_PAGES BMC_LIMIT_MIN_PAGES
@@ -649,12 +738,14 @@
 
 
   #define _____BMC_HARDWARENAMES ((uint16_t)(0x00AA * ((BMC_NAME_LEN_BUTTONS+1)*(BMC_NAME_LEN_LEDS+2)*(BMC_NAME_LEN_POTS+3)*(BMC_NAME_LEN_ENCODERS+4)*(BMC_NAME_LEN_RELAYS+5))))
-  #define _____BMC_STRINGLIBRARYNAMES 0
-  #define _____BMC_LIBRARYNAMES       0
-  #define _____BMC_PRESETNAMES        0
-  #define _____BMC_SETLISTNAMES       0
-  #define _____BMC_PAGENAMES          0
-  #define _____BMC_TIMEDEVENTSNAMES   0
+  #define _____BMC_STRINGLIBRARYNAMES     0
+  #define _____BMC_LIBRARYNAMES           0
+  #define _____BMC_PRESETNAMES            0
+  #define _____BMC_SETLISTNAMES           0
+  #define _____BMC_SETLISTSONGPARTNAMES   0
+  #define _____BMC_SETLISTSONGNAMES       0
+  #define _____BMC_PAGENAMES              0
+  #define _____BMC_TIMEDEVENTSNAMES       0
 
   // TIMED EVENTS NAMES ****************************************************
   #if !defined(BMC_NAME_LEN_TIMED_EVENTS)
@@ -742,11 +833,22 @@
   #if !defined(BMC_NAME_LEN_SETLISTS)
     #define BMC_NAME_LEN_SETLISTS 0
   #endif
+  #if !defined(BMC_NAME_LEN_SETLIST_SONG)
+    #define BMC_NAME_LEN_SETLIST_SONG 0
+  #endif
+  #if !defined(BMC_NAME_LEN_SETLIST_SONG_PART)
+    #define BMC_NAME_LEN_SETLIST_SONG_PART 0
+  #endif
+
   // just in case check if there are no presets compiled and reset
   // this value
   #if BMC_MAX_SETLISTS == 0
     #undef BMC_NAME_LEN_SETLISTS
+    #undef BMC_NAME_LEN_SETLIST_SONG
+    #undef BMC_NAME_LEN_SETLIST_SONG_PART
     #define BMC_NAME_LEN_SETLISTS 0
+    #define BMC_NAME_LEN_SETLIST_SONG 0
+    #define BMC_NAME_LEN_SETLIST_SONG_PART 0
   #endif
   // if the value of BMC_NAME_LEN_SETLISTS is 1 throw a compile error
   // we do this to make sure the user can't recompile and have EEPROM erased
@@ -759,6 +861,19 @@
     #undef _____BMC_SETLISTNAMES
     #define _____BMC_SETLISTNAMES (0x77CC*(BMC_NAME_LEN_SETLISTS+1))
   #endif
+  // create the value to use within the CRC
+  #if BMC_MAX_SETLISTS > 0 && BMC_NAME_LEN_SETLIST_SONG > 1
+    #undef _____BMC_SETLISTSONGNAMES
+    #define _____BMC_SETLISTSONGNAMES (0x67CD*(BMC_NAME_LEN_SETLIST_SONG+1))
+  #endif
+  // create the value to use within the CRC
+  #if BMC_MAX_SETLISTS > 0 && BMC_NAME_LEN_SETLIST_SONG_PART > 1
+    #undef _____BMC_SETLISTSONGPARTNAMES
+    #define _____BMC_SETLISTSONGPARTNAMES (0x77DD*(BMC_NAME_LEN_SETLIST_SONG_PART+1))
+  #endif
+
+
+
   // SETLIST NAMES ****************************************************
 
   #if !defined(BMC_DEFAUL_DEVICE_ID)
@@ -842,8 +957,29 @@
     #define BMC_ENCODER_BUTTON_DEBOUNCE_TIME 50
   #endif
 
+#if defined(BMC_HAS_DISPLAY)
+  #undef BMC_HAS_DISPLAY
+#endif
 
+#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
+  #define BMC_HAS_DISPLAY
+#endif
 
+#ifndef BMC_SSD1306_BLACK
+  #define BMC_SSD1306_BLACK               0    ///< Draw 'off' pixels
+  #define BMC_SSD1306_WHITE               1    ///< Draw 'on' pixels
+  #define BMC_SSD1306_INVERSE             2    ///< Invert pixels
+#endif
+
+#ifndef BMC_OLED_BLACK
+  #define BMC_OLED_BLACK               0    ///< Draw 'off' pixels
+  #define BMC_OLED_WHITE               1    ///< Draw 'on' pixels
+  #define BMC_OLED_INVERSE             2    ///< Invert pixels
+#endif
+
+#if defined(BMC_USE_DAW_LC) || defined(BMC_USE_BEATBUDDY) || defined(BMC_USE_HELIX) || defined(BMC_USE_FAS) || defined(BMC_USE_KEMPER)
+  #define BMC_USE_SYNC
+#endif
 
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch
@@ -861,9 +997,9 @@
   #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44)+(_____BMC_POT_TOE_SWITCH*55))
 
   // Create a CRC based on the current build
-  #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
+  #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_SETLISTSONGNAMES) + (_____BMC_SETLISTSONGPARTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
   #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77))
   #define BMC_CRC (uint16_t)((((_____BMC_NAMES)+(_____BMC_GLOBAL)+(_____BMC_NAMES)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

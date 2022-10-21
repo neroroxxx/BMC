@@ -37,6 +37,12 @@ void BMCEditor::pageProcessMessage(){
     case BMC_PAGEF_ENCODER:
       pageEncoderMessage(isWriteMessage());
       break;
+    case BMC_PAGEF_OLED_DISPLAY:
+      pageOledDisplay(isWriteMessage());
+      break;
+    case BMC_PAGEF_ILI_DISPLAY:
+      pageIliDisplay(isWriteMessage());
+      break;
     case BMC_PAGEF_HARDWARE_COPY:
     case BMC_PAGEF_HARDWARE_SWAP:
       pageHardwareCopySwapMessage(isWriteMessage());
@@ -220,6 +226,7 @@ void BMCEditor::pageButtonMessage(bool write){
   #if BMC_NAME_LEN_BUTTONS > 1
     buff.appendCharArrayToSysEx(button.name,BMC_NAME_LEN_BUTTONS);
   #endif
+  buff.appendToSysEx7Bits(BMCBuildData::getButtonStyle(buttonIndex));
 #endif
   sendToEditor(buff);
 }
@@ -696,6 +703,186 @@ void BMCEditor::pageEncoderMessage(bool write){
   sendToEditor(buff);
 }
 
+
+
+
+
+
+
+void BMCEditor::pageOledDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
+  if(!isValidPageMessage() && !backupActive()){
+    return;
+  }
+  uint8_t sysExLength = 16;
+  // handle backup
+  if(write && backupActive()){
+    backupPageOled(sysExLength);
+    return;
+  }
+  uint8_t page = getMessagePageNumber();
+  uint8_t index = incoming.sysex[9];
+
+  if(page>=BMC_MAX_PAGES){
+    sendNotification(BMC_NOTIFY_INVALID_PAGE, page, true);
+    return;
+  } else if(index>0 && index>=BMC_MAX_OLED){
+    sendNotification(BMC_NOTIFY_INVALID_OLED_DISPLAY, index, true);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+
+#if BMC_MAX_OLED > 0
+  if(write){
+    if(isWriteToAllPages()){
+      for(uint8_t i=0;i<BMC_MAX_PAGES;i++){
+        bmcStoreOled& item = store.pages[i].oled[index];
+        item.type = incoming.get8Bits(10);//2
+        item.value = incoming.get8Bits(12);//2
+      }
+      if(!backupActive()){
+        savePagesAndReloadData();
+      }
+    } else {
+      bmcStoreOled& item = store.pages[page].oled[index];
+      item.type = incoming.get8Bits(10);//2
+      item.value = incoming.get8Bits(12);//2
+      if(!backupActive()){
+        savePagesAndReloadData(page);
+      }
+    }
+  }
+#endif
+
+  BMCEditorMidiFlags flag;
+  flag.setPage(true);
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_OLED_DISPLAY, flag, page);
+  buff.appendToSysEx7Bits(BMC_MAX_OLED);//9
+#if BMC_MAX_OLED > 0
+  bmcStoreOled& item = store.pages[page].oled[index];
+  buff.appendToSysEx7Bits(index);
+  buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 0));
+  buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 1));
+  buff.appendToSysEx8Bits(BMCBuildData::getOledDisplayPosition(index, 2));
+  buff.appendToSysEx8Bits(item.type);
+  buff.appendToSysEx8Bits(item.value);
+#endif
+  sendToEditor(buff);
+}
+
+
+
+
+
+
+
+void BMCEditor::pageIliDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
+  if(!isValidPageMessage() && !backupActive()){
+    return;
+  }
+  uint8_t sysExLength = 16;
+  // handle backup
+  if(write && backupActive()){
+    backupPageIli(sysExLength);
+    return;
+  }
+  uint8_t page = getMessagePageNumber();
+  uint8_t index = incoming.sysex[9];
+
+  if(page>=BMC_MAX_PAGES){
+    sendNotification(BMC_NOTIFY_INVALID_PAGE, page, true);
+    return;
+  } else if(index>0 && index>=BMC_MAX_ILI9341_BLOCKS){
+    sendNotification(BMC_NOTIFY_INVALID_ILI_DISPLAY, index, true);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  if(write){
+    if(isWriteToAllPages()){
+      for(uint8_t i=0;i<BMC_MAX_PAGES;i++){
+        bmcStoreIliBlock& item = store.pages[i].ili[index];
+        item.type = incoming.get8Bits(10);//2
+        item.value = incoming.get8Bits(12);//2
+      }
+      if(!backupActive()){
+        savePagesAndReloadData();
+      }
+    } else {
+      bmcStoreIliBlock& item = store.pages[page].ili[index];
+      item.type = incoming.get8Bits(10);//2
+      item.value = incoming.get8Bits(12);//2
+      if(!backupActive()){
+        savePagesAndReloadData(page);
+      }
+    }
+  }
+#endif
+
+  BMCEditorMidiFlags flag;
+  flag.setPage(true);
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_ILI_DISPLAY, flag, page);
+  buff.appendToSysEx7Bits(BMC_MAX_ILI9341_BLOCKS);//9
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  bmcStoreIliBlock& item = store.pages[page].ili[index];
+  buff.appendToSysEx7Bits(index);
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayPosition(0)); // ili x
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayPosition(1)); // ili y
+  buff.appendToSysEx8Bits(BMCBuildData::getIliDisplayPosition(2)); // ili rotation
+
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayBlockPosition(index, 0)); // block x
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayBlockPosition(index, 1)); // block y
+  buff.appendToSysEx8Bits(BMCBuildData::getIliDisplayBlockPosition(index, 2)); // block size
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayBlockPosition(index, 3)); // block background
+  buff.appendToSysEx16Bits(BMCBuildData::getIliDisplayBlockPosition(index, 4)); // block color
+
+  buff.appendToSysEx8Bits(item.type);
+  buff.appendToSysEx8Bits(item.value);
+#endif
+  sendToEditor(buff);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void BMCEditor::pageButtonEventShiftPositionMessage(bool write){
   if(backupActive() || !isValidPageMessage()){
     return;
@@ -1103,6 +1290,26 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         store.global.setLists[targetItem] = source;
         saveSetList(sourceItem);
         saveSetList(targetItem);
+        reloadData();
+        success = true;
+      }
+#endif
+      break;
+    case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:
+#if BMC_MAX_SETLISTS > 0
+      if(mode==BMC_PAGEF_HARDWARE_COPY){
+        bmcStoreGlobalSetListSong x = store.global.songLibrary[sourceItem];
+        store.global.songLibrary[targetItem] = x;
+        saveSetListSong(targetItem);
+        reloadData();
+        success = true;
+      } else {
+        bmcStoreGlobalSetListSong source = store.global.songLibrary[sourceItem];
+        bmcStoreGlobalSetListSong target = store.global.songLibrary[targetItem];
+        store.global.songLibrary[sourceItem] = target;
+        store.global.songLibrary[targetItem] = source;
+        saveSetListSong(sourceItem);
+        saveSetListSong(targetItem);
         reloadData();
         success = true;
       }

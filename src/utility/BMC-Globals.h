@@ -209,13 +209,27 @@ public:
   }
 #endif
 
+public:
 
+  uint8_t page = 0;
+  uint16_t bpm = 120;
+#if BMC_MAX_PRESETS > 0
+  bmcPreset_t preset = 0;
+  #if BMC_MAX_SETLISTS > 0
+    uint8_t setList = 0;
+    bmcPreset_t song = 0;
+    uint8_t songPart = 0;
+    bmcPreset_t songInLibrary;
+    uint8_t setListFlags = 0;
+  #endif
+#endif
 
 private:
   BMCFlags <uint8_t> flags;
 #ifdef BMC_DEBUG
   BMCFlags <uint16_t> debugFlags;
 #endif
+
   uint32_t loopsPerSecond = 0;
   uint32_t lastLoopsPerSecond = 0;
   void reset(){

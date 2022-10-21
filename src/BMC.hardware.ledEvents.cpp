@@ -129,48 +129,48 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 
 #if defined(BMC_USE_HELIX)
     case BMC_LED_EVENT_TYPE_HELIX_SNAPSHOT:
-      return helix.isSnapshot(byteA);
+      return sync.helix.isSnapshot(byteA);
 #endif
 
 
 #if defined(BMC_USE_FAS)
     case BMC_LED_EVENT_TYPE_FAS_STATE:
       switch(byteA){
-        case 0: return fas.connected();
-        case 1: return fas.isTunerActive();
-        case 2: return fas.tempoReceived()?BMC_PULSE_LED_EVENT:BMC_IGNORE_LED_EVENT;
-        case 3: return fas.looperPlaying();
-        case 4: return fas.looperRecording();
-        case 5: return fas.looperDubbing();
-        case 6: return fas.looperRecordingOrDubbing();
-        case 7: return fas.looperReversed();
-        case 8: return fas.looperHalf();
-        case 9: return fas.looperStoppedWithTrack();
-        case 10: return fas.tunerInTune();
-        case 11: return fas.tunerFlat();
-        case 12: return fas.tunerFlatter();
-        case 13: return fas.tunerFlattest();
-        case 14: return fas.tunerSharp();
-        case 15: return fas.tunerSharper();
-        case 16: return fas.tunerSharpest();
+        case 0: return sync.fas.connected();
+        case 1: return sync.fas.isTunerActive();
+        case 2: return sync.fas.tempoReceived()?BMC_PULSE_LED_EVENT:BMC_IGNORE_LED_EVENT;
+        case 3: return sync.fas.looperPlaying();
+        case 4: return sync.fas.looperRecording();
+        case 5: return sync.fas.looperDubbing();
+        case 6: return sync.fas.looperRecordingOrDubbing();
+        case 7: return sync.fas.looperReversed();
+        case 8: return sync.fas.looperHalf();
+        case 9: return sync.fas.looperStoppedWithTrack();
+        case 10: return sync.fas.tunerInTune();
+        case 11: return sync.fas.tunerFlat();
+        case 12: return sync.fas.tunerFlatter();
+        case 13: return sync.fas.tunerFlattest();
+        case 14: return sync.fas.tunerSharp();
+        case 15: return sync.fas.tunerSharper();
+        case 16: return sync.fas.tunerSharpest();
       }
       break;
     case BMC_LED_EVENT_TYPE_FAS_PRESET:
-      return fas.getPresetNumber()==(byteA | BMC_GET_BYTE(2, event)<<8);
+      return sync.fas.getPresetNumber()==(byteA | BMC_GET_BYTE(2, event)<<8);
     case BMC_LED_EVENT_TYPE_FAS_SCENE:
-      return fas.getSceneNumber()==byteA;
+      return sync.fas.getSceneNumber()==byteA;
     case BMC_LED_EVENT_TYPE_FAS_BLOCK_STATE:
       {
         bool state = false;
-        if(fas.connected()){
+        if(sync.fas.connected()){
           if(byteA==0){ // on if bypassed
-            state = fas.isBlockBypassed(BMC_GET_BYTE(2, event));
+            state = sync.fas.isBlockBypassed(BMC_GET_BYTE(2, event));
           } else if(byteA==1){ // on if engage
-            state = fas.isBlockEngaged(BMC_GET_BYTE(2, event));
+            state = sync.fas.isBlockEngaged(BMC_GET_BYTE(2, event));
           } else if(byteA==2){ // on if X
-            state = fas.isBlockX(BMC_GET_BYTE(2, event));
+            state = sync.fas.isBlockX(BMC_GET_BYTE(2, event));
           } else if(byteA==3){ // on if Y
-            state = fas.isBlockY(BMC_GET_BYTE(2, event));
+            state = sync.fas.isBlockY(BMC_GET_BYTE(2, event));
           }
         }
         return state;
@@ -191,9 +191,11 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 
 #if BMC_MAX_SETLISTS > 0
     case BMC_LED_EVENT_TYPE_SETLIST:
-      return byteA == setLists.get();
+      return (byteA == setLists.get());
     case BMC_LED_EVENT_TYPE_SETLIST_SONG:
-      return byteA == setLists.getSong();
+      return (byteA == setLists.getSong());
+    case BMC_LED_EVENT_TYPE_SETLIST_SONG_PART:
+      return (byteA == setLists.getPart());
 #endif
 
 
@@ -304,7 +306,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #endif
 #ifdef BMC_USE_DAW_LC
     case BMC_LED_EVENT_TYPE_DAW:
-      return daw.getLedState(byteA, BMC_GET_BYTE(2, event));
+      return sync.daw.getLedState(byteA, BMC_GET_BYTE(2, event));
 #endif
     case BMC_LED_EVENT_TYPE_USER_1:
     case BMC_LED_EVENT_TYPE_USER_2:
@@ -357,15 +359,15 @@ bool BMC::handleStatusLedEvent(uint8_t status){
   bool BMC::handleBeatBuddyLedEvent(uint8_t status, uint8_t data){
     switch(status){
       case BMC_LED_BEATBUDDY_SYNC:
-        return beatBuddy.inSync();
+        return sync.beatBuddy.inSync();
       case BMC_LED_BEATBUDDY_PLAYING:
-        return beatBuddy.isPlaying();
+        return sync.beatBuddy.isPlaying();
       case BMC_LED_BEATBUDDY_PART:
-        return beatBuddy.isSongPart(data);
+        return sync.beatBuddy.isSongPart(data);
       case BMC_LED_BEATBUDDY_HALF_TIME:
-        return beatBuddy.isHalfTime();
+        return sync.beatBuddy.isHalfTime();
       case BMC_LED_BEATBUDDY_DOUBLE_TIME:
-        return beatBuddy.isDoubleTime();
+        return sync.beatBuddy.isDoubleTime();
     }
     return false;
   }

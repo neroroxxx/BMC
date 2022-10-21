@@ -46,48 +46,74 @@
 
 class BMCLibrary {
 public:
-  #if BMC_MAX_CUSTOM_SYSEX > 0
-    BMCLibrary(BMCMidi& t_midi,bmcStoreGlobal& t_global, BMCCallbacks& cb, BMCCustomSysEx& t_sysex):
-              midi(t_midi),
-              global(t_global),
-              callback(cb),
-              customSysEx(t_sysex)
-    {
 
-    }
-  #else
-    BMCLibrary(BMCMidi& t_midi,bmcStoreGlobal& t_global, BMCCallbacks& cb):
-              midi(t_midi),
-              global(t_global),
-              callback(cb)
-    {
+  BMCLibrary(
+    BMCMidi& t_midi,
+    bmcStoreGlobal& t_global,
+    BMCCallbacks& cb
+#if BMC_MAX_CUSTOM_SYSEX > 0
+    ,BMCCustomSysEx& t_sysex
+#endif
+#if defined(BMC_USE_BEATBUDDY)
+    ,BMCBeatBuddy& t_beatBuddy
+#endif
+  ):
+    midi(t_midi),
+    global(t_global),
+    callback(cb)
+#if BMC_MAX_CUSTOM_SYSEX > 0
+    ,customSysEx(t_sysex)
+#endif
+#ifdef BMC_USE_BEATBUDDY
+    ,beatBuddy(t_beatBuddy)
+#endif
+  {
 
-    }
+  }
+  /*
+  #if defined(BMC_USE_BEATBUDDY)
+    ,beatBuddy
   #endif
+  */
   void send(bmcLibrary_t index){
-    uint8_t status = (global.library[index].event & 0xFF);
+    uint32_t event = global.library[index].event;
+    uint8_t status = (event & 0xFF);
     if(index < BMC_MAX_LIBRARY){
       if(status>127 && status<0xF0){
-        midi.send(global.library[index].event);
+        midi.send(event);
       } else if(status>=0xF0 && status<=0xF2){
         #if BMC_MAX_CUSTOM_SYSEX > 0
-          uint8_t ports = BMC_GET_BYTE(3, global.library[index].event);
+          uint8_t ports = BMC_GET_BYTE(3, event);
           sendCustomSysEx(index, status, ports);
         #endif
-      } else if(status==1){// page
-        page = BMC_GET_BYTE(1, global.library[index].event);
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_PAGE){// page
+
+        page = BMC_GET_BYTE(1, event);
         flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
-      } else if(status==2){// bmp
-        bpm = mergeDataBytes(global.library[index].event);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_CLOCK){// clock
+
+        bpm = mergeDataBytes(event);
         flags.on(BMC_LIBRARY_FLAG_SET_BPM);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
-      } else if(status==3){// bmp
-        pixelProgram = BMC_GET_BYTE(1, global.library[index].event);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_PIXEL_PROGRAM){// bmp
+
+        pixelProgram = BMC_GET_BYTE(1, event);
         flags.on(BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_BEATBUDDY_SET_BPM){// clock
+#if defined(BMC_USE_BEATBUDDY)
+        beatBuddy.tempo(mergeDataBytes(event));
+#endif
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_BEATBUDDY_CMD){// clock
+#if defined(BMC_USE_BEATBUDDY)
+        beatBuddy.sendCommand(BMC_GET_BYTE(1, event), BMC_GET_BYTE(2, event));
+#endif
       } else if(status==BMC_EVENT_TYPE_CUSTOM){
-        uint8_t value = mergeDataBytes(global.library[index].event) & 0xFF;
+        uint8_t value = mergeDataBytes(event) & 0xFF;
         if(callback.libraryCustom){
           callback.libraryCustom(value);
         }
@@ -95,28 +121,43 @@ public:
     }
   }
   void sendWithDifferentPorts(bmcLibrary_t index, uint8_t ports){
-    uint8_t status = (global.library[index].event & 0xFF);
+    uint32_t event = global.library[index].event;
+    uint8_t status = (event & 0xFF);
     if(index < BMC_MAX_LIBRARY){
       if(status>127 && status<0xF0){
-        midi.send((global.library[index].event & 0xFFFFFF) | ports<<24);
+        midi.send((event & 0xFFFFFF) | ports<<24);
       } else if(status>=0xF0 && status<=0xF2){
         #if BMC_MAX_CUSTOM_SYSEX > 0
         sendCustomSysEx(index, status, ports);
         #endif
-      } else if(status==1){// page
-        page = BMC_GET_BYTE(1, global.library[index].event);
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_PAGE){// page
+
+        page = BMC_GET_BYTE(1, event);
         flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
-      } else if(status==2){// bmp
-        bpm = mergeDataBytes(global.library[index].event);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_CLOCK){// bmp
+
+        bpm = mergeDataBytes(event);
         flags.on(BMC_LIBRARY_FLAG_SET_BPM);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
-      } else if(status==3){// bmp
-        pixelProgram = BMC_GET_BYTE(1, global.library[index].event);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_PIXEL_PROGRAM){// bmp
+
+        pixelProgram = BMC_GET_BYTE(1, event);
         flags.on(BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
+
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_BEATBUDDY_SET_BPM){// clock
+#if defined(BMC_USE_BEATBUDDY)
+        beatBuddy.tempo(mergeDataBytes(event));
+#endif
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_BEATBUDDY_CMD){// clock
+#if defined(BMC_USE_BEATBUDDY)
+        beatBuddy.sendCommand(BMC_GET_BYTE(1, event), BMC_GET_BYTE(2, event));
+#endif
       } else if(status==BMC_EVENT_TYPE_CUSTOM){
-        uint8_t value = mergeDataBytes(global.library[index].event) & 0xFF;
+        uint8_t value = mergeDataBytes(event) & 0xFF;
         if(callback.libraryCustom){
           callback.libraryCustom(value);
         }
@@ -236,6 +277,10 @@ private:
       }
       customSysEx.send(mode, ports, getData1(index), getData2(index));
     }
+  #endif
+  #if defined(BMC_USE_BEATBUDDY)
+    BMCBeatBuddy& beatBuddy;
+
   #endif
 };
 

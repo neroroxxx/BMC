@@ -133,7 +133,7 @@ private:
   }
 
 public:
-  BMCFas(BMCMidi& t_midi, BMCGlobals& t_globals);
+  BMCFas(BMCMidi& t_midi);
 
   void begin();
   void update();

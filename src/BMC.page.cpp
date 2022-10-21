@@ -6,17 +6,17 @@
 */
 #include <BMC.h>
 
-void BMC::setPage(uint8_t page, bool reassignSettings){
-  if(page >= BMC_MAX_PAGES){
+void BMC::setPage(uint8_t t_page, bool reassignSettings){
+  if(t_page >= BMC_MAX_PAGES){
     return;
   }
-  if(this->page!=page){
+  if(page!=t_page){
     flags.write(BMC_FLAGS_PAGE_CHANGED, true);
     #if BMC_NAME_LEN_PAGES > 1
-      streamToSketch(BMC_ITEM_ID_PAGE, page, store.pages[page].name);
+      streamToSketch(BMC_ITEM_ID_PAGE, t_page, store.pages[t_page].name);
     #endif
   }
-  this->page = page;
+  page = t_page;
 
   BMC_PRINTLN("Switching to Page #",page+1,"(",page,")");
 
@@ -43,8 +43,12 @@ void BMC::setPage(uint8_t page, bool reassignSettings){
     assignHardware();
   #endif
 
+  #if defined(BMC_HAS_DISPLAY)
+    display.reassign(page);
+  #endif
+
   #if defined(BMC_USE_BEATBUDDY)
-    beatBuddy.reassign();
+    sync.beatBuddy.reassign();
   #endif
 
   if(callback.pageChanged){

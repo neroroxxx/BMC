@@ -13,17 +13,16 @@ See LICENSE file in the project root for full license information.
   #define BMC_MAX_PAGES 1
 #endif
 
-#ifndef BMC_MAX_PAGES
-  #undef BMC_MAX_PAGES
-  #define BMC_MAX_PAGES 1
-#endif
-
 #ifndef BMC_MAX_MUX_IN
   #define BMC_MAX_MUX_IN 0
 #endif
 
 #ifndef BMC_MAX_MUX_IN_ANALOG
   #define BMC_MAX_MUX_IN_ANALOG 0
+#endif
+
+#ifndef BMC_MAX_BUTTON_EVENTS
+  #define BMC_MAX_BUTTON_EVENTS 0
 #endif
 
 #ifdef BMC_MAX_BUTTONS
@@ -4168,6 +4167,453 @@ See LICENSE file in the project root for full license information.
 #undef BMC_MAX_L_RELAYS
 #endif
 #define BMC_MAX_L_RELAYS 16
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 0
+
+#if defined(BMC_OLED_ROTATION_1) && defined(BMC_OLED_ADDRESS_1) && defined(BMC_OLED_POS_1_X) && defined(BMC_OLED_POS_1_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 1
+
+
+#if defined(BMC_OLED_ROTATION_2) && defined(BMC_OLED_ADDRESS_2) && defined(BMC_OLED_POS_2_X) && defined(BMC_OLED_POS_2_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 2
+
+
+#if defined(BMC_OLED_ROTATION_3) && defined(BMC_OLED_ADDRESS_3) && defined(BMC_OLED_POS_3_X) && defined(BMC_OLED_POS_3_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 3
+
+
+#if defined(BMC_OLED_ROTATION_4) && defined(BMC_OLED_ADDRESS_4) && defined(BMC_OLED_POS_4_X) && defined(BMC_OLED_POS_4_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 4
+
+
+#if defined(BMC_OLED_ROTATION_5) && defined(BMC_OLED_ADDRESS_5) && defined(BMC_OLED_POS_5_X) && defined(BMC_OLED_POS_5_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 5
+
+
+#if defined(BMC_OLED_ROTATION_6) && defined(BMC_OLED_ADDRESS_6) && defined(BMC_OLED_POS_6_X) && defined(BMC_OLED_POS_6_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 6
+
+
+#if defined(BMC_OLED_ROTATION_7) && defined(BMC_OLED_ADDRESS_7) && defined(BMC_OLED_POS_7_X) && defined(BMC_OLED_POS_7_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 7
+
+
+#if defined(BMC_OLED_ROTATION_8) && defined(BMC_OLED_ADDRESS_8) && defined(BMC_OLED_POS_8_X) && defined(BMC_OLED_POS_8_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 8
+
+
+#if defined(BMC_OLED_ROTATION_9) && defined(BMC_OLED_ADDRESS_9) && defined(BMC_OLED_POS_9_X) && defined(BMC_OLED_POS_9_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 9
+
+
+#if defined(BMC_OLED_ROTATION_10) && defined(BMC_OLED_ADDRESS_10) && defined(BMC_OLED_POS_10_X) && defined(BMC_OLED_POS_10_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 10
+
+
+#if defined(BMC_OLED_ROTATION_11) && defined(BMC_OLED_ADDRESS_11) && defined(BMC_OLED_POS_11_X) && defined(BMC_OLED_POS_11_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 11
+
+
+#if defined(BMC_OLED_ROTATION_12) && defined(BMC_OLED_ADDRESS_12) && defined(BMC_OLED_POS_12_X) && defined(BMC_OLED_POS_12_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 12
+
+
+#if defined(BMC_OLED_ROTATION_13) && defined(BMC_OLED_ADDRESS_13) && defined(BMC_OLED_POS_13_X) && defined(BMC_OLED_POS_13_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 13
+
+
+#if defined(BMC_OLED_ROTATION_14) && defined(BMC_OLED_ADDRESS_14) && defined(BMC_OLED_POS_14_X) && defined(BMC_OLED_POS_14_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 14
+
+
+#if defined(BMC_OLED_ROTATION_15) && defined(BMC_OLED_ADDRESS_15) && defined(BMC_OLED_POS_15_X) && defined(BMC_OLED_POS_15_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 15
+
+
+#if defined(BMC_OLED_ROTATION_16) && defined(BMC_OLED_ADDRESS_16) && defined(BMC_OLED_POS_16_X) && defined(BMC_OLED_POS_16_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 16
+
+
+#if defined(BMC_OLED_ROTATION_17) && defined(BMC_OLED_ADDRESS_17) && defined(BMC_OLED_POS_17_X) && defined(BMC_OLED_POS_17_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 17
+
+
+#if defined(BMC_OLED_ROTATION_18) && defined(BMC_OLED_ADDRESS_18) && defined(BMC_OLED_POS_18_X) && defined(BMC_OLED_POS_18_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 18
+
+
+#if defined(BMC_OLED_ROTATION_19) && defined(BMC_OLED_ADDRESS_19) && defined(BMC_OLED_POS_19_X) && defined(BMC_OLED_POS_19_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 19
+
+
+#if defined(BMC_OLED_ROTATION_20) && defined(BMC_OLED_ADDRESS_20) && defined(BMC_OLED_POS_20_X) && defined(BMC_OLED_POS_20_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 20
+
+
+#if defined(BMC_OLED_ROTATION_21) && defined(BMC_OLED_ADDRESS_21) && defined(BMC_OLED_POS_21_X) && defined(BMC_OLED_POS_21_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 21
+
+
+#if defined(BMC_OLED_ROTATION_22) && defined(BMC_OLED_ADDRESS_22) && defined(BMC_OLED_POS_22_X) && defined(BMC_OLED_POS_22_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 22
+
+
+#if defined(BMC_OLED_ROTATION_23) && defined(BMC_OLED_ADDRESS_23) && defined(BMC_OLED_POS_23_X) && defined(BMC_OLED_POS_23_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 23
+
+
+#if defined(BMC_OLED_ROTATION_24) && defined(BMC_OLED_ADDRESS_24) && defined(BMC_OLED_POS_24_X) && defined(BMC_OLED_POS_24_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 24
+
+
+#if defined(BMC_OLED_ROTATION_25) && defined(BMC_OLED_ADDRESS_25) && defined(BMC_OLED_POS_25_X) && defined(BMC_OLED_POS_25_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 25
+
+
+#if defined(BMC_OLED_ROTATION_26) && defined(BMC_OLED_ADDRESS_26) && defined(BMC_OLED_POS_26_X) && defined(BMC_OLED_POS_26_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 26
+
+
+#if defined(BMC_OLED_ROTATION_27) && defined(BMC_OLED_ADDRESS_27) && defined(BMC_OLED_POS_27_X) && defined(BMC_OLED_POS_27_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 27
+
+
+#if defined(BMC_OLED_ROTATION_28) && defined(BMC_OLED_ADDRESS_28) && defined(BMC_OLED_POS_28_X) && defined(BMC_OLED_POS_28_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 28
+
+
+#if defined(BMC_OLED_ROTATION_29) && defined(BMC_OLED_ADDRESS_29) && defined(BMC_OLED_POS_29_X) && defined(BMC_OLED_POS_29_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 29
+
+
+#if defined(BMC_OLED_ROTATION_30) && defined(BMC_OLED_ADDRESS_30) && defined(BMC_OLED_POS_30_X) && defined(BMC_OLED_POS_30_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 30
+
+
+#if defined(BMC_OLED_ROTATION_31) && defined(BMC_OLED_ADDRESS_31) && defined(BMC_OLED_POS_31_X) && defined(BMC_OLED_POS_31_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 31
+
+
+#if defined(BMC_OLED_ROTATION_32) && defined(BMC_OLED_ADDRESS_32) && defined(BMC_OLED_POS_32_X) && defined(BMC_OLED_POS_32_Y)
+#ifdef BMC_MAX_OLED
+#undef BMC_MAX_OLED
+#endif
+#define BMC_MAX_OLED 32
+
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#if defined(BMC_MAX_ILI9341_BLOCKS)
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 0
+
+#if defined(BMC_USE_ILI9341)
+#undef BMC_USE_ILI9341
+#endif
+#if defined(BMC_ILI9341_BLOCK_SIZE_1) && defined(BMC_ILI9341_BLOCK_BACKGROUND_1) && defined(BMC_ILI9341_BLOCK_COLOR_1) && defined(BMC_ILI9341_BLOCK_POS_1_X) && defined(BMC_ILI9341_BLOCK_POS_1_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 1
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_2) && defined(BMC_ILI9341_BLOCK_BACKGROUND_2) && defined(BMC_ILI9341_BLOCK_COLOR_2) && defined(BMC_ILI9341_BLOCK_POS_2_X) && defined(BMC_ILI9341_BLOCK_POS_2_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 2
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_3) && defined(BMC_ILI9341_BLOCK_BACKGROUND_3) && defined(BMC_ILI9341_BLOCK_COLOR_3) && defined(BMC_ILI9341_BLOCK_POS_3_X) && defined(BMC_ILI9341_BLOCK_POS_3_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 3
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_4) && defined(BMC_ILI9341_BLOCK_BACKGROUND_4) && defined(BMC_ILI9341_BLOCK_COLOR_4) && defined(BMC_ILI9341_BLOCK_POS_4_X) && defined(BMC_ILI9341_BLOCK_POS_4_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 4
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_5) && defined(BMC_ILI9341_BLOCK_BACKGROUND_5) && defined(BMC_ILI9341_BLOCK_COLOR_5) && defined(BMC_ILI9341_BLOCK_POS_5_X) && defined(BMC_ILI9341_BLOCK_POS_5_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 5
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_6) && defined(BMC_ILI9341_BLOCK_BACKGROUND_6) && defined(BMC_ILI9341_BLOCK_COLOR_6) && defined(BMC_ILI9341_BLOCK_POS_6_X) && defined(BMC_ILI9341_BLOCK_POS_6_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 6
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_7) && defined(BMC_ILI9341_BLOCK_BACKGROUND_7) && defined(BMC_ILI9341_BLOCK_COLOR_7) && defined(BMC_ILI9341_BLOCK_POS_7_X) && defined(BMC_ILI9341_BLOCK_POS_7_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 7
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_8) && defined(BMC_ILI9341_BLOCK_BACKGROUND_8) && defined(BMC_ILI9341_BLOCK_COLOR_8) && defined(BMC_ILI9341_BLOCK_POS_8_X) && defined(BMC_ILI9341_BLOCK_POS_8_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 8
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_9) && defined(BMC_ILI9341_BLOCK_BACKGROUND_9) && defined(BMC_ILI9341_BLOCK_COLOR_9) && defined(BMC_ILI9341_BLOCK_POS_9_X) && defined(BMC_ILI9341_BLOCK_POS_9_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 9
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_10) && defined(BMC_ILI9341_BLOCK_BACKGROUND_10) && defined(BMC_ILI9341_BLOCK_COLOR_10) && defined(BMC_ILI9341_BLOCK_POS_10_X) && defined(BMC_ILI9341_BLOCK_POS_10_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 10
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_11) && defined(BMC_ILI9341_BLOCK_BACKGROUND_11) && defined(BMC_ILI9341_BLOCK_COLOR_11) && defined(BMC_ILI9341_BLOCK_POS_11_X) && defined(BMC_ILI9341_BLOCK_POS_11_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 11
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_12) && defined(BMC_ILI9341_BLOCK_BACKGROUND_12) && defined(BMC_ILI9341_BLOCK_COLOR_12) && defined(BMC_ILI9341_BLOCK_POS_12_X) && defined(BMC_ILI9341_BLOCK_POS_12_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 12
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_13) && defined(BMC_ILI9341_BLOCK_BACKGROUND_13) && defined(BMC_ILI9341_BLOCK_COLOR_13) && defined(BMC_ILI9341_BLOCK_POS_13_X) && defined(BMC_ILI9341_BLOCK_POS_13_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 13
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_14) && defined(BMC_ILI9341_BLOCK_BACKGROUND_14) && defined(BMC_ILI9341_BLOCK_COLOR_14) && defined(BMC_ILI9341_BLOCK_POS_14_X) && defined(BMC_ILI9341_BLOCK_POS_14_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 14
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_15) && defined(BMC_ILI9341_BLOCK_BACKGROUND_15) && defined(BMC_ILI9341_BLOCK_COLOR_15) && defined(BMC_ILI9341_BLOCK_POS_15_X) && defined(BMC_ILI9341_BLOCK_POS_15_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 15
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
+
+#if defined(BMC_ILI9341_BLOCK_SIZE_16) && defined(BMC_ILI9341_BLOCK_BACKGROUND_16) && defined(BMC_ILI9341_BLOCK_COLOR_16) && defined(BMC_ILI9341_BLOCK_POS_16_X) && defined(BMC_ILI9341_BLOCK_POS_16_Y)
+#ifdef BMC_MAX_ILI9341_BLOCKS
+#undef BMC_MAX_ILI9341_BLOCKS
+#endif
+#define BMC_MAX_ILI9341_BLOCKS 16
+#if !defined(BMC_USE_ILI9341)
+#define BMC_USE_ILI9341
+#endif
+
 
 #endif
 #endif

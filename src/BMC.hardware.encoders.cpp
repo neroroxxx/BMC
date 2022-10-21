@@ -265,12 +265,12 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
         // when you rotate to the encoder to the RIGHT you go to the NEXT song
         // and when you rotate to the LEFT you go to the PREVIOUS song
         if(increased){
-          beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_SONG_SCROLL_DOWN);
+          sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_SONG_SCROLL_DOWN);
         } else {
-          beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_SONG_SCROLL_UP);
+          sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_SONG_SCROLL_UP);
         }
       } else if(byteA==BMC_BEATBUDDY_CMD_BPM_DEC || byteA==BMC_BEATBUDDY_CMD_BPM_INC){
-        beatBuddy.tempoControl((((mode>>1)&0x7F)+1), increased);
+        sync.beatBuddy.tempoControl((((mode>>1)&0x7F)+1), increased);
       }
       break;
 #endif
@@ -292,7 +292,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       {
         uint16_t min = (event >> 10) & 0x3FF;
         uint16_t max = (event >> 20) & 0x3FF;
-        fas.presetScroll(increased, bitRead(byteA,0), min, max);
+        sync.fas.presetScroll(increased, bitRead(byteA,0), min, max);
       }
       break;
     case BMC_ENCODER_EVENT_TYPE_FAS_SCENE:
@@ -300,11 +300,11 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       // byteA (flags) = bit-1 scene revert, no revert (0), revert (1)
       // byteB = minimum scene for scrolling
       // byteC = maximum scene for scrolling
-      fas.sceneScroll(increased, bitRead(byteA,0), bitRead(byteA,1), byteB, BMC_GET_BYTE(2,event));
+      sync.fas.sceneScroll(increased, bitRead(byteA,0), bitRead(byteA,1), byteB, BMC_GET_BYTE(2,event));
       break;
     case BMC_ENCODER_EVENT_TYPE_FAS_PARAM:
       {
-        uint16_t value = fas.getSyncedParameterValue(byteB);
+        uint16_t value = sync.fas.getSyncedParameterValue(byteB);
         tmp = getNewEncoderValue(
           mode,
           value,
@@ -313,7 +313,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
           increased,
           byteA
         );
-        fas.sendChangeSyncedParameter(byteB, tmp);
+        sync.fas.sendChangeSyncedParameter(byteB, tmp);
       }
       break;
 #endif
@@ -344,14 +344,25 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
 #ifdef BMC_USE_DAW_LC
     case BMC_ENCODER_EVENT_TYPE_DAW:
       if(byteA==BMC_DAW_ENC_CMD_VPOT){
-        daw.sendVPot(byteB, increased, ticks);
+        sync.daw.sendVPot(byteB, increased, ticks);
       } else if(byteA==BMC_DAW_ENC_CMD_FADER){
-        daw.sendEncoderFader(byteB, increased, ticks);
+        sync.daw.sendEncoderFader(byteB, increased, ticks);
       } else if(byteA==BMC_DAW_ENC_CMD_FADER_MASTER){
-        daw.sendEncoderMasterFader(increased, ticks);
+        sync.daw.sendEncoderMasterFader(increased, ticks);
       } else if(byteA==BMC_DAW_ENC_CMD_SCRUB){
-        daw.sendTransportScrubWheel(increased, ticks);
+        sync.daw.sendTransportScrubWheel(increased, ticks);
       }
+      break;
+#endif
+#if BMC_MAX_SETLISTS > 0
+    case BMC_ENCODER_EVENT_TYPE_SETLIST:
+      setLists.scroll(1+ticks, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
+      break;
+    case BMC_ENCODER_EVENT_TYPE_SONG:
+      setLists.scrollSong(1+ticks, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
+      break;
+    case BMC_ENCODER_EVENT_TYPE_PART:
+      setLists.scrollPart(1+ticks, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
       break;
 #endif
 

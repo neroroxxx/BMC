@@ -17,22 +17,32 @@ private:
   BMCMidi& midi;
   bmcStoreGlobal& global;
   BMCCallbacks& callback;
-  BMCLogicControlData controller;
+  char lcd[2][57];
 public:
-  BMCDawLogicControl(BMCMidi& t_midi, bmcStoreGlobal& t_global, BMCCallbacks& cb):
-              midi(t_midi),
-              global(t_global),
-              callback(cb)
+  BMCLogicControlData controller;
+
+  BMCDawLogicControl(
+    BMCMidi& t_midi,
+    bmcStoreGlobal& t_global,
+    BMCCallbacks& t_callback
+  )
+  :
+  midi(t_midi),
+  global(t_global),
+  callback(t_callback)
   {
-    //
+    memset(lcd[0], 0, 57);
+    memset(lcd[1], 0, 57);
   }
   void update(){
     controller.update();
     for(uint8_t i=0;i<8;i++){
-      if(controller.getMeterChanged(i) && callback.dawChannelMeterUpdate){
+      if(controller.getMeterChanged(i)){
         uint8_t level = controller.getMeter(i);
         uint8_t overload = controller.getMeterOverload(i);
-        callback.dawChannelMeterUpdate(i, level, overload);
+        if(callback.dawChannelMeterUpdate){
+          callback.dawChannelMeterUpdate(i, level, overload);
+        }
       }
     }
   }
@@ -69,7 +79,7 @@ public:
         }
       } else if((c & 0xF0) == 0x40){
     		uint8_t  digit = c & 0x0F;
-        BMC_PRINTLN(">",c,digit,v);
+        //BMC_PRINTLN(">",c,digit,v);
     		if(digit < 10 && callback.dawReceivedTimeCodeDigit){
           callback.dawReceivedTimeCodeDigit(digit, v);
     		}
@@ -202,6 +212,7 @@ public:
         break;
       case 0x12:
         // 56x2 display
+        parseLCD(d);
         if(callback.dawRecievedLCD){
           callback.dawRecievedLCD(d);
         }
@@ -246,6 +257,48 @@ public:
       case 0x21:
         //BMC_PRINTLN("Mackie Global LCD Meter Mode", d.sysex[6] ? "verical" : "horizontal");
         break;
+    }
+  }
+  void parseLCD(BMCMidiMessage d){
+    uint8_t offset = d.sysex[6];
+    for(uint16_t i = 7, e = offset ; i < d.size()-1 ; i++, e++){
+      char c = (char) d.sysex[i];
+      if(c < 32 || c > 126){
+        c = ' ';
+      }
+      if(e < 56){
+        lcd[0][e] = c;
+      } else {
+        lcd[1][e-56] = c;
+      }
+    }
+  }
+  //controller.getSelectedChannel();
+  void getLcdTrackName(char * str){
+    getLcdTrackName(controller.getSelectedChannel(), str);
+  }
+  void getLcdTrackName(uint8_t n, char * str){
+    if(n > 7){
+      strcpy(str, "");
+      return;
+    }
+    memset(str, 0, strlen(str));
+    for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
+      str[i] = (char) lcd[0][e];
+    }
+  }
+  //controller.getSelectedChannel();
+  void getLcdValue(char * str){
+    getLcdValue(controller.getSelectedChannel(), str);
+  }
+  void getLcdValue(uint8_t n, char * str){
+    if(n > 7){
+      strcpy(str, "");
+      return;
+    }
+    memset(str, 0, strlen(str));
+    for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
+      str[i] = (char) lcd[1][e];
     }
   }
   bool getLedState(uint8_t cmd, uint8_t ch){

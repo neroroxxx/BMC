@@ -208,16 +208,32 @@ uint32_t BMCEditor::getSetListOffset(uint8_t index){
   return value;
 }
 
+uint32_t BMCEditor::getSetListSongOffset(){
+  uint32_t value = getSetListOffset();
+#if BMC_MAX_SETLISTS > 0
+  value += sizeof(store.global.songLibrary);
+#endif
+  return value;
+}
+uint32_t BMCEditor::getSetListSongOffset(uint8_t index){
+  uint32_t value = getSetListOffset();
+#if BMC_MAX_SETLISTS > 0
+  value += (sizeof(bmcStoreGlobalSetListSong)*index);
+#endif
+  return value;
+}
+
+
 
 uint32_t BMCEditor::getGlobalLedOffset(){
-  uint32_t value = getSetListOffset();
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_LEDS > 0
     value += sizeof(store.global.leds);
   #endif
   return value;
 }
 uint32_t BMCEditor::getGlobalLedOffset(uint8_t index){
-  uint32_t value = getSetListOffset();
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_LEDS > 0
     value += (sizeof(bmcStoreLed) * index);
   #endif

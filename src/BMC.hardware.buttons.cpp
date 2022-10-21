@@ -147,9 +147,9 @@ void BMC::handleButton(uint8_t index, uint8_t t_trigger){
       uint8_t cmd = BMC_GET_BYTE(1, data.event);
       uint8_t ch = BMC_GET_BYTE(2, data.event);
       if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        daw.sendButtonCommand(cmd, ch, false);
+        sync.daw.sendButtonCommand(cmd, ch, false);
       } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        daw.sendButtonCommand(cmd, ch, true);
+        sync.daw.sendButtonCommand(cmd, ch, true);
       }
     }
 #endif
@@ -254,9 +254,9 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
       uint8_t cmd = BMC_GET_BYTE(1, data.event);
       uint8_t ch = BMC_GET_BYTE(2, data.event);
       if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        daw.sendButtonCommand(cmd, ch, false);
+        sync.daw.sendButtonCommand(cmd, ch, false);
       } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        daw.sendButtonCommand(cmd, ch, true);
+        sync.daw.sendButtonCommand(cmd, ch, true);
       }
     }
 #endif
@@ -587,17 +587,17 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 
   #ifdef BMC_USE_BEATBUDDY
       case BMC_BUTTON_EVENT_TYPE_BEATBUDDY_SET_BPM:
-        beatBuddy.tempo((event >> 8) & 0x1FF);
+        sync.beatBuddy.tempo((event >> 8) & 0x1FF);
         break;
       case BMC_BUTTON_EVENT_TYPE_BEATBUDDY_CMD:
         // byteA = beatbuddy command
         // see utility/BMC-Def.h for list
         // all prefixed with "BMC_BEATBUDDY_CMD_"
-        beatBuddy.sendCommand(byteA, byteB);
+        sync.beatBuddy.sendCommand(byteA, byteB);
         break;
       case BMC_BUTTON_EVENT_TYPE_BEATBUDDY_FOLDER_SONG:
         // event (bits 8 to 23) = folder number (0 to 16,383)
-        beatBuddy.songSelect((event >> 8) & 0x3FFF, byteC);
+        sync.beatBuddy.songSelect((event >> 8) & 0x3FFF, byteC);
         break;
   #endif
       case BMC_BUTTON_EVENT_TYPE_MENU:
@@ -637,32 +637,32 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 
   #ifdef BMC_USE_HELIX
       case BMC_BUTTON_EVENT_TYPE_HELIX_CMD:
-        helix.command(byteA, byteB, byteC);
+        sync.helix.command(byteA, byteB, byteC);
         break;
   #endif
 
   #ifdef BMC_USE_FAS
       case BMC_BUTTON_EVENT_TYPE_FAS_COMMAND:
         if(byteA==0){
-          fas.tapTempo();
+          sync.fas.tapTempo();
         } else if(byteA==1){
-          fas.toggleTuner();
+          sync.fas.toggleTuner();
         } else if(byteA==2){
-          fas.disconnect();
+          sync.fas.disconnect();
         } else if(byteA==3){
-          fas.connect();
+          sync.fas.connect();
         } else if(byteA==4){
-          if(fas.connected()){
-            fas.disconnect();
+          if(sync.fas.connected()){
+            sync.fas.disconnect();
           } else {
-            fas.connect();
+            sync.fas.connect();
           }
         } else if(byteA>=5){// looper
-          fas.looperControl(byteA-5);
+          sync.fas.looperControl(byteA-5);
         }
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_PRESET:
-        fas.setPreset(byteA | (byteB<<8));
+        sync.fas.setPreset(byteA | (byteB<<8));
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_PRESET_SCROLL:
         {
@@ -670,11 +670,11 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           bool endless = bitRead(byteA,1);
           uint16_t min = (event >> 10) & 0x3FF;
           uint16_t max = (event >> 20) & 0x3FF;
-          fas.presetScroll(dir, endless, min, max);
+          sync.fas.presetScroll(dir, endless, min, max);
         }
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_SCENE:
-        fas.setSceneNumber(byteA, byteB);
+        sync.fas.setSceneNumber(byteA, byteB);
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_SCENE_SCROLL:
         // byteA (flags) = bit-0 scroll direction, down (0), up (1)
@@ -682,46 +682,46 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteA (flags) = bit-2 revert, no-revert (0), revert (1)
         // byteB = minimum scene for scrolling
         // byteC = maximum scene for scrolling
-        fas.sceneScroll(bitRead(byteA,0), bitRead(byteA,1), bitRead(byteA,2), byteB, byteC);
+        sync.fas.sceneScroll(bitRead(byteA,0), bitRead(byteA,1), bitRead(byteA,2), byteB, byteC);
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_BLOCK_STATE:
         if(byteA==0){
           // bypass block
-          fas.setBlockBypass(byteB);
+          sync.fas.setBlockBypass(byteB);
         } else if(byteA==1){
           // engage block
-          fas.setBlockEngage(byteB);
+          sync.fas.setBlockEngage(byteB);
         } else if(byteA==2){
           // toggle bypass block
-          fas.toggleBlockState(byteB);
+          sync.fas.toggleBlockState(byteB);
         } else if(byteA==3){
           // set block to X
-          fas.setBlockX(byteB);
+          sync.fas.setBlockX(byteB);
         } else if(byteA==4){
           // set block to Y
-          fas.setBlockY(byteB);
+          sync.fas.setBlockY(byteB);
         } else if(byteA==5){
           // toggle XY block
-          fas.toggleBlockXY(byteB);
+          sync.fas.toggleBlockXY(byteB);
         }
         break;
       case BMC_BUTTON_EVENT_TYPE_FAS_BLOCK_PARAM:
         {
-          uint16_t value = fas.getSyncedParameterValue(byteB);
+          uint16_t value = sync.fas.getSyncedParameterValue(byteB);
           if(byteA==0){ // parameter min
             if(value>0){
-              fas.sendChangeSyncedParameter(byteB, 0);
+              sync.fas.sendChangeSyncedParameter(byteB, 0);
             }
           } else if(byteA==1){ // parameter max
             if(value==0){
-              fas.sendChangeSyncedParameter(byteB, 65534);
+              sync.fas.sendChangeSyncedParameter(byteB, 65534);
             }
           } else if(byteA==2){ // parameter toggle
             BMC_PRINTLN("value:", value);
             if(value==0){
-              fas.sendChangeSyncedParameter(byteB, 65534);
+              sync.fas.sendChangeSyncedParameter(byteB, 65534);
             } else {
-              fas.sendChangeSyncedParameter(byteB, 0);
+              sync.fas.sendChangeSyncedParameter(byteB, 0);
             }
           }
         }
@@ -767,15 +767,15 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 #endif
             } else if(cmd==14){// fas preset
 #if defined(BMC_USE_FAS)
-              fas.setPreset(valueTyper.getRawOutput());
+              sync.fas.setPreset(valueTyper.getRawOutput());
 #endif
             } else if(cmd==15){// fas scene
 #if defined(BMC_USE_FAS)
-              fas.setSceneNumber(valueTyper.getRawOutput(), false);
+              sync.fas.setSceneNumber(valueTyper.getRawOutput(), false);
 #endif
             } else if(cmd==16){// fas scene revert
 #if defined(BMC_USE_FAS)
-              fas.setSceneNumber(valueTyper.getRawOutput(), true);
+              sync.fas.setSceneNumber(valueTyper.getRawOutput(), true);
 #endif
             } else if(cmd==17){// set typer channel for midi modes
               // channel
@@ -898,6 +898,21 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteC = maximum song for scrolling
         setLists.scrollSong(1, byteA, byteB, byteC);
         break;
+      case BMC_BUTTON_EVENT_TYPE_SETLIST_SONG_PART:
+        // byteA = index of setList to send
+        setLists.setPart(byteA);
+        break;
+      case BMC_BUTTON_EVENT_TYPE_SETLIST_SONG_PART_SCROLL:
+        // scroll thru currently selected setlist songs
+        // byteA (flags) = bit-0 scroll direction, down (0), up (1)
+        // byteA (flags) = bit-1 limit, limited (0), endless (1)
+        // byteB = minimum song for scrolling
+        // byteC = maximum song for scrolling
+        setLists.scrollPart(1, byteA, byteB, byteC);
+        break;
+
+
+
     #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
   #endif // BMC_MAX_LIBRARY > 0
 

@@ -39,7 +39,7 @@
  *
  */
 
-#ifdef BMC_USE_OLED
+#if BMC_MAX_OLED > 0
 
 
 #ifdef __AVR__
@@ -55,8 +55,8 @@
  #include <util/delay.h>
 #endif
 
-#include <Adafruit_GFX.h>
-#include "utility/SSD1306.h"
+#include <display/BMC-GFX.h>
+#include "display/BMC-SSD1306.h"
 
 
 #if defined(I2C_T3_H)
@@ -116,7 +116,7 @@
     @note   Call the object's begin() function before use -- buffer
             allocation is performed there!
 */
-BMC_SSD1306::BMC_SSD1306(uint8_t w, uint8_t h):Adafruit_GFX(w, h), buffer(NULL){
+BMC_SSD1306::BMC_SSD1306(uint8_t w, uint8_t h):BMCGFX(w, h), buffer(NULL){
 }
 
 /*!

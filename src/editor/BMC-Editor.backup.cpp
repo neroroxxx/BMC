@@ -223,6 +223,53 @@ void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
+void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
+#if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 0
+  // the name length must be appended to the sysex before the CRC
+  if(incoming.size() >= (t_minLength+2)){
+    uint8_t nameLengthSong = incoming.sysex[incoming.size()-4];
+    uint8_t nameLengthPart = incoming.sysex[incoming.size()-3];
+    // check the length of the message, it must match this length
+    // for it to be used
+    if(incoming.size()==(nameLengthSong+nameLengthPart+t_minLength+2)){
+      bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+      uint8_t partIndex = incoming.sysex[11];
+
+      bmcStoreGlobalSetListSong& song = store.global.songLibrary[songIndex];
+      bmcStoreGlobalSetListSongPart& part = song.parts[partIndex];
+
+      song.settings  = incoming.get8Bits(12);//+2
+      song.length = incoming.get8Bits(14);//+2
+
+      part.length = incoming.get8Bits(16);//+2
+      part.preset = (bmcPreset_t) incoming.get14Bits(18);
+
+      if(part.preset > BMC_MAX_PRESETS){
+        part.length = 0;
+        part.preset = 0;
+      }
+
+
+      #if BMC_NAME_LEN_SETLIST_SONG > 1
+        if(nameLengthSong > BMC_NAME_LEN_SETLIST_SONG){
+          nameLengthSong = BMC_NAME_LEN_SETLIST_SONG;
+        }
+        memset(song.name, 0, BMC_NAME_LEN_SETLIST_SONG);
+        incoming.getStringFromSysEx(20, song.name, BMC_NAME_LEN_SETLIST_SONG);
+      #endif
+
+      #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
+        if(nameLengthPart > BMC_NAME_LEN_SETLIST_SONG_PART){
+          nameLengthPart = BMC_NAME_LEN_SETLIST_SONG_PART;
+        }
+        memset(part.name, 0, BMC_NAME_LEN_SETLIST_SONG_PART);
+        incoming.getStringFromSysEx(20+BMC_NAME_LEN_SETLIST_SONG, part.name, BMC_NAME_LEN_SETLIST_SONG_PART);
+      #endif
+    }
+  }
+#endif
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
 void BMCEditor::backupGlobalCustomSysEx(uint16_t t_minLength){
 #if BMC_MAX_CUSTOM_SYSEX > 0
   uint8_t index = getMessagePageNumber();
@@ -762,6 +809,29 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
         incoming.getStringFromSysEx(17+toeSwitch, item.name, nameLength);
       #endif
     }
+  }
+#endif
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+
+void BMCEditor::backupPageOled(uint16_t t_minLength){
+#if BMC_MAX_OLED > 0
+  if(incoming.size() == t_minLength){
+    uint8_t page = getMessagePageNumber() & 0xFF;
+    uint8_t index = incoming.sysex[9];
+    store.pages[page].oled[index].type = incoming.get8Bits(10);
+    store.pages[page].oled[index].value = incoming.get8Bits(12);
+  }
+#endif
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+void BMCEditor::backupPageIli(uint16_t t_minLength){
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  if(incoming.size() == t_minLength){
+    uint8_t page = getMessagePageNumber() & 0xFF;
+    uint8_t index = incoming.sysex[9];
+    store.pages[page].ili[index].type = incoming.get8Bits(10);
+    store.pages[page].ili[index].value = incoming.get8Bits(12);
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);

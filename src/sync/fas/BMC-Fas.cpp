@@ -2,9 +2,9 @@
 
 #if defined(BMC_USE_FAS)
 
-BMCFas::BMCFas(BMCMidi& t_midi, BMCGlobals& t_globals):
+BMCFas::BMCFas(BMCMidi& t_midi):
   midi(t_midi),
-  globals(t_globals)
+  globals(midi.globals)
 {
   device.reset();
   findDeviceTimer.stop();

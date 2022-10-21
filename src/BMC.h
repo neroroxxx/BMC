@@ -52,26 +52,6 @@
 // the Editor MIDI I/O and EEPROM handler
 #include "editor/BMC-Editor.h"
 
-#if defined(BMC_USE_FAS)
-  #include "sync/fas/BMC-Fas.h"
-#endif
-
-#if defined(BMC_USE_KEMPER)
-  #include "sync/kemp/BMC-Kemp.h"
-#endif
-
-#if defined(BMC_USE_DAW_LC)
-  #include "sync/daw/BMC-DawLogicControl.h"
-#endif
-
-#if defined(BMC_USE_BEATBUDDY)
-  #include "sync/beatbuddy/BMC-BeatBuddy.h"
-#endif
-
-#if defined(BMC_USE_HELIX)
-  #include "sync/helix/BMC-Helix.h"
-#endif
-
 #if defined(BMC_MUX_AVAILABLE)
   #include "mux/BMC-Mux.h"
 #endif
@@ -136,6 +116,32 @@
     #endif
   #endif
 #endif
+
+#if defined(BMC_USE_SYNC)
+  #include "sync/BMC-Sync.h"
+#endif
+/*
+#if defined(BMC_USE_DAW_LC)
+  #include "sync/daw/BMC-DawLogicControl.h"
+#endif
+
+#if defined(BMC_USE_BEATBUDDY)
+  #include "sync/beatbuddy/BMC-BeatBuddy.h"
+#endif
+
+#if defined(BMC_USE_HELIX)
+  #include "sync/helix/BMC-Helix.h"
+#endif
+
+#if defined(BMC_USE_FAS)
+  #include "sync/fas/BMC-Fas.h"
+#endif
+
+#if defined(BMC_USE_KEMPER)
+  #include "sync/kemp/BMC-Kemp.h"
+#endif
+*/
+
 #if BMC_MAX_CUSTOM_SYSEX > 0
   #include "utility/BMC-CustomSysEx.h"
 #endif
@@ -148,6 +154,13 @@
 #if BMC_MAX_TIMED_EVENTS > 0
   #include "utility/BMC-TimedEvents.h"
 #endif
+#if defined(BMC_HAS_DISPLAY)
+  #include "display/BMC-Display.h"
+#endif
+
+
+
+
 
 //const uint8_t bmcLogCurve[128] = {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,16,17,17,18,19,20,21,22,23,24,25,26,27,28,30,31,32,34,35,37,39,40,42,44,46,48,50,53,55,58,60,63,66,69,72,75,78,82,85,89,93,98,102,106,111,116,121,127,133,139,145,151,158,165,172,180,188,197,205,215,224,234,245,255};
 
@@ -228,6 +241,10 @@ private:
   BMCTimer encoderFixTimer;
 #endif
 
+#if defined(BMC_USE_SYNC)
+  BMCSync sync;
+#endif
+/*
 #if defined(BMC_USE_DAW_LC)
   BMCDawLogicControl daw;
 #endif
@@ -251,8 +268,7 @@ private:
 // handles Kemper devices see src/sync/BMC-Kemper.h
   BMCKemper kemper;
 #endif
-
-
+*/
 #if BMC_MAX_CUSTOM_SYSEX > 0
     BMCCustomSysEx customSysEx;
 #endif
@@ -279,9 +295,12 @@ private:
     BMCTimedEvents timedEvents;
 #endif
 
+#if defined(BMC_HAS_DISPLAY)
+    BMCDisplay display;
+#endif
 
 
-  uint8_t page = 0;
+  uint8_t & page;
   uint8_t programBank = 0;
 
 #if BMC_MAX_PAGE > 127 || BMC_MAX_PRESETS > 127
@@ -312,6 +331,79 @@ private:
 
   // code @ BMC.cpp
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
+
+  void runPageChanged(){
+    #if BMC_MAX_AUX_JACKS > 0
+      auxJacks.reAssignPins();
+    #endif
+    #if BMC_MAX_BUTTONS > 1
+      dualPress.pageChanged();
+    #endif
+  }
+  void runPresetChanged(){
+#if BMC_MAX_PRESETS > 0
+    editor.utilitySendPreset(presets.get());
+    char presetName[30] = "";
+    presets.getName(presets.get(), presetName);
+    streamToSketch(BMC_ITEM_ID_PRESET, presets.get(), presetName);
+    if(callback.presetChanged){
+      callback.presetChanged(presets.get());
+    }
+#endif
+  }
+  void runBankChanged(){
+#if BMC_MAX_PRESETS > 0
+    if(callback.presetBankChanged){
+      callback.presetBankChanged(presets.getBank());
+    }
+#endif
+  }
+  void runSetListChanged(){
+#if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+    char setListName[30] = "";
+    setLists.getName(setLists.get(), setListName);
+    streamToSketch(BMC_ITEM_ID_SETLIST, setLists.get(), setListName);
+    if(callback.setListChanged){
+      callback.setListChanged(setLists.get());
+    }
+#endif
+  }
+  void runSongChanged(){
+#if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+    char songName[30] = "";
+    setLists.getSongName(songName);
+    streamToSketch(BMC_ITEM_ID_SETLIST_SONG, setLists.getSong(), songName);
+    if(callback.setListSongChanged){
+      callback.setListSongChanged(setLists.getSong());
+    }
+#endif
+  }
+  void runLibraryChanged(){
+#if BMC_MAX_LIBRARY > 0
+    #if BMC_MAX_PAGES > 1
+      if(library.pageChanged()){
+        setPage(library.getPageChange());
+      }
+    #endif
+    if(library.bpmChanged()){
+      midiClock.setBpm(library.getBpmChange());
+    }
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+      if(library.pixelProgramChanged()){
+        pixelPrograms.setProgram(library.getPixelProgramChange());
+      }
+    #endif
+#endif
+  }
+  void runBpmChanged(){
+#if BMC_MAX_TEMPO_TO_TAP > 0
+    tempoToTap.send(midiClock.getBpm());
+#endif
+    if(callback.midiClockBpmChange){
+      callback.midiClockBpmChange(midiClock.getBpm());
+    }
+    streamMidiClockBPM(midiClock.getBpm());
+  }
 
   // code @ BMC.page.cpp
   bool pageChanged();

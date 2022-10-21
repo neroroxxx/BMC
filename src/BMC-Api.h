@@ -432,19 +432,19 @@ public:
   }
   //returns the selected channel number
   uint8_t getDawSelectedTrack(){
-    return daw.getSelectedChannel();
+    return sync.daw.getSelectedChannel();
   }
   //returns state of a specified LED in the led ring of a VPOT.
   // you can use this for a custom led ring to update weather that led should
   // be on or off
   uint8_t getDawVPotLedState(uint8_t channel, uint8_t ledN){
-    return daw.getVPotLedState(channel, ledN);
+    return sync.daw.getVPotLedState(channel, ledN);
   }
   void sendDawVPot(uint8_t ch, bool clockwise, uint8_t ticks){
-    daw.sendVPot(ch, clockwise, ticks);
+    sync.daw.sendVPot(ch, clockwise, ticks);
   }
   void sendDawButton(uint8_t cmd, uint8_t ch, bool release){
-    daw.sendButtonCommand(cmd, ch, release);
+    sync.daw.sendButtonCommand(cmd, ch, release);
   }
 #endif
   // ******************************
@@ -454,6 +454,24 @@ public:
   void stopwatchControl(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0){
     stopwatchCmd(cmd, h, m, s);
   }
+#if defined(BMC_HAS_DISPLAY)
+  void displayMeter(uint8_t n, uint8_t value){
+    display.printHorizontalMeter(n, value);
+  }
+  void displayUpdate(){
+    display.update(page);
+  }
+#if BMC_MAX_OLED > 0
+  BMC_SSD1306 & displayGetOled(uint8_t n){
+    return display.get(n);
+  }
+#endif
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  ILI9341_t3 & displayGetILI9341(){
+    return display.getILI9341();
+  }
+#endif
+#endif
 
   // ******************************
   // ***** LOCAL MIDI CONTROL *****
@@ -1393,26 +1411,26 @@ public:
 
 #if defined(BMC_USE_FAS)
   bool fasConnected(){
-    return fas.connected();
+    return sync.fas.connected();
   }
   void fasConnect(){
-    fas.connect();
+    sync.fas.connect();
   }
   void fasDisconnect(){
-    fas.disconnect();
+    sync.fas.disconnect();
   }
   void fasToggleConnection(){
-    if(fas.connected()){
-      fas.disconnect();
+    if(sync.fas.connected()){
+      sync.fas.disconnect();
     } else {
-      fas.connect();
+      sync.fas.connect();
     }
   }
   // copy the current Preset Name into a buffer char array
   // the length of the char array must be at least 32 bytes
   bool getFasPresetName(char* str){
-    fas.getPresetName(str);
-    return fas.connected();
+    sync.fas.getPresetName(str);
+    return sync.fas.connected();
   }
   // get the synced preset number (0 index)
   // this is the actual preset number within your Fractal, these are not
@@ -1422,11 +1440,11 @@ public:
   // Axe FX II XL/XL+: 0 tp 767
   // AX8: 0 to 511
   uint16_t getFasPresetNumber(){
-    return fas.getPresetNumber();
+    return sync.fas.getPresetNumber();
   }
   // get the synced scene number
   uint8_t getFasSceneNumber(){
-    return fas.getSceneNumber();
+    return sync.fas.getSceneNumber();
   }
   // get the synced preset Bank Number (0 index)
   // the Axe FX II has 384 presets that is 3 banks each with 128 presets
@@ -1436,7 +1454,7 @@ public:
   // the AX8 has 512 presets, 64 banks of 8 presets per bank
   // so a number from 0 to 63 will be returned
   uint8_t getFasPresetBankNumber(){
-    return fas.getPresetBankNumber();
+    return sync.fas.getPresetBankNumber();
   }
   // get the synced preset number within it's bank (0 index)
   // on Axe FX there are 128 presets per bank so a number from 000 to 127
@@ -1446,84 +1464,84 @@ public:
   // use this in conjunction with getFasPresetBankNumber() to get the
   // bank # & preset # to display it on an LCD or OLED
   uint8_t getFasPresetInBankNumber(){
-    return fas.getPresetInBankNumber();
+    return sync.fas.getPresetInBankNumber();
   }
   // change to a new FAS preset number, value is the actual preset number
   void setFasPresetNumber(uint16_t value){
-    fas.setPreset(value);
+    sync.fas.setPreset(value);
   }
   // change to a new FAS scene number, value must be 0 to 7
   void setFasSceneNumber(uint8_t value, bool revert=false){
-    fas.setSceneNumber(value, revert);
+    sync.fas.setSceneNumber(value, revert);
   }
   void setFasSceneScroll(bool t_up=true, bool t_endless=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
-    fas.sceneScroll(t_up, t_endless, t_revert, t_min, t_max);
+    sync.fas.sceneScroll(t_up, t_endless, t_revert, t_min, t_max);
   }
   bool getFasBlockBypassed(uint8_t n){
-    return fas.isBlockBypassed(n);
+    return sync.fas.isBlockBypassed(n);
   }
   bool getFasBlockEngaged(uint8_t n){
-    return fas.isBlockEngaged(n);
+    return sync.fas.isBlockEngaged(n);
   }
   bool getFasIsBlockX(uint8_t n){
-    return fas.isBlockX(n);
+    return sync.fas.isBlockX(n);
   }
   bool getFasIsBlockY(uint8_t n){
-    return fas.isBlockY(n);
+    return sync.fas.isBlockY(n);
   }
   void getFasTuner(BMCTunerData& buff){
-    fas.getTunerData(buff);
+    sync.fas.getTunerData(buff);
   }
   bool fasIsBlockBypassed(uint8_t blockId){
-    return fas.isBlockBypassed(blockId);
+    return sync.fas.isBlockBypassed(blockId);
   }
   bool fasIsBlockEngaged(uint8_t blockId){
-    return fas.isBlockEngaged(blockId);
+    return sync.fas.isBlockEngaged(blockId);
   }
   bool fasIsBlockX(uint8_t blockId){
-    return fas.isBlockX(blockId);
+    return sync.fas.isBlockX(blockId);
   }
   bool fasIsBlockY(uint8_t blockId){
-    return fas.isBlockY(blockId);
+    return sync.fas.isBlockY(blockId);
   }
   void fasToggleTuner(){
-    fas.toggleTuner();
+    sync.fas.toggleTuner();
   }
   void fasTapTempo(){
-    fas.tapTempo();
+    sync.fas.tapTempo();
   }
   void fasSendSetBlockParameter(uint8_t blockId, uint8_t parameterId, uint16_t value){
-    fas.sendSetBlockParameter(blockId, parameterId, value);
+    sync.fas.sendSetBlockParameter(blockId, parameterId, value);
   }
   void fasSendGetBlockParameter(uint8_t blockId, uint8_t parameterId){
-    fas.sendGetBlockParameter(blockId, parameterId);
+    sync.fas.sendGetBlockParameter(blockId, parameterId);
   }
   void fasSyncParameter(uint8_t slot, uint8_t block, uint8_t parameter){
-    fas.setSyncedParameter(slot, block, parameter);
+    sync.fas.setSyncedParameter(slot, block, parameter);
   }
   uint16_t fasGetSyncedParameter(uint8_t block, uint8_t parameter){
-    return fas.getSyncedParameterValue(block, parameter);
+    return sync.fas.getSyncedParameterValue(block, parameter);
   }
   uint16_t fasGetSyncedParameter(uint8_t slot){
-    return fas.getSyncedParameterValue(slot);
+    return sync.fas.getSyncedParameterValue(slot);
   }
   void fasChangeSyncedParameter(uint8_t slot, uint16_t value){
-    fas.sendChangeSyncedParameter(slot, value);
+    sync.fas.sendChangeSyncedParameter(slot, value);
   }
 #endif
 
 #if defined(BMC_USE_BEATBUDDY)
   bool beatBuddySynced(){
-    return beatBuddy.inSync();
+    return sync.beatBuddy.inSync();
   }
   bool beatBuddyPlaying(){
-    return beatBuddy.isPlaying();
+    return sync.beatBuddy.isPlaying();
   }
   bool getBeatBuddyCurrentPart(){
-    return beatBuddy.getSongPart();
+    return sync.beatBuddy.getSongPart();
   }
   void sendBeatBuddyCommand(uint8_t value, uint8_t data=127){
-    beatBuddy.sendCommand(value, data);
+    sync.beatBuddy.sendCommand(value, data);
   }
 #endif
 

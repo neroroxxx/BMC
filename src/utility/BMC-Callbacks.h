@@ -97,6 +97,8 @@ public:
 #ifdef BMC_MIDI_BLE_ENABLED
     bleConnection = 0;
 #endif
+    // leave this one on
+
 
 #ifdef BMC_USE_DAW_LC
     dawOnline = 0;
@@ -253,8 +255,6 @@ public:
     void (*dawRecievedChannelRecReady)(uint8_t channel, bool state);
     void (*dawRecievedLedState)(uint8_t channel, bool state);
     void (*dawReceivedTimeCodeDigit)(uint8_t digit, uint8_t value);
-
-
 #endif
 
 #ifdef BMC_USE_BEATBUDDY

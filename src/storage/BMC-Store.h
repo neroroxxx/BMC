@@ -8,6 +8,45 @@
 #define BMC_STORE_H
 #include <Arduino.h>
 
+
+/*
+
+  typedef uint8_t bmcEvent_t;
+  typedef uint8_t bmcName_t;
+  // BMC Event Object for BMC 2.0
+  struct __attribute__ ((packed)) bmcStoreEvent {
+    bmcName_t name = 0;
+    uint8_t settings = 0;
+    uint8_t ports = 0;
+    uint32_t event = 0;
+  };
+
+  // BMC Device Object for BMC 2.0
+  template <uint8_t sLen=1, uint8_t eLen=1>
+  struct __attribute__ ((packed)) bmcStoreDevice {
+    bmcName_t name = 0;
+    uint8_t settings[sLen];
+    bmcEvent_t events[eLen];
+  };
+
+  // BMC Name Object for BMC 2.0
+  template <uint8_t len=1>
+  struct __attribute__ ((packed)) bmcStoreName {
+    char name[len] = "";
+  };
+
+
+  struct __attribute__ ((packed)) bmcNewStore {
+    bmcStoreEvent events[16];
+    bmcStoreName <16> names[16];
+    bmcStoreDevice <1, 4> buttons[2];
+    bmcStoreDevice <1, 1> encoders[2];
+    bmcStoreDevice <1, 1> leds[1];
+    bmcStoreDevice <1, 1> pixels[1];
+    bmcStoreDevice <1, 3> rgbPixels[1];
+  };
+*/
+
   // Button Event Object
   struct __attribute__ ((packed)) bmcStoreButtonEvent {
     uint8_t mode = 0;
@@ -58,6 +97,16 @@
       char name[BMC_NAME_LEN_LEDS] = "";
     #endif
   };
+  // OLED
+  struct __attribute__ ((packed)) bmcStoreOled {
+    uint8_t type = 0;
+    uint8_t value = 0;
+  };
+  // ILI
+  struct __attribute__ ((packed)) bmcStoreIliBlock {
+    uint8_t type = 0;
+    uint8_t value = 0;
+  };
   // Non-Latching Relay object
   struct __attribute__ ((packed)) bmcStoreGlobalRelay {
     uint32_t event = 0;
@@ -88,6 +137,12 @@
     #if BMC_MAX_POTS > 0
       bmcStorePot      pots[BMC_MAX_POTS];
     #endif
+    #if BMC_MAX_OLED > 0
+      bmcStoreOled oled[BMC_MAX_OLED];
+    #endif
+    #if BMC_MAX_ILI9341_BLOCKS > 0
+      bmcStoreIliBlock ili[BMC_MAX_ILI9341_BLOCKS];
+    #endif
     #if BMC_NAME_LEN_PAGES > 1
       char name[BMC_NAME_LEN_PAGES] = "";
     #endif
@@ -115,6 +170,24 @@
     #endif
   };
   // SetList Song object
+  struct __attribute__ ((packed)) bmcStoreGlobalSetListSongPart {
+    uint8_t length = 0;
+    bmcPreset_t preset = 0;
+    #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
+      char name[BMC_NAME_LEN_SETLIST_SONG_PART] = "";
+    #endif
+  };
+  // SetList Song object
+  //BMC_MAX_SETLISTS_SONGS_LIBRARY
+  struct __attribute__ ((packed)) bmcStoreGlobalSetListSong {
+    uint8_t settings = 0;
+    uint8_t length = 0;
+    bmcStoreGlobalSetListSongPart parts[BMC_MAX_SETLISTS_SONG_PARTS];
+    #if BMC_NAME_LEN_SETLIST_SONG > 1
+      char name[BMC_NAME_LEN_SETLIST_SONG] = "";
+    #endif
+  };
+  // SetList object
   struct __attribute__ ((packed)) bmcStoreGlobalSetList {
     uint8_t length = 0;
     bmcPreset_t songs[BMC_MAX_SETLISTS_SONGS];
@@ -179,6 +252,7 @@
         bmcStoreGlobalPresets presets[BMC_MAX_PRESETS];
         #if BMC_MAX_SETLISTS > 0
           bmcStoreGlobalSetList setLists[BMC_MAX_SETLISTS];
+          bmcStoreGlobalSetListSong songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
         #endif
       #endif
     #endif
@@ -221,8 +295,6 @@
       bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };
-
-
   struct __attribute__ ((packed)) bmcStore {
     uint16_t crc = 0;
     uint16_t version = 0;

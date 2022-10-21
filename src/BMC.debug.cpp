@@ -86,10 +86,10 @@ void BMC::readDebug(){
 #ifdef BMC_USE_FAS
   } else if(BMC_STR_MATCH(debugInput,"fasConnection")){
     printDebugHeader(debugInput);
-    if(fas.connected()){
-      fas.disconnect();
+    if(sync.fas.connected()){
+      sync.fas.disconnect();
     } else {
-      fas.connect();
+      sync.fas.connect();
     }
     printDebugHeader(debugInput);
 
