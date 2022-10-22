@@ -52,7 +52,6 @@ void BMCEditor::pageProcessMessage(){
       break;
   }
 }
-
 void BMCEditor::pageMessage(bool write){
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;

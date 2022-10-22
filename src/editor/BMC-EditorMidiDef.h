@@ -52,6 +52,12 @@
 #define BMC_GLOBALF_SETLISTS_SONG 35
 #define BMC_GLOBALF_SETLISTS_SONG_SHIFT_POSITION 36
 
+
+// for BMC 2.0
+#define BMC_EDITOR_FUNCTION_EVENT 37
+#define BMC_EDITOR_FUNCTION_NAME 38
+#define BMC_EDITOR_FUNCTION_DEVICE 39
+
 // get build info, includes things like PINS, number of buttons, leds, etc. Page Number bytes specify the item being retrieved.
 #define BMC_GLOBALF_BUILD_INFO 125
     #define BMC_GLOBALF_BUILD_INFO_FLAGS 0
@@ -171,6 +177,9 @@
     #define BMC_NOTIFY_INVALID_SETLIST_SONG_PART 43
     #define BMC_NOTIFY_INVALID_ILI_DISPLAY 44
     #define BMC_NOTIFY_INVALID_ILI_DISPLAY_BLOCK 45
+    #define BMC_NOTIFY_INVALID_EVENT 46
+    #define BMC_NOTIFY_INVALID_NAME 47
+    #define BMC_NOTIFY_INVALID_DEVICE 48
 
 // PAGE FUNCTIONS
 #define BMC_PAGEF_PAGE 0
@@ -187,6 +196,7 @@
 #define BMC_PAGEF_RGB_PIXEL 13
 #define BMC_PAGEF_OLED_DISPLAY 14
 #define BMC_PAGEF_ILI_DISPLAY 15
+
 
 
 #endif

@@ -33,6 +33,46 @@ void BMCEditor::backupGlobalSettings(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
 }
 
+// BMC 2.0
+void BMCEditor::backupEventMessage(uint16_t t_minLength){
+  uint16_t index = getMessagePageNumber();
+  if(index >= BMC_MAX_EVENTS_LIBRARY){
+    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
+    return;
+  }
+  if(incoming.size() == t_minLength){
+    bmcStoreEvent& item = store.global.events[index];
+    item.name     = incoming.get14Bits(9);
+    item.settings = incoming.get8Bits(11);
+    item.type     = incoming.get8Bits(13);
+    item.ports    = incoming.get8Bits(15);
+    item.event    = incoming.get32Bits(17);
+  }
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+void BMCEditor::backupNameMessage(uint16_t t_minLength){
+  uint16_t index = getMessagePageNumber();
+  if(index >= BMC_MAX_NAMES_LIBRARY){
+    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
+    return;
+  }
+  if(incoming.size() >= t_minLength){
+    uint8_t nameLength = incoming.sysex[9];
+    if(incoming.size() == (nameLength + t_minLength)){
+      bmcStoreName& item = store.global.names[index];
+      // set all the name characters all to 0
+      memset(item.name, 0, BMC_MAX_NAMES_LENGTH);
+      // if the length we received is higher than the compiled length,
+      // set it to the compiled length
+      if(nameLength > BMC_MAX_NAMES_LENGTH){
+        nameLength = BMC_MAX_NAMES_LENGTH;
+      }
+      incoming.getStringFromSysEx(10, item.name, nameLength);
+    }
+  }
+  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+}
+
 void BMCEditor::backupGlobalStringLibrary(uint16_t t_minLength){
 #if BMC_MAX_STRING_LIBRARY > 0
   uint16_t index = getMessagePageNumber();

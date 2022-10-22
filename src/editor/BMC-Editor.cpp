@@ -139,8 +139,32 @@ uint32_t BMCEditor::getGlobalOffset(){
 uint32_t BMCEditor::getSettingsOffset(){
   return sizeof(store.global.settings);
 }
-uint32_t BMCEditor::getSketchBytesOffset(){
+
+
+
+
+
+uint32_t BMCEditor::getEventsOffset(){
   uint32_t value = getSettingsOffset();
+  return value + sizeof(store.global.events);
+}
+uint32_t BMCEditor::getEventsOffset(uint16_t index){
+  uint32_t value = getSettingsOffset();
+  return value + (sizeof(bmcStoreEvent)*index);
+}
+
+uint32_t BMCEditor::getNamesOffset(){
+  uint32_t value = getEventsOffset();
+  return value + sizeof(store.global.names);
+}
+uint32_t BMCEditor::getNamesOffset(uint16_t index){
+  uint32_t value = getEventsOffset();
+  return value + (sizeof(bmcStoreName)*index);
+}
+
+
+uint32_t BMCEditor::getSketchBytesOffset(){
+  uint32_t value = getNamesOffset();
   #if BMC_MAX_SKETCH_BYTES > 0
     value += sizeof(store.global.sketchBytes);
   #endif

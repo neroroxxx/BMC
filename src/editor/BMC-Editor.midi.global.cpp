@@ -128,7 +128,109 @@ void BMCEditor::globalProcessMessage(){
       // into the editor app as it does normally
       //globalEditorPerformMode(isWriteMessage());
       break;
+    case BMC_EDITOR_FUNCTION_EVENT:
+      incomingMessageEvent(isWriteMessage());
+      break;
+    case BMC_EDITOR_FUNCTION_NAME:
+      incomingMessageName(isWriteMessage());
+      break;
+    case BMC_EDITOR_FUNCTION_DEVICE:
+      incomingMessageDevice(isWriteMessage());
+      break;
   }
+}
+void BMCEditor::incomingMessageEvent(bool write){
+  BMC_PRINTLN("incomingMessageEvent");
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  uint8_t sysExLength = 20;
+  // handle backup
+  if(write && backupActive()){
+    backupEventMessage(sysExLength);
+    return;
+  }
+  uint16_t index = getMessagePageNumber();
+  if(index>0 && index>=BMC_MAX_EVENTS_LIBRARY){
+    sendNotification(BMC_NOTIFY_INVALID_EVENT, index, true);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+  if(write){
+    // write new data and save, starts at byte 9
+    bmcStoreEvent& item = store.global.events[index];
+    item.name     = incoming.get14Bits(9);
+    item.settings = incoming.get8Bits(11);
+    item.type     = incoming.get8Bits(13);
+    item.ports    = incoming.get8Bits(15);
+    item.event    = incoming.get32Bits(17);
+    saveEvent(index);
+    reloadData();
+  }
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_EDITOR_FUNCTION_EVENT, 0,
+    index
+  );
+  buff.appendToSysEx14Bits(BMC_MAX_EVENTS_LIBRARY);
+  bmcStoreEvent& item = store.global.events[index];
+  buff.appendToSysEx14Bits(item.name);
+  buff.appendToSysEx8Bits(item.settings);
+  buff.appendToSysEx8Bits(item.type);
+  buff.appendToSysEx8Bits(item.ports);
+  buff.appendToSysEx32Bits(item.event);
+  sendToEditor(buff);
+}
+void BMCEditor::incomingMessageName(bool write){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  uint8_t sysExLength = 11;
+  // handle backup
+  if(write && backupActive()){
+    backupNameMessage(sysExLength);
+    return;
+  }
+  //BMC_MAX_NAMES_LENGTH
+  uint16_t index = getMessagePageNumber();
+  if(index>0 && index>=BMC_MAX_NAMES_LIBRARY){
+    sendNotification(BMC_NOTIFY_INVALID_NAME, index, true);
+    return;
+  }
+  sysExLength += BMC_MAX_NAMES_LENGTH;
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+  if(write){
+    // write new data and save, starts at byte 9
+    bmcStoreName& item = store.global.names[index];
+    // byte 9 is the length of the string
+    // byte 10 has the string
+    incoming.getStringFromSysEx(10, item.name, BMC_MAX_NAMES_LENGTH);
+    saveName(index);
+    reloadData();
+  }
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_EDITOR_FUNCTION_NAME, 0,
+    index
+  );
+  buff.appendToSysEx14Bits(BMC_MAX_NAMES_LIBRARY);
+  bmcStoreName& item = store.global.names[index];
+  buff.appendToSysEx7Bits(BMC_MAX_NAMES_LENGTH);
+  buff.appendCharArrayToSysEx(item.name, BMC_MAX_NAMES_LENGTH);
+  sendToEditor(buff);
+}
+void BMCEditor::incomingMessageDevice(bool write){
+
 }
 void BMCEditor::connectEditor(){
   if(isWriteMessage()){
@@ -289,10 +391,14 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
 
     // byte 9
     buff.appendToSysEx7Bits(BMC_TEENSY_MODEL);
-    buff.appendToSysEx16Bits(BMC_VERSION);
+    buff.appendToSysEx32Bits(BMC_SEM_VERSION);
     buff.appendToSysEx16Bits(store.version);
-    buff.appendToSysEx16Bits(sizeof(bmcStore));
+    buff.appendToSysEx32Bits(sizeof(bmcStore));
     buff.appendToSysEx32Bits(buildData);
+    // BMC 2.0
+    buff.appendToSysEx14Bits(BMC_MAX_EVENTS_LIBRARY);
+    buff.appendToSysEx14Bits(BMC_MAX_NAMES_LIBRARY);
+    buff.appendToSysEx7Bits(BMC_MAX_NAMES_LENGTH);
 
     buff.appendToSysEx14Bits(BMC_MAX_LIBRARY);
     buff.appendToSysEx14Bits(BMC_MAX_PRESETS);
@@ -329,7 +435,6 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
     buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONG_PARTS);
     buff.appendToSysEx7Bits(BMC_MAX_ILI9341_BLOCKS);
-    BMC_PRINTLN("**************BMC_MAX_ILI9341_BLOCKS",BMC_MAX_ILI9341_BLOCKS);
     // name lengths
     buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLISTS);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_BUTTONS);
@@ -343,8 +448,6 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_NAME_LEN_STRING_LIBRARY);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG);
     buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG_PART);
-
-    buff.appendToSysEx8Bits(BMC_VERSION_PATCH);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_BUTTONS){
     // byte 9

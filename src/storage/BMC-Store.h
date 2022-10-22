@@ -9,16 +9,19 @@
 #include <Arduino.h>
 
 
-/*
 
-  typedef uint8_t bmcEvent_t;
-  typedef uint8_t bmcName_t;
   // BMC Event Object for BMC 2.0
   struct __attribute__ ((packed)) bmcStoreEvent {
     bmcName_t name = 0;
     uint8_t settings = 0;
+    uint8_t type = 0;
     uint8_t ports = 0;
     uint32_t event = 0;
+  };
+
+  // BMC Name Object for BMC 2.0
+  struct __attribute__ ((packed)) bmcStoreName {
+    char name[BMC_MAX_NAMES_LENGTH] = "";
   };
 
   // BMC Device Object for BMC 2.0
@@ -29,23 +32,19 @@
     bmcEvent_t events[eLen];
   };
 
-  // BMC Name Object for BMC 2.0
-  template <uint8_t len=1>
-  struct __attribute__ ((packed)) bmcStoreName {
-    char name[len] = "";
-  };
-
-
   struct __attribute__ ((packed)) bmcNewStore {
-    bmcStoreEvent events[16];
-    bmcStoreName <16> names[16];
+    bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
+    bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
     bmcStoreDevice <1, 4> buttons[2];
     bmcStoreDevice <1, 1> encoders[2];
     bmcStoreDevice <1, 1> leds[1];
     bmcStoreDevice <1, 1> pixels[1];
     bmcStoreDevice <1, 3> rgbPixels[1];
   };
-*/
+
+
+
+
 
   // Button Event Object
   struct __attribute__ ((packed)) bmcStoreButtonEvent {
@@ -107,13 +106,6 @@
     uint8_t type = 0;
     uint8_t value = 0;
   };
-  // Non-Latching Relay object
-  struct __attribute__ ((packed)) bmcStoreGlobalRelay {
-    uint32_t event = 0;
-    #if BMC_NAME_LEN_RELAYS > 1
-      char name[BMC_NAME_LEN_RELAYS] = "";
-    #endif
-  };
   // Page Object
   struct __attribute__ ((packed)) bmcStorePage {
     #if BMC_MAX_BUTTONS > 0
@@ -145,6 +137,15 @@
     #endif
     #if BMC_NAME_LEN_PAGES > 1
       char name[BMC_NAME_LEN_PAGES] = "";
+    #endif
+  };
+
+
+  // Non-Latching Relay object
+  struct __attribute__ ((packed)) bmcStoreGlobalRelay {
+    uint32_t event = 0;
+    #if BMC_NAME_LEN_RELAYS > 1
+      char name[BMC_NAME_LEN_RELAYS] = "";
     #endif
   };
 
@@ -239,6 +240,8 @@
   // specially when using i2c.
   struct __attribute__ ((packed)) bmcStoreGlobal {
     bmcStoreGlobalSettings settings;
+    bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
+    bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
     #if BMC_MAX_SKETCH_BYTES > 0
       uint8_t sketchBytes[BMC_MAX_SKETCH_BYTES];
     #endif

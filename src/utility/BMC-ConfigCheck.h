@@ -60,6 +60,63 @@
   #define BMC_LIMIT_MAX_PIXEL_PROGRAMS 32
 
 
+  #if !defined(BMC_MAX_EVENTS_LIBRARY)
+    #define BMC_MAX_EVENTS_LIBRARY 8
+  #endif
+
+  #if BMC_MAX_EVENTS_LIBRARY < 8
+    #under BMC_MAX_EVENTS_LIBRARY
+    #define BMC_MAX_EVENTS_LIBRARY 8
+  #elif BMC_MAX_EVENTS_LIBRARY > 1020
+    #under BMC_MAX_EVENTS_LIBRARY
+    #define BMC_MAX_EVENTS_LIBRARY 1020
+  #endif
+
+  // NAMES LIBRARY STR LENGTH
+  #if !defined(BMC_MAX_NAMES_LIBRARY)
+    #define BMC_MAX_NAMES_LIBRARY 8
+  #endif
+
+  #if BMC_MAX_NAMES_LIBRARY < 8
+    #under BMC_MAX_NAMES_LIBRARY
+    #define BMC_MAX_NAMES_LIBRARY 8
+  #elif BMC_MAX_NAMES_LIBRARY > 1020
+    #under BMC_MAX_NAMES_LIBRARY
+    #define BMC_MAX_NAMES_LIBRARY 1020
+  #endif
+
+  // NAMES LIBRARY STR LENGTH
+  #if !defined(BMC_MAX_NAMES_LENGTH)
+    #define BMC_MAX_NAMES_LENGTH 8
+  #endif
+
+  #if BMC_MAX_NAMES_LENGTH < 8
+    #under BMC_MAX_NAMES_LENGTH
+    #define BMC_MAX_NAMES_LENGTH 8
+  #elif BMC_MAX_NAMES_LENGTH > 32
+    #under BMC_MAX_NAMES_LENGTH
+    #define BMC_MAX_NAMES_LENGTH 32
+  #endif
+
+  #if BMC_MAX_EVENTS_LIBRARY > 255
+    typedef uint16_t bmcEvent_t;
+  #else
+    typedef uint8_t bmcEvent_t;
+  #endif
+
+  #if BMC_MAX_NAMES_LIBRARY > 255
+    typedef uint16_t bmcName_t;
+  #else
+    typedef uint8_t bmcName_t;
+  #endif
+
+
+
+
+
+
+
+
   #if defined(BMC_I2C_FREQ_100K)
     #define BMC_I2C_FREQ 100000
   #else
@@ -939,6 +996,13 @@
   #else
     typedef uint8_t bmcLibrary_t;
   #endif
+
+
+
+
+
+
+
 
 
   #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0

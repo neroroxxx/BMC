@@ -365,35 +365,133 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MENU_DEC      10
 #define BMC_MENU_SAVE     11
 
+// BMC 2.0
+#define BMC_EVENT_IO_TYPE_ANY     0
+#define BMC_EVENT_IO_TYPE_INPUT   1
+#define BMC_EVENT_IO_TYPE_OUTPUT  2
+
+#define BMC_DEVICE_TYPE_BUTTON  	 1
+#define BMC_DEVICE_TYPE_LED     	 2
+#define BMC_DEVICE_TYPE_ENCODER 	 3
+#define BMC_DEVICE_TYPE_POT     	 4
+#define BMC_DEVICE_TYPE_RELAY   	 5
+#define BMC_DEVICE_TYPE_DISPLAY 	 6
+
+// MIDI
+#define BMC_EVENT_TYPE_MIDI                         	 1
+#define BMC_EVENT_TYPE_MIDI_SCROLL                  	 2
+#define BMC_EVENT_TYPE_MIDI_TOGGLE                  	 3
+#define BMC_EVENT_TYPE_PROGRAM_BANKING_SCROLL       	 4
+#define BMC_EVENT_TYPE_PROGRAM_BANKING_TRIGGER      	 5
+#define BMC_EVENT_TYPE_MIDI_REAL_TIME_BLOCK         	 6
+#define BMC_EVENT_TYPE_BANK_LSB_PROGRAM             	 7
+#define BMC_EVENT_TYPE_BANK_MSB_PROGRAM             	 8
+#define BMC_EVENT_TYPE_BANK_MSB_LSB                 	 9
+// SYSTEM
+#define BMC_EVENT_TYPE_SYSTEM_ACTIVE_SENSE          	 10
+#define BMC_EVENT_TYPE_SYSTEM_CLOCK                 	 11
+#define BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP             	 12
+#define BMC_EVENT_TYPE_SYSTEM_STATUS                	 13
+#define BMC_EVENT_TYPE_SYSTEM_SAVE_EEPROM           	 14
+#define BMC_EVENT_TYPE_SYSTEM_MENU                  	 15
+#define BMC_EVENT_TYPE_SYSTEM_TYPER                 	 16
+#define BMC_EVENT_TYPE_SYSTEM_BLE_DISCONNECT        	 17
+#define BMC_EVENT_TYPE_SYSTEM_STOPWATCH             	 18
+// SKETCH BYTES
+#define BMC_EVENT_TYPE_SKETCH_BYTE_SET              	 19
+#define BMC_EVENT_TYPE_SKETCH_BYTE_SCROLL           	 20
+#define BMC_EVENT_TYPE_SKETCH_BYTE_TOGGLE           	 21
+// PAGES
+#define BMC_EVENT_TYPE_PAGE                         	 22
+#define BMC_EVENT_TYPE_PAGE_NAME                    	 23
+#define BMC_EVENT_TYPE_PAGE_SCROLL                  	 24
+#define BMC_EVENT_TYPE_PAGE_SELECTED                	 25
+#define BMC_EVENT_TYPE_PAGE_SELECTED_NAME           	 26
+// PRESETS
+#define BMC_EVENT_TYPE_PRESET                       	 27
+#define BMC_EVENT_TYPE_PRESET_SCROLL                	 28
+#define BMC_EVENT_TYPE_PRESET_NAME                  	 29
+#define BMC_EVENT_TYPE_PRESET_SELECTED              	 30
+#define BMC_EVENT_TYPE_PRESET_SELECTED_NAME         	 31
+#define BMC_EVENT_TYPE_PRESET_IN_BANK               	 32
+#define BMC_EVENT_TYPE_PRESET_IN_BANK_SCROLL        	 33
+#define BMC_EVENT_TYPE_PRESET_IN_BANK_NAME          	 34
+#define BMC_EVENT_TYPE_PRESET_IN_BANK_SELECTED      	 35
+#define BMC_EVENT_TYPE_PRESET_IN_BANK_SELECTED_NAME 	 36
+#define BMC_EVENT_TYPE_BANK                         	 37
+#define BMC_EVENT_TYPE_BANK_SCROLL                  	 38
+// SETLISTS
+#define BMC_EVENT_TYPE_SETLIST                      	 39
+#define BMC_EVENT_TYPE_SETLIST_SCROLL               	 40
+#define BMC_EVENT_TYPE_SETLIST_NAME                 	 41
+#define BMC_EVENT_TYPE_SETLIST_SELECTED             	 42
+#define BMC_EVENT_TYPE_SETLIST_SELECTED_NAME        	 43
+#define BMC_EVENT_TYPE_SONG                         	 44
+#define BMC_EVENT_TYPE_SONG_SCROLL                  	 45
+#define BMC_EVENT_TYPE_SONG_NAME                    	 46
+#define BMC_EVENT_TYPE_SONG_SELECTED                	 47
+#define BMC_EVENT_TYPE_SONG_SELECTED_NAME           	 48
+#define BMC_EVENT_TYPE_PART                         	 49
+#define BMC_EVENT_TYPE_PART_SCROLL                  	 50
+#define BMC_EVENT_TYPE_PART_NAME                    	 51
+#define BMC_EVENT_TYPE_PART_SELECTED                	 52
+#define BMC_EVENT_TYPE_PART_SELECTED_NAME           	 53
+// PIXELS
+#define BMC_EVENT_TYPE_PIXEL_PROGRAM                	 54
+#define BMC_EVENT_TYPE_PIXEL_PROGRAM_SCROLL         	 55
+// EXTERNAL SYNC
+#define BMC_EVENT_TYPE_DAW                          	 56
+#define BMC_EVENT_TYPE_BEATBUDDY                    	 57
+#define BMC_EVENT_TYPE_BEATBUDDY_BPM                	 58
+#define BMC_EVENT_TYPE_BEATBUDDY_FOLDER             	 59
+#define BMC_EVENT_TYPE_FAS                          	 60
+#define BMC_EVENT_TYPE_FAS_PRESET                   	 61
+#define BMC_EVENT_TYPE_FAS_PRESET_SCROLL            	 62
+#define BMC_EVENT_TYPE_FAS_SCENE                    	 63
+#define BMC_EVENT_TYPE_FAS_SCENE_SCROLL             	 64
+#define BMC_EVENT_TYPE_FAS_BLOCK                    	 65
+#define BMC_EVENT_TYPE_FAS_BLOCK_PARAM              	 66
+#define BMC_EVENT_TYPE_HELIX                        	 67
+
+
+
+
+
+
 // ID for BMC Elements
 // HARDWARE TYPES
-#define BMC_ITEM_ID_PAGE 1
-#define BMC_ITEM_ID_BUTTON 2
-#define BMC_ITEM_ID_GLOBAL_BUTTON 3
-#define BMC_ITEM_ID_LED 4
-#define BMC_ITEM_ID_GLOBAL_LED 5
-#define BMC_ITEM_ID_ENCODER 6
-#define BMC_ITEM_ID_GLOBAL_ENCODER 7
-#define BMC_ITEM_ID_POT 8
-#define BMC_ITEM_ID_GLOBAL_POT 9
-#define BMC_ITEM_ID_PWM_LED 10
-#define BMC_ITEM_ID_RGB_PIXEL 11
-#define BMC_ITEM_ID_PIXEL 12
-#define BMC_ITEM_ID_NL_RELAY 13
-#define BMC_ITEM_ID_L_RELAY 14
-#define BMC_ITEM_ID_LIBRARY 15
-#define BMC_ITEM_ID_PRESET 16
-#define BMC_ITEM_ID_CUSTOM_SYSEX 17
-#define BMC_ITEM_ID_TRIGGER 18
-#define BMC_ITEM_ID_TEMPO_TO_TAP 19
-#define BMC_ITEM_ID_SKETCH_BYTES 20
-#define BMC_ITEM_ID_STRING_LIBRARY 21
-#define BMC_ITEM_ID_SETLIST 22
-#define BMC_ITEM_ID_SETLIST_SONG 23
-#define BMC_ITEM_ID_SETLIST_SONG_LIBRARY 24
-#define BMC_ITEM_ID_TIMED_EVENT 25
-#define BMC_ITEM_ID_OLED 26
-#define BMC_ITEM_ID_ILI 27
+#define BMC_ITEM_ID_PAGE                 	 1
+#define BMC_ITEM_ID_EVENT                	 2
+#define BMC_ITEM_ID_NAME                 	 3
+#define BMC_ITEM_ID_BUTTON               	 4
+#define BMC_ITEM_ID_LED                  	 5
+#define BMC_ITEM_ID_ENCODER              	 6
+#define BMC_ITEM_ID_POT                  	 7
+#define BMC_ITEM_ID_PIXEL                	 8
+#define BMC_ITEM_ID_RGB_PIXEL            	 9
+#define BMC_ITEM_ID_OLED                 	 10
+#define BMC_ITEM_ID_ILI                  	 11
+#define BMC_ITEM_ID_GLOBAL_BUTTON        	 12
+#define BMC_ITEM_ID_GLOBAL_LED           	 13
+#define BMC_ITEM_ID_GLOBAL_ENCODER       	 14
+#define BMC_ITEM_ID_GLOBAL_POT           	 15
+#define BMC_ITEM_ID_GLOBAL_RGB_PIXEL     	 16
+#define BMC_ITEM_ID_GLOBAL_PIXEL         	 17
+#define BMC_ITEM_ID_NL_RELAY             	 18
+#define BMC_ITEM_ID_L_RELAY              	 19
+#define BMC_ITEM_ID_LIBRARY              	 20
+#define BMC_ITEM_ID_PRESET               	 21
+#define BMC_ITEM_ID_CUSTOM_SYSEX         	 22
+#define BMC_ITEM_ID_TRIGGER              	 23
+#define BMC_ITEM_ID_TEMPO_TO_TAP         	 24
+#define BMC_ITEM_ID_SKETCH_BYTES         	 25
+#define BMC_ITEM_ID_STRING_LIBRARY       	 26
+#define BMC_ITEM_ID_SETLIST              	 27
+#define BMC_ITEM_ID_SETLIST_SONG         	 28
+#define BMC_ITEM_ID_SETLIST_SONG_LIBRARY 	 29
+#define BMC_ITEM_ID_TIMED_EVENT          	 30
+// these will be removed, keep here for now
+#define BMC_ITEM_ID_PWM_LED              	 31
 
 
 #define BMC_ITEM_ID_MIDI_PROGRAM BMC_MIDI_PROGRAM_CHANGE

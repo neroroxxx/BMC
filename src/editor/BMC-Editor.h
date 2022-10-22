@@ -367,6 +367,12 @@ private:
   uint32_t getStoreOffset();
   uint32_t getGlobalOffset();
   uint32_t getSettingsOffset();
+
+  uint32_t getEventsOffset();
+  uint32_t getEventsOffset(uint16_t index);
+  uint32_t getNamesOffset();
+  uint32_t getNamesOffset(uint16_t index);
+
   uint32_t getSketchBytesOffset();
   uint32_t getStringLibraryOffset();
   uint32_t getStringLibraryOffset(uint8_t index);
@@ -446,6 +452,33 @@ public:
     #else
       uint16_t address = getGlobalOffset();
       storage.set(address, store.global.settings);
+    #endif
+  }
+
+  // save a single Event item to EEPROM
+  void saveEvent(uint16_t index){
+    if(index>=BMC_MAX_EVENTS_LIBRARY){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getEventsOffset(index);
+      storage.set(address, store.global.events[index]);
+    #endif
+  }
+  // save a single Event item to EEPROM
+  void saveName(uint16_t index){
+    if(index>=BMC_MAX_NAMES_LIBRARY){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getNamesOffset(index);
+      storage.set(address, store.global.names[index]);
     #endif
   }
 
@@ -932,7 +965,6 @@ private:
   }
   uint16_t getMessagePageNumber(){
     return incoming.get14Bits(6);
-    //return BMC_MIDI_ARRAY_TO_8BITS(6,incoming.sysex);
   }
   uint8_t getMessageRequestId(){
     return incoming.sysex[8];
@@ -1004,8 +1036,13 @@ private:
   void globalSetListSong(bool write);
   void globalSetListSongPartShiftPosition(bool write);
 
+  void incomingMessageEvent(bool write);
+  void incomingMessageName(bool write);
+  void incomingMessageDevice(bool write);
+
 // BMC-Editor.midi.page.h
 private:
+
   void pageProcessMessage();
   void pageMessage(bool write);
   void pageNameMessage(bool write);
@@ -1113,6 +1150,8 @@ private:
 
   // GLOBAL
   void backupGlobalSettings(uint16_t t_minLength);
+  void backupEventMessage(uint16_t t_minLength);
+  void backupNameMessage(uint16_t t_minLength);
   void backupGlobalStringLibrary(uint16_t t_minLength);
   void backupGlobalLibrary(uint16_t t_minLength);
   void backupGlobalPreset(uint16_t t_minLength);
