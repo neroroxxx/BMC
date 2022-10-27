@@ -129,8 +129,14 @@ public:
     }
     return "Unknown";
   }
+  /*
   static bool isMidiClockLedEvent(uint32_t t_value){
     return ((t_value&0xFF)==BMC_LED_EVENT_TYPE_CLOCK_SYNC);
+  }
+  */
+  static bool isMidiClockLedEvent(uint8_t t_value){
+    return t_value == BMC_EVENT_TYPE_SYSTEM_CLOCK ||
+            t_value == BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP;
   }
   static String getButtonTriggerName(uint8_t t_trigger){
     switch(t_trigger){
@@ -151,8 +157,12 @@ public:
   }
   static bool isLedBlinkAllowed(uint8_t t_type){
     switch(t_type){
-      case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
-      case BMC_LED_EVENT_TYPE_CLOCK_SYNC:
+      //case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
+      //case BMC_LED_EVENT_TYPE_CLOCK_SYNC:
+      case BMC_EVENT_TYPE_SYSTEM_STATUS:
+      case BMC_EVENT_TYPE_SYSTEM_MIDI_ACTIVITY:
+      case BMC_EVENT_TYPE_SYSTEM_CLOCK:
+      case BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP:
         return false;
     }
     return true;

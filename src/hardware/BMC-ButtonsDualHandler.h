@@ -68,14 +68,17 @@ public:
     flags.write(BMC_BUTTONS_DUAL_GLOBAL, isGlobal);
   }
   // return true when 2 buttons have been pressed
-  bool read(uint8_t n, uint8_t trigger, bool state, uint32_t states, uint32_t states2=0){
+  template <uint16_t sLen>
+  bool read(uint8_t n, uint8_t trigger, bool state, BMCBitStates <sLen>& states){
     // only check for dual button press if there's a callback setup
     if(callbackAvailable()){
-      uint8_t btn = n;
+      //uint8_t btn = n;
+      /*
       if(itemsCount>=32 && n >= 32){
         btn = n-32;
         states = states2;
       }
+      */
       if(flags.read(BMC_BUTTONS_DUAL_WAITING_FOR_RELEASE)){
         // at this point we are waiting for the buttons to be released and any
         // events of these buttons will be ignored.
@@ -105,7 +108,8 @@ public:
       }
       // check if the button is pressed down and if the state is not the same
       // as it was the last time we checked for a dual press
-      if(state && bitRead(states, btn) != state){
+      //if(state && bitRead(states, btn) != state){
+      if(state && states.getBit(n) != state){
         // state changed and buttons is pressed
         if(last>=0 && last!=n){
           // save the index of the buttons that were pressed so we can wait for

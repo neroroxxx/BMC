@@ -74,7 +74,7 @@ void BMCEditor::pageNameMessage(bool write){
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
-  uint8_t sysExLength = 12;
+  uint8_t sysExLength = 13;
   // handle backup
   if(write && backupActive()){
     backupPageName(sysExLength);
@@ -86,29 +86,23 @@ void BMCEditor::pageNameMessage(bool write){
     sendNotification(BMC_NOTIFY_INVALID_PAGE, page, true);
     return;
   }
-  sysExLength += BMC_NAME_LEN_PAGES;
   if(write && incoming.size() != sysExLength){
+    BMC_PRINTLN("pageNameMessage: incoming.size()", incoming.size(), "sysExLength", sysExLength);
     sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
     return;
   }
-
-  #if BMC_NAME_LEN_PAGES > 1
   if(write){
-    incoming.getStringFromSysEx(10, store.pages[page].name, BMC_NAME_LEN_PAGES);
+    store.pages[page].name     = incoming.get14Bits(9);
     if(!backupActive()){
       savePagesAndReloadData(page);
     }
   }
-  #endif
   BMCEditorMidiFlags flag;
   flag.setPage(true);
 
   BMCMidiMessage buff;
   buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_PAGE_NAME, flag, page);
-  buff.appendToSysEx7Bits(BMC_NAME_LEN_PAGES);//9
-  #if BMC_NAME_LEN_PAGES > 1
-    buff.appendCharArrayToSysEx(store.pages[page].name,BMC_NAME_LEN_PAGES);
-  #endif
+  buff.appendToSysEx14Bits(store.pages[page].name);
   sendToEditor(buff);
 }
 void BMCEditor::pageSendChangeMessage(bool onlyIfConnected){
@@ -124,11 +118,12 @@ void BMCEditor::pageSendChangeMessage(bool onlyIfConnected){
 
   BMCMidiMessage buff;
   buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_PAGE, flag, page);
-  buff.appendToSysEx8Bits(BMC_MAX_PAGES);
-  buff.appendToSysEx8Bits(page);
+  buff.appendToSysEx14Bits(BMC_MAX_PAGES);
+  buff.appendToSysEx14Bits(page);
   sendToEditor(buff);
 }
 void BMCEditor::pageButtonMessage(bool write){
+/*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -156,7 +151,7 @@ void BMCEditor::pageButtonMessage(bool write){
     sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
     return;
   }
-#if BMC_MAX_BUTTONS > 0 && BMC_MAX_BUTTON_EVENTS > 0
+#if defined(BMC_HAS_BUTTONS) > 0 && BMC_MAX_BUTTON_EVENTS > 0
   if(write){
     // write new data and save, starts at byte 9
     // we only want to store the mode on the current button event
@@ -215,8 +210,12 @@ void BMCEditor::pageButtonMessage(bool write){
   bmcStoreButton& button = store.pages[page].buttons[buttonIndex];
   buff.appendToSysEx7Bits(buttonIndex);
   buff.appendToSysEx7Bits(eventIndex);
-  buff.appendToSysEx16Bits(BMCBuildData::getButtonPosition(buttonIndex,true));
-  buff.appendToSysEx16Bits(BMCBuildData::getButtonPosition(buttonIndex,false));
+
+  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_BUTTON, buttonIndex);
+  buff.appendToSysEx16Bits(ui.x);
+  buff.appendToSysEx16Bits(ui.y);
+  buff.appendToSysEx7Bits(ui.style);
+
   uint8_t mode = button.events[eventIndex].mode & 0x0F;
   mode |= (button.events[0].mode & 0xF0);//+2
   buff.appendToSysEx8Bits(mode);
@@ -225,12 +224,14 @@ void BMCEditor::pageButtonMessage(bool write){
   #if BMC_NAME_LEN_BUTTONS > 1
     buff.appendCharArrayToSysEx(button.name,BMC_NAME_LEN_BUTTONS);
   #endif
-  buff.appendToSysEx7Bits(BMCBuildData::getButtonStyle(buttonIndex));
+
 #endif
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::pageLedMessage(bool write){
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -302,9 +303,11 @@ void BMCEditor::pageLedMessage(bool write){
   buff.appendToSysEx7Bits(BMC_MAX_LEDS); //9
 #endif
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::pagePwmLedMessage(bool write){
+  /*
   //BMC_PRINTLN("PWM LED REQUEST RECEIVED");
   if(!isValidPageMessage() && !backupActive()){
     return;
@@ -378,9 +381,11 @@ void BMCEditor::pagePwmLedMessage(bool write){
 #endif
 
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::pagePixelMessage(bool write){
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -442,17 +447,24 @@ void BMCEditor::pagePixelMessage(bool write){
   #if BMC_MAX_PIXELS > 0
   bmcStoreLed &item = store.pages[page].pixels[index];
   buff.appendToSysEx7Bits(index);
-  buff.appendToSysEx7Bits(BMCBuildData::getPixelDefaultColor(index));
-  buff.appendToSysEx16Bits(BMCBuildData::getPixelPosition(index,true));
-  buff.appendToSysEx16Bits(BMCBuildData::getPixelPosition(index,false));
+
+
+  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, index);
+  buff.appendToSysEx7Bits(ui.style);
+  buff.appendToSysEx16Bits(ui.x);
+  buff.appendToSysEx16Bits(ui.y);
+
+
   buff.appendToSysEx32Bits(item.event);
   #if BMC_NAME_LEN_LEDS > 1
     buff.appendCharArrayToSysEx(item.name,BMC_NAME_LEN_LEDS);
   #endif
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::pageRgbPixelMessage(bool write){
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -516,9 +528,15 @@ void BMCEditor::pageRgbPixelMessage(bool write){
   #if BMC_MAX_RGB_PIXELS > 0
   bmcStoreRgbLed &item = store.pages[page].rgbPixels[index];
   buff.appendToSysEx7Bits(index);
-  buff.appendToSysEx7Bits(BMCBuildData::getRgbPixelDefaultColor(index));
-  buff.appendToSysEx16Bits(BMCBuildData::getRgbPixelPosition(index, true));
-  buff.appendToSysEx16Bits(BMCBuildData::getRgbPixelPosition(index, false));
+  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_RGB_PIXEL, index);
+  buff.appendToSysEx7Bits(ui.style);
+  buff.appendToSysEx16Bits(ui.x);
+  buff.appendToSysEx16Bits(ui.y);
+
+  //buff.appendToSysEx7Bits(BMCBuildData::getRgbPixelDefaultColor(index));
+  //buff.appendToSysEx16Bits(BMCBuildData::getRgbPixelPosition(index, true));
+  //buff.appendToSysEx16Bits(BMCBuildData::getRgbPixelPosition(index, false));
+
   buff.appendToSysEx32Bits(item.red);
   buff.appendToSysEx32Bits(item.green);
   buff.appendToSysEx32Bits(item.blue);
@@ -527,6 +545,7 @@ void BMCEditor::pageRgbPixelMessage(bool write){
   #endif
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::pagePotMessage(bool write){
   if(!isValidPageMessage() && !backupActive()){
@@ -610,9 +629,9 @@ void BMCEditor::pagePotMessage(bool write){
 #if BMC_MAX_POTS > 0
   bmcStorePot& item = store.pages[page].pots[index];
   buff.appendToSysEx7Bits(index);
-  buff.appendToSysEx7Bits(BMCBuildData::getPotStyle(index));
   buff.appendToSysEx16Bits(BMCBuildData::getPotPosition(index,true));
   buff.appendToSysEx16Bits(BMCBuildData::getPotPosition(index,false));
+  buff.appendToSysEx7Bits(BMCBuildData::getPotStyle(index));
   buff.appendToSysEx8Bits(item.ports);
   buff.appendToSysEx32Bits(item.event);
   #if defined(BMC_USE_POT_TOE_SWITCH)
@@ -737,17 +756,21 @@ void BMCEditor::pageOledDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
   if(write){
     if(isWriteToAllPages()){
       for(uint8_t i=0;i<BMC_MAX_PAGES;i++){
-        bmcStoreOled& item = store.pages[i].oled[index];
-        item.type = incoming.get8Bits(10);//2
-        item.value = incoming.get8Bits(12);//2
+        bmcStoreDevice <1,1>& item = store.pages[i].oled[index];
+        item.events[0] = incoming.get14Bits(10);//2
+        //bmcStoreOled& item = store.pages[i].oled[index];
+        //item.type = incoming.get14Bits(10);//2
+        //item.value = incoming.get8Bits(12);//2
       }
       if(!backupActive()){
         savePagesAndReloadData();
       }
     } else {
-      bmcStoreOled& item = store.pages[page].oled[index];
-      item.type = incoming.get8Bits(10);//2
-      item.value = incoming.get8Bits(12);//2
+      bmcStoreDevice <1,1>& item = store.pages[page].oled[index];
+      item.events[0] = incoming.get14Bits(10);//2
+      //bmcStoreOled& item = store.pages[page].oled[index];
+      //item.type = incoming.get8Bits(10);//2
+      //item.value = incoming.get8Bits(12);//2
       if(!backupActive()){
         savePagesAndReloadData(page);
       }
@@ -762,13 +785,14 @@ void BMCEditor::pageOledDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
   buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_OLED_DISPLAY, flag, page);
   buff.appendToSysEx7Bits(BMC_MAX_OLED);//9
 #if BMC_MAX_OLED > 0
-  bmcStoreOled& item = store.pages[page].oled[index];
+  //bmcStoreOled& item = store.pages[page].oled[index];
+  bmcStoreDevice <1,1>& item = store.pages[page].oled[index];
   buff.appendToSysEx7Bits(index);
-  buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 0));
-  buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 1));
-  buff.appendToSysEx8Bits(BMCBuildData::getOledDisplayPosition(index, 2));
-  buff.appendToSysEx8Bits(item.type);
-  buff.appendToSysEx8Bits(item.value);
+  //buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 0));
+  //buff.appendToSysEx16Bits(BMCBuildData::getOledDisplayPosition(index, 1));
+  //buff.appendToSysEx8Bits(BMCBuildData::getOledDisplayPosition(index, 2));
+  buff.appendToSysEx14Bits(item.events[0]);
+  //buff.appendToSysEx8Bits(item.value);
 #endif
   sendToEditor(buff);
 }
@@ -780,13 +804,14 @@ void BMCEditor::pageOledDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
 
 
 void BMCEditor::pageIliDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
   uint8_t sysExLength = 16;
   // handle backup
   if(write && backupActive()){
-    backupPageIli(sysExLength);
+    //backupPageIli(sysExLength);
     return;
   }
   uint8_t page = getMessagePageNumber();
@@ -849,6 +874,7 @@ void BMCEditor::pageIliDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
   buff.appendToSysEx8Bits(item.value);
 #endif
   sendToEditor(buff);
+  */
 }
 
 
@@ -883,6 +909,7 @@ void BMCEditor::pageIliDisplay(bool write){//BMC_PAGEF_OLED_DISPLAY
 
 
 void BMCEditor::pageButtonEventShiftPositionMessage(bool write){
+  /*
   if(backupActive() || !isValidPageMessage()){
     return;
   }
@@ -934,6 +961,7 @@ void BMCEditor::pageButtonEventShiftPositionMessage(bool write){
   buff.prepareEditorMessage(port, deviceId, BMC_PAGEF_BUTTON_EVENT_SHIFT_POSITION, flag, page);
   buff.appendToSysEx7Bits(resp);
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::pageHardwareCopySwapMessage(bool write){
@@ -1008,6 +1036,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       break;
     case BMC_ITEM_ID_BUTTON:
 #if BMC_MAX_BUTTONS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreButton x = store.pages[sourcePage].buttons[sourceItem];
         store.pages[targetPage].buttons[targetItem] = x;
@@ -1022,10 +1051,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+      */
 #endif
       break;
     case BMC_ITEM_ID_LED:
 #if BMC_MAX_LEDS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreLed x = store.pages[sourcePage].leds[sourceItem];
         store.pages[targetPage].leds[targetItem] = x;
@@ -1040,10 +1071,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+      */
 #endif
       break;
     case BMC_ITEM_ID_PIXEL:
 #if BMC_MAX_PIXELS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreLed x = store.pages[sourcePage].pixels[sourceItem];
         store.pages[targetPage].pixels[targetItem] = x;
@@ -1058,10 +1091,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+      */
 #endif
       break;
     case BMC_ITEM_ID_RGB_PIXEL:
 #if BMC_MAX_RGB_PIXELS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreRgbLed x = store.pages[sourcePage].rgbPixels[sourceItem];
         store.pages[targetPage].rgbPixels[targetItem] = x;
@@ -1076,10 +1111,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+      */
 #endif
       break;
     case BMC_ITEM_ID_PWM_LED:
 #if BMC_MAX_PWM_LEDS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreLed x = store.pages[sourcePage].pwmLeds[sourceItem];
         store.pages[targetPage].pwmLeds[targetItem] = x;
@@ -1096,6 +1133,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+*/
 #endif
       break;
     case BMC_ITEM_ID_POT:
@@ -1136,6 +1174,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       break;
     case BMC_ITEM_ID_GLOBAL_LED:
 #if BMC_MAX_GLOBAL_LEDS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreLed x = store.global.leds[sourceItem];
         store.global.leds[targetItem] = x;
@@ -1152,10 +1191,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+*/
 #endif
       break;
     case BMC_ITEM_ID_GLOBAL_BUTTON:
 #if BMC_MAX_GLOBAL_BUTTONS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreButton x = store.global.buttons[sourceItem];
         store.global.buttons[targetItem] = x;
@@ -1172,6 +1213,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+      */
 #endif
       break;
     case BMC_ITEM_ID_GLOBAL_ENCODER:

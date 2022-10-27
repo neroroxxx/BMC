@@ -274,32 +274,36 @@ public:
     }
   }
   //controller.getSelectedChannel();
-  void getLcdTrackName(char * str){
-    getLcdTrackName(controller.getSelectedChannel(), str);
+  bmcStoreName getLcdTrackName(){
+    return getLcdTrackName(controller.getSelectedChannel());
   }
-  void getLcdTrackName(uint8_t n, char * str){
-    if(n > 7){
-      strcpy(str, "");
-      return;
+  bmcStoreName getLcdTrackName(uint8_t n){
+    bmcStoreName t;
+    if(n > 8){
+      return t;
+    } else if(n==8){
+      n = controller.getSelectedChannel();
     }
-    memset(str, 0, strlen(str));
     for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
-      str[i] = (char) lcd[0][e];
+      t.name[i] = (char) lcd[0][e];
     }
+    return t;
   }
   //controller.getSelectedChannel();
-  void getLcdValue(char * str){
-    getLcdValue(controller.getSelectedChannel(), str);
+  bmcStoreName getLcdTrackValue(){
+    return getLcdTrackValue(controller.getSelectedChannel());
   }
-  void getLcdValue(uint8_t n, char * str){
-    if(n > 7){
-      strcpy(str, "");
-      return;
+  bmcStoreName getLcdTrackValue(uint8_t n){
+    bmcStoreName t;
+    if(n > 8){
+      return t;
+    } else if(n==8){
+      n = controller.getSelectedChannel();
     }
-    memset(str, 0, strlen(str));
     for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
-      str[i] = (char) lcd[1][e];
+      t.name[i] = (char) lcd[1][e];
     }
+    return t;
   }
   bool getLedState(uint8_t cmd, uint8_t ch){
     switch(cmd){

@@ -437,6 +437,7 @@ void BMCEditor::backupGlobalTimedEvents(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalLed(uint16_t t_minLength){
+  /*
 #if BMC_MAX_GLOBAL_LEDS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_GLOBAL_LEDS){
@@ -466,8 +467,10 @@ void BMCEditor::backupGlobalLed(uint16_t t_minLength){
       #endif
     }
   }
+
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 
 void BMCEditor::backupGlobalNLRelay(uint16_t t_minLength){
@@ -536,33 +539,21 @@ void BMCEditor::backupGlobalLRelay(uint16_t t_minLength){
 }
 
 void BMCEditor::backupPageName(uint16_t t_minLength){
-#if BMC_NAME_LEN_PAGES > 1
   uint16_t index = getMessagePageNumber();
   if(index >= BMC_MAX_PAGES){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
   }
   if(incoming.size() >= t_minLength){
-    // get the name length byte
-    uint8_t nameLength = incoming.sysex[9];
-    // check the length of the message, it must match this length
-    // for it to be used
-    if(incoming.size() == (nameLength + t_minLength)){
-      // set all the name characters all to 0
-      memset(store.pages[index].name, 0, BMC_NAME_LEN_PAGES);
-      // if the length we received is higher than the compiled length,
-      // set it to the compiled length
-      if(nameLength > BMC_NAME_LEN_PAGES){
-        nameLength = BMC_NAME_LEN_PAGES;
-      }
-      incoming.getStringFromSysEx(10, store.pages[index].name, nameLength);
+    if(incoming.size() == t_minLength){
+      store.pages[index].name     = incoming.get14Bits(9);
     }
   }
-#endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 // PAGE DATA
 void BMCEditor::backupPageButton(uint16_t t_minLength){
+  /*
 #if BMC_MAX_BUTTONS > 0 && BMC_MAX_BUTTON_EVENTS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -591,8 +582,10 @@ void BMCEditor::backupPageButton(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPageLed(uint16_t t_minLength){
+  /*
 #if BMC_MAX_LEDS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -613,10 +606,13 @@ void BMCEditor::backupPageLed(uint16_t t_minLength){
       #endif
     }
   }
+
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+*/
 }
 void BMCEditor::backupPagePwmLed(uint16_t t_minLength){
+  /*
 #if BMC_MAX_PWM_LEDS > 0
 
   // the name length must be appended to the sysex before the CRC
@@ -640,8 +636,10 @@ void BMCEditor::backupPagePwmLed(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPagePixel(uint16_t t_minLength){
+  /*
   #if BMC_MAX_PIXELS > 0
     // the name length must be appended to the sysex before the CRC
     if(incoming.size() >= (t_minLength+1)){
@@ -664,8 +662,10 @@ void BMCEditor::backupPagePixel(uint16_t t_minLength){
     }
   #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPageRgbPixel(uint16_t t_minLength){
+  /*
   #if BMC_MAX_RGB_PIXELS > 0
     // the name length must be appended to the sysex before the CRC
     if(incoming.size() >= (t_minLength+1)){
@@ -690,6 +690,7 @@ void BMCEditor::backupPageRgbPixel(uint16_t t_minLength){
     }
   #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPageEncoder(uint16_t t_minLength){
 #if BMC_MAX_ENCODERS > 0
@@ -757,6 +758,7 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalButton(uint16_t t_minLength){
+  /*
 #if BMC_MAX_GLOBAL_BUTTONS > 0 && BMC_MAX_BUTTON_EVENTS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -784,6 +786,7 @@ void BMCEditor::backupGlobalButton(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 
 void BMCEditor::backupGlobalEncoder(uint16_t t_minLength){
@@ -859,13 +862,14 @@ void BMCEditor::backupPageOled(uint16_t t_minLength){
   if(incoming.size() == t_minLength){
     uint8_t page = getMessagePageNumber() & 0xFF;
     uint8_t index = incoming.sysex[9];
-    store.pages[page].oled[index].type = incoming.get8Bits(10);
-    store.pages[page].oled[index].value = incoming.get8Bits(12);
+    store.pages[page].oled[index].events[0] = incoming.get14Bits(10);
+    //store.pages[page].oled[index].value = incoming.get8Bits(12);
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupPageIli(uint16_t t_minLength){
+  /*
 #if BMC_MAX_ILI9341_BLOCKS > 0
   if(incoming.size() == t_minLength){
     uint8_t page = getMessagePageNumber() & 0xFF;
@@ -874,5 +878,6 @@ void BMCEditor::backupPageIli(uint16_t t_minLength){
     store.pages[page].ili[index].value = incoming.get8Bits(12);
   }
 #endif
+  */
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }

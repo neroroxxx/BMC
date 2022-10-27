@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -45,7 +45,8 @@ void BMC::assignStoreData(){
   setPage(editor.getPage(), true);
 
   #if BMC_MAX_GLOBAL_BUTTONS > 0
-    globalButtonStates = ~globalButtonStates;
+    //globalButtonStates = ~globalButtonStates;
+    globalButtonStates.clear();
     // BMC.hardware.buttons
     assignGlobalButtons();
   #endif
@@ -61,7 +62,7 @@ void BMC::assignStoreData(){
   #endif
 
   #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLedStates = ~globalLedStates;
+    globals.globalLedStates.clear();
     // BMC.hardware.leds
     assignGlobalLeds();
   #endif
@@ -74,11 +75,6 @@ void BMC::assignStoreData(){
   #if BMC_MAX_L_RELAYS > 0
     // BMC.relays.leds
     assignRelaysL();
-  #endif
-
-
-  #if defined(BMC_HAS_DISPLAY)
-    display.update(page);
   #endif
 
   if(callback.storeUpdated){
@@ -157,16 +153,20 @@ void BMC::assignSettings(){
       timedEvents.buildListeners();
     }
   #endif
-
+  #if BMC_MAX_BUTTONS > 0
+    buttonStates.clear();
+  #endif
+  /*
   #if BMC_MAX_BUTTONS > 32
     buttonStates = ~buttonStates;
     buttonStates2 = ~buttonStates2;
   #elif BMC_MAX_BUTTONS > 0
     buttonStates = ~buttonStates;
   #endif
+  */
 
   #if BMC_MAX_LEDS > 0
-    ledStates = ~ledStates;
+    globals.ledStates.clear();
   #endif
 
   #if BMC_MAX_PWM_LEDS > 0
@@ -174,21 +174,27 @@ void BMC::assignSettings(){
   #endif
 
   #if BMC_MAX_PIXELS > 0
-    pixelStates = ~pixelStates;
+    //pixelStates = ~pixelStates;
+    globals.pixelStates.clear();
   #endif
 
   #if BMC_MAX_RGB_PIXELS > 0
-    rgbPixelStatesR = ~rgbPixelStatesR;
-    rgbPixelStatesG = ~rgbPixelStatesG;
-    rgbPixelStatesB = ~rgbPixelStatesB;
+    globals.rgbPixelStates[0].clear();
+    globals.rgbPixelStates[1].clear();
+    globals.rgbPixelStates[2].clear();
+    //rgbPixelStatesR = ~rgbPixelStatesR;
+    //rgbPixelStatesG = ~rgbPixelStatesG;
+    //rgbPixelStatesB = ~rgbPixelStatesB;
   #endif
 
   #if BMC_MAX_GLOBAL_BUTTONS > 0
-    globalButtonStates = ~globalButtonStates;
+    //globalButtonStates = ~globalButtonStates;
+    globalButtonStates.clear();
   #endif
 
   #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLedStates = ~globalLedStates;
+    //globalLedStates = ~globalLedStates;
+    globals.globalLedStates.clear();
   #endif
 
   #if BMC_MAX_NL_RELAYS > 0
@@ -254,7 +260,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_LEDS > 0
     case BMC_CTRL_LED_STATES:
-      ledStates = ~ledStates;
+      globals.ledStates.clear();
       break;
     case BMC_CTRL_LED_TEST:
       if(editor.getCtrlValue() < BMC_MAX_LEDS){
@@ -330,7 +336,8 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_PIXELS > 0
     case BMC_CTRL_PIXEL_STATES:
-      pixelStates = ~pixelStates;
+      //pixelStates = ~pixelStates;
+      globals.pixelStates.clear();
       break;
     case BMC_CTRL_PIXEL_TEST:
       BMC_PRINTLN("Test Pixel",editor.getCtrlValue());
@@ -342,9 +349,12 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_RGB_PIXELS > 0
     case BMC_CTRL_RGB_PIXEL_STATES:
-      rgbPixelStatesR = ~rgbPixelStatesR;
-      rgbPixelStatesG = ~rgbPixelStatesG;
-      rgbPixelStatesB = ~rgbPixelStatesB;
+      globals.rgbPixelStates[0].clear();
+      globals.rgbPixelStates[1].clear();
+      globals.rgbPixelStates[2].clear();
+      //rgbPixelStatesR = ~rgbPixelStatesR;
+      //rgbPixelStatesG = ~rgbPixelStatesG;
+      //rgbPixelStatesB = ~rgbPixelStatesB;
       break;
     case BMC_CTRL_RGB_PIXEL_TEST:
       BMC_PRINTLN("Test RGB Pixel",editor.getCtrlValue());
@@ -356,7 +366,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_GLOBAL_LEDS > 0
     case BMC_CTRL_GLOBAL_LED_STATES:
-      globalLedStates = ~globalLedStates;
+      globals.globalLedStates.clear();
       break;
     case BMC_CTRL_GLOBAL_LED_TEST:
       if(editor.getCtrlValue() < BMC_MAX_GLOBAL_LEDS){

@@ -9,6 +9,63 @@
 #define BMC_STRUCT_H
 #include <Arduino.h>
 
+// pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
+struct BMCUIData {
+  int16_t pin = -1;
+  int16_t pinB = -1;
+  uint16_t x = 0;
+  uint16_t y = 0;
+  uint8_t style = 0;
+  uint8_t rotation = 0;
+  uint8_t mergeType = 0;
+  uint16_t mergeIndex = 0;
+  uint16_t other1 = 0;
+  uint16_t other2 = 0;
+};
+
+
+template <uint16_t len>
+struct BMCBitStates {
+  uint16_t value[((len >> 4) & 0x0F)+1];
+  bool updated = false;
+  uint8_t getLength(){
+    return ((len >> 4) & 0x0F)+1;
+  }
+  uint16_t get(uint8_t n){
+    return value[n];
+  }
+  void clear(){
+    for(uint8_t i = 0, n = getLength() ; i < n ; i++){
+      value[i] = ~value[i];
+    }
+  }
+  void zeroOut(){
+    for(uint8_t i = 0, n = getLength() ; i < n ; i++){
+      value[i] = 0;
+    }
+  }
+  bool hasChanged(){
+    if(updated){
+      updated = false;
+      return true;
+    }
+    return false;
+  }
+  void setBit(uint16_t n, bool newValue){
+    uint8_t mask = (n >> 4) & 0x0F;
+    uint8_t bit = n & 0x0F;
+    if(bitRead(value[mask], bit)!=newValue){
+      bitWrite(value[mask], bit, newValue);
+      updated = true;
+    }
+  }
+  bool getBit(uint16_t n){
+    uint8_t mask = (n >> 4) & 0x0F;
+    uint8_t bit = n & 0x0F;
+    return bitRead(value[mask], bit);
+  }
+};
+
 struct BMCRunTime {
   uint32_t seconds = 0;
   void tick(){

@@ -60,6 +60,15 @@
   #define BMC_LIMIT_MAX_PIXEL_PROGRAMS 32
 
 
+  #ifndef BMC_MAX_GLOBAL_PIXELS
+     #define BMC_MAX_GLOBAL_PIXELS 0
+  #endif
+
+  #ifndef BMC_MAX_GLOBAL_RGB_PIXELS
+     #define BMC_MAX_GLOBAL_RGB_PIXELS 0
+  #endif
+
+
   #if !defined(BMC_MAX_EVENTS_LIBRARY)
     #define BMC_MAX_EVENTS_LIBRARY 8
   #endif
@@ -503,9 +512,9 @@
 
 
   // hardware check
-  #if !defined(BMC_MAX_BUTTON_EVENTS) && BMC_MAX_BUTTON > 0
+  #if !defined(BMC_MAX_BUTTON_EVENTS) && (BMC_MAX_BUTTON > 0 || BMC_MAX_GLOBAL_BUTTONS > 0)
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MIN_BUTTON_EVENTS
-  #elif !defined(BMC_MAX_BUTTON_EVENTS) && BMC_MAX_BUTTON==0
+  #elif !defined(BMC_MAX_BUTTON_EVENTS) && (BMC_MAX_BUTTON==0 && BMC_MAX_GLOBAL_BUTTONS==0)
     #define BMC_MAX_BUTTON_EVENTS 0
   #endif
 
@@ -544,6 +553,7 @@
       #if BMC_PIXELS_PORT == 0
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #error "................."
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
       #endif
@@ -551,6 +561,7 @@
 
       #if BMC_MAX_PIXELS < 0
         #undef BMC_MAX_PIXELS
+        #error "==================="
         #define BMC_MAX_PIXELS 0
       #endif
 
@@ -563,6 +574,7 @@
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
         #undef BMC_PIXELS_PORT
+        #error "*****************"
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
@@ -581,6 +593,7 @@
     #endif
   #else
     #undef BMC_PIXELS_PORT
+    #error "%%%%%%%%%%%%%%%%%%%%%"
     #define BMC_PIXELS_PORT 0
     #define BMC_MAX_PIXELS 0
   #endif
@@ -801,7 +814,6 @@
   #define _____BMC_SETLISTNAMES           0
   #define _____BMC_SETLISTSONGPARTNAMES   0
   #define _____BMC_SETLISTSONGNAMES       0
-  #define _____BMC_PAGENAMES              0
   #define _____BMC_TIMEDEVENTSNAMES       0
 
   // TIMED EVENTS NAMES ****************************************************
@@ -950,27 +962,6 @@
     #endif
   #endif
 
-
-
-  // PAGE NAMES ****************************************************
-  // if BMC_NAME_LEN_PAGES is not defined, define it with value of 0
-  #if !defined(BMC_NAME_LEN_PAGES)
-    #define BMC_NAME_LEN_PAGES 0
-  #endif
-  // if the value of BMC_NAME_LEN_PAGES is 1 throw a compile error
-  // we do this to make sure the user can't recompile and have EEPROM erased
-  // becuase of this
-  #if BMC_NAME_LEN_PAGES == 1
-    #error "Page Names length can NOT be 1, it must be 0 or more than 1."
-  #endif
-  // create the value to use within the CRC
-  #if BMC_NAME_LEN_PAGES > 1
-    #undef _____BMC_PAGENAMES
-    #define _____BMC_PAGENAMES (0x88DD*(BMC_NAME_LEN_PAGES+1))
-  #endif
-  // PAGE NAMES ****************************************************
-
-
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_PWM_LEDS+BMC_MAX_GLOBAL_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS)
 
@@ -996,12 +987,6 @@
   #else
     typedef uint8_t bmcLibrary_t;
   #endif
-
-
-
-
-
-
 
 
 

@@ -45,7 +45,7 @@ extern char *__brkval;
 
 class BMCGlobals {
 public:
-  BMCGlobals(){
+  BMCGlobals(bmcStore& t_store):store(t_store){
     reset();
   }
   void update(){
@@ -209,8 +209,25 @@ public:
   }
 #endif
 
-public:
+bmcStoreEvent getDeviceEventType(uint16_t n){
+  bmcStoreEvent e;
+  if(n > 0){
+    return store.global.events[n-1];
+  }
+  return e;
+}
+bmcStoreName getDeviceName(uint16_t n){
+  bmcStoreName name;
+  strcpy(name.name, "");
+  if(n==0 || n > BMC_MAX_NAMES_LIBRARY){
+    return name;
+  }
+  strcpy(name.name, store.global.names[n-1].name);
+  return name;
+}
 
+public:
+  bmcStore& store;
   uint8_t page = 0;
   uint16_t bpm = 120;
 #if BMC_MAX_PRESETS > 0
@@ -221,6 +238,30 @@ public:
     uint8_t songPart = 0;
     bmcPreset_t songInLibrary;
     uint8_t setListFlags = 0;
+  #endif
+#endif
+
+#if BMC_MAX_LEDS > 0
+  BMCBitStates <BMC_MAX_PIXELS> ledCustomState;
+  BMCBitStates <BMC_MAX_PIXELS> ledStates;
+#endif
+#if BMC_MAX_GLOBAL_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedStates;
+
+#endif
+#if BMC_PIXELS_PORT > 0
+  #if BMC_MAX_PIXELS > 0
+    BMCBitStates <BMC_MAX_PIXELS> pixelStates;
+  #endif
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    BMCBitStates <BMC_MAX_GLOBAL_PIXELS> globalPixelStates;
+  #endif
+  #if BMC_MAX_RGB_PIXELS > 0
+    BMCBitStates <BMC_MAX_RGB_PIXELS> rgbPixelStates[3];
+  #endif
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    BMCBitStates <BMC_MAX_GLOBAL_RGB_PIXELS> globalRrgbPixelStates[3];
   #endif
 #endif
 

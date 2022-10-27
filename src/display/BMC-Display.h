@@ -15,7 +15,7 @@
 
 class BMCDisplay {
 public:
-  BMCDisplay(BMCMidi& t_midi, bmcStore& t_store, BMCCallbacks& cb
+  BMCDisplay(BMCMidi& t_midi, BMCGlobals& t_globals, BMCCallbacks& cb
     #ifdef BMC_USE_SYNC
       ,BMCSync& t_sync
     #endif
@@ -25,7 +25,7 @@ public:
     #if BMC_MAX_SETLISTS > 0
       ,BMCSetLists& t_setlists
     #endif
-  ):midi(t_midi),store(t_store), callback(cb)
+  ):midi(t_midi),globals(t_globals), callback(cb)
     #ifdef BMC_USE_SYNC
       ,sync(t_sync)
     #endif
@@ -64,7 +64,9 @@ public:
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
   void initILI9341(){
-    tft.begin(BMCBuildData::getIliDisplayPosition(2));
+    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, -1);
+    //tft.begin(BMCBuildData::getIliDisplayPosition(2));
+    tft.begin(ui.rotation);
     tft.clear();
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
       block[i].begin(i);
@@ -79,28 +81,20 @@ public:
     #endif
       for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
         // display can be address 0x3C or 0x3D
-        uint8_t addr = 0x3C + BMCBuildData::getOledDisplayPosition(i, 3);
-        uint8_t rotation = BMCBuildData::getOledDisplayPosition(i, 2);
+        BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_OLED, i);
+        //uint8_t addr = 0x3C + BMCBuildData::getOledDisplayPosition(i, 3);
+        //uint8_t rotation = BMCBuildData::getOledDisplayPosition(i, 2);
     #if BMC_MAX_OLED > 1
         selectMux(i);
     #endif
-        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, addr, rotation);
+        //oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, addr, rotation);
+        //ui.other1 = address, ui.other2 = mux port
+        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, ui.other1, ui.rotation);
       }
-      /*
-      oled[0].display.setFont(&BMCDisplay_Font);
-      oled[0].display.setTextWrap(false);
-      oled[0].display.setTextColor(BMC_SSD1306_WHITE);
-      oled[0].display.setTextSize(2);
-      oled[0].display.setCursor(10, 16);
-      oled[0].display.println("0123456789");
-      oled[0].display.println("0123456789");
-      oled[0].display.drawLine(0, 0, 10, 0, BMC_SSD1306_WHITE);
-      oled[0].display.drawLine(0, 6, 10, 6, BMC_SSD1306_WHITE);
-      oled[0].display.display();
-      */
   }
 #endif
   void reassign(uint8_t page){
+      clearAll();
 #if defined(BMC_USE_DAW_LC)
       dawMetersBlock = -1;
       dawVuOverload = 0;
@@ -114,26 +108,16 @@ public:
         memset(dawChName[i], 0, 8);
       }
 #endif
-#if BMC_MAX_OLED > 0
-// not needed just yet
-
-    for(uint8_t i=0;i<BMC_MAX_OLED;i++){
-#if defined(BMC_USE_DAW_LC)
-      if(store.pages[page].oled[i].type==BMC_DISPLAY_EVENT_TYPE_DAW){
-
-      }
-    }
-#endif
-
-#endif
 #if BMC_MAX_ILI9341_BLOCKS > 0
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-
 #if defined(BMC_USE_DAW_LC)
-      if(store.pages[page].ili[i].type==BMC_DISPLAY_EVENT_TYPE_DAW){
-        if(store.pages[page].ili[i].value==0){
+      bmcStoreEvent e = globals.getDeviceEventType(globals.store.pages[page].ili[i].events[0]);
+      if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
+        if(BMC_GET_BYTE(0, e.event) == 0){
           // make sure this is a 320 x 80 block
-          if(dawMetersBlock == -1 && BMCBuildData::getIliDisplayBlockPosition(i, 2) == 0){
+          //if(dawMetersBlock == -1 && BMCBuildData::getIliDisplayBlockPosition(i, 2) == 0){
+          BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, i);
+          if(dawMetersBlock == -1 && ui.style == 0){
             dawMetersBlock = i;
             initDawMeters();
           }
@@ -152,31 +136,21 @@ public:
     }
     uint16_t x = block[dawMetersBlock].getX();
     uint8_t y = block[dawMetersBlock].getY();
-    //uint16_t w = block[dawMetersBlock].getWidth();
-    //uint8_t h = block[dawMetersBlock].getHeight();
     // clear the block
     tft.display.fillRect(x, y, 320, 80, BMC_ILI9341_BLACK);
-    //tft.display.drawRect(x, y, 320, 80, BMC_ILI9341_WHITE);
-    //uint8_t tY = (y+80)-7;
     for(uint8_t i = 0 ; i < 8 ; i++){
       uint16_t bX = (x + 7) + (i*39);
       uint16_t bY = y+BMC_ILI9341_VU_METER_Y;
-
-      //tft.display.drawFastVLine(bX+35, y+2, 78, BMC_ILI9341_VU_GREY);
-
       // VPOT
       uint8_t vuHeight = 9;
       uint16_t vuWidth = 3;
       for(uint8_t e = 0 ; e < 11 ; e++){
         if(e < 6){ // decrease
-          //y += e > 0 ? 1 : 0;
           vuHeight -= e > 0 ? 1 : 0;
         } else {// increase
-          //y -= 1;
           vuHeight += 1;
         }
         tft.display.fillRect(bX + (vuWidth*e), y+4, vuWidth, vuHeight, BMC_ILI9341_VU_GREY);
-        //y+4
       }
 
       tft.display.setTextSize(1);
@@ -188,14 +162,10 @@ public:
       tft.display.print("S ");
       tft.display.setCursor(bX+26, y+16);
       tft.display.print("M");
-
       // VU METERS
       for(uint8_t e = 0 ; e < 13 ; e++){
         tft.display.fillRect(bX, bY+(e*(BMC_ILI9341_VU_METER_H+1)), 33, BMC_ILI9341_VU_METER_H, BMC_ILI9341_VU_GREY);
       }
-      // print names tho not needed at reset
-      //tft.display.setCursor(bX-1, tY);
-      //tft.display.print("");
     }
   }
   void updateDawMeters(){
@@ -211,8 +181,6 @@ public:
       uint8_t overload = sync.daw.controller.getMeterOverload(i);
       uint8_t vPotValue = sync.daw.controller.getVPot(i);
       // for testing
-      //uint8_t value = random(0, 13);
-      //uint8_t overload = random(0, 2);
       uint16_t bX = (x + 7) + (i*39);
       uint16_t bY = y+BMC_ILI9341_VU_METER_Y;
 
@@ -275,10 +243,8 @@ public:
         uint16_t vuWidth = 3;
         for(uint8_t e = 0 ; e < 11 ; e++){
           if(e < 6){ // decrease
-            //y += e > 0 ? 1 : 0;
             vuHeight -= e > 0 ? 1 : 0;
           } else {// increase
-            //y -= 1;
             vuHeight += 1;
           }
           bool l = sync.daw.controller.getVPotValue(i, e+1)>0;
@@ -289,15 +255,13 @@ public:
         }
         dawVPotLevel[i] = vPotValue;
       }
-      char str[10] = "";
-      sync.daw.getLcdTrackName(i, str);
-      str[6] = 0;
+      bmcStoreName t = sync.daw.getLcdTrackName(i);
       // update the track name if this track was the last selected
       // or the currently selected track
       bool isSel = ((sel==i || dawSelectedTrack==i) && dawSelectedTrack != sel);
 
-      if(strlen(dawChName[i]) != strlen(str) || !BMC_STR_MATCH(dawChName[i], str) || isSel){
-        BMC_PRINTLN(i, "dawChName[i]",dawChName[i], strlen(dawChName[i]), "str", str, strlen(str));
+      if(strlen(dawChName[i]) != strlen(t.name) || !BMC_STR_MATCH(dawChName[i], t.name) || isSel){
+        //BMC_PRINTLN(i, "dawChName[i]",dawChName[i], strlen(dawChName[i]), "t.name", t.name, strlen(t.name));
         tft.display.setTextSize(1);
         tft.display.setCursor(bX-1, tY);
         tft.display.setTextColor(BMC_ILI9341_BLACK);
@@ -305,8 +269,8 @@ public:
         tft.display.setCursor(bX-1, tY);
 
         tft.display.setTextColor(sel == i ? BMC_ILI9341_YELLOW : BMC_ILI9341_WHITE);
-        tft.display.print(str);
-        strcpy(dawChName[i], str);
+        tft.display.print(t.name);
+        strcpy(dawChName[i], t.name);
       }
     }
     dawSelectedTrack = sel;
@@ -333,20 +297,7 @@ public:
   }
 
   void update(uint8_t page){
-#if BMC_MAX_OLED > 0
-    for(uint8_t i=0;i<BMC_MAX_OLED;i++){
-      uint8_t type = store.pages[page].oled[i].type;
-      uint8_t value = store.pages[page].oled[i].value;
-      runEvents(page, true, i, type, value);
-    }
-#endif
-#if BMC_MAX_ILI9341_BLOCKS > 0
-    for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-      uint8_t type = store.pages[page].ili[i].type;
-      uint8_t value = store.pages[page].ili[i].value;
-      runEvents(page, false, i, type, value);
-    }
-#endif
+
   }
   void renderPresetNumber(bmcPreset_t n){
 
@@ -377,9 +328,44 @@ ILI9341_t3 & getILI9341(){
 #endif
 
 
+void renderText(uint8_t n, bool isOled, uint8_t type, const char * str, uint8_t xShift=0, uint8_t yShift=0){
+  uint8_t len = strlen(str)+1;
+  char c[len] = "";
+  strncpy(c, str, len);
+  renderText(n, isOled, type, c, xShift, yShift);
+}
+void renderText(uint8_t n, bool isOled, uint8_t type, char * t_str, uint8_t xShift=0, uint8_t yShift=0){
+#if BMC_MAX_OLED > 1
+  if(isOled){
+    selectMux(n);
+  }
+#endif
+  char str[strlen(t_str)+2] = "-";
+  if(strlen(t_str) != 0){
+    strcpy(str, t_str);
+  }
+  uint8_t crc = checkLast(type, str);
+  uint8_t displayN = n + (isOled ? 0 : BMC_MAX_OLED);
+  if(last[displayN] != crc){
+    last[displayN] = crc;
+#if BMC_MAX_OLED > 0
+    if(isOled){
+      oled[n].print(str, xShift, yShift);
+      return;
+    }
+#endif
+#if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!isOled){
+      block[n].print(tft.display, str, xShift, yShift);
+    }
+#endif
+  }
+}
+
+
 private:
   BMCMidi& midi;
-  bmcStore& store;
+  BMCGlobals& globals;
   BMCCallbacks& callback;
 #ifdef BMC_USE_SYNC
   BMCSync& sync;
@@ -463,79 +449,79 @@ private:
         break;
       case BMC_DISPLAY_EVENT_TYPE_BUTTON:
     #if BMC_MAX_BUTTONS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.pages[page].buttons[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].buttons[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_GLOBAL_BUTTON:
     #if BMC_MAX_GLOBAL_BUTTONS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.global.buttons[value].name);
+        renderText(index, isOled, type, globals.store.global.buttons[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_ENCODER:
     #if BMC_MAX_ENCODERS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.pages[page].encoders[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].encoders[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_GLOBAL_ENCODER:
     #if BMC_MAX_GLOBAL_ENCODERS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.global.encoders[value].name);
+        renderText(index, isOled, type, globals.store.global.encoders[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_POT:
     #if BMC_MAX_POTS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.pages[page].pots[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].pots[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_GLOBAL_POT:
     #if BMC_MAX_GLOBAL_POTS > 0 && BMC_NAME_LEN_BUTTONS > 1
-        renderText(index, isOled, type, store.global.pots[value].name);
+        renderText(index, isOled, type, globals.store.global.pots[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_LED:
     #if BMC_MAX_LEDS > 0 && BMC_NAME_LEN_LEDS > 1
-        renderText(index, isOled, type, store.pages[page].leds[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].leds[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_GLOBAL_LED:
     #if BMC_MAX_GLOBAL_LEDS > 0 && BMC_NAME_LEN_LEDS > 1
-        renderText(index, isOled, type, store.global.leds[value].name);
+        renderText(index, isOled, type, globals.store.global.leds[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_PWM_LED:
     #if BMC_MAX_PWM_LEDS > 0 && BMC_NAME_LEN_LEDS > 1
-        renderText(index, isOled, type, store.pages[page].pwmLeds[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].pwmLeds[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_PIXEL:
     #if BMC_MAX_PIXELS > 0 && BMC_NAME_LEN_LEDS > 1
-        renderText(index, isOled, type, store.pages[page].pixels[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].pixels[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_RGB_PIXEL:
     #if BMC_MAX_RGB_PIXELS > 0 && BMC_NAME_LEN_LEDS > 1
-        renderText(index, isOled, type, store.pages[page].rgbPixels[value].name);
+        renderText(index, isOled, type, globals.store.pages[page].rgbPixels[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_NL_RELAY:
     #if BMC_MAX_NL_RELAYS > 0 && BMC_NAME_LEN_RELAYS > 1
-        renderText(index, isOled, type, store.global.relaysNL[value].name);
+        renderText(index, isOled, type, globals.store.global.relaysNL[value].name);
         blank = false;
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_L_RELAY:
     #if BMC_MAX_L_RELAYS > 0 && BMC_NAME_LEN_RELAYS > 1
-        renderText(index, isOled, type, store.global.relaysL[value].name);
+        renderText(index, isOled, type, globals.store.global.relaysL[value].name);
         blank = false;
     #endif
         break;
@@ -709,7 +695,7 @@ private:
       case BMC_DISPLAY_EVENT_TYPE_STRING_LIBRARY:
     #if BMC_MAX_STRING_LIBRARY > 0 && BMC_NAME_LEN_STRING_LIBRARY > 1
         if(value < BMC_MAX_STRING_LIBRARY){
-          renderText(index, isOled, type, store.global.stringLibrary[value].name);
+          renderText(index, isOled, type, globals.store.global.stringLibrary[value].name);
           blank = false;
         }
 
@@ -726,24 +712,29 @@ private:
           #else
             sprintf(str, "%03u", page+1);
           #endif
-          renderTextWithBox(index, isOled, type, str, 14, 0, "PAGE");
+          //renderTextWithBox(index, isOled, type, str, 14, 0, "PAGE");
+          renderText(index, isOled, type, str);
           blank = false;
         }
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_PAGE_NAME:
-    #if BMC_MAX_PAGES > 1 && BMC_NAME_LEN_PAGES > 1
-        if(value < BMC_MAX_PAGES &&  strlen(store.pages[value].name) > 0){
-          renderText(index, isOled, type, store.pages[value].name);
+
+    /*
+        if(value < BMC_MAX_PAGES &&  strlen(globals.store.pages[value].name) > 0){
+          renderText(index, isOled, type, globals.store.pages[value].name);
           blank = false;
         }
-    #endif
+        */
+
         break;
       case BMC_DISPLAY_EVENT_TYPE_CURRENT_PAGE_NAME:
-    #if BMC_MAX_PAGES > 1 && BMC_NAME_LEN_PAGES > 1
-        renderText(index, isOled, type, store.pages[page].name);
+
+    /*
+        renderText(index, isOled, type, globals.store.pages[page].name);
         blank = false;
-    #endif
+        */
+
         break;
       case BMC_DISPLAY_EVENT_TYPE_DAW:
         blank = false;
@@ -756,14 +747,18 @@ private:
           #endif
         } else if(value == 1){
           //selected daw track
+          /*
           char str[10] = "";
           sync.daw.getLcdTrackName(str);
           renderText(index, isOled, type, str);
+          */
 
         } else if(value<10){
+          /*
           char str[10] = "";
           sync.daw.getLcdTrackName(value - 2, str);
           renderText(index, isOled, type, str);
+          */
 
         }
     #endif
@@ -792,39 +787,7 @@ private:
   }
 #endif
   }
-  void renderText(uint8_t n, bool isOled, uint8_t type, const char * str, uint8_t xShift=0, uint8_t yShift=0){
-    uint8_t len = strlen(str)+1;
-    char c[len] = "";
-    strncpy(c, str, len);
-    renderText(n, isOled, type, c, xShift, yShift);
-  }
-  void renderText(uint8_t n, bool isOled, uint8_t type, char * t_str, uint8_t xShift=0, uint8_t yShift=0){
-#if BMC_MAX_OLED > 1
-    if(isOled){
-      selectMux(n);
-    }
-#endif
-    char str[strlen(t_str)+2] = "-";
-    if(strlen(t_str) != 0){
-      strcpy(str, t_str);
-    }
-    uint8_t crc = checkLast(type, str);
-    uint8_t displayN = n + (isOled ? 0 : BMC_MAX_OLED);
-    if(last[displayN] != crc){
-      last[displayN] = crc;
-#if BMC_MAX_OLED > 0
-      if(isOled){
-        oled[n].print(str, xShift, yShift);
-        return;
-      }
-#endif
-#if BMC_MAX_ILI9341_BLOCKS > 0
-      if(!isOled){
-        block[n].print(tft.display, str, xShift, yShift);
-      }
-#endif
-    }
-  }
+
   void renderTextWithBox(uint8_t n, bool isOled, uint8_t type, char * str, uint8_t xShift, uint8_t yShift, const char * sideStr){
 #if BMC_MAX_OLED > 1
     if(isOled){
@@ -867,7 +830,10 @@ private:
 #if BMC_MAX_OLED > 1
   void selectMux(uint8_t n){
 #if defined(BMC_OLED_USER_DEFINED_PORTS)
-    n = BMCBuildData::getOledDisplayPosition(n, 4);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_OLED, i);
+    n = ui.other2;// mux port
+    //n = BMCBuildData::getOledDisplayPosition(n, 4);
+
 #endif
     uint8_t address = 0x70 + ((n>>3) & 0x07);
     uint8_t mask = 1 << (n & 0x07);

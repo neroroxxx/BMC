@@ -12,9 +12,8 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
   }
   if(page!=t_page){
     flags.write(BMC_FLAGS_PAGE_CHANGED, true);
-    #if BMC_NAME_LEN_PAGES > 1
-      streamToSketch(BMC_ITEM_ID_PAGE, t_page, store.pages[t_page].name);
-    #endif
+    bmcStoreName e = globals.getDeviceName(store.pages[page].name);
+    streamToSketch(BMC_ITEM_ID_PAGE, t_page, e.name);
   }
   page = t_page;
 
@@ -24,7 +23,7 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
   editor.pageSendChangeMessage();
 
   #if BMC_MAX_LEDS > 0
-    ledStates = ~ledStates;
+    globals.ledStates.clear();
   #endif
 
   #if BMC_MAX_PWM_LEDS > 0

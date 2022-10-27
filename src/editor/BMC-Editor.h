@@ -52,6 +52,15 @@ public:
   void saveEEPROM(){
     saveStore();
   }
+  bmcStoreName getDeviceName(uint16_t n){
+    bmcStoreName name;
+    strcpy(name.name, "");
+    if(n==0 || n > BMC_MAX_NAMES_LIBRARY){
+      return name;
+    }
+    strcpy(name.name, store.global.names[n-1].name);
+    return name;
+  }
   void messengerSend(uint16_t status, signed long value, char* str, uint8_t len){
     if(!midi.globals.editorConnected() || connectionOngoing()){
       return;
@@ -324,32 +333,39 @@ private:
 
   uint16_t checkIfHardwareAvailable(uint8_t t_type){
     switch(t_type){
-      case BMC_ITEM_ID_BUTTON:          return BMC_MAX_BUTTONS;
-      case BMC_ITEM_ID_LED:             return BMC_MAX_LEDS;
-      case BMC_ITEM_ID_PWM_LED:         return BMC_MAX_PWM_LEDS;
-      case BMC_ITEM_ID_PIXEL:           return BMC_MAX_PIXELS;
-      case BMC_ITEM_ID_RGB_PIXEL:       return BMC_MAX_RGB_PIXELS;
-      case BMC_ITEM_ID_POT:             return BMC_MAX_POTS;
-      case BMC_ITEM_ID_ENCODER:         return BMC_MAX_ENCODERS;
-      case BMC_ITEM_ID_GLOBAL_BUTTON:   return BMC_MAX_GLOBAL_BUTTONS;
-      case BMC_ITEM_ID_GLOBAL_ENCODER:  return BMC_MAX_GLOBAL_ENCODERS;
-      case BMC_ITEM_ID_GLOBAL_POT:      return BMC_MAX_GLOBAL_POTS;
-      case BMC_ITEM_ID_GLOBAL_LED:      return BMC_MAX_GLOBAL_LEDS;
-      case BMC_ITEM_ID_LIBRARY:         return BMC_MAX_LIBRARY;
-      case BMC_ITEM_ID_STRING_LIBRARY:  return BMC_MAX_STRING_LIBRARY;
-      case BMC_ITEM_ID_PRESET:          return BMC_MAX_PRESETS;
-      case BMC_ITEM_ID_CUSTOM_SYSEX:    return BMC_MAX_CUSTOM_SYSEX;
-      case BMC_ITEM_ID_TRIGGER:         return BMC_MAX_TRIGGERS;
-      case BMC_ITEM_ID_TIMED_EVENT:     return BMC_MAX_TIMED_EVENTS;
-      case BMC_ITEM_ID_TEMPO_TO_TAP:    return BMC_MAX_TEMPO_TO_TAP;
-      case BMC_ITEM_ID_SKETCH_BYTES:    return BMC_MAX_SKETCH_BYTES;
-      case BMC_ITEM_ID_NL_RELAY:        return BMC_MAX_NL_RELAYS;
-      case BMC_ITEM_ID_L_RELAY:         return BMC_MAX_L_RELAYS;
-      case BMC_ITEM_ID_SETLIST:         return BMC_MAX_SETLISTS;
-      case BMC_ITEM_ID_SETLIST_SONG:    return BMC_MAX_SETLISTS_SONGS;
-      case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:    return BMC_MAX_SETLISTS_SONGS_LIBRARY;
-      case BMC_ITEM_ID_OLED:            return BMC_MAX_OLED;
-      case BMC_ITEM_ID_ILI:            return BMC_MAX_ILI9341_BLOCKS;
+      case BMC_ITEM_ID_PAGE:                  return BMC_MAX_PAGES;
+      case BMC_ITEM_ID_BUTTON:                return BMC_MAX_BUTTONS;
+      case BMC_ITEM_ID_LED:                   return BMC_MAX_LEDS;
+      case BMC_ITEM_ID_PIXEL:                 return BMC_MAX_PIXELS;
+      case BMC_ITEM_ID_RGB_PIXEL:             return BMC_MAX_RGB_PIXELS;
+      case BMC_ITEM_ID_POT:                   return BMC_MAX_POTS;
+      case BMC_ITEM_ID_ENCODER:               return BMC_MAX_ENCODERS;
+      case BMC_ITEM_ID_GLOBAL_BUTTON:         return BMC_MAX_GLOBAL_BUTTONS;
+      case BMC_ITEM_ID_GLOBAL_ENCODER:        return BMC_MAX_GLOBAL_ENCODERS;
+      case BMC_ITEM_ID_GLOBAL_POT:            return BMC_MAX_GLOBAL_POTS;
+      case BMC_ITEM_ID_GLOBAL_LED:            return BMC_MAX_GLOBAL_LEDS;
+      case BMC_ITEM_ID_GLOBAL_PIXEL:          return BMC_MAX_GLOBAL_PIXELS;
+      case BMC_ITEM_ID_GLOBAL_RGB_PIXEL:      return BMC_MAX_GLOBAL_RGB_PIXELS;
+      case BMC_ITEM_ID_NL_RELAY:              return BMC_MAX_NL_RELAYS;
+      case BMC_ITEM_ID_L_RELAY:               return BMC_MAX_L_RELAYS;
+      case BMC_ITEM_ID_OLED:                  return BMC_MAX_OLED;
+      case BMC_ITEM_ID_ILI:                   return BMC_MAX_ILI9341_BLOCKS;
+
+      case BMC_ITEM_ID_LIBRARY:               return BMC_MAX_LIBRARY;
+      case BMC_ITEM_ID_STRING_LIBRARY:        return BMC_MAX_STRING_LIBRARY;
+      case BMC_ITEM_ID_PRESET:                return BMC_MAX_PRESETS;
+      case BMC_ITEM_ID_CUSTOM_SYSEX:          return BMC_MAX_CUSTOM_SYSEX;
+      case BMC_ITEM_ID_TRIGGER:               return BMC_MAX_TRIGGERS;
+      case BMC_ITEM_ID_TIMED_EVENT:           return BMC_MAX_TIMED_EVENTS;
+      case BMC_ITEM_ID_TEMPO_TO_TAP:          return BMC_MAX_TEMPO_TO_TAP;
+      case BMC_ITEM_ID_SKETCH_BYTES:          return BMC_MAX_SKETCH_BYTES;
+
+      case BMC_ITEM_ID_SETLIST:               return BMC_MAX_SETLISTS;
+      case BMC_ITEM_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;
+      case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:  return BMC_MAX_SETLISTS_SONGS_LIBRARY;
+      // to be removed
+      case BMC_ITEM_ID_PWM_LED:               return BMC_MAX_PWM_LEDS;
+
     }
     return 0;
   }
@@ -577,22 +593,6 @@ public:
   #endif
 #endif
 
-#if BMC_MAX_GLOBAL_LEDS > 0
-  // save a single "global led" to EEPROM
-  void saveGlobalLed(uint8_t index){
-    if(index>=BMC_MAX_GLOBAL_LEDS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getGlobalLedOffset(index);
-      storage.set(address, store.global.leds[index]);
-    #endif
-  }
-#endif
-
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   // save a single "global button" to EEPROM
   void saveGlobalButton(uint8_t index){
@@ -605,6 +605,22 @@ public:
       uint16_t address = getGlobalOffset();
       address += getGlobalButtonOffset(index);
       storage.set(address, store.global.buttons[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalLedOffset(index);
+      storage.set(address, store.global.leds[index]);
     #endif
   }
 #endif
@@ -796,7 +812,7 @@ public:
     #else
       uint16_t address = getGlobalOffset();
       address += sizeof(store.global) + (sizeof(store.pages[0]) * page);
-      storage.set(address,store.pages[page]);
+      storage.set(address, store.pages[page]);
     #endif
   }
 private:
@@ -1040,6 +1056,12 @@ private:
   void incomingMessageName(bool write);
   void incomingMessageDevice(bool write);
 
+  template <uint8_t sLen, uint8_t eLen>
+  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen>& item, uint16_t index, int16_t page=-1);
+
+  template <uint8_t sLen, uint8_t eLen>
+  void deviceResponseData(bmcStoreDevice<sLen, eLen>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType);
+
 // BMC-Editor.midi.page.h
 private:
 
@@ -1079,6 +1101,7 @@ private:
   void utilityCommand();
 
 public:
+  /*
 #if BMC_MAX_BUTTONS > 32
   void utilitySendButtonActivity(uint32_t states=0,
                                  uint32_t states2=0,
@@ -1087,6 +1110,46 @@ public:
   void utilitySendButtonActivity(uint32_t states=0,
                                bool onlyIfConnected=true);
 #endif
+*/
+
+  template <uint16_t sLen>
+  void utilitySendButtonActivity(BMCBitStates<sLen>& states, bool t_isGlobal, bool onlyIfConnected=true){
+    #if defined(BMC_HAS_BUTTONS)
+      if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
+        return;
+      }
+      if(onlyIfConnected && !midi.globals.editorConnected()){
+        return;
+      }
+      // if editor feedback is disabled...
+      if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
+        return;
+      }
+      if(!connectionOngoing()){
+      BMCEditorMidiFlags flag;
+        flag.setWrite(true);
+        BMCMidiMessage buff;
+        buff.prepareEditorMessage(
+          port, deviceId,
+          BMC_GLOBALF_UTILITY, flag,
+          BMC_UTILF_BUTTON
+        );
+        buff.appendToSysEx7Bits(t_isGlobal);
+        buff.appendToSysEx7Bits(states.getLength());
+        for(uint8_t i = 0, n = states.getLength(); i < n ; i++){
+          buff.appendToSysEx16Bits(states.get(i));
+        }
+        // don't show midi activity
+        sendToEditor(buff,true,false);
+      }
+    #endif
+  }
+
+  void utilitySendStateBits(uint8_t itemId, bool onlyIfConnected=true);
+  /*
+  void utilitySendRgbPixelActivity(bool t_isGlobal, bool onlyIfConnected=true);
+  */
+
 
   void utilitySendLedActivity(uint32_t data,
                               bool onlyIfConnected=true);
@@ -1116,10 +1179,6 @@ public:
 
   void utilitySendGlobalLedActivity(uint16_t data,
                                     bool onlyIfConnected=true);
-  void utilitySendPixelActivity(uint32_t data,
-                                    bool onlyIfConnected=true);
-  void utilitySendRgbPixelActivity(uint32_t red, uint32_t green, uint32_t blue,
-                                    bool onlyIfConnected=true);
   void utilitySendPreset(bmcPreset_t presetNumber,
                         bool onlyIfConnected=true);
 
@@ -1132,8 +1191,7 @@ public:
   void utilitySendSketchBytes(bool onlyIfConnected);
 
 
-  void utilitySendGlobalButtonActivity(uint32_t states=0,
-                                 bool onlyIfConnected=true);
+
 
   void utilitySendGlobalPotActivity(uint8_t index, uint8_t value=0,
                               bool onlyIfConnected=true);

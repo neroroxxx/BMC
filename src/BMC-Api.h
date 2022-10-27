@@ -36,13 +36,13 @@ public:
   }
   // triggered when 2 buttons are pressed at the same time
   // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
-  void onButtonDualPress(void (*fptr)(uint8_t btn1, uint8_t btn2)){
+  void onButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.buttonDualPress = fptr;
   }
   // triggered when a page button is pressed, released, etc.
-  void onButtonActivity(void (*fptr)(uint8_t n, uint8_t eventIndex, uint8_t pressType,
-                                    bmcStoreButton button,
-                                    bmcStoreButtonEvent data)){
+  void onButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType,
+                                    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
+                                    bmcStoreEvent data)){
     callback.buttonActivity = fptr;
   }
   // triggered when an encoder is rotated
@@ -73,12 +73,12 @@ public:
 
   // triggered when an global button is pressed, released, etc.
   // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
-  void onGlobalButtonDualPress(void (*fptr)(uint8_t btn1, uint8_t btn2)){
+  void onGlobalButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.globalButtonDualPress = fptr;
   }
-  void onGlobalButtonActivity(void (*fptr)(uint8_t n, uint8_t eventIndex, uint8_t pressType,
-                                    bmcStoreButton button,
-                                    bmcStoreButtonEvent data)){
+  void onGlobalButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType,
+                                    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
+                                    bmcStoreEvent data)){
     callback.globalButtonActivity = fptr;
   }
   // triggered when a global encoder is rotated
@@ -455,11 +455,8 @@ public:
     stopwatchCmd(cmd, h, m, s);
   }
 #if defined(BMC_HAS_DISPLAY)
-  void displayMeter(uint8_t n, uint8_t value){
+  void displayHorizontalMeter(uint8_t n, uint8_t value){
     display.printHorizontalMeter(n, value);
-  }
-  void displayUpdate(){
-    display.update(page);
   }
 #if BMC_MAX_OLED > 0
   BMC_SSD1306 & displayGetOled(uint8_t n){
@@ -536,20 +533,19 @@ public:
   uint8_t getCurrentPage(){
     return getPage();
   }
-#if BMC_NAME_LEN_PAGES > 1
-  // retrieve the name of the current page,
-  // must pass a pointer to your string with length >= BMC_NAME_LEN_PAGES
-  void getPageName(char* t_string){
-    getPageName(page, t_string);
+  // retrieve the name of the current page
+  bmcStoreName getPageName(){
+    return getPageName(page);
   }
-  // retrieve the name of the a page specified by n,
-  // must pass a pointer to your string with length >= BMC_NAME_LEN_PAGES
-  void getPageName(uint8_t n, char* t_string){
+  // retrieve the name of the a page specified by n
+  bmcStoreName getPageName(uint16_t n){
+    bmcStoreName e;
     if(n<BMC_MAX_PAGES){
-      strcpy(t_string, store.pages[n].name);
+      //strcpy(t_string, store.pages[n].name);
+      return globals.getDeviceName(store.pages[n].name);
     }
+    return e;
   }
-#endif
 #if BMC_MAX_PAGES > 1
   // move to the next page
   // if endless is true and you are already on the last page, you will go to the first page
@@ -924,6 +920,7 @@ public:
 
 #if BMC_MAX_BUTTONS > 0
   // Get BUTTON Data
+  /*
   void getButton(uint8_t t_index, bmcStoreButton& t_item){
     getButton(page, t_index, t_item);
   }
@@ -942,6 +939,7 @@ public:
       }
     }
   #endif
+  */
   void triggerButtonPress(uint8_t n){
     if(n<BMC_MAX_BUTTONS){
       buttons[n].triggerPress();
@@ -961,6 +959,7 @@ public:
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
+/*
   void getGlobalButton(uint8_t t_index, bmcStoreButton& t_item){
     if(t_index<BMC_MAX_GLOBAL_BUTTONS){
       t_item = store.global.buttons[t_index];
@@ -973,6 +972,7 @@ public:
       }
     }
   #endif
+*/
   void triggerGlobalButtonPress(uint8_t n){
     if(n<BMC_MAX_GLOBAL_BUTTONS){
       globalButtons[n].triggerPress();
@@ -993,6 +993,7 @@ public:
 
 #if BMC_MAX_LEDS > 0
   // Get LED Data
+  /*
   void getLed(uint8_t t_index, bmcStoreLed& t_item){
     getLed(page, t_index, t_item);
   }
@@ -1001,6 +1002,7 @@ public:
       t_item = store.pages[t_page].leds[t_index];
     }
   }
+  */
 
 #if BMC_NAME_LEN_LEDS > 1
   void getLedName(uint8_t t_index, char* t_string){
@@ -1013,21 +1015,22 @@ public:
   }
 #endif
   // used to control leds only by the sketch, no matter what page
-  void setLedCustomState(uint8_t n, bool t_value){
+  void setLedCustomState(uint16_t n, bool t_value){
     if(n < BMC_MAX_LEDS){
-      ledCustomState.write(n, t_value);
+      globals.ledCustomState.setBit(n, t_value);
     }
   }
-  bool getLedCustomState(uint8_t n){
-    return (n < BMC_MAX_LEDS) ? ledCustomState.read(n) : 0;
+  bool getLedCustomState(uint16_t n){
+    return (n < BMC_MAX_LEDS) ? globals.ledCustomState.getBit(n) : 0;
   }
-  uint32_t getLedStates(){
-    return ledStates;
+  bool getLedState(uint16_t n){
+    return (n < BMC_MAX_LEDS) ? globals.ledStates.getBit(n) : 0;
   }
 #endif
 
 #if BMC_MAX_GLOBAL_LEDS > 0
   // get GLOBAL_LED Data
+  /*
   void getGlobalLed(uint8_t n, bmcStoreLed& t_item){
     if(n < BMC_MAX_GLOBAL_LEDS){
       t_item = store.global.leds[n];
@@ -1040,22 +1043,26 @@ public:
       }
     }
   #endif
+  */
   // used to control leds only by the sketch, no matter what page
-  void setGlobalLedCustomState(uint8_t n, bool t_value){
+  void setGlobalLedCustomState(uint16_t n, bool t_value){
     if(n < BMC_MAX_GLOBAL_LEDS){
-      globalLedCustomState.write(n, t_value);
+      globals.globalLedCustomState.setBit(n, t_value);
     }
   }
-  bool getGlobalLedCustomState(uint8_t n){
-    return (n < BMC_MAX_GLOBAL_LEDS) ? globalLedCustomState.read(n) : 0;
+  bool getGlobalLedCustomState(uint16_t n){
+    return (n < BMC_MAX_GLOBAL_LEDS) ? globals.globalLedCustomState.getBit(n) : 0;
   }
+  /*
   uint32_t getGlobalLedStates(){
     return globalLedStates;
   }
+  */
 #endif
 
 #if BMC_MAX_PWM_LEDS > 0
   // get PWM_LED Data
+  /*
   void getPwmLed(uint8_t n, bmcStoreLed& t_item){
     getPwmLed(page, n, t_item);
   }
@@ -1064,6 +1071,7 @@ public:
       t_item = store.pages[t_page].pwmLeds[n];
     }
   }
+  */
 
 #if BMC_NAME_LEN_LEDS > 1
   void getPwmLedName(uint8_t n, char* t_string){
@@ -1091,6 +1099,7 @@ public:
 
 #if BMC_MAX_PIXELS > 0
   // get Pixel Data
+  /*
   void getPixel(uint8_t n, bmcStoreLed& t_item){
     getPixel(page, n, t_item);
   }
@@ -1099,6 +1108,8 @@ public:
       t_item = store.pages[t_page].pixels[n];
     }
   }
+  */
+  /*
 #if BMC_NAME_LEN_LEDS > 1
   void getPixelName(uint8_t n, char* t_string){
     getPixelName(page, n, t_string);
@@ -1109,6 +1120,7 @@ public:
     }
   }
 #endif
+*/
   // used to control pixels only by the sketch, no matter what page
   void setPixelCustomState(uint8_t n, uint8_t t_color, uint8_t t_brightness){
     if(n < BMC_MAX_PIXELS && t_brightness <= 15){
@@ -1124,9 +1136,11 @@ public:
   uint8_t getPixelCustomStateBrightness(uint8_t n){
     return (n < BMC_MAX_PIXELS) ? ((pixelCustomState[n]&0xF0)>>4) : 0;
   }
+  /*
   uint32_t getPixelStates(){
     return pixelStates;
   }
+  */
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     // change the current pixel program
     void setPixelProgram(uint8_t t_program){
@@ -1141,6 +1155,7 @@ public:
 
 #if BMC_MAX_RGB_PIXELS > 0
   // get RgbPixel Data
+  /*
   void getRgbPixel(uint8_t n, bmcStoreRgbLed& t_item){
     getRgbPixel(page, n, t_item);
   }
@@ -1159,6 +1174,7 @@ public:
     }
   }
 #endif
+*/
   // used to control rgb pixels only by the sketch, no matter what page
   // if the rgb pixel is set to custom this becomes it's state so your
   // sketch can have full control of it
@@ -1172,6 +1188,7 @@ public:
   uint8_t getRgbPixelCustomState(uint8_t n){
     return (n < BMC_MAX_RGB_PIXELS) ? rgbPixelCustomState[n] : 0;
   }
+  /*
   uint32_t getRgbPixelStates(uint8_t n){
     if(n==0){
       return rgbPixelStatesR;
@@ -1180,6 +1197,7 @@ public:
     }
     return rgbPixelStatesB;
   }
+  */
 
 #endif
 

@@ -23,70 +23,7 @@ void BMCEditor::utilityCommand(){
 // this option is not store in EEPROM instead is stored in the editor app local settings
 // and the editor app will send it as needed. This is so that the PERFORMANCE mode
 // don't get these messages making the MIDI traffic less.
-#if BMC_MAX_BUTTONS > 32
-void BMCEditor::utilitySendButtonActivity(uint32_t states,
-                                          uint32_t states2,
-                                          bool onlyIfConnected){
-#else
-void BMCEditor::utilitySendButtonActivity(uint32_t states,
-                                          bool onlyIfConnected){
-#endif
-#if BMC_MAX_BUTTONS > 0
-  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
-    return;
-  }
-  if(onlyIfConnected && !midi.globals.editorConnected()){
-    return;
-  }
-  // if editor feedback is disabled...
-  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
-    return;
-  }
-  if(!connectionOngoing()){
-  BMCEditorMidiFlags flag;
-    flag.setWrite(true);
-    BMCMidiMessage buff;
-    buff.prepareEditorMessage(
-      port, deviceId,
-      BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_BUTTON
-    );
-    buff.appendToSysEx32Bits(states);
-#if BMC_MAX_BUTTONS > 32
-    buff.appendToSysEx32Bits(states2);
-#endif
-    // don't show midi activity
-    sendToEditor(buff,true,false);
-  }
-#endif
-}
-void BMCEditor::utilitySendGlobalButtonActivity(uint32_t states, bool onlyIfConnected){
-#if BMC_MAX_GLOBAL_BUTTONS > 0
-  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
-    return;
-  }
-  if(onlyIfConnected && !midi.globals.editorConnected()){
-    return;
-  }
-  // if editor feedback is disabled...
-  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
-    return;
-  }
-  if(!connectionOngoing()){
-  BMCEditorMidiFlags flag;
-    flag.setWrite(true);
-    BMCMidiMessage buff;
-    buff.prepareEditorMessage(
-      port, deviceId,
-      BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_GLOBAL_BUTTON
-    );
-    buff.appendToSysEx32Bits(states);
-    // don't show midi activity
-    sendToEditor(buff,true,false);
-  }
-#endif
-}
+
 
 void BMCEditor::utilitySendLedActivity(uint32_t data, bool onlyIfConnected){
 #if BMC_MAX_LEDS > 0
@@ -219,9 +156,7 @@ void BMCEditor::utilitySendLRelayActivity(uint16_t data, bool onlyIfConnected){
 #endif
 }
 
-void BMCEditor::utilitySendPixelActivity(uint32_t data,
-                                             bool onlyIfConnected){
-#if BMC_MAX_PIXELS > 0
+void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
   }
@@ -239,15 +174,71 @@ void BMCEditor::utilitySendPixelActivity(uint32_t data,
     buff.prepareEditorMessage(
       port, deviceId,
       BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_PIXEL
+      BMC_UTILF_LED_STATES
     );
-    buff.appendToSysEx32Bits(data);
-    sendToEditor(buff,true,false); // don't show midi activity
+    buff.appendToSysEx7Bits(itemId);
+    switch(itemId){
+      case BMC_ITEM_ID_LED:
+        #if BMC_MAX_LEDS > 0
+          buff.appendToSysEx7Bits(midi.globals.ledStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.ledStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.ledStates.get(i));
+          }
+        #endif
+        break;
+      case BMC_ITEM_ID_GLOBAL_LED:
+        #if BMC_MAX_GLOBAL_LEDS > 0
+          buff.appendToSysEx7Bits(midi.globals.globalLedStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.globalLedStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.globalLedStates.get(i));
+          }
+        #endif
+        break;
+
+      case BMC_ITEM_ID_PIXEL:
+        #if BMC_MAX_PIXELS > 0
+          buff.appendToSysEx7Bits(midi.globals.pixelStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.pixelStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.pixelStates.get(i));
+          }
+        #endif
+        break;
+      case BMC_ITEM_ID_GLOBAL_PIXEL:
+        #if BMC_MAX_GLOBAL_PIXELS > 0
+          buff.appendToSysEx7Bits(midi.globals.globalPixelStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.globalPixelStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.globalPixelStates.get(i));
+          }
+        #endif
+        break;
+
+      case BMC_ITEM_ID_RGB_PIXEL:
+        #if BMC_MAX_RGB_PIXELS > 0
+          buff.appendToSysEx7Bits(midi.globals.rgbPixelStates[0].getLength());
+          for(uint8_t i = 0, n = midi.globals.rgbPixelStates[0].getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.rgbPixelStates[0].get(i));
+            buff.appendToSysEx16Bits(midi.globals.rgbPixelStates[1].get(i));
+            buff.appendToSysEx16Bits(midi.globals.rgbPixelStates[2].get(i));
+          }
+        #endif
+        break;
+      case BMC_ITEM_ID_GLOBAL_RGB_PIXEL:
+        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+          buff.appendToSysEx7Bits(midi.globals.globalRgbPixelStates[0].getLength());
+          for(uint8_t i = 0, n = midi.globals.globalRpixelStates[0].getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.globalRpixelStates[0].get(i));
+            buff.appendToSysEx16Bits(midi.globals.globalRpixelStates[1].get(i));
+            buff.appendToSysEx16Bits(midi.globals.globalRpixelStates[2].get(i));
+          }
+        #endif
+        break;
+    }
+    sendToEditor(buff, true, false); // don't show midi activity
   }
-#endif
+
 }
-void BMCEditor::utilitySendRgbPixelActivity(uint32_t red, uint32_t green, uint32_t blue,
-                                             bool onlyIfConnected){
+/*
+void BMCEditor::utilitySendRgbPixelActivity(bool onlyIfConnected){
 #if BMC_MAX_RGB_PIXELS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
@@ -275,7 +266,7 @@ void BMCEditor::utilitySendRgbPixelActivity(uint32_t red, uint32_t green, uint32
   }
 #endif
 }
-
+*/
 void BMCEditor::utilitySendGlobalLedActivity(uint16_t data,
                                              bool onlyIfConnected){
 #if BMC_MAX_GLOBAL_LEDS > 0

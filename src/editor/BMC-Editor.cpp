@@ -249,31 +249,32 @@ uint32_t BMCEditor::getSetListSongOffset(uint8_t index){
 
 
 
-uint32_t BMCEditor::getGlobalLedOffset(){
-  uint32_t value = getSetListSongOffset();
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    value += sizeof(store.global.leds);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getGlobalLedOffset(uint8_t index){
-  uint32_t value = getSetListSongOffset();
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    value += (sizeof(bmcStoreLed) * index);
-  #endif
-  return value;
-}
 uint32_t BMCEditor::getGlobalButtonOffset(){
-  uint32_t value = getGlobalLedOffset();
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_BUTTONS > 0
     value += sizeof(store.global.buttons);
   #endif
   return value;
 }
 uint32_t BMCEditor::getGlobalButtonOffset(uint8_t index){
-  uint32_t value = getGlobalLedOffset();
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_BUTTONS > 0
-    value += (sizeof(bmcStoreButton) * index);
+    //value += ((sizeof(bmcStoreDevice)+(BMC_MAX_BUTTON_EVENTS*4)) * index);
+    value += (sizeof(bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalLedOffset(){
+  uint32_t value = getGlobalButtonOffset();
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    value += sizeof(store.global.leds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalLedOffset(uint8_t index){
+  uint32_t value = getGlobalButtonOffset();
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,1>) * index);
   #endif
   return value;
 }

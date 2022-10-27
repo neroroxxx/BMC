@@ -162,10 +162,10 @@ public:
 #endif
 
 
-  void (*buttonDualPress)(uint8_t btn1, uint8_t btn2);
-  void (*buttonActivity)(uint8_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreButton button,
-                          bmcStoreButtonEvent data);
+  void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
+  void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger,
+                          bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
+                          bmcStoreEvent data);
   void (*encoderActivity)(uint8_t index, bool increased,
                           bmcStoreEncoder data, uint8_t ticks);
   void (*potActivity)(uint8_t index, uint8_t value,
@@ -175,10 +175,10 @@ public:
   void (*pixelsActivity)(uint32_t states);
   void (*rgbPixelsActivity)(uint32_t states);
 
-  void (*globalButtonDualPress)(uint8_t btn1, uint8_t btn2);
-  void (*globalButtonActivity)(uint8_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreButton button,
-                          bmcStoreButtonEvent data);
+  void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
+  void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger,
+                          bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
+                          bmcStoreEvent data);
   void (*globalEncoderActivity)(uint8_t index, bool increased,
                           bmcStoreEncoder data, uint8_t ticks);
   void (*globalPotActivity)(uint8_t index, uint8_t value,

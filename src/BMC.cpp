@@ -1,13 +1,13 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 // Initialize all compiled objects
 BMC::BMC():
-  globals(),
+  globals(store),
   globalData(store.global),
   settings(store.global.settings),
   midi(callback, globals, store.global.portPresets),
@@ -71,7 +71,7 @@ BMC::BMC():
   #endif
 
   #ifdef BMC_HAS_DISPLAY
-    ,display(midi, store, callback
+    ,display(midi, globals, callback
     #ifdef BMC_USE_SYNC
       ,sync
     #endif
@@ -314,11 +314,6 @@ void BMC::update(){
     }
   #endif
 
-
-  #if defined(BMC_HAS_DISPLAY)
-    display.update(page);
-  #endif
-
   // used specifically when pages have changed
   if(pageChanged()){
     runPageChanged();
@@ -360,6 +355,7 @@ void BMC::update(){
 
     if(BMC_IS_EVEN(runTime.seconds)){
       flags.on(BMC_FLAGS_STATUS_LED);
+      heartbeat = millis();
       // only do this every other second
 #ifdef BMC_DEBUG
       if(globals.getMetricsDebug()){

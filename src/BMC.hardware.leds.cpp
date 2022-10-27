@@ -10,8 +10,9 @@
 // SETUP
 void BMC::setupLeds(){
 #if BMC_MAX_LEDS > 0
-  for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
-    leds[i].begin(BMCBuildData::getLedPin(i));
+  for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_LED, i);
+    leds[i].begin(ui.pin);
 
     #if BMC_PAGE_LED_DIM == true
     leds[i].setPwmOffValue(settings.getPwmDimWhenOff());
@@ -30,8 +31,10 @@ void BMC::setupLeds(){
 #endif
 
 #if BMC_MAX_GLOBAL_LEDS > 0
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
-    globalLeds[i].begin(BMCBuildData::getGlobalLedPin(i));
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_GLOBAL_LED, i);
+    globalLeds[i].begin(ui.pin);
+    //globalLeds[i].begin(BMCBuildData::getGlobalLedPin(i));
 
     #if BMC_GLOBAL_LED_DIM == true
     globalLeds[i].setPwmOffValue(settings.getPwmDimWhenOff());
@@ -54,11 +57,13 @@ void BMC::setupLeds(){
 
 #if BMC_MAX_LEDS > 0
 void BMC::assignLeds(){
-  bmcStorePage& pageData = store.pages[page];
-  for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
-    leds[index].reassign(bitRead(pageData.leds[index].event, 31));
+  for(uint16_t index = 0; index < BMC_MAX_LEDS; index++){
+    bmcStoreDevice <1, 1>& device = store.pages[page].leds[index];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    leds[index].reassign(device.settings[0]);
     // turn off blinking for certain events like MIDI IO
-    if(!BMCTools::isLedBlinkAllowed(pageData.leds[index].event & 0xFF)){
+    if(!BMCTools::isLedBlinkAllowed(data.type)){
       leds[index].setBlinkMode(false);
     }
 #if BMC_PAGE_LED_DIM == true
@@ -70,10 +75,14 @@ void BMC::assignLeds(){
   Read
 */
 void BMC::readLeds(){
-  uint32_t _ledStates = ledStates;
-  for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
+  for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     // handleLedEvent() @ BMC.hardware.ledEvents.cpp
-    uint8_t state = handleLedEvent(i, store.pages[page].leds[i].event, 0);
+    //uint8_t state = handleLedEvent(i, store.pages[page].leds[i].event, 0);
+    //uint8_t state = 0;
+    bmcStoreDevice <1, 1>& device = store.pages[page].leds[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_LED, i,
+                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     if(state<=1){
       leds[i].setState(state);
     } else if(state==2){
@@ -85,7 +94,7 @@ void BMC::readLeds(){
       leds[i].setBlinkMode(bitRead(state, 2));
       leds[i].setState(bitRead(state, 3));
     }
-    bitWrite(_ledStates, i, leds[i].update());
+    globals.ledStates.setBit(i, leds[i].update());
 
 #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     mux.writeDigital(leds[i].getMuxPin(), leds[i].getMuxState());
@@ -95,12 +104,8 @@ void BMC::readLeds(){
 #endif
 
   }
-  if(ledStates != _ledStates){
-    ledStates = _ledStates;
-    editor.utilitySendLedActivity(ledStates);
-    if(callback.ledsActivity){
-      callback.ledsActivity(ledStates);
-    }
+  if(globals.ledStates.hasChanged()){
+    editor.utilitySendStateBits(BMC_ITEM_ID_LED);
   }
 }
 #endif
@@ -110,12 +115,23 @@ void BMC::readLeds(){
   Read
 */
 void BMC::assignGlobalLeds(){
-  for(uint8_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
+  for(uint16_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
+    bmcStoreDevice <1, 1>& device = store.global.leds[index];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    globalLeds[index].reassign(device.settings[0]);
+    // turn off blinking for certain events like MIDI IO
+    if(!BMCTools::isLedBlinkAllowed(data.type)){
+      globalLeds[index].setBlinkMode(false);
+    }
+
+    /*
     globalLeds[index].reassign(bitRead(globalData.leds[index].event, 31));
     // turn off blinking for certain events
     if(!BMCTools::isLedBlinkAllowed(globalData.leds[index].event&0xFF)){
       globalLeds[index].setBlinkMode(false);
     }
+    */
 #if BMC_GLOBAL_LED_DIM == true
     globalLeds[index].setPwmOffValue(settings.getPwmDimWhenOff());
 #endif
@@ -123,10 +139,13 @@ void BMC::assignGlobalLeds(){
   }
 }
 void BMC::readGlobalLeds(){
-  uint16_t _globalLedStates = 0;
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
     // handleLedEvent() @ BMC.hardware.ledEvents.cpp
-    uint8_t state = handleLedEvent(i, globalData.leds[i].event, 1);
+    //uint8_t state = handleLedEvent(i, globalData.leds[i].event, 1);
+    bmcStoreDevice <1, 1>& device = store.global.leds[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_GLOBAL_LED, i,
+                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     if(state<=1){
       globalLeds[i].setState(state);
     } else if(state==2){
@@ -135,7 +154,8 @@ void BMC::readGlobalLeds(){
       globalLeds[i].setBlinkMode(bitRead(state, 2));
       globalLeds[i].setState(bitRead(state, 3));
     }
-    bitWrite(_globalLedStates,i,globalLeds[i].update());
+    globals.globalLedStates.setBit(i, globalLeds[i].update());
+
 #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     mux.writeDigital(globalLeds[i].getMuxPin(), globalLeds[i].getMuxState());
     if(globalLeds[i].muxTesting()){
@@ -143,12 +163,9 @@ void BMC::readGlobalLeds(){
     }
 #endif
   }
-  if(_globalLedStates!=globalLedStates){
-    globalLedStates = _globalLedStates;
-    editor.utilitySendGlobalLedActivity(globalLedStates);
-    if(callback.globalLedsActivity){
-      callback.globalLedsActivity(globalLedStates);
-    }
+
+  if(globals.globalLedStates.hasChanged()){
+    editor.utilitySendStateBits(BMC_ITEM_ID_GLOBAL_LED);
   }
 }
 #endif

@@ -16,11 +16,22 @@ class BMC_ILI9341_BLOCK {
 
   }
   void begin(uint8_t n){
+    /*
     xBound = BMCBuildData::getIliDisplayBlockPosition(n, 0);
     yBound = BMCBuildData::getIliDisplayBlockPosition(n, 1);
     blockSize = BMCBuildData::getIliDisplayBlockPosition(n, 2);
     background = BMCBuildData::getIliDisplayBlockPosition(n, 3);
     color = BMCBuildData::getIliDisplayBlockPosition(n, 4);
+    */
+
+    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, n);
+
+    xBound = ui.x;
+    yBound = ui.y;
+    blockSize = ui.style;
+    background = ui.other1;
+    color = ui.other2;
+
     switch(blockSize){
       case 0: wBound = 320; hBound = 80; break;
       case 1: wBound = 320; hBound = 40; break;

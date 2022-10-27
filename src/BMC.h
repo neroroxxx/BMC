@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
   I've tried to put a lot of comments thruout the library and all it's files
@@ -244,31 +244,7 @@ private:
 #if defined(BMC_USE_SYNC)
   BMCSync sync;
 #endif
-/*
-#if defined(BMC_USE_DAW_LC)
-  BMCDawLogicControl daw;
-#endif
 
-#if defined(BMC_USE_BEATBUDDY)
-  // handles beatbuddy syncing and commands
-  BMCBeatBuddy beatBuddy;
-#endif
-
-#if defined(BMC_USE_HELIX)
-  // handles helix commands
-  BMCHelix helix;
-#endif
-
-#if defined(BMC_USE_FAS)
-  // handles Fractal devices syncing
-  BMCFas fas;
-#endif
-
-#if defined(BMC_USE_KEMPER)
-// handles Kemper devices see src/sync/BMC-Kemper.h
-  BMCKemper kemper;
-#endif
-*/
 #if BMC_MAX_CUSTOM_SYSEX > 0
     BMCCustomSysEx customSysEx;
 #endif
@@ -298,7 +274,7 @@ private:
 #if defined(BMC_HAS_DISPLAY)
     BMCDisplay display;
 #endif
-
+  unsigned long heartbeat = 0;
 
   uint8_t & page;
   uint8_t programBank = 0;
@@ -409,6 +385,10 @@ private:
   bool pageChanged();
   bool pageChangedPeek();
 
+  // code @ BMC.events.cpp
+  uint8_t processEvent(uint8_t deviceType, uint8_t deviceId, uint8_t deviceIndex, uint8_t ioType, uint16_t event);
+  uint8_t handleStatusLedEvent(uint8_t status);
+
   // EDITOR
   //BMC.editor.cpp
   void editorRead();
@@ -462,10 +442,12 @@ private:
 
   #if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
     // pixels holds both standard pixels and rgb pixels
-    BMCPixels pixels;
+
+    BMCPixels pixels = BMCPixels(globals);
 
     #if BMC_MAX_PIXELS > 0
       // code @ BMC.hardware.pixels.cpp
+      /*
       #if BMC_MAX_PIXELS <= 8
         uint8_t pixelStates = 0;
       #elif BMC_MAX_PIXELS <= 16
@@ -473,6 +455,8 @@ private:
       #else
         uint32_t pixelStates = 0;
       #endif
+      */
+
       uint8_t pixelCustomState[BMC_MAX_PIXELS];
       void setupPixels();
       void assignPixels();
@@ -482,6 +466,8 @@ private:
 
     #if BMC_MAX_RGB_PIXELS > 0
       // code @ BMC.hardware.rgbPixels.cpp
+
+      /*
       #if BMC_MAX_RGB_PIXELS <= 8
         uint8_t rgbPixelStatesR = 0;
         uint8_t rgbPixelStatesG = 0;
@@ -495,6 +481,7 @@ private:
         uint32_t rgbPixelStatesG = 0;
         uint32_t rgbPixelStatesB = 0;
       #endif
+      */
       uint8_t rgbPixelCustomState[BMC_MAX_RGB_PIXELS];
       void setupRgbPixels();
       void assignRgbPixels();
@@ -508,7 +495,7 @@ private:
 
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
   uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);
-  bool handleStatusLedEvent(uint8_t status);
+
   void handleClockLeds();
   void controlFirstLed(bool t_value);
   #if defined(BMC_USE_BEATBUDDY)
@@ -518,6 +505,7 @@ private:
   // code @ BMC.hardware.leds.cpp
   #if BMC_MAX_LEDS > 0
     BMCLed leds[BMC_MAX_LEDS];
+    /*
     #if BMC_MAX_LEDS <= 8
       BMCFlags <uint8_t> ledCustomState;
       uint8_t ledStates = 0;
@@ -528,6 +516,7 @@ private:
       BMCFlags <uint32_t> ledCustomState;
       uint32_t ledStates = 0;
     #endif
+    */
 
     void assignLeds();
     void readLeds();
@@ -535,6 +524,7 @@ private:
 
   #if BMC_MAX_GLOBAL_LEDS > 0
     BMCLed globalLeds[BMC_MAX_GLOBAL_LEDS];
+    /*
     #if BMC_MAX_GLOBAL_LEDS <= 8
       BMCFlags <uint8_t> globalLedCustomState;
       uint8_t globalLedStates = 0;
@@ -542,6 +532,7 @@ private:
       BMCFlags <uint16_t> globalLedCustomState;
       uint16_t globalLedStates = 0;
     #endif
+    */
     void assignGlobalLeds();
     void readGlobalLeds();
   #endif //if BMC_MAX_GLOBAL_LEDS > 0
@@ -579,20 +570,11 @@ private:
   #if BMC_MAX_BUTTONS > 1
     BMCButtonsDualHandler dualPress;
   #endif
-  #if BMC_MAX_BUTTONS > 32
-    uint32_t buttonStates = 0;
-    uint32_t buttonStates2 = 0;
-  #elif BMC_MAX_BUTTONS > 16
-    uint32_t buttonStates = 0;
-  #elif BMC_MAX_BUTTONS > 8
-    uint16_t buttonStates = 0;
-  #else
-    uint8_t buttonStates = 0;
-  #endif
 
+  BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
   void assignButtons();
   void readButtons();
-  void handleButton(uint8_t index, uint8_t t_trigger=0);
+  void handleButton(uint16_t index, uint8_t t_trigger=0);
 #endif
 
 
@@ -605,23 +587,17 @@ private:
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     BMCButtonsDualHandler dualPressGlobal;
   #endif
-  #if BMC_MAX_GLOBAL_BUTTONS > 16
-    uint32_t globalButtonStates = 0;
-  #elif BMC_MAX_GLOBAL_BUTTONS > 8
-    uint16_t globalButtonStates = 0;
-  #else
-    uint8_t globalButtonStates = 0;
-  #endif
+  BMCBitStates <BMC_MAX_GLOBAL_BUTTONS> globalButtonStates;
   void setupGlobalButtons();
   void assignGlobalButtons();
   void readGlobalButtons();
-  void handleGlobalButton(uint8_t index=0, uint8_t t_trigger=0);
+  void handleGlobalButton(uint16_t index=0, uint8_t t_trigger=0);
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   void setupButtons();
-  void assignButton(BMCButton& button, bmcStoreButton& data);
-  void handleButtonEvent(uint8_t type, bmcStoreButtonEvent data);
+  void assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& data);
+  void handleButtonEvent(uint8_t type, bmcStoreEvent data);
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0

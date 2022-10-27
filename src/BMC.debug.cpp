@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -268,17 +268,10 @@ void BMC::readDebug(){
     BMC_PRINTLN("BMC_MAX_PWM_LEDS", BMC_MAX_PWM_LEDS);
     BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
     BMC_PRINTLN("BMC_MAX_POTS", BMC_MAX_POTS);
+    BMC_PRINTLN("BMC_MAX_PIXELS", BMC_MAX_PIXELS);
+    BMC_PRINTLN("BMC_MAX_RGB_PIXELS", BMC_MAX_RGB_PIXELS);
 
     BMC_PRINTLN("");
-    BMC_PRINTLN("*** NAMES ***");
-    BMC_PRINTLN("BMC_NAME_LEN_BUTTONS", BMC_NAME_LEN_BUTTONS);
-    BMC_PRINTLN("BMC_NAME_LEN_LEDS", BMC_NAME_LEN_LEDS);
-    BMC_PRINTLN("BMC_NAME_LEN_POTS", BMC_NAME_LEN_POTS);
-    BMC_PRINTLN("BMC_NAME_LEN_ENCODERS", BMC_NAME_LEN_ENCODERS);
-    BMC_PRINTLN("BMC_NAME_LEN_LIBRARY", BMC_NAME_LEN_LIBRARY);
-    BMC_PRINTLN("BMC_NAME_LEN_PRESETS", BMC_NAME_LEN_PRESETS);
-    BMC_PRINTLN("BMC_NAME_LEN_PAGES", BMC_NAME_LEN_PAGES);
-    BMC_PRINTLN("BMC_NAME_LEN_RELAYS", BMC_NAME_LEN_RELAYS);
     printDebugHeader(debugInput);
 #ifdef BMC_HAS_HARDWARE
   } else if(BMC_STR_MATCH(debugInput,"pins")){

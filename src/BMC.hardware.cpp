@@ -168,6 +168,21 @@ void BMC::readHardware(){
   }
 #endif
 
+
+#if BMC_MAX_OLED > 0
+  for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
+    uint16_t eventIndex = store.pages[page].oled[i].events[0];
+    processEvent(BMC_DEVICE_TYPE_DISPLAY, BMC_ITEM_ID_OLED, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+  }
+#endif
+
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
+    uint16_t eventIndex = store.pages[page].ili[i].events[0];
+    processEvent(BMC_DEVICE_TYPE_DISPLAY, BMC_ITEM_ID_ILI, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+  }
+#endif
+
 // read hardware that can "send" data first and LEDs/Pixels last
 #if BMC_MAX_BUTTONS > 0
   // BMC.hardware.buttons
@@ -235,8 +250,11 @@ void BMC::readHardware(){
   // BMC.hardware.leds
   readGlobalLeds();
 #endif
-  // keep at end of hardware read
-  flags.off(BMC_FLAGS_STATUS_LED);
+
+  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 75){
+    flags.off(BMC_FLAGS_STATUS_LED);
+    heartbeat = 0;
+  }
 }
 uint8_t BMC::parseMidiEventType(uint8_t t_type){
   // this code will take an event type from buttons, encoders, leds, pots

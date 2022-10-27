@@ -18,7 +18,6 @@
     uint8_t ports = 0;
     uint32_t event = 0;
   };
-
   // BMC Name Object for BMC 2.0
   struct __attribute__ ((packed)) bmcStoreName {
     char name[BMC_MAX_NAMES_LENGTH] = "";
@@ -30,16 +29,6 @@
     bmcName_t name = 0;
     uint8_t settings[sLen];
     bmcEvent_t events[eLen];
-  };
-
-  struct __attribute__ ((packed)) bmcNewStore {
-    bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
-    bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
-    bmcStoreDevice <1, 4> buttons[2];
-    bmcStoreDevice <1, 1> encoders[2];
-    bmcStoreDevice <1, 1> leds[1];
-    bmcStoreDevice <1, 1> pixels[1];
-    bmcStoreDevice <1, 3> rgbPixels[1];
   };
 
 
@@ -108,20 +97,25 @@
   };
   // Page Object
   struct __attribute__ ((packed)) bmcStorePage {
+    bmcName_t name;
     #if BMC_MAX_BUTTONS > 0
-      bmcStoreButton   buttons[BMC_MAX_BUTTONS];
+      //bmcStoreButton   buttons[BMC_MAX_BUTTONS];
+      bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
     #endif
     #if BMC_MAX_LEDS > 0
-      bmcStoreLed      leds[BMC_MAX_LEDS];
+      //bmcStoreLed      leds[BMC_MAX_LEDS];
+      bmcStoreDevice <1, 1> leds[BMC_MAX_LEDS];
     #endif
     #if BMC_MAX_PWM_LEDS > 0
       bmcStoreLed      pwmLeds[BMC_MAX_PWM_LEDS];
     #endif
     #if BMC_MAX_PIXELS > 0
-      bmcStoreLed      pixels[BMC_MAX_PIXELS];
+      //bmcStoreLed      pixels[BMC_MAX_PIXELS];
+      bmcStoreDevice <1, 1> pixels[BMC_MAX_PIXELS];
     #endif
     #if BMC_MAX_RGB_PIXELS > 0
-      bmcStoreRgbLed      rgbPixels[BMC_MAX_RGB_PIXELS];
+      //bmcStoreRgbLed      rgbPixels[BMC_MAX_RGB_PIXELS];
+      bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_RGB_PIXELS];
     #endif
     #if BMC_MAX_ENCODERS > 0
       bmcStoreEncoder  encoders[BMC_MAX_ENCODERS];
@@ -130,13 +124,11 @@
       bmcStorePot      pots[BMC_MAX_POTS];
     #endif
     #if BMC_MAX_OLED > 0
-      bmcStoreOled oled[BMC_MAX_OLED];
+      bmcStoreDevice <1, 1> oled[BMC_MAX_OLED];
     #endif
     #if BMC_MAX_ILI9341_BLOCKS > 0
-      bmcStoreIliBlock ili[BMC_MAX_ILI9341_BLOCKS];
-    #endif
-    #if BMC_NAME_LEN_PAGES > 1
-      char name[BMC_NAME_LEN_PAGES] = "";
+      bmcStoreDevice <1, 1> ili[BMC_MAX_ILI9341_BLOCKS];
+      //bmcStoreIliBlock ili[BMC_MAX_ILI9341_BLOCKS];
     #endif
   };
 
@@ -259,11 +251,13 @@
         #endif
       #endif
     #endif
-    #if BMC_MAX_GLOBAL_LEDS > 0
-      bmcStoreLed leds[BMC_MAX_GLOBAL_LEDS];
-    #endif
     #if BMC_MAX_GLOBAL_BUTTONS > 0
-      bmcStoreButton   buttons[BMC_MAX_GLOBAL_BUTTONS];
+      //bmcStoreButton   buttons[BMC_MAX_GLOBAL_BUTTONS];
+      bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
+    #endif
+    #if BMC_MAX_GLOBAL_LEDS > 0
+      //bmcStoreLed leds[BMC_MAX_GLOBAL_LEDS];
+      bmcStoreDevice <1, 1> leds[BMC_MAX_GLOBAL_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_ENCODERS > 0
       bmcStoreEncoder  encoders[BMC_MAX_GLOBAL_ENCODERS];
@@ -292,7 +286,7 @@
     #endif
     bmcStorePortPresets portPresets;
     #if BMC_MAX_PIXEL_PROGRAMS > 0 && BMC_MAX_PIXELS > 0
-      bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
+      //bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
     #endif
     #if BMC_MAX_TIMED_EVENTS > 0
       bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
