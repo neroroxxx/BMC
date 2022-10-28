@@ -24,7 +24,7 @@ class BMC_ILI9341_BLOCK {
     color = BMCBuildData::getIliDisplayBlockPosition(n, 4);
     */
 
-    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, n);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, n);
 
     xBound = ui.x;
     yBound = ui.y;

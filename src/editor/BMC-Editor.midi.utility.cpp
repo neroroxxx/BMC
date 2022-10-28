@@ -155,7 +155,39 @@ void BMCEditor::utilitySendLRelayActivity(uint16_t data, bool onlyIfConnected){
   }
 #endif
 }
-
+/*
+void BMCEditor::utilitySendButtonActivity(uint8_t itemId, bool onlyIfConnected=true){
+  #if defined(BMC_HAS_BUTTONS)
+    if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
+      return;
+    }
+    if(onlyIfConnected && !midi.globals.editorConnected()){
+      return;
+    }
+    // if editor feedback is disabled...
+    if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
+      return;
+    }
+    if(!connectionOngoing()){
+    BMCEditorMidiFlags flag;
+      flag.setWrite(true);
+      BMCMidiMessage buff;
+      buff.prepareEditorMessage(
+        port, deviceId,
+        BMC_GLOBALF_UTILITY, flag,
+        BMC_UTILF_BUTTON
+      );
+      buff.appendToSysEx7Bits(t_isGlobal);
+      buff.appendToSysEx7Bits(midi.globals.buttonStates.getLength());
+      for(uint8_t i = 0, n = midi.globals.buttonStates.getLength(); i < n ; i++){
+        buff.appendToSysEx16Bits(midi.globals.buttonStates.get(i));
+      }
+      // don't show midi activity
+      sendToEditor(buff,true,false);
+    }
+  #endif
+}
+*/
 void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
@@ -174,11 +206,27 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
     buff.prepareEditorMessage(
       port, deviceId,
       BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_LED_STATES
+      BMC_UTILF_STATE_BITS
     );
     buff.appendToSysEx7Bits(itemId);
     switch(itemId){
-      case BMC_ITEM_ID_LED:
+      case BMC_DEVICE_ID_BUTTON:
+        #if BMC_MAX_BUTTONS > 0
+          buff.appendToSysEx7Bits(midi.globals.buttonStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.buttonStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.buttonStates.get(i));
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_BUTTON:
+        #if BMC_MAX_GLOBAL_BUTTONS > 0
+          buff.appendToSysEx7Bits(midi.globals.globalButtonStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.globalButtonStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.globalButtonStates.get(i));
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
           buff.appendToSysEx7Bits(midi.globals.ledStates.getLength());
           for(uint8_t i = 0, n = midi.globals.ledStates.getLength(); i < n ; i++){
@@ -186,7 +234,7 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_LED:
+      case BMC_DEVICE_ID_GLOBAL_LED:
         #if BMC_MAX_GLOBAL_LEDS > 0
           buff.appendToSysEx7Bits(midi.globals.globalLedStates.getLength());
           for(uint8_t i = 0, n = midi.globals.globalLedStates.getLength(); i < n ; i++){
@@ -195,7 +243,7 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
         #endif
         break;
 
-      case BMC_ITEM_ID_PIXEL:
+      case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
           buff.appendToSysEx7Bits(midi.globals.pixelStates.getLength());
           for(uint8_t i = 0, n = midi.globals.pixelStates.getLength(); i < n ; i++){
@@ -203,7 +251,7 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_PIXEL:
         #if BMC_MAX_GLOBAL_PIXELS > 0
           buff.appendToSysEx7Bits(midi.globals.globalPixelStates.getLength());
           for(uint8_t i = 0, n = midi.globals.globalPixelStates.getLength(); i < n ; i++){
@@ -212,7 +260,7 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
         #endif
         break;
 
-      case BMC_ITEM_ID_RGB_PIXEL:
+      case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
           buff.appendToSysEx7Bits(midi.globals.rgbPixelStates[0].getLength());
           for(uint8_t i = 0, n = midi.globals.rgbPixelStates[0].getLength(); i < n ; i++){
@@ -222,7 +270,7 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_RGB_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
         #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
           buff.appendToSysEx7Bits(midi.globals.globalRgbPixelStates[0].getLength());
           for(uint8_t i = 0, n = midi.globals.globalRpixelStates[0].getLength(); i < n ; i++){

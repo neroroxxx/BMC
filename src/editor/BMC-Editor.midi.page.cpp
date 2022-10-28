@@ -211,7 +211,7 @@ void BMCEditor::pageButtonMessage(bool write){
   buff.appendToSysEx7Bits(buttonIndex);
   buff.appendToSysEx7Bits(eventIndex);
 
-  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_BUTTON, buttonIndex);
+  BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, buttonIndex);
   buff.appendToSysEx16Bits(ui.x);
   buff.appendToSysEx16Bits(ui.y);
   buff.appendToSysEx7Bits(ui.style);
@@ -449,7 +449,7 @@ void BMCEditor::pagePixelMessage(bool write){
   buff.appendToSysEx7Bits(index);
 
 
-  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, index);
+  BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, index);
   buff.appendToSysEx7Bits(ui.style);
   buff.appendToSysEx16Bits(ui.x);
   buff.appendToSysEx16Bits(ui.y);
@@ -528,7 +528,7 @@ void BMCEditor::pageRgbPixelMessage(bool write){
   #if BMC_MAX_RGB_PIXELS > 0
   bmcStoreRgbLed &item = store.pages[page].rgbPixels[index];
   buff.appendToSysEx7Bits(index);
-  BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_RGB_PIXEL, index);
+  BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_RGB_PIXEL, index);
   buff.appendToSysEx7Bits(ui.style);
   buff.appendToSysEx16Bits(ui.x);
   buff.appendToSysEx16Bits(ui.y);
@@ -548,6 +548,7 @@ void BMCEditor::pageRgbPixelMessage(bool write){
   */
 }
 void BMCEditor::pagePotMessage(bool write){
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -643,8 +644,10 @@ void BMCEditor::pagePotMessage(bool write){
   #endif
 #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::pageEncoderMessage(bool write){
+  /*
   if(!isValidPageMessage() && !backupActive()){
     return;
   }
@@ -719,6 +722,7 @@ void BMCEditor::pageEncoderMessage(bool write){
   #endif
 #endif
   sendToEditor(buff);
+  */
 }
 
 
@@ -981,7 +985,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
   uint8_t hardwareType = incoming.get7Bits(9);
   uint16_t hardwareLength = checkIfHardwareAvailable(hardwareType);
   // check if the hardware type is vailable otherwise send an error message
-  if(hardwareLength==0 && hardwareType!=BMC_ITEM_ID_PAGE){
+  if(hardwareLength==0 && hardwareType!=BMC_DEVICE_ID_PAGE){
     sendNotification(BMC_NOTIFY_INVALID_INDEX, hardwareLength | (__LINE__<<16), true);
     return;
   }
@@ -1002,7 +1006,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
     sendNotification(BMC_NOTIFY_INVALID_PAGE, targetPage | (__LINE__<<16), true);
     return;
   }
-  if(hardwareType!=BMC_ITEM_ID_PAGE){
+  if(hardwareType!=BMC_DEVICE_ID_PAGE){
     if(sourceItem>=hardwareLength){
       sendNotification(BMC_NOTIFY_INVALID_INDEX, sourceItem | (__LINE__<<16), true);
       return;
@@ -1015,7 +1019,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
   bool success = false;
   // everything looks good, proceed
   switch(hardwareType){
-    case BMC_ITEM_ID_PAGE:
+    case BMC_DEVICE_ID_PAGE:
 #if BMC_MAX_PAGES > 1
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStorePage x = store.pages[sourcePage];
@@ -1034,7 +1038,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 
 #endif
       break;
-    case BMC_ITEM_ID_BUTTON:
+    case BMC_DEVICE_ID_BUTTON:
 #if BMC_MAX_BUTTONS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1054,7 +1058,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_ITEM_ID_LED:
+    case BMC_DEVICE_ID_LED:
 #if BMC_MAX_LEDS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1074,7 +1078,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_ITEM_ID_PIXEL:
+    case BMC_DEVICE_ID_PIXEL:
 #if BMC_MAX_PIXELS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1094,7 +1098,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_ITEM_ID_RGB_PIXEL:
+    case BMC_DEVICE_ID_RGB_PIXEL:
 #if BMC_MAX_RGB_PIXELS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1114,7 +1118,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_ITEM_ID_PWM_LED:
+    case BMC_DEVICE_ID_PWM_LED:
 #if BMC_MAX_PWM_LEDS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1136,8 +1140,9 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 */
 #endif
       break;
-    case BMC_ITEM_ID_POT:
+    case BMC_DEVICE_ID_POT:
 #if BMC_MAX_POTS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStorePot x = store.pages[sourcePage].pots[sourceItem];
         store.pages[targetPage].pots[targetItem] = x;
@@ -1152,10 +1157,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+*/
 #endif
       break;
-    case BMC_ITEM_ID_ENCODER:
+    case BMC_DEVICE_ID_ENCODER:
 #if BMC_MAX_ENCODERS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreEncoder x = store.pages[sourcePage].encoders[sourceItem];
         store.pages[targetPage].encoders[targetItem] = x;
@@ -1170,9 +1177,10 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         savePagesAndReloadData(targetPage);
         success = true;
       }
+*/
 #endif
       break;
-    case BMC_ITEM_ID_GLOBAL_LED:
+    case BMC_DEVICE_ID_GLOBAL_LED:
 #if BMC_MAX_GLOBAL_LEDS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1194,7 +1202,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 */
 #endif
       break;
-    case BMC_ITEM_ID_GLOBAL_BUTTON:
+    case BMC_DEVICE_ID_GLOBAL_BUTTON:
 #if BMC_MAX_GLOBAL_BUTTONS > 0
 /*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
@@ -1216,8 +1224,9 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_ITEM_ID_GLOBAL_ENCODER:
+    case BMC_DEVICE_ID_GLOBAL_ENCODER:
 #if BMC_MAX_GLOBAL_ENCODERS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreEncoder x = store.global.encoders[sourceItem];
         store.global.encoders[targetItem] = x;
@@ -1234,10 +1243,12 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+      */
 #endif
       break;
-    case BMC_ITEM_ID_GLOBAL_POT:
+    case BMC_DEVICE_ID_GLOBAL_POT:
 #if BMC_MAX_GLOBAL_POTS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStorePot x = store.global.pots[sourceItem];
         store.global.pots[targetItem] = x;
@@ -1254,9 +1265,10 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+      */
 #endif
       break;
-    case BMC_ITEM_ID_STRING_LIBRARY:
+    case BMC_DEVICE_ID_STRING_LIBRARY:
 #if BMC_MAX_STRING_LIBRARY > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalStringLibrary x = store.global.stringLibrary[sourceItem];
@@ -1276,7 +1288,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
     break;
-    case BMC_ITEM_ID_LIBRARY:
+    case BMC_DEVICE_ID_LIBRARY:
 #if BMC_MAX_LIBRARY > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalLibrary x = store.global.library[sourceItem];
@@ -1296,7 +1308,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_PRESET:
+    case BMC_DEVICE_ID_PRESET:
 #if BMC_MAX_PRESETS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalPresets x = store.global.presets[sourceItem];
@@ -1316,7 +1328,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_SETLIST:
+    case BMC_DEVICE_ID_SETLIST:
 #if BMC_MAX_SETLISTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalSetList x = store.global.setLists[sourceItem];
@@ -1336,7 +1348,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:
+    case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
 #if BMC_MAX_SETLISTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalSetListSong x = store.global.songLibrary[sourceItem];
@@ -1356,7 +1368,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_CUSTOM_SYSEX:
+    case BMC_DEVICE_ID_CUSTOM_SYSEX:
 #if BMC_MAX_CUSTOM_SYSEX > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalCustomSysEx x = store.global.customSysEx[sourceItem];
@@ -1376,7 +1388,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_TRIGGER:
+    case BMC_DEVICE_ID_TRIGGER:
 #if BMC_MAX_TRIGGERS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTriggers x = store.global.triggers[sourceItem];
@@ -1396,7 +1408,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_TIMED_EVENT:
+    case BMC_DEVICE_ID_TIMED_EVENT:
 #if BMC_MAX_TIMED_EVENTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTimedEvents x = store.global.timedEvents[sourceItem];
@@ -1416,7 +1428,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_TEMPO_TO_TAP:
+    case BMC_DEVICE_ID_TEMPO_TO_TAP:
 #if BMC_MAX_TEMPO_TO_TAP > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTempoToTap x = store.global.tempoToTap[sourceItem];
@@ -1436,7 +1448,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       }
 #endif
       break;
-    case BMC_ITEM_ID_SKETCH_BYTES:
+    case BMC_DEVICE_ID_SKETCH_BYTES:
 #if BMC_MAX_SKETCH_BYTES > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         uint8_t x = store.global.sketchBytes[sourceItem];

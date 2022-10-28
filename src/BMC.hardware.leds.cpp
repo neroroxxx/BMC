@@ -11,7 +11,7 @@
 void BMC::setupLeds(){
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
-    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_LED, i);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
     leds[i].begin(ui.pin);
 
     #if BMC_PAGE_LED_DIM == true
@@ -32,7 +32,7 @@ void BMC::setupLeds(){
 
 #if BMC_MAX_GLOBAL_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
-    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_GLOBAL_LED, i);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_LED, i);
     globalLeds[i].begin(ui.pin);
     //globalLeds[i].begin(BMCBuildData::getGlobalLedPin(i));
 
@@ -81,7 +81,7 @@ void BMC::readLeds(){
     //uint8_t state = 0;
     bmcStoreDevice <1, 1>& device = store.pages[page].leds[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_LED, i,
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_LED, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     if(state<=1){
       leds[i].setState(state);
@@ -105,7 +105,7 @@ void BMC::readLeds(){
 
   }
   if(globals.ledStates.hasChanged()){
-    editor.utilitySendStateBits(BMC_ITEM_ID_LED);
+    editor.utilitySendStateBits(BMC_DEVICE_ID_LED);
   }
 }
 #endif
@@ -144,7 +144,7 @@ void BMC::readGlobalLeds(){
     //uint8_t state = handleLedEvent(i, globalData.leds[i].event, 1);
     bmcStoreDevice <1, 1>& device = store.global.leds[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_GLOBAL_LED, i,
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_LED, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     if(state<=1){
       globalLeds[i].setState(state);
@@ -165,7 +165,7 @@ void BMC::readGlobalLeds(){
   }
 
   if(globals.globalLedStates.hasChanged()){
-    editor.utilitySendStateBits(BMC_ITEM_ID_GLOBAL_LED);
+    editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_LED);
   }
 }
 #endif

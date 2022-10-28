@@ -53,7 +53,7 @@ void BMC::readPixels(){
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 
 
-    uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_PIXEL, i,
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     uint8_t color = device.settings[0];
     uint8_t type = data.type;
@@ -80,7 +80,7 @@ void BMC::readPixels(){
   pixels.update();
 #endif
   if(globals.pixelStates.hasChanged()){
-    editor.utilitySendStateBits(BMC_ITEM_ID_PIXEL);
+    editor.utilitySendStateBits(BMC_DEVICE_ID_PIXEL);
   }
 /*
   uint32_t _pixelStates = pixels.getPixelsState();

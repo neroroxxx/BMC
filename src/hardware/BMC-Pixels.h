@@ -102,7 +102,7 @@ public:
 #if BMC_MAX_PIXELS > 0
     rainbowCurrentColor = BMC_COLOR_RED;
     for(uint8_t i=0; i<BMC_MAX_PIXELS; i++){
-      BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, i);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, i);
       setDimColor(i, ui.style);
       //setDimColor(i, BMCBuildData::getPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
@@ -113,7 +113,7 @@ public:
 
 #if BMC_MAX_RGB_PIXELS > 0
     for(uint8_t i=0,n=BMC_MAX_PIXELS; i<BMC_MAX_RGB_PIXELS; i++, n++){
-      BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_RGB_PIXEL, i);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_RGB_PIXEL, i);
       setDimColor(n, ui.style);
       //setDimColor(n, BMCBuildData::getRgbPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
@@ -673,7 +673,7 @@ private:
     globals.pixelStates.zeroOut();
     // the default color to each LED
     for(uint8_t i=0; i<BMC_MAX_PIXELS; i++){
-      BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, i);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, i);
       currentColor[i] = ui.style;
       //currentColor[i] = BMCBuildData::getPixelDefaultColor(i);
       pulseTimer[i].stop();
@@ -701,22 +701,22 @@ private:
   uint8_t getDefaultColor(uint8_t n){
 #if BMC_MAX_PIXELS > 0 && BMC_MAX_RGB_PIXELS > 0
       if(n<BMC_MAX_PIXELS){
-        BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, n);
+        BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, n);
         return ui.style;
         //return BMCBuildData::getPixelDefaultColor(n);
       } else if(n<BMC_MAX_PIXELS){
-        BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_RGB_PIXEL, n-BMC_MAX_PIXELS);
+        BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_RGB_PIXEL, n-BMC_MAX_PIXELS);
         return ui.style;
         //return BMCBuildData::getRgbPixelDefaultColor(n-BMC_MAX_PIXELS);
       }
       return BMC_COLOR_RED;
 
 #elif BMC_MAX_PIXELS > 0
-      BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_PIXEL, n);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, n);
       return ui.style;
       //return  BMCBuildData::getPixelDefaultColor(n);
 #else
-      BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_RGB_PIXEL, n);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_RGB_PIXEL, n);
       return ui.style;
       //return BMCBuildData::getRgbPixelDefaultColor(n);
 #endif

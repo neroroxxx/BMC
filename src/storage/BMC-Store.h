@@ -118,10 +118,12 @@
       bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_RGB_PIXELS];
     #endif
     #if BMC_MAX_ENCODERS > 0
-      bmcStoreEncoder  encoders[BMC_MAX_ENCODERS];
+      bmcStoreDevice <1, 1> encoders[BMC_MAX_ENCODERS];
+      //bmcStoreEncoder  encoders[BMC_MAX_ENCODERS];
     #endif
     #if BMC_MAX_POTS > 0
-      bmcStorePot      pots[BMC_MAX_POTS];
+      //bmcStorePot      pots[BMC_MAX_POTS];
+      bmcStoreDevice <1, 2> pots[BMC_MAX_POTS];
     #endif
     #if BMC_MAX_OLED > 0
       bmcStoreDevice <1, 1> oled[BMC_MAX_OLED];
@@ -260,10 +262,12 @@
       bmcStoreDevice <1, 1> leds[BMC_MAX_GLOBAL_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_ENCODERS > 0
-      bmcStoreEncoder  encoders[BMC_MAX_GLOBAL_ENCODERS];
+      bmcStoreDevice <1, 1> encoders[BMC_MAX_GLOBAL_ENCODERS];
+      //bmcStoreEncoder  encoders[BMC_MAX_GLOBAL_ENCODERS];
     #endif
     #if BMC_MAX_GLOBAL_POTS > 0
-      bmcStorePot      pots[BMC_MAX_GLOBAL_POTS];
+      //bmcStorePot      pots[BMC_MAX_GLOBAL_POTS];
+      bmcStoreDevice <1, 2> pots[BMC_MAX_GLOBAL_POTS];
       bmcStoreGlobalPotCalibration globalPotCalibration[BMC_MAX_GLOBAL_POTS];
     #endif
     #if BMC_MAX_POTS > 0

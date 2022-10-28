@@ -46,7 +46,7 @@ void BMC::assignStoreData(){
 
   #if BMC_MAX_GLOBAL_BUTTONS > 0
     //globalButtonStates = ~globalButtonStates;
-    globalButtonStates.clear();
+    globals.globalButtonStates.clear();
     // BMC.hardware.buttons
     assignGlobalButtons();
   #endif
@@ -154,16 +154,8 @@ void BMC::assignSettings(){
     }
   #endif
   #if BMC_MAX_BUTTONS > 0
-    buttonStates.clear();
+    globals.buttonStates.clear();
   #endif
-  /*
-  #if BMC_MAX_BUTTONS > 32
-    buttonStates = ~buttonStates;
-    buttonStates2 = ~buttonStates2;
-  #elif BMC_MAX_BUTTONS > 0
-    buttonStates = ~buttonStates;
-  #endif
-  */
 
   #if BMC_MAX_LEDS > 0
     globals.ledStates.clear();
@@ -189,7 +181,7 @@ void BMC::assignSettings(){
 
   #if BMC_MAX_GLOBAL_BUTTONS > 0
     //globalButtonStates = ~globalButtonStates;
-    globalButtonStates.clear();
+    globals.globalButtonStates.clear();
   #endif
 
   #if BMC_MAX_GLOBAL_LEDS > 0

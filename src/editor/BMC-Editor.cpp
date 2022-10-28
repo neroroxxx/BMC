@@ -302,7 +302,8 @@ uint32_t BMCEditor::getGlobalPotOffset(){
 uint32_t BMCEditor::getGlobalPotOffset(uint8_t index){
   uint32_t value = getGlobalEncoderOffset();
   #if BMC_MAX_GLOBAL_POTS > 0
-    value += (sizeof(bmcStorePot) * index);
+    //value += (sizeof(bmcStorePot) * index);
+    value += (sizeof(bmcStoreDevice<1,2>) * index);
   #endif
   return value;
 }

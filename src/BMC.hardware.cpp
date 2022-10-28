@@ -172,14 +172,14 @@ void BMC::readHardware(){
 #if BMC_MAX_OLED > 0
   for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
     uint16_t eventIndex = store.pages[page].oled[i].events[0];
-    processEvent(BMC_DEVICE_TYPE_DISPLAY, BMC_ITEM_ID_OLED, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+    processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
   }
 #endif
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
   for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
     uint16_t eventIndex = store.pages[page].ili[i].events[0];
-    processEvent(BMC_DEVICE_TYPE_DISPLAY, BMC_ITEM_ID_ILI, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+    processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
   }
 #endif
 

@@ -35,13 +35,13 @@ void BMC::streamToSketch(uint8_t t_id, int t_value, char* str){
     item.id = t_id;
     item.value = t_value;
 
-    if(t_id==BMC_ITEM_ID_PAGE && strlen(BMC_STREAM_TEMPL_PAGE)+strlen(str)<30){
+    if(t_id==BMC_DEVICE_ID_PAGE && strlen(BMC_STREAM_TEMPL_PAGE)+strlen(str)<30){
       sprintf(item.name, BMC_STREAM_TEMPL_PAGE, (uint8_t) (t_value+1), str);
-    } else if(t_id==BMC_ITEM_ID_PRESET && strlen(BMC_STREAM_TEMPL_PRESET)+strlen(str)<30){
+    } else if(t_id==BMC_DEVICE_ID_PRESET && strlen(BMC_STREAM_TEMPL_PRESET)+strlen(str)<30){
       sprintf(item.name, BMC_STREAM_TEMPL_PRESET,(uint8_t) (t_value+1), str);
-    } else if(t_id==BMC_ITEM_ID_SETLIST && strlen(BMC_STREAM_TEMPL_SETLIST)+strlen(str)<30){
+    } else if(t_id==BMC_DEVICE_ID_SETLIST && strlen(BMC_STREAM_TEMPL_SETLIST)+strlen(str)<30){
       sprintf(item.name, BMC_STREAM_TEMPL_SETLIST,(uint8_t) (t_value+1), str);
-    } else if(t_id==BMC_ITEM_ID_SETLIST_SONG && strlen(BMC_STREAM_TEMPL_SETLIST_SONG)+strlen(str)<30){
+    } else if(t_id==BMC_DEVICE_ID_SETLIST_SONG && strlen(BMC_STREAM_TEMPL_SETLIST_SONG)+strlen(str)<30){
       sprintf(item.name, BMC_STREAM_TEMPL_SETLIST_SONG,(uint8_t) (t_value+1), str);
     } else if(strlen(str)<30){
       strcpy(item.name, str);
@@ -89,9 +89,9 @@ void BMC::streamRawValue(uint16_t t_value){
 void BMC::streamMidiProgram(uint8_t channel, uint8_t program){
   if(callback.valueStream){
     BMCValueStream item;
-    item.id = BMC_ITEM_ID_MIDI_PROGRAM;
+    item.id = BMC_DEVICE_ID_MIDI_PROGRAM;
     item.value = program;
-    item.data = (program<<8) | BMC_ITEM_ID_MIDI_PROGRAM |channel;
+    item.data = (program<<8) | BMC_DEVICE_ID_MIDI_PROGRAM |channel;
     sprintf(item.name,BMC_STREAM_TEMPL_MIDI_PC,channel, program);
     callback.valueStream(item);
   }
@@ -99,9 +99,9 @@ void BMC::streamMidiProgram(uint8_t channel, uint8_t program){
 void BMC::streamMidiControl(uint8_t channel, uint8_t control, uint8_t value){
   if(callback.valueStream){
     BMCValueStream item;
-    item.id = BMC_ITEM_ID_MIDI_CONTROL;
+    item.id = BMC_DEVICE_ID_MIDI_CONTROL;
     item.value = value;
-    item.data = (value<<16) | (control<<8) | BMC_ITEM_ID_MIDI_CONTROL | channel;
+    item.data = (value<<16) | (control<<8) | BMC_DEVICE_ID_MIDI_CONTROL | channel;
     sprintf(item.name,BMC_STREAM_TEMPL_MIDI_CC,channel, control,value);
     callback.valueStream(item);
   }
@@ -109,7 +109,7 @@ void BMC::streamMidiControl(uint8_t channel, uint8_t control, uint8_t value){
 void BMC::streamMidiClockBPM(uint16_t bpm){
   if(callback.valueStream){
     BMCValueStream item;
-    item.id = BMC_ITEM_ID_MIDI_CLOCK;
+    item.id = BMC_DEVICE_ID_MIDI_CLOCK;
     item.value = bpm;
     item.data = bpm;
     sprintf(item.name, BMC_STREAM_TEMPL_MIDI_CLOCK_BPM, bpm);

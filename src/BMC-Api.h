@@ -40,19 +40,17 @@ public:
     callback.buttonDualPress = fptr;
   }
   // triggered when a page button is pressed, released, etc.
-  void onButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType,
-                                    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
-                                    bmcStoreEvent data)){
+  void onButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType)){
     callback.buttonActivity = fptr;
   }
+
+
   // triggered when an encoder is rotated
-  void onEncoderActivity(void (*fptr)(uint8_t index, bool increased,
-                                      bmcStoreEncoder data, uint8_t ticks)){
+  void onEncoderActivity(void (*fptr)(uint16_t index, bool increased, uint8_t ticks)){
     callback.encoderActivity = fptr;
   }
   // triggered when a pot is rotated
-  void onPotActivity(void (*fptr)(uint8_t index, uint8_t value,
-                                  bmcStorePot data)){
+  void onPotActivity(void (*fptr)(uint16_t index, uint8_t value)){
     callback.potActivity = fptr;
   }
   // triggered when an led changes states, @states holds the state of each
@@ -76,19 +74,15 @@ public:
   void onGlobalButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.globalButtonDualPress = fptr;
   }
-  void onGlobalButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType,
-                                    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
-                                    bmcStoreEvent data)){
+  void onGlobalButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType)){
     callback.globalButtonActivity = fptr;
   }
   // triggered when a global encoder is rotated
-  void onGlobalEncoderActivity(void (*fptr)(uint8_t index, bool increased,
-                                      bmcStoreEncoder data, uint8_t ticks)){
+  void onGlobalEncoderActivity(void (*fptr)(uint16_t index, bool increased, uint8_t ticks)){
     callback.globalEncoderActivity = fptr;
   }
   // triggered when a global pot is rotated
-  void onGlobalPotActivity(void (*fptr)(uint8_t index, uint8_t value,
-                                  bmcStorePot data)){
+  void onGlobalPotActivity(void (*fptr)(uint16_t index, uint8_t value)){
     callback.globalPotActivity = fptr;
   }
 
@@ -97,27 +91,27 @@ public:
     callback.globalLedsActivity = fptr;
   }
   // triggered when a custom button event is handled
-  void onButtonCustomActivity(void (*fptr)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports)){
+  void onButtonCustomActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t ports)){
     callback.buttonsCustomActivity = fptr;
   }
   // triggered when a custom encoder event is handled
-  void onEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks)){
+  void onEncoderCustomActivity(void (*fptr)(uint16_t index, bool direction, uint8_t ticks)){
     callback.encoderCustomActivity = fptr;
   }
   // triggered when a custom pot event is handled
-  void onPotCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value)){
+  void onPotCustomActivity(void (*fptr)(uint16_t index, uint8_t t_value)){
     callback.potCustomActivity = fptr;
   }
   // triggered when a custom global button event is handled
-  void onGlobalButtonCustomActivity(void (*fptr)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports)){
+  void onGlobalButtonCustomActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t ports)){
     callback.globalButtonsCustomActivity = fptr;
   }
   // triggered when a custom global encoder event is handled
-  void onGlobalEncoderCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks)){
+  void onGlobalEncoderCustomActivity(void (*fptr)(uint16_t index, bool direction, uint8_t ticks)){
     callback.globalEncoderCustomActivity = fptr;
   }
   // triggered when a custom global pot event is handled
-  void onGlobalPotCustomActivity(void (*fptr)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value)){
+  void onGlobalPotCustomActivity(void (*fptr)(uint16_t index, uint8_t t_value)){
     callback.globalPotCustomActivity = fptr;
   }
   // for user defined events, includes page and global
@@ -1203,9 +1197,11 @@ public:
 
 #if BMC_MAX_ENCODERS > 0
   // Get ENCODER Data on current page
+  /*
   void getEncoder(uint8_t t_index, bmcStoreEncoder& t_item){
     getEncoder(page, t_index, t_item);
   }
+
   // Get ENCODER Data on specified page
   void getEncoder(uint8_t t_page, uint8_t t_index, bmcStoreEncoder& t_item){
     if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_ENCODERS){
@@ -1224,10 +1220,12 @@ public:
       }
     }
   #endif
+  */
 #endif
 
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   // Get Global encoder Data
+  /*
   void getGlobalEncoder(uint8_t t_index, bmcStoreEncoder& t_item){
     if(t_index<BMC_MAX_GLOBAL_ENCODERS){
       t_item = store.global.encoders[t_index];
@@ -1241,10 +1239,12 @@ public:
       }
     }
   #endif
+  */
 #endif
 
 #if BMC_MAX_POTS > 0
   // Get POT Data on current page
+  /*
   void getPot(uint8_t n, bmcStorePot& t_item){
     getPot(page, n, t_item);
   }
@@ -1266,6 +1266,7 @@ public:
       }
     }
   #endif
+  */
   // start/stop pot calibration, pot calibration data is global
   // so the calibration set is for that pot no matter what page you are in.
   bool calibratePot(uint8_t n){
@@ -1275,6 +1276,7 @@ public:
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0
+/*
   // get global pot Data on current page
   void getGlobalPot(uint8_t n, bmcStorePot& t_item){
     if(n<BMC_MAX_GLOBAL_POTS){
@@ -1289,6 +1291,7 @@ public:
       }
     }
   #endif
+*/
   // start/stop global pot calibration, pot calibration data is global
   bool calibrateGlobalPot(uint8_t n){
     potCalibration.toggle(n);

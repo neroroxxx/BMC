@@ -693,6 +693,7 @@ void BMCEditor::backupPageRgbPixel(uint16_t t_minLength){
   */
 }
 void BMCEditor::backupPageEncoder(uint16_t t_minLength){
+  /*
 #if BMC_MAX_ENCODERS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -716,8 +717,10 @@ void BMCEditor::backupPageEncoder(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPagePot(uint16_t t_minLength){
+  /*
 #if BMC_MAX_POTS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -756,6 +759,7 @@ void BMCEditor::backupPagePot(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalButton(uint16_t t_minLength){
   /*
@@ -790,6 +794,7 @@ void BMCEditor::backupGlobalButton(uint16_t t_minLength){
 }
 
 void BMCEditor::backupGlobalEncoder(uint16_t t_minLength){
+  /*
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -818,8 +823,10 @@ void BMCEditor::backupGlobalEncoder(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalPot(uint16_t t_minLength){
+  /*
 #if BMC_MAX_GLOBAL_POTS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -855,6 +862,7 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 
 void BMCEditor::backupPageOled(uint16_t t_minLength){

@@ -150,8 +150,6 @@ public:
           ticks = 4;
         } else if(subs < 40){
           ticks = 2;
-        } else {
-          ticks = 1;
         }
       }
       lastTurnDirection = (output>0)?1:0;
@@ -196,7 +194,7 @@ private:
   BMCFlags <uint8_t> flags;
   uint8_t pinA = 255;
   uint8_t pinB = 255;
-  uint8_t ticks = 0;
+  uint8_t ticks = 1;
   uint8_t lastTurnDirection = 0;
   uint16_t lastTurn = 0;
 #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
@@ -214,7 +212,7 @@ const int8_t lookupTable[16] = {
    0, 1, -1,  0
 };
 void tick(){
-  ticks = 0;
+  ticks = 1;
   output = 0;
   uint8_t now = (readA() << 1) | readB();
   if(lastState != now){

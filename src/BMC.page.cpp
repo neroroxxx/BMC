@@ -13,7 +13,7 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
   if(page!=t_page){
     flags.write(BMC_FLAGS_PAGE_CHANGED, true);
     bmcStoreName e = globals.getDeviceName(store.pages[page].name);
-    streamToSketch(BMC_ITEM_ID_PAGE, t_page, e.name);
+    streamToSketch(BMC_DEVICE_ID_PAGE, t_page, e.name);
   }
   page = t_page;
 
@@ -70,6 +70,10 @@ void BMC::nextPage(){
 void BMC::prevPage(){
   BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
   setPage(scroller.scroll(1, false, true, page, 0, BMC_MAX_PAGES-1));
+}
+
+void BMC::scrollPage(uint8_t t_settings, uint8_t t_amount){
+  scrollPage((bitRead(t_amount,7)),bitRead(t_settings,2), 0, BMC_MAX_PAGES-1, t_amount & 0x7F);
 }
 void BMC::scrollPage(uint8_t t_flags, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
   // t_flags bit-0 = direction

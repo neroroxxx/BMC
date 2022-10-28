@@ -163,41 +163,33 @@ public:
 
 
   void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
-  void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
-                          bmcStoreEvent data);
-  void (*encoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data, uint8_t ticks);
-  void (*potActivity)(uint8_t index, uint8_t value,
-                      bmcStorePot data);
+  void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  void (*potActivity)(uint16_t index, uint8_t value);
   void (*ledsActivity)(uint32_t states);
   void (*globalLedsActivity)(uint32_t states);
   void (*pixelsActivity)(uint32_t states);
   void (*rgbPixelsActivity)(uint32_t states);
 
   void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
-  void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> button,
-                          bmcStoreEvent data);
-  void (*globalEncoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data, uint8_t ticks);
-  void (*globalPotActivity)(uint8_t index, uint8_t value,
-                      bmcStorePot data);
+  void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  void (*globalPotActivity)(uint16_t index, uint8_t value);
 
 #if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*potsToeSwitchState)(uint8_t n, bool state);
+  void (*potsToeSwitchState)(uint16_t n, bool state);
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*globalPotsToeSwitchState)(uint8_t n, bool state);
+  void (*globalPotsToeSwitchState)(uint16_t n, bool state);
 #endif
 
-  void (*buttonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*encoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
-  void (*potCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
-  void (*globalButtonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*globalEncoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
-  void (*globalPotCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
+  void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  void (*encoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  void (*potCustomActivity)(uint16_t index, uint8_t t_value);
+  void (*globalButtonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  void (*globalEncoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  void (*globalPotCustomActivity)(uint16_t index, uint8_t t_value);
 
   void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
   void (*userEventEncoders)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);

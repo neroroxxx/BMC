@@ -58,11 +58,6 @@
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   #include "hardware/BMC-Button.h"
-  // delays for buttons are only available if buttons have more
-  // than 1 event compiled
-  #if defined(BMC_BUTTON_DELAY_ENABLED)
-    #include "hardware/BMC-ButtonsDelayHandler.h"
-  #endif
 
   #if BMC_MAX_BUTTONS > 1 || BMC_MAX_GLOBAL_BUTTONS > 1
     #include "hardware/BMC-ButtonsDualHandler.h"
@@ -183,6 +178,7 @@ public:
   void nextPage();
   void prevPage();
   // scroll to a different page, either the previous or next page
+  void scrollPage(uint8_t t_settings, uint8_t t_amount);
   void scrollPage(uint8_t t_flags, uint8_t t_min,
                   uint8_t t_max, uint8_t t_amount);
   void scrollPage(bool t_direction, bool t_endless,
@@ -321,7 +317,7 @@ private:
     editor.utilitySendPreset(presets.get());
     char presetName[30] = "";
     presets.getName(presets.get(), presetName);
-    streamToSketch(BMC_ITEM_ID_PRESET, presets.get(), presetName);
+    streamToSketch(BMC_DEVICE_ID_PRESET, presets.get(), presetName);
     if(callback.presetChanged){
       callback.presetChanged(presets.get());
     }
@@ -338,7 +334,7 @@ private:
 #if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
     char setListName[30] = "";
     setLists.getName(setLists.get(), setListName);
-    streamToSketch(BMC_ITEM_ID_SETLIST, setLists.get(), setListName);
+    streamToSketch(BMC_DEVICE_ID_SETLIST, setLists.get(), setListName);
     if(callback.setListChanged){
       callback.setListChanged(setLists.get());
     }
@@ -348,7 +344,7 @@ private:
 #if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
     char songName[30] = "";
     setLists.getSongName(songName);
-    streamToSketch(BMC_ITEM_ID_SETLIST_SONG, setLists.getSong(), songName);
+    streamToSketch(BMC_DEVICE_ID_SETLIST_SONG, setLists.getSong(), songName);
     if(callback.setListSongChanged){
       callback.setListSongChanged(setLists.getSong());
     }
@@ -386,7 +382,8 @@ private:
   bool pageChangedPeek();
 
   // code @ BMC.events.cpp
-  uint8_t processEvent(uint8_t deviceType, uint8_t deviceId, uint8_t deviceIndex, uint8_t ioType, uint16_t event);
+  uint8_t processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
+                       uint8_t ioType, uint16_t event, uint8_t value=0);
   uint8_t handleStatusLedEvent(uint8_t status);
 
   // EDITOR
@@ -564,14 +561,12 @@ private:
 #if BMC_MAX_BUTTONS > 0
   // code @ BMC.hardware.buttons.cpp
   BMCButton buttons[BMC_MAX_BUTTONS];
-  #if defined(BMC_BUTTON_DELAY_ENABLED)
-    BMCButtonsDelayHandler buttonsDelay;
-  #endif
+
   #if BMC_MAX_BUTTONS > 1
     BMCButtonsDualHandler dualPress;
   #endif
 
-  BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
+
   void assignButtons();
   void readButtons();
   void handleButton(uint16_t index, uint8_t t_trigger=0);
@@ -581,13 +576,11 @@ private:
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   // code @ BMC.hardware.buttons.cpp
   BMCButton globalButtons[BMC_MAX_GLOBAL_BUTTONS];
-  #if defined(BMC_BUTTON_DELAY_ENABLED)
-    BMCButtonsDelayHandler globalButtonsDelay;
-  #endif
+
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     BMCButtonsDualHandler dualPressGlobal;
   #endif
-  BMCBitStates <BMC_MAX_GLOBAL_BUTTONS> globalButtonStates;
+
   void setupGlobalButtons();
   void assignGlobalButtons();
   void readGlobalButtons();
@@ -645,7 +638,8 @@ private:
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   BMCPotCalibration potCalibration;
   void setupPots();
-  void assignPot(BMCPot& pot, bmcStorePot& storeData, bmcStoreGlobalPotCalibration& calibration);
+  //void assignPot(BMCPot& pot, bmcStorePot& storeData, bmcStoreGlobalPotCalibration& calibration);
+  void assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration);
   void handlePot(bmcStorePot& data, uint8_t value=0);
 #endif
 
@@ -687,12 +681,18 @@ private:
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   void setupEncoders();
-  void assignEncoder(BMCEncoder& encoder, bmcStoreEncoder& data);
-  void handleEncoder(bmcStoreEncoder& data, bool increased=false, uint8_t ticks=0);
+
+  //void assignEncoder(BMCEncoder& encoder, bmcStoreDevice <1, 1>& data);
+  //void handleEncoder(bmcStoreEncoder& data, bool increased=false, uint8_t ticks=0);
+  //void handleEncoder(uint8_t type, bmcStoreEvent data);
+
+
+/*
   uint16_t getNewEncoderValue(uint8_t mode, uint16_t value,
                               uint16_t lowest, uint16_t highest,
                               uint16_t min, uint16_t max,
                               bool increased, bool endless);
+  */
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0

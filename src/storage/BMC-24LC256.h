@@ -123,6 +123,7 @@ class BMC24LC256
 #endif
           }
 #ifdef BMC_DEBUG
+          BMC_PRINTLN(".");
           BMC_PRINTLN(". Updated", updatedBytes, "Bytes");
 #endif
           return updatedBytes;

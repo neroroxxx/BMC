@@ -377,13 +377,13 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_IO_TYPE_INPUT   1
 #define BMC_EVENT_IO_TYPE_OUTPUT  2
 
-#define BMC_DEVICE_TYPE_BUTTON  	 1
-#define BMC_DEVICE_TYPE_LED     	 2
-#define BMC_DEVICE_TYPE_ENCODER 	 3
-#define BMC_DEVICE_TYPE_POT     	 4
-#define BMC_DEVICE_TYPE_RELAY   	 5
-#define BMC_DEVICE_TYPE_DISPLAY 	 6
-#define BMC_DEVICE_TYPE_PRESET 	   7
+#define BMC_DEVICE_GROUP_BUTTON  	 1
+#define BMC_DEVICE_GROUP_LED     	 2
+#define BMC_DEVICE_GROUP_ENCODER 	 3
+#define BMC_DEVICE_GROUP_POT     	 4
+#define BMC_DEVICE_GROUP_RELAY   	 5
+#define BMC_DEVICE_GROUP_DISPLAY 	 6
+#define BMC_DEVICE_GROUP_PRESET 	   7
 
 
 // MIDI
@@ -467,49 +467,49 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // ID for BMC Elements
 // HARDWARE TYPES
-#define BMC_ITEM_ID_PAGE                	 1
-#define BMC_ITEM_ID_EVENT               	 2
-#define BMC_ITEM_ID_NAME                	 3
+#define BMC_DEVICE_ID_PAGE                	 1
+#define BMC_DEVICE_ID_EVENT               	 2
+#define BMC_DEVICE_ID_NAME                	 3
 
-#define BMC_ITEM_ID_BUTTON              	 4
-#define BMC_ITEM_ID_LED                 	 5
-#define BMC_ITEM_ID_ENCODER             	 6
-#define BMC_ITEM_ID_POT                 	 7
-#define BMC_ITEM_ID_PIXEL               	 8
-#define BMC_ITEM_ID_RGB_PIXEL           	 9
-#define BMC_ITEM_ID_OLED                	 10
-#define BMC_ITEM_ID_ILI                 	 11
-#define BMC_ITEM_ID_GLOBAL_BUTTON       	 12
-#define BMC_ITEM_ID_GLOBAL_LED          	 13
-#define BMC_ITEM_ID_GLOBAL_ENCODER      	 14
-#define BMC_ITEM_ID_GLOBAL_POT          	 15
-#define BMC_ITEM_ID_GLOBAL_PIXEL        	 16
-#define BMC_ITEM_ID_GLOBAL_RGB_PIXEL    	 17
-#define BMC_ITEM_ID_NL_RELAY            	 18
-#define BMC_ITEM_ID_L_RELAY             	 19
+#define BMC_DEVICE_ID_BUTTON              	 4
+#define BMC_DEVICE_ID_LED                 	 5
+#define BMC_DEVICE_ID_ENCODER             	 6
+#define BMC_DEVICE_ID_POT                 	 7
+#define BMC_DEVICE_ID_PIXEL               	 8
+#define BMC_DEVICE_ID_RGB_PIXEL           	 9
+#define BMC_DEVICE_ID_OLED                	 10
+#define BMC_DEVICE_ID_ILI                 	 11
+#define BMC_DEVICE_ID_GLOBAL_BUTTON       	 12
+#define BMC_DEVICE_ID_GLOBAL_LED          	 13
+#define BMC_DEVICE_ID_GLOBAL_ENCODER      	 14
+#define BMC_DEVICE_ID_GLOBAL_POT          	 15
+#define BMC_DEVICE_ID_GLOBAL_PIXEL        	 16
+#define BMC_DEVICE_ID_GLOBAL_RGB_PIXEL    	 17
+#define BMC_DEVICE_ID_NL_RELAY            	 18
+#define BMC_DEVICE_ID_L_RELAY             	 19
 
-#define BMC_ITEM_ID_LIBRARY             	 20
-#define BMC_ITEM_ID_PRESET              	 21
-#define BMC_ITEM_ID_CUSTOM_SYSEX        	 22
-#define BMC_ITEM_ID_TRIGGER             	 23
-#define BMC_ITEM_ID_TEMPO_TO_TAP        	 24
-#define BMC_ITEM_ID_SKETCH_BYTES        	 25
-#define BMC_ITEM_ID_STRING_LIBRARY      	 26
-#define BMC_ITEM_ID_SETLIST             	 27
-#define BMC_ITEM_ID_SETLIST_SONG        	 28
-#define BMC_ITEM_ID_SETLIST_SONG_LIBRARY	 29
-#define BMC_ITEM_ID_TIMED_EVENT         	 30
+#define BMC_DEVICE_ID_LIBRARY             	 20
+#define BMC_DEVICE_ID_PRESET              	 21
+#define BMC_DEVICE_ID_CUSTOM_SYSEX        	 22
+#define BMC_DEVICE_ID_TRIGGER             	 23
+#define BMC_DEVICE_ID_TEMPO_TO_TAP        	 24
+#define BMC_DEVICE_ID_SKETCH_BYTES        	 25
+#define BMC_DEVICE_ID_STRING_LIBRARY      	 26
+#define BMC_DEVICE_ID_SETLIST             	 27
+#define BMC_DEVICE_ID_SETLIST_SONG        	 28
+#define BMC_DEVICE_ID_SETLIST_SONG_LIBRARY	 29
+#define BMC_DEVICE_ID_TIMED_EVENT         	 30
 // these will be removed, keep here for now
-#define BMC_ITEM_ID_PWM_LED             	 31
+#define BMC_DEVICE_ID_PWM_LED             	 31
 
 
 
-#define BMC_ITEM_ID_MIDI_PROGRAM BMC_MIDI_PROGRAM_CHANGE
-#define BMC_ITEM_ID_MIDI_CONTROL BMC_MIDI_CONTROL_CHANGE
-#define BMC_ITEM_ID_MIDI_NOTE_ON BMC_MIDI_NOTE_ON
-#define BMC_ITEM_ID_MIDI_NOTE_OFF BMC_MIDI_NOTE_OFF
-#define BMC_ITEM_ID_MIDI_PITCH_BEND BMC_MIDI_PITCH_BEND
-#define BMC_ITEM_ID_MIDI_CLOCK BMC_MIDI_RT_CLOCK
+#define BMC_DEVICE_ID_MIDI_PROGRAM BMC_MIDI_PROGRAM_CHANGE
+#define BMC_DEVICE_ID_MIDI_CONTROL BMC_MIDI_CONTROL_CHANGE
+#define BMC_DEVICE_ID_MIDI_NOTE_ON BMC_MIDI_NOTE_ON
+#define BMC_DEVICE_ID_MIDI_NOTE_OFF BMC_MIDI_NOTE_OFF
+#define BMC_DEVICE_ID_MIDI_PITCH_BEND BMC_MIDI_PITCH_BEND
+#define BMC_DEVICE_ID_MIDI_CLOCK BMC_MIDI_RT_CLOCK
 
 
 // Active Sense Commands

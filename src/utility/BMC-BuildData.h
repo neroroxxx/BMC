@@ -18,7 +18,7 @@ class BMCBuildData {
     //pin, pinB, x, y, style, rotation, mergeType, mergeIndex, other1, other2
     static BMCUIData getUIData(uint8_t device, int16_t n){
       switch(device){
-          case BMC_ITEM_ID_BUTTON:
+          case BMC_DEVICE_ID_BUTTON:
         #if BMC_MAX_BUTTONS > 0
           switch(n){
             #if BMC_MAX_BUTTONS > 0 && defined(BMC_DEVICE_UI_BUTTON_1)
@@ -406,7 +406,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_BUTTON:
+      case BMC_DEVICE_ID_GLOBAL_BUTTON:
         #if BMC_MAX_GLOBAL_BUTTONS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_BUTTONS > 0 && defined(BMC_DEVICE_UI_GLOBAL_BUTTON_1)
@@ -794,7 +794,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_LED:
+      case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
           switch(n){
             #if BMC_MAX_LEDS > 0 && defined(BMC_DEVICE_UI_LED_1)
@@ -1182,7 +1182,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_LED:
+      case BMC_DEVICE_ID_GLOBAL_LED:
         #if BMC_MAX_GLOBAL_LEDS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_LEDS > 0 && defined(BMC_DEVICE_UI_GLOBAL_LED_1)
@@ -1570,7 +1570,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_PIXEL:
+      case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
           switch(n){
             #if BMC_MAX_PIXELS > 0 && defined(BMC_DEVICE_UI_PIXEL_1)
@@ -1958,7 +1958,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_PIXEL:
         #if BMC_MAX_GLOBAL_PIXELS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_PIXEL_1)
@@ -2346,7 +2346,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_RGB_PIXEL:
+      case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
           switch(n){
             #if BMC_MAX_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_RGB_PIXEL_1)
@@ -2734,7 +2734,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_RGB_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
         #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_1)
@@ -3122,7 +3122,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_POT:
+      case BMC_DEVICE_ID_POT:
         #if BMC_MAX_POTS > 0
           switch(n){
             #if BMC_MAX_POTS > 0 && defined(BMC_DEVICE_UI_POT_1)
@@ -3510,7 +3510,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_POT:
+      case BMC_DEVICE_ID_GLOBAL_POT:
         #if BMC_MAX_GLOBAL_POTS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_DEVICE_UI_GLOBAL_POT_1)
@@ -3898,7 +3898,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_ENCODER:
+      case BMC_DEVICE_ID_ENCODER:
         #if BMC_MAX_ENCODERS > 0
           switch(n){
             #if BMC_MAX_ENCODERS > 0 && defined(BMC_DEVICE_UI_ENCODER_1)
@@ -4286,7 +4286,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_GLOBAL_ENCODER:
+      case BMC_DEVICE_ID_GLOBAL_ENCODER:
         #if BMC_MAX_GLOBAL_ENCODERS > 0
           switch(n){
             #if BMC_MAX_GLOBAL_ENCODERS > 0 && defined(BMC_DEVICE_UI_GLOBAL_ENCODER_1)
@@ -4674,7 +4674,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_NL_RELAY:
+      case BMC_DEVICE_ID_NL_RELAY:
         #if BMC_MAX_NL_RELAYS > 0
           switch(n){
             #if BMC_MAX_NL_RELAYS > 0 && defined(BMC_DEVICE_UI_NL_RELAY_1)
@@ -5062,7 +5062,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_L_RELAY:
+      case BMC_DEVICE_ID_L_RELAY:
         #if BMC_MAX_L_RELAYS > 0
           switch(n){
             #if BMC_MAX_L_RELAYS > 0 && defined(BMC_DEVICE_UI_L_RELAY_1)
@@ -5450,7 +5450,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_OLED:
+      case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
           switch(n){
             #if BMC_MAX_OLED > 0 && defined(BMC_DEVICE_UI_OLED_1)
@@ -5649,7 +5649,7 @@ class BMCBuildData {
           }
         #endif
         break;
-      case BMC_ITEM_ID_ILI:
+      case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
           #if defined(BMC_DEVICE_UI_ILI)
             if(n==-1){

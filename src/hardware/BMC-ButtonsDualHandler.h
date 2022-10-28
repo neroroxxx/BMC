@@ -61,24 +61,17 @@
 
 class BMCButtonsDualHandler {
 public:
-  BMCButtonsDualHandler(BMCCallbacks& cb, bool isGlobal, uint8_t _count):callback(cb){
+  BMCButtonsDualHandler(BMCCallbacks& cb, BMCGlobals& t_globals, bool isGlobal, uint8_t _count):
+  callback(cb), globals(t_globals){
     reset();
     itemsCount = _count;
     flags.reset();
     flags.write(BMC_BUTTONS_DUAL_GLOBAL, isGlobal);
   }
   // return true when 2 buttons have been pressed
-  template <uint16_t sLen>
-  bool read(uint8_t n, uint8_t trigger, bool state, BMCBitStates <sLen>& states){
+  bool read(uint8_t n, uint8_t trigger, bool state){
     // only check for dual button press if there's a callback setup
     if(callbackAvailable()){
-      //uint8_t btn = n;
-      /*
-      if(itemsCount>=32 && n >= 32){
-        btn = n-32;
-        states = states2;
-      }
-      */
       if(flags.read(BMC_BUTTONS_DUAL_WAITING_FOR_RELEASE)){
         // at this point we are waiting for the buttons to be released and any
         // events of these buttons will be ignored.
@@ -109,7 +102,7 @@ public:
       // check if the button is pressed down and if the state is not the same
       // as it was the last time we checked for a dual press
       //if(state && bitRead(states, btn) != state){
-      if(state && states.getBit(n) != state){
+      if(state && globals.getButtonStateBit(flags.read(BMC_BUTTONS_DUAL_GLOBAL),n) != state){
         // state changed and buttons is pressed
         if(last>=0 && last!=n){
           // save the index of the buttons that were pressed so we can wait for
@@ -167,6 +160,7 @@ private:
   BMCTimer timeout;
   BMCFlags <uint8_t> flags;
   BMCCallbacks& callback;
+  BMCGlobals& globals;
 
   void reset(){
     last = -1;

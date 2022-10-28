@@ -202,7 +202,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_BUTTONS > 0
     case BMC_LED_EVENT_TYPE_BUTTON:
       if(byteA < BMC_MAX_BUTTONS){
-        return buttonStates.getBit(byteA);
+        return globals.buttonStates.getBit(byteA);
       }
       break;
     case BMC_LED_EVENT_TYPE_BUTTON_RAW:
@@ -219,7 +219,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_GLOBAL_BUTTONS > 0
     case BMC_LED_EVENT_TYPE_GLOBAL_BUTTON:
       if(byteA < BMC_MAX_GLOBAL_BUTTONS){
-        return globalButtonStates.getBit(byteA);
+        return globals.globalButtonStates.getBit(byteA);
       }
       break;
     case BMC_LED_EVENT_TYPE_GLOBAL_BUTTON_RAW:

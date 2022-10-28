@@ -64,7 +64,7 @@ public:
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
   void initILI9341(){
-    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, -1);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, -1);
     //tft.begin(BMCBuildData::getIliDisplayPosition(2));
     tft.begin(ui.rotation);
     tft.clear();
@@ -81,7 +81,7 @@ public:
     #endif
       for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
         // display can be address 0x3C or 0x3D
-        BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_OLED, i);
+        BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_OLED, i);
         //uint8_t addr = 0x3C + BMCBuildData::getOledDisplayPosition(i, 3);
         //uint8_t rotation = BMCBuildData::getOledDisplayPosition(i, 2);
     #if BMC_MAX_OLED > 1
@@ -89,12 +89,13 @@ public:
     #endif
         //oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, addr, rotation);
         //ui.other1 = address, ui.other2 = mux port
-        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, ui.other1, ui.rotation);
+        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, 0x3C + ui.other1, ui.rotation);
       }
   }
 #endif
   void reassign(uint8_t page){
       clearAll();
+      memset(last, 0, BMC_MAX_OLED+BMC_MAX_ILI9341_BLOCKS);
 #if defined(BMC_USE_DAW_LC)
       dawMetersBlock = -1;
       dawVuOverload = 0;
@@ -116,7 +117,7 @@ public:
         if(BMC_GET_BYTE(0, e.event) == 0){
           // make sure this is a 320 x 80 block
           //if(dawMetersBlock == -1 && BMCBuildData::getIliDisplayBlockPosition(i, 2) == 0){
-          BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_ILI, i);
+          BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, i);
           if(dawMetersBlock == -1 && ui.style == 0){
             dawMetersBlock = i;
             initDawMeters();
@@ -830,7 +831,7 @@ private:
 #if BMC_MAX_OLED > 1
   void selectMux(uint8_t n){
 #if defined(BMC_OLED_USER_DEFINED_PORTS)
-    BMCUIData ui = BMCBuildData::getUIData(BMC_ITEM_ID_OLED, i);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_OLED, i);
     n = ui.other2;// mux port
     //n = BMCBuildData::getOledDisplayPosition(n, 4);
 

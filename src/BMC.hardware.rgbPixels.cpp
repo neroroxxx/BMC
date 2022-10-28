@@ -55,7 +55,7 @@ void BMC::readRgbPixels(){
     for(uint8_t e = 0; e < 3; e++){
       // handleLedEvent() @ BMC.hardware.ledEvents.cpp
       //uint8_t state = handleLedEvent(i, events[e], e+4);
-      uint8_t state = processEvent(BMC_DEVICE_TYPE_LED, BMC_ITEM_ID_RGB_PIXEL, i,
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_RGB_PIXEL, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[e]);
       if(state<=1){
         pixels.setStateRgb(i, e, state);
@@ -75,7 +75,7 @@ void BMC::readRgbPixels(){
   bool g = globals.rgbPixelStates[1].hasChanged();
   bool b = globals.rgbPixelStates[2].hasChanged();
   if(r || g || b){
-    editor.utilitySendStateBits(BMC_ITEM_ID_RGB_PIXEL);
+    editor.utilitySendStateBits(BMC_DEVICE_ID_RGB_PIXEL);
   }
   /*
   uint32_t _r = pixels.getRgbPixelsStateR();

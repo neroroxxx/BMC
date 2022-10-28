@@ -209,6 +209,19 @@ public:
   }
 #endif
 
+bool getButtonStateBit(bool isGlobal, uint16_t n){
+  if(isGlobal){
+    #if BMC_MAX_GLOBAL_BUTTONS > 0
+      return globalButtonStates.getBit(n);
+    #endif
+  } else {
+    #if BMC_MAX_BUTTONS > 0
+      return buttonStates.getBit(n);
+    #endif
+  }
+  return 0;
+}
+
 bmcStoreEvent getDeviceEventType(uint16_t n){
   bmcStoreEvent e;
   if(n > 0){
@@ -241,6 +254,13 @@ public:
   #endif
 #endif
 
+#if BMC_MAX_BUTTONS > 0
+  BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
+#endif
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_BUTTONS> globalButtonStates;
+#endif
+
 #if BMC_MAX_LEDS > 0
   BMCBitStates <BMC_MAX_PIXELS> ledCustomState;
   BMCBitStates <BMC_MAX_PIXELS> ledStates;
@@ -248,7 +268,6 @@ public:
 #if BMC_MAX_GLOBAL_LEDS > 0
   BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedCustomState;
   BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedStates;
-
 #endif
 #if BMC_PIXELS_PORT > 0
   #if BMC_MAX_PIXELS > 0

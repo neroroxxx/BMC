@@ -800,13 +800,6 @@
     #define BMC_NAME_LEN_ENCODERS 0
   #endif
 
-  #ifdef BMC_BUTTON_DELAY_ENABLED
-    #if BMC_MAX_BUTTONS == 0 || BMC_MAX_BUTTON_EVENTS < 2
-      #error "Button Delay Events require buttons and at least 2 events per button"
-    #endif
-  #endif
-
-
   #define _____BMC_HARDWARENAMES ((uint16_t)(0x00AA * ((BMC_NAME_LEN_BUTTONS+1)*(BMC_NAME_LEN_LEDS+2)*(BMC_NAME_LEN_POTS+3)*(BMC_NAME_LEN_ENCODERS+4)*(BMC_NAME_LEN_RELAYS+5))))
   #define _____BMC_STRINGLIBRARYNAMES     0
   #define _____BMC_LIBRARYNAMES           0
