@@ -135,6 +135,7 @@ void BMCEditor::backupGlobalLibrary(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
+  /*
 #if BMC_MAX_PRESETS > 0
   bmcPreset_t index = (bmcPreset_t) getMessagePageNumber();
   if(index >= BMC_MAX_PRESETS){
@@ -190,8 +191,10 @@ void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
+  /*
 #if BMC_MAX_PRESETS > 0
   // this message doesn't require any additional bytes
   // from the standard read/write messages
@@ -205,6 +208,7 @@ void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
 #if BMC_MAX_SETLISTS > 0
@@ -474,6 +478,7 @@ void BMCEditor::backupGlobalLed(uint16_t t_minLength){
 }
 
 void BMCEditor::backupGlobalNLRelay(uint16_t t_minLength){
+  /*
 #if BMC_MAX_NL_RELAYS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_NL_RELAYS){
@@ -504,8 +509,10 @@ void BMCEditor::backupGlobalNLRelay(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalLRelay(uint16_t t_minLength){
+  /*
 #if BMC_MAX_L_RELAYS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_L_RELAYS){
@@ -536,9 +543,11 @@ void BMCEditor::backupGlobalLRelay(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 
 void BMCEditor::backupPageName(uint16_t t_minLength){
+  /*
   uint16_t index = getMessagePageNumber();
   if(index >= BMC_MAX_PAGES){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
@@ -550,6 +559,7 @@ void BMCEditor::backupPageName(uint16_t t_minLength){
     }
   }
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 // PAGE DATA
 void BMCEditor::backupPageButton(uint16_t t_minLength){

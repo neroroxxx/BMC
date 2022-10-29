@@ -655,6 +655,7 @@ public:
 #if BMC_MAX_PRESETS > 0
   #if BMC_NAME_LEN_PRESETS > 1
     // retrieve the current preset name
+    /*
     void getPresetName(char* t_string){
       getPresetName(presets.get(), t_string);
     }
@@ -664,15 +665,18 @@ public:
         presets.getName(n, t_string);
       }
     }
+    */
   #endif
   // get how many library messages this preset has
   uint8_t getPresetLength(bmcPreset_t n){
     return presets.getLength(n);
   }
+  /*
   // get a library message id
   bmcLibrary_t getPresetItem(bmcPreset_t n, bmcLibrary_t e){
     return presets.getPresetItem(n, e);
   }
+  */
   // get the current preset number
   bmcPreset_t getPreset(){
     return presets.get();
@@ -743,6 +747,7 @@ public:
     }
   #endif
   #if BMC_NAME_LEN_PRESETS > 1
+  /*
     // get the name of the current song in the current setlist
     void getSetListSongName(char* t_string){
       getSetListSongName(setLists.getSong(), t_string);
@@ -753,6 +758,7 @@ public:
         presets.getName(setLists.getSongPreset(n), t_string);
       }
     }
+    */
   #endif
   // get the current SetList number
   uint8_t getSetList(){
@@ -1301,6 +1307,7 @@ public:
 
 #if BMC_MAX_NL_RELAYS > 0
   // get NL RELAY Name Data
+  /*
   void getRelayNL(uint8_t n, bmcStoreGlobalRelay& t_item){
     if(n<BMC_MAX_NL_RELAYS){
       t_item = store.global.relaysNL[n];
@@ -1313,10 +1320,12 @@ public:
       }
     }
   #endif
+  */
 #endif
 
 #if BMC_MAX_L_RELAYS > 0
   // get NL RELAY Name Data
+  /*
   void getRelayL(uint8_t t_index, bmcStoreGlobalRelay& t_item){
     if(t_index<BMC_MAX_L_RELAYS){
       t_item = store.global.relaysL[t_index];
@@ -1329,6 +1338,7 @@ public:
       }
     }
   #endif
+  */
 #endif
 
 

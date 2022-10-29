@@ -370,12 +370,24 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_NL_RELAY:
         {
-          //
+          #if BMC_MAX_NL_RELAYS > 0
+            incomingMessageDeviceWrite<1,1>(store.global.relaysNL[index], index);
+            if(!backupActive()){
+              saveNLRelay(index);
+              reloadData();
+            }
+          #endif
         }
         break;
       case BMC_DEVICE_ID_L_RELAY:
         {
-          //
+          #if BMC_MAX_L_RELAYS > 0
+            incomingMessageDeviceWrite<1,1>(store.global.relaysL[index], index);
+            if(!backupActive()){
+              saveLRelay(index);
+              reloadData();
+            }
+          #endif
         }
         break;
       case BMC_DEVICE_ID_OLED:
@@ -402,7 +414,13 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_PRESET:
         {
-          //
+          #if BMC_MAX_PRESETS > 0
+            incomingMessageDeviceWrite<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[index], index);
+            if(!backupActive()){
+              savePreset(index);
+              reloadData();
+            }
+          #endif
         }
         break;
       case BMC_DEVICE_ID_CUSTOM_SYSEX:
@@ -573,12 +591,20 @@ void BMCEditor::incomingMessageDevice(bool write){
       break;
     case BMC_DEVICE_ID_NL_RELAY:
       {
-        //
+        #if BMC_MAX_NL_RELAYS > 0
+          BMC_PRINTLN("BMC_DEVICE_ID_NL_RELAY");
+          deviceResponseData <1, 1>
+          (store.global.relaysNL[index], buff, index, deviceType);
+        #endif
       }
       break;
     case BMC_DEVICE_ID_L_RELAY:
       {
-        //
+        #if BMC_MAX_L_RELAYS > 0
+          BMC_PRINTLN("BMC_DEVICE_ID_L_RELAY");
+          deviceResponseData <1, 1>
+          (store.global.relaysL[index], buff, index, deviceType);
+        #endif
       }
       break;
     case BMC_DEVICE_ID_OLED:
@@ -630,7 +656,11 @@ void BMCEditor::incomingMessageDevice(bool write){
       break;
     case BMC_DEVICE_ID_PRESET:
       {
-        //
+        #if BMC_MAX_PRESETS > 0
+          BMC_PRINTLN("BMC_DEVICE_ID_PRESET");
+          deviceResponseData <1, BMC_MAX_PRESET_ITEMS>
+          (store.global.presets[index], buff, index, deviceType);
+        #endif
       }
       break;
     case BMC_DEVICE_ID_CUSTOM_SYSEX:
@@ -1493,6 +1523,7 @@ void BMCEditor::globalLibrary(bool write){//BMC_GLOBALF_LIBRARY
 }
 
 void BMCEditor::globalPreset(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1562,6 +1593,7 @@ void BMCEditor::globalPreset(bool write){
     #endif
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::globalStartup(bool write){
   if(!isValidGlobalMessage(false)){
@@ -2547,6 +2579,7 @@ void BMCEditor::globalSketchBytesData(){
 }
 
 void BMCEditor::globalNLRelay(bool write){//BMC_GLOBALF_NL_RELAYS
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2597,8 +2630,10 @@ void BMCEditor::globalNLRelay(bool write){//BMC_GLOBALF_NL_RELAYS
     #endif
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::globalLRelay(bool write){//BMC_GLOBALF_L_RELAYS
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2649,6 +2684,7 @@ void BMCEditor::globalLRelay(bool write){//BMC_GLOBALF_L_RELAYS
     #endif
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::globalSetTime(bool write){
   //BMC_GLOBALF_TIME

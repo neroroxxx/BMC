@@ -257,6 +257,7 @@ public:
 #if BMC_MAX_BUTTONS > 0
   BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
 #endif
+
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   BMCBitStates <BMC_MAX_GLOBAL_BUTTONS> globalButtonStates;
 #endif
@@ -265,10 +266,12 @@ public:
   BMCBitStates <BMC_MAX_PIXELS> ledCustomState;
   BMCBitStates <BMC_MAX_PIXELS> ledStates;
 #endif
+
 #if BMC_MAX_GLOBAL_LEDS > 0
   BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedCustomState;
   BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedStates;
 #endif
+
 #if BMC_PIXELS_PORT > 0
   #if BMC_MAX_PIXELS > 0
     BMCBitStates <BMC_MAX_PIXELS> pixelStates;
@@ -282,6 +285,14 @@ public:
   #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
     BMCBitStates <BMC_MAX_GLOBAL_RGB_PIXELS> globalRrgbPixelStates[3];
   #endif
+#endif
+
+#if BMC_MAX_NL_RELAYS > 0
+  BMCBitStates <BMC_MAX_NL_RELAYS> relayNLStates;
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
+  BMCBitStates <BMC_MAX_L_RELAYS> relayLStates;
 #endif
 
 private:

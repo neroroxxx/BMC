@@ -421,7 +421,7 @@ private:
     "LEAD",
     "BANK",
   };
-
+/*
   void runEvents(uint8_t page, bool isOled, uint8_t index, uint8_t type, uint8_t value){
     bool blank = true;
     switch(parseEventType(type)){
@@ -720,22 +720,14 @@ private:
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_PAGE_NAME:
-
-    /*
-        if(value < BMC_MAX_PAGES &&  strlen(globals.store.pages[value].name) > 0){
-          renderText(index, isOled, type, globals.store.pages[value].name);
-          blank = false;
-        }
-        */
-
+        //if(value < BMC_MAX_PAGES &&  strlen(globals.store.pages[value].name) > 0){
+        //  renderText(index, isOled, type, globals.store.pages[value].name);
+        //  blank = false;
+        //}
         break;
       case BMC_DISPLAY_EVENT_TYPE_CURRENT_PAGE_NAME:
-
-    /*
-        renderText(index, isOled, type, globals.store.pages[page].name);
-        blank = false;
-        */
-
+        //renderText(index, isOled, type, globals.store.pages[page].name);
+        //blank = false;
         break;
       case BMC_DISPLAY_EVENT_TYPE_DAW:
         blank = false;
@@ -748,18 +740,18 @@ private:
           #endif
         } else if(value == 1){
           //selected daw track
-          /*
-          char str[10] = "";
-          sync.daw.getLcdTrackName(str);
-          renderText(index, isOled, type, str);
-          */
+
+          //char str[10] = "";
+          //sync.daw.getLcdTrackName(str);
+          //renderText(index, isOled, type, str);
+
 
         } else if(value<10){
-          /*
-          char str[10] = "";
-          sync.daw.getLcdTrackName(value - 2, str);
-          renderText(index, isOled, type, str);
-          */
+
+          //char str[10] = "";
+          //sync.daw.getLcdTrackName(value - 2, str);
+          //renderText(index, isOled, type, str);
+
 
         }
     #endif
@@ -772,7 +764,17 @@ private:
       char str[2] = "-";
       renderText(index, isOled, type, str);
     }
+
   }
+*/
+
+
+
+
+
+
+
+
   uint8_t parseEventType(uint8_t t_type){
     return (t_type > 0x7F && t_type < 0xF0) ? (t_type & 0xF0) : t_type;
   }

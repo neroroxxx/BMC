@@ -1310,6 +1310,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       break;
     case BMC_DEVICE_ID_PRESET:
 #if BMC_MAX_PRESETS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalPresets x = store.global.presets[sourceItem];
         store.global.presets[targetItem] = x;
@@ -1326,6 +1327,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+      */
 #endif
       break;
     case BMC_DEVICE_ID_SETLIST:

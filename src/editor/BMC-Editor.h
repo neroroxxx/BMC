@@ -391,8 +391,10 @@ private:
 
   uint32_t getSketchBytesOffset();
   uint32_t getStringLibraryOffset();
+
   uint32_t getStringLibraryOffset(uint8_t index);
   uint32_t getLibraryOffset();
+
   uint32_t getLibraryOffset(bmcLibrary_t index);
   uint32_t getPresetOffset();
   uint32_t getPresetOffset(bmcPreset_t index);
@@ -400,30 +402,39 @@ private:
   uint32_t getSetListOffset(uint8_t index);
   uint32_t getSetListSongOffset();
   uint32_t getSetListSongOffset(uint8_t index);
-  uint32_t getGlobalLedOffset();
-  uint32_t getGlobalLedOffset(uint8_t index);
+
 
   uint32_t getGlobalButtonOffset();
   uint32_t getGlobalButtonOffset(uint8_t index);
+
+  uint32_t getGlobalLedOffset();
+  uint32_t getGlobalLedOffset(uint8_t index);
+
   uint32_t getGlobalEncoderOffset();
   uint32_t getGlobalEncoderOffset(uint8_t index);
+
   uint32_t getGlobalPotOffset();
   uint32_t getGlobalPotOffset(uint8_t index);
+
   uint32_t getGlobalPotCalibrationOffset();
   uint32_t getGlobalPotCalibrationOffset(uint8_t index);
 
   uint32_t getPotCalibrationOffset();
   uint32_t getPotCalibrationOffset(uint8_t index);
+
+  uint32_t getNLRelayOffset();
+  uint32_t getNLRelayOffset(uint8_t index);
+
+  uint32_t getLRelayOffset();
+  uint32_t getLRelayOffset(uint8_t index);
+
+
   uint32_t getCustomSysExOffset();
   uint32_t getCustomSysExOffset(uint8_t index);
   uint32_t getTriggerOffset();
   uint32_t getTriggerOffset(uint8_t index);
   uint32_t getTempoToTapOffset();
   uint32_t getTempoToTapOffset(uint8_t index);
-  uint32_t getNLRelayOffset();
-  uint32_t getNLRelayOffset(uint8_t index);
-  uint32_t getLRelayOffset();
-  uint32_t getLRelayOffset(uint8_t index);
   uint32_t getPortPresetsOffset();
   uint32_t getPixelProgramsOffset();
   uint32_t getPixelProgramsOffset(uint8_t index);
@@ -687,6 +698,38 @@ public:
   }
 #endif
 
+#if BMC_MAX_NL_RELAYS > 0
+  // save a single "Tempo To Tap" to EEPROM
+  void saveNLRelay(uint8_t index){
+    if(index>=BMC_MAX_NL_RELAYS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getNLRelayOffset(index);
+      storage.set(address, store.global.relaysNL[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
+  // save a single "Tempo To Tap" to EEPROM
+  void saveLRelay(uint8_t index){
+    if(index>=BMC_MAX_L_RELAYS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getLRelayOffset(index);
+      storage.set(address, store.global.relaysL[index]);
+    #endif
+  }
+#endif
+
 #if BMC_MAX_CUSTOM_SYSEX > 0
   // save a single "Custom SysEx" to EEPROM
   void saveCustomSysEx(uint8_t index){
@@ -731,38 +774,6 @@ public:
       uint16_t address = getGlobalOffset();
       address += getTempoToTapOffset(index);
       storage.set(address, store.global.tempoToTap[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_NL_RELAYS > 0
-  // save a single "Tempo To Tap" to EEPROM
-  void saveNLRelay(uint8_t index){
-    if(index>=BMC_MAX_NL_RELAYS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getNLRelayOffset(index);
-      storage.set(address, store.global.relaysNL[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_L_RELAYS > 0
-  // save a single "Tempo To Tap" to EEPROM
-  void saveLRelay(uint8_t index){
-    if(index>=BMC_MAX_L_RELAYS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getLRelayOffset(index);
-      storage.set(address, store.global.relaysL[index]);
     #endif
   }
 #endif

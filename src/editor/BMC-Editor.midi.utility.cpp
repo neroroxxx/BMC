@@ -566,12 +566,13 @@ void BMCEditor::utilitySendPreset(bmcPreset_t presetNumber,
     BMC_UTILF_PRESET
   );
   buff.appendToSysEx8Bits(presetNumber);
-
+/*
   #if BMC_NAME_LEN_PRESETS > 1
     bmcStoreGlobalPresets& item = store.global.presets[presetNumber];
     buff.appendToSysEx7Bits(BMC_NAME_LEN_PRESETS);
     buff.appendCharArrayToSysEx(item.name, BMC_NAME_LEN_PRESETS);
   #endif
+*/
   sendToEditor(buff,true,false); // don't show midi activity
 #endif
 }

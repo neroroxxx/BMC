@@ -155,6 +155,16 @@ public:
     }
     return "Unknown";
   }
+  static bool isValidRelayEvent(uint8_t t_type){
+    switch(t_type){
+      case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
+      case BMC_EVENT_TYPE_PAGE:
+      case BMC_EVENT_TYPE_PRESET:
+        return true;
+    }
+    return false;
+  }
   static bool isLedBlinkAllowed(uint8_t t_type){
     switch(t_type){
       //case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:

@@ -314,12 +314,25 @@ private:
   }
   void runPresetChanged(){
 #if BMC_MAX_PRESETS > 0
-    editor.utilitySendPreset(presets.get());
+    bmcPreset_t t_preset = presets.get();
+    uint8_t len = presets.getLength();
+    if(len > 0){
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
+      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+      for(uint8_t i = 0 ; i < len ; i++){
+        processEvent(BMC_DEVICE_GROUP_PRESET, BMC_DEVICE_ID_PRESET,
+                     t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
+      }
+
+    }
+    editor.utilitySendPreset(t_preset);
+    /*
     char presetName[30] = "";
-    presets.getName(presets.get(), presetName);
-    streamToSketch(BMC_DEVICE_ID_PRESET, presets.get(), presetName);
+    presets.getName(t_preset, presetName);
+    streamToSketch(BMC_DEVICE_ID_PRESET, t_preset, presetName);
+    */
     if(callback.presetChanged){
-      callback.presetChanged(presets.get());
+      callback.presetChanged(t_preset);
     }
 #endif
   }
@@ -595,6 +608,7 @@ private:
 
 #if BMC_MAX_NL_RELAYS > 0
   BMCRelayNL relaysNL[BMC_MAX_NL_RELAYS];
+  BMCBitStates <BMC_MAX_NL_RELAYS> relaysNLHasEvent;
   BMCRelayMidiTrigger relaysNLTmp[BMC_MAX_NL_RELAYS];
   #if BMC_MAX_NL_RELAYS > 16
     uint32_t relayNLStates = 0;
@@ -612,6 +626,7 @@ private:
 
 #if BMC_MAX_L_RELAYS > 0
   BMCRelayL relaysL[BMC_MAX_L_RELAYS];
+  BMCBitStates <BMC_MAX_NL_RELAYS> relaysLHasEvent;
   BMCRelayMidiTrigger relaysLTmp[BMC_MAX_L_RELAYS];
   #if BMC_MAX_L_RELAYS > 16
     uint32_t relayLStates = 0;

@@ -377,13 +377,13 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_IO_TYPE_INPUT   1
 #define BMC_EVENT_IO_TYPE_OUTPUT  2
 
-#define BMC_DEVICE_GROUP_BUTTON  	 1
-#define BMC_DEVICE_GROUP_LED     	 2
-#define BMC_DEVICE_GROUP_ENCODER 	 3
-#define BMC_DEVICE_GROUP_POT     	 4
-#define BMC_DEVICE_GROUP_RELAY   	 5
-#define BMC_DEVICE_GROUP_DISPLAY 	 6
-#define BMC_DEVICE_GROUP_PRESET 	   7
+#define BMC_DEVICE_GROUP_BUTTON 	 1
+#define BMC_DEVICE_GROUP_LED    	 2
+#define BMC_DEVICE_GROUP_ENCODER	 3
+#define BMC_DEVICE_GROUP_POT    	 4
+#define BMC_DEVICE_GROUP_RELAY  	 5
+#define BMC_DEVICE_GROUP_DISPLAY	 6
+#define BMC_DEVICE_GROUP_PRESET 	 7
 
 
 // MIDI
@@ -406,7 +406,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_SYSTEM_CLOCK                 	 16
 #define BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP             	 17
 #define BMC_EVENT_TYPE_SYSTEM_STATUS                	 18
-#define BMC_EVENT_TYPE_SYSTEM_MIDI_ACTIVITY            19
+#define BMC_EVENT_TYPE_SYSTEM_MIDI_ACTIVITY         	 19
 #define BMC_EVENT_TYPE_SYSTEM_SAVE_EEPROM           	 20
 #define BMC_EVENT_TYPE_SYSTEM_MENU                  	 21
 #define BMC_EVENT_TYPE_SYSTEM_TYPER                 	 22
@@ -459,6 +459,21 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_FAS_BLOCK                    	 63
 #define BMC_EVENT_TYPE_FAS_BLOCK_PARAM              	 64
 #define BMC_EVENT_TYPE_HELIX                        	 65
+// HARDWARE
+#define BMC_EVENT_TYPE_BUTTON                       	 66
+#define BMC_EVENT_TYPE_GLOBAL_BUTTON                	 67
+#define BMC_EVENT_TYPE_LED                          	 68
+#define BMC_EVENT_TYPE_GLOBAL_LED                   	 69
+#define BMC_EVENT_TYPE_POT                          	 70
+#define BMC_EVENT_TYPE_GLOBAL_POT                   	 71
+#define BMC_EVENT_TYPE_ENCODER                      	 72
+#define BMC_EVENT_TYPE_GLOBAL_ENCODER               	 73
+#define BMC_EVENT_TYPE_PIXEL                        	 74
+#define BMC_EVENT_TYPE_GLOBAL_PIXEL                 	 75
+#define BMC_EVENT_TYPE_RGB_PIXEL                    	 76
+#define BMC_EVENT_TYPE_GLOBAL_RGB_PIXEL             	 77
+#define BMC_EVENT_TYPE_NL_RELAY                     	 78
+#define BMC_EVENT_TYPE_L_RELAY                      	 79
 
 
 

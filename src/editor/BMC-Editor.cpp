@@ -212,7 +212,7 @@ uint32_t BMCEditor::getPresetOffset(bmcPreset_t index){
   uint32_t value = getLibraryOffset();
 #if BMC_MAX_PRESETS > 0
   value += sizeof(bmcPreset_t);
-  value += (sizeof(bmcStoreGlobalPresets)*index);
+  value += (sizeof(bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>)*index);
 #endif
   return value;
 }
@@ -337,15 +337,46 @@ uint32_t BMCEditor::getPotCalibrationOffset(uint8_t index){
   return value;
 }
 
-uint32_t BMCEditor::getCustomSysExOffset(){
+
+
+
+uint32_t BMCEditor::getNLRelayOffset(){
   uint32_t value = getPotCalibrationOffset();
+  #if BMC_MAX_NL_RELAYS > 0
+    value += sizeof(store.global.relaysNL);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getNLRelayOffset(uint8_t index){
+  uint32_t value = getPotCalibrationOffset();
+  #if BMC_MAX_NL_RELAYS > 0
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getLRelayOffset(){
+  uint32_t value = getNLRelayOffset();
+  #if BMC_MAX_L_RELAYS > 0
+    value += sizeof(store.global.relaysL);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getLRelayOffset(uint8_t index){
+  uint32_t value = getNLRelayOffset();
+  #if BMC_MAX_L_RELAYS > 0
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getCustomSysExOffset(){
+  uint32_t value = getLRelayOffset();
   #if BMC_MAX_CUSTOM_SYSEX > 0
     value += sizeof(store.global.customSysEx);
   #endif
   return value;
 }
 uint32_t BMCEditor::getCustomSysExOffset(uint8_t index){
-  uint32_t value = getPotCalibrationOffset();
+  uint32_t value = getLRelayOffset();
   #if BMC_MAX_CUSTOM_SYSEX > 0
     value += (sizeof(bmcStoreGlobalCustomSysEx) * index);
   #endif
@@ -381,34 +412,9 @@ uint32_t BMCEditor::getTempoToTapOffset(uint8_t index){
   #endif
   return value;
 }
-uint32_t BMCEditor::getNLRelayOffset(){
-  uint32_t value = getTempoToTapOffset();
-  #if BMC_MAX_NL_RELAYS > 0
-    value += sizeof(store.global.relaysNL);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getNLRelayOffset(uint8_t index){
-  uint32_t value = getTempoToTapOffset();
-  #if BMC_MAX_NL_RELAYS > 0
-    value += (sizeof(bmcStoreGlobalRelay) * index);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getLRelayOffset(){
-  uint32_t value = getNLRelayOffset();
-  #if BMC_MAX_L_RELAYS > 0
-    value += sizeof(store.global.relaysL);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getLRelayOffset(uint8_t index){
-  uint32_t value = getNLRelayOffset();
-  #if BMC_MAX_L_RELAYS > 0
-    value += (sizeof(bmcStoreGlobalRelay) * index);
-  #endif
-  return value;
-}
+
+
+
 uint32_t BMCEditor::getPortPresetsOffset(){
   return getLRelayOffset();
 }

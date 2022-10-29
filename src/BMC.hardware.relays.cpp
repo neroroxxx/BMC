@@ -10,18 +10,37 @@
 #if BMC_MAX_NL_RELAYS > 0
 void BMC::setupRelaysNL(){
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
-    uint8_t m = BMC_GET_BYTE(3,globalData.relaysNL[i].event>>1);
-    bool momentary = bitRead(m,5);
-    bool reversed = bitRead(m,6);
-    relaysNL[i].begin(BMCBuildData::getRelayNLPin(i),
-                      momentary, reversed);
-    // bit 0 of event is initial state
-    relaysNL[i].command(globalData.relaysNL[i].event & 0x01);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_NL_RELAY, i);
+
+    bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    bool initialState = bitRead(device.settings[0], 0);
+    bool momentary = bitRead(device.settings[0], 1);
+    bool reversed = bitRead(device.settings[0], 2);
+
+    relaysNL[i].begin(ui.pin, momentary, reversed);
+    relaysNL[i].command(initialState);
   }
   assignRelaysNL();
 }
 void BMC::assignRelaysNL(){
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
+    bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    //bool initialState = bitRead(device.settings[0], 0);
+    bool momentary = bitRead(device.settings[0], 1);
+    bool reversed = bitRead(device.settings[0], 2);
+
+    relaysNL[i].setMomentary(momentary);
+    relaysNL[i].setReverse(reversed);
+
+    relaysNLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
+
+    relaysNL[i].reassign();
+
+    /*
     uint8_t m = BMC_GET_BYTE(3, globalData.relaysNL[i].event>>1);
     relaysNL[i].setMomentary(bitRead(m,5));
     relaysNL[i].setReverse(bitRead(m,6));
@@ -36,21 +55,32 @@ void BMC::assignRelaysNL(){
         break;
     }
     relaysNL[i].reassign();
+    */
   }
 }
 void BMC::readRelaysNL(){
-  uint32_t _relaysNLStates = 0;
+  //uint32_t _relaysNLStates = 0;
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
-    bitWrite(_relaysNLStates,i,relaysNL[i].update());
-    handleRelaysNL(i);
+    bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
+    //bitWrite(_relaysNLStates,i, relaysNL[i].update());
+    if(relaysNLHasEvent.getBit(i)){
+      //handleRelaysNL(i);
+      uint8_t cmd = processEvent(BMC_DEVICE_GROUP_RELAY, BMC_DEVICE_ID_NL_RELAY,
+                                 i, BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+      relaysNL[i].command(cmd);
+    }
+    globals.relayNLStates.setBit(i, relaysNL[i].update());
   }
+  /*
   if(_relaysNLStates!=relayNLStates){
     relayNLStates = _relaysNLStates;
     editor.utilitySendNLRelayActivity(relayNLStates);
   }
+  */
 }
 // triggered on incoming midi messages
 void BMC::checkRelaysNLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2){
+  /*
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
     uint8_t match = relaysNLTmp[i].match2(type, channel, data1);
     // if match = 0 the message doesn't match
@@ -83,6 +113,7 @@ void BMC::checkRelaysNLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, u
       }
     }
   }
+  */
 }
 void BMC::handleRelaysNL(uint8_t index){
   #if !defined(BMC_FAST_MODE)
@@ -90,7 +121,7 @@ void BMC::handleRelaysNL(uint8_t index){
     return;
   }
   #endif
-  handleRelay(index, false, globalData.relaysNL[index].event);
+  //handleRelay(index, false, globalData.relaysNL[index].event);
 }
 #endif
 
@@ -99,19 +130,47 @@ void BMC::handleRelaysNL(uint8_t index){
 #if BMC_MAX_L_RELAYS > 0
 void BMC::setupRelaysL(){
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_L_RELAY, i);
+
+    bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    bool initialState = bitRead(device.settings[0], 0);
+    bool momentary = bitRead(device.settings[0], 1);
+    bool reversed = bitRead(device.settings[0], 2);
+
+    relaysL[i].begin(ui.pin, ui.pinB, momentary, reversed);
+    // bit 0 of event is initial state
+    relaysL[i].command(initialState);
+
+    /*
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_L_RELAY, i);
     uint8_t m = BMC_GET_BYTE(3,globalData.relaysL[i].event>>1);
     bool momentary = bitRead(m, 5);
     bool reversed = bitRead(m, 6);
-    relaysL[i].begin(BMCBuildData::getRelayLPinA(i),
-                      BMCBuildData::getRelayLPinB(i),
-                      momentary, reversed);
+    relaysL[i].begin(ui.pin, ui.pinB, momentary, reversed);
      // bit 0 of event is initial state
     relaysL[i].command(globalData.relaysL[i].event & 0x01);
+    */
   }
   assignRelaysL();
 }
 void BMC::assignRelaysL(){
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
+    bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+
+    //bool initialState = bitRead(device.settings[0], 0);
+    bool momentary = bitRead(device.settings[0], 1);
+    bool reversed = bitRead(device.settings[0], 2);
+
+    relaysL[i].setMomentary(momentary);
+    relaysL[i].setReverse(reversed);
+
+    relaysLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
+
+    relaysL[i].reassign();
+    /*
     uint8_t m = BMC_GET_BYTE(3,globalData.relaysL[i].event>>1);
     relaysL[i].setMomentary(bitRead(m,5));
     relaysL[i].setReverse(bitRead(m,6));
@@ -127,9 +186,20 @@ void BMC::assignRelaysL(){
         break;
     }
     relaysL[i].reassign();
+    */
   }
 }
 void BMC::readRelaysL(){
+  for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
+    bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
+    if(relaysLHasEvent.getBit(i)){
+      uint8_t cmd = processEvent(BMC_DEVICE_GROUP_RELAY, BMC_DEVICE_ID_L_RELAY,
+                                 i, BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+      relaysL[i].command(cmd);
+    }
+    globals.relayLStates.setBit(i, relaysL[i].update());
+  }
+  /*
   uint32_t _relaysLStates = 0;
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
     bitWrite(_relaysLStates,i,relaysL[i].update());
@@ -139,9 +209,11 @@ void BMC::readRelaysL(){
     relayLStates = _relaysLStates;
     editor.utilitySendLRelayActivity(relayLStates);
   }
+  */
 }
 // triggered on incoming midi messages
 void BMC::checkRelaysLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2){
+  /*
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
     uint8_t match = relaysLTmp[i].match2(type, channel, data1);
     // if match = 0 the message doesn't match
@@ -174,6 +246,7 @@ void BMC::checkRelaysLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, ui
       }
     }
   }
+  */
 }
 void BMC::handleRelaysL(uint8_t index){
   #if !defined(BMC_FAST_MODE)
@@ -181,7 +254,7 @@ void BMC::handleRelaysL(uint8_t index){
     return;
   }
   #endif
-  handleRelay(index, true, globalData.relaysL[index].event);
+  //handleRelay(index, true, globalData.relaysL[index].event);
 }
 #endif
 

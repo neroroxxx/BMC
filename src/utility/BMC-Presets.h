@@ -22,16 +22,16 @@ public:
             preset(t_midi.globals.preset)
   {
   }
-  void set(bmcPreset_t index=0, bool overridePorts=false, uint8_t ports=0){
-    send(index, overridePorts, ports);
+  void set(bmcPreset_t index = 0, bool forced = false){
+    send(index, forced);
   }
-  void setInBank(uint8_t index=0, bool overridePorts=false, uint8_t ports=0){
+  void setInBank(uint8_t index=0){
     if(index >= BMC_MAX_PRESETS_PER_BANK){
       return;
     }
     bmcPreset_t p = index+(bank*BMC_MAX_PRESETS_PER_BANK);
     if(p<BMC_MAX_PRESETS){
-      set(p, overridePorts, ports);
+      set(p);
     }
   }
   void setBank(uint8_t t_bank){
@@ -41,7 +41,24 @@ public:
       BMC_PRINTLN("BMCPresets Bank Set", bank);
     }
   }
-  void send(bmcPreset_t index, bool overridePorts=false, uint8_t ports=0){
+  void send(bmcPreset_t t_preset, bool forced = false){
+    if(t_preset >= BMC_MAX_PRESETS){
+      BMC_PRINTLN("!!! Invalid Preset", t_preset,"!!!");
+      return;
+    }
+    //forced
+    if(preset != t_preset || forced){
+      flags.on(BMC_FLAG_PRESETS_CHANGED);
+      preset = t_preset;
+      BMC_PRINTLN("Switch to Preset",t_preset);
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = global.presets[preset];
+      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+      if(device.settings[0] == 0){
+        return;
+      }
+
+    }
+    /*
     if(index >= BMC_MAX_PRESETS){
       BMC_PRINTLN("!!! Invalid Preset", index,"!!!");
       return;
@@ -51,11 +68,9 @@ public:
       flags.on(BMC_FLAG_PRESETS_CHANGED);
       preset = index;
     }
-
     if(global.presets[index].length==0){
       return;
     }
-
     for(uint8_t i = 0, n = global.presets[index].length ; i < n ; i++){
       if(i>=BMC_MAX_PRESET_ITEMS){
         break;
@@ -66,6 +81,7 @@ public:
         library.send(global.presets[index].events[i]);
       }
     }
+    */
   }
   //
   void scroll(uint8_t t_amount, bool t_up, bool t_endless){
@@ -111,7 +127,7 @@ public:
     t_max += t_min;
     BMCScroller <bmcPreset_t> scroller(t_min, t_max);
     bmcPreset_t p = scroller.scroll(t_amount, t_up, t_endless, preset, t_min, t_max);
-    if(p<BMC_MAX_PRESETS){
+    if(p < BMC_MAX_PRESETS){
       set(p);
     }
   }
@@ -140,17 +156,20 @@ public:
   uint8_t getBank(){
     return bank;
   }
+  uint8_t getLength(){
+    return getLength(preset);
+  }
   uint8_t getLength(uint8_t n){
-    if(n<BMC_MAX_PRESETS){
-      return global.presets[n].length;
+    if(n < BMC_MAX_PRESETS){
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = global.presets[n];
+      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+      return device.settings[0];
     }
     return 0;
   }
-  uint8_t getLength(){
-    return global.presets[preset].length;
-  }
+  /*
   bmcLibrary_t getPresetItem(bmcPreset_t n, uint8_t e){
-    if(n<BMC_MAX_PRESETS && e<BMC_MAX_PRESET_ITEMS){
+    if(n < BMC_MAX_PRESETS && e < BMC_MAX_PRESET_ITEMS){
       return global.presets[n].events[e];
     }
     return 0;
@@ -208,6 +227,7 @@ public:
     strcpy(t_string, "-");
 #endif
   }
+  */
   uint8_t getTotalBanks(){
     return totalBanks;
   }
