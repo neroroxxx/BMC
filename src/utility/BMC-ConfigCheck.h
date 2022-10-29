@@ -60,13 +60,6 @@
   #define BMC_LIMIT_MAX_PIXEL_PROGRAMS 32
 
 
-  #ifndef BMC_MAX_GLOBAL_PIXELS
-     #define BMC_MAX_GLOBAL_PIXELS 0
-  #endif
-
-  #ifndef BMC_MAX_GLOBAL_RGB_PIXELS
-     #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-  #endif
 
 
   #if !defined(BMC_MAX_EVENTS_LIBRARY)
@@ -118,6 +111,63 @@
   #else
     typedef uint8_t bmcName_t;
   #endif
+
+
+  // presets check
+  #if !defined(BMC_MAX_PRESETS)
+    #define BMC_MAX_PRESETS BMC_LIMIT_MIN_PRESETS
+    #define BMC_MAX_PRESETS_PER_BANK 0
+  #endif
+  #if BMC_MAX_PRESETS > BMC_LIMIT_MAX_PRESETS
+    #error "The maximum number of presets is 512"
+  #endif
+
+  #if !defined(BMC_MAX_PRESETS_PER_BANK)
+    #if BMC_MAX_PRESETS > 0
+      #define BMC_MAX_PRESETS_PER_BANK 8
+    #else
+      #define BMC_MAX_PRESETS_PER_BANK 0
+    #endif
+  #else
+    #if BMC_MAX_PRESETS_PER_BANK > 128
+      #undef BMC_MAX_PRESETS_PER_BANK
+      #define BMC_MAX_PRESETS_PER_BANK 128
+    #endif
+  #endif
+
+  #if defined(BMC_USE_POT_TOE_SWITCH)
+    #if (BMC_MAX_POTS == 0 && BMC_MAX_GLOBAL_POTS == 0)
+      #undef BMC_USE_POT_TOE_SWITCH
+    #endif
+  #endif
+
+
+  // preset items check
+  #if !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS > 0
+    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
+  #elif !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS == 0
+    #define BMC_MAX_PRESET_ITEMS 0
+  #endif
+  #if BMC_MAX_PRESET_ITEMS == 0 && BMC_MAX_PRESETS > 0
+    #undef BMC_MAX_PRESET_ITEMS
+    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
+  #endif
+  #if BMC_MAX_PRESET_ITEMS > BMC_LIMIT_MAX_PRESET_ITEMS
+    #undef BMC_MAX_PRESET_ITEMS
+    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MAX_PRESET_ITEMS
+  #endif
+
+
+  #ifndef BMC_MAX_GLOBAL_PIXELS
+     #define BMC_MAX_GLOBAL_PIXELS 0
+  #endif
+
+  #ifndef BMC_MAX_GLOBAL_RGB_PIXELS
+     #define BMC_MAX_GLOBAL_RGB_PIXELS 0
+  #endif
+
+
+
 
 
 
@@ -337,6 +387,10 @@
     #error "The maximum number of string library items is 255"
   #endif
 
+
+
+
+
   // library check
   #if !defined(BMC_MAX_LIBRARY)
     #define BMC_MAX_LIBRARY BMC_LIMIT_MIN_LIBRARY
@@ -345,56 +399,7 @@
     #error "The maximum number of library items is 512"
   #endif
 
-  // presets check
-  #if !defined(BMC_MAX_PRESETS)
-    #define BMC_MAX_PRESETS BMC_LIMIT_MIN_PRESETS
-    #define BMC_MAX_PRESETS_PER_BANK 0
-  #endif
-  #if BMC_MAX_PRESETS > BMC_LIMIT_MAX_PRESETS
-    #error "The maximum number of presets is 512"
-  #endif
 
-  // if there's no library then there's no presets
-  #if BMC_MAX_LIBRARY == 0
-    #undef BMC_MAX_PRESETS
-    #define BMC_MAX_PRESETS 0
-  #endif
-
-
-  #if !defined(BMC_MAX_PRESETS_PER_BANK)
-    #if BMC_MAX_PRESETS > 0
-      #define BMC_MAX_PRESETS_PER_BANK 8
-    #else
-      #define BMC_MAX_PRESETS_PER_BANK 0
-    #endif
-  #else
-    #if BMC_MAX_PRESETS_PER_BANK > 128
-      #undef BMC_MAX_PRESETS_PER_BANK
-      #define BMC_MAX_PRESETS_PER_BANK 128
-    #endif
-  #endif
-
-  #if defined(BMC_USE_POT_TOE_SWITCH)
-    #if (BMC_MAX_POTS == 0 && BMC_MAX_GLOBAL_POTS == 0)
-      #undef BMC_USE_POT_TOE_SWITCH
-    #endif
-  #endif
-
-
-  // preset items check
-  #if !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS > 0
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
-  #elif !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS == 0
-    #define BMC_MAX_PRESET_ITEMS 0
-  #endif
-  #if BMC_MAX_PRESET_ITEMS == 0 && BMC_MAX_PRESETS > 0
-    #undef BMC_MAX_PRESET_ITEMS
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
-  #endif
-  #if BMC_MAX_PRESET_ITEMS > BMC_LIMIT_MAX_PRESET_ITEMS
-    #undef BMC_MAX_PRESET_ITEMS
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MAX_PRESET_ITEMS
-  #endif
 
 
 
@@ -460,6 +465,7 @@
 
 
   // remove everything that requires library
+  /*
   #if BMC_MAX_LIBRARY == 0
     #undef BMC_MAX_PRESETS
     #undef BMC_MAX_PRESET_ITEMS
@@ -477,6 +483,9 @@
     #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
     #define BMC_MAX_SETLISTS_SONG_PARTS 0
   #endif
+  */
+
+  /*
 
   // remove everything that requires presets
   #if BMC_MAX_PRESETS == 0
@@ -494,6 +503,8 @@
     #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
     #define BMC_MAX_SETLISTS_SONG_PARTS 0
   #endif
+
+  */
 
 
 
@@ -517,9 +528,6 @@
   #elif !defined(BMC_MAX_BUTTON_EVENTS) && (BMC_MAX_BUTTON==0 && BMC_MAX_GLOBAL_BUTTONS==0)
     #define BMC_MAX_BUTTON_EVENTS 0
   #endif
-
-
-
 
   #if BMC_MAX_BUTTON_EVENTS > BMC_LIMIT_MAX_BUTTON_EVENTS
     #undef BMC_MAX_BUTTON_EVENTS
