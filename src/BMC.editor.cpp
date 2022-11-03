@@ -33,6 +33,7 @@ void BMC::editorRead(){
           globalPotCalibrationToggle();
         }
       #endif
+
     }
     if(callback.editorConnection){
       callback.editorConnection(globals.editorConnected());
@@ -62,7 +63,6 @@ void BMC::assignStoreData(){
   #endif
 
   #if BMC_MAX_GLOBAL_LEDS > 0
-    globals.globalLedStates.clear();
     // BMC.hardware.leds
     assignGlobalLeds();
   #endif
@@ -157,16 +157,19 @@ void BMC::assignSettings(){
     globals.buttonStates.clear();
   #endif
 
+  #if BMC_MAX_GLOBAL_BUTTONS > 0
+    globals.globalButtonStates.clear();
+  #endif
+
   #if BMC_MAX_LEDS > 0
     globals.ledStates.clear();
   #endif
 
-  #if BMC_MAX_PWM_LEDS > 0
-    pwmLedStates = ~pwmLedStates;
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    globals.globalLedStates.clear();
   #endif
 
   #if BMC_MAX_PIXELS > 0
-    //pixelStates = ~pixelStates;
     globals.pixelStates.clear();
   #endif
 
@@ -174,19 +177,10 @@ void BMC::assignSettings(){
     globals.rgbPixelStates[0].clear();
     globals.rgbPixelStates[1].clear();
     globals.rgbPixelStates[2].clear();
-    //rgbPixelStatesR = ~rgbPixelStatesR;
-    //rgbPixelStatesG = ~rgbPixelStatesG;
-    //rgbPixelStatesB = ~rgbPixelStatesB;
   #endif
 
-  #if BMC_MAX_GLOBAL_BUTTONS > 0
-    //globalButtonStates = ~globalButtonStates;
-    globals.globalButtonStates.clear();
-  #endif
-
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    //globalLedStates = ~globalLedStates;
-    globals.globalLedStates.clear();
+  #if BMC_MAX_PWM_LEDS > 0
+    pwmLedStates = ~pwmLedStates;
   #endif
 
   #if BMC_MAX_NL_RELAYS > 0
@@ -232,6 +226,10 @@ void BMC::ctrlHardware(){
       editor.pageSendChangeMessage(false);
       break;
 
+    case BMC_CTRL_GET_STATES:
+      editor.triggerStates();
+      break;
+
 #if BMC_MAX_BUTTONS > 0
     case BMC_CTRL_BUTTON_TRIGGER_TOGGLE:
       if(editor.getCtrlValue() < BMC_MAX_BUTTONS){
@@ -252,7 +250,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_LEDS > 0
     case BMC_CTRL_LED_STATES:
-      globals.ledStates.clear();
+      //globals.ledStates.clear();
       break;
     case BMC_CTRL_LED_TEST:
       if(editor.getCtrlValue() < BMC_MAX_LEDS){
@@ -316,7 +314,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_PWM_LEDS > 0
     case BMC_CTRL_PWM_LED_STATES:
-      pwmLedStates = ~pwmLedStates;
+      //pwmLedStates = ~pwmLedStates;
       break;
     case BMC_CTRL_PWM_LED_TEST:
       BMC_PRINTLN("Test Pwm Led",editor.getCtrlValue());
@@ -328,8 +326,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_PIXELS > 0
     case BMC_CTRL_PIXEL_STATES:
-      //pixelStates = ~pixelStates;
-      globals.pixelStates.clear();
+      //globals.pixelStates.clear();
       break;
     case BMC_CTRL_PIXEL_TEST:
       BMC_PRINTLN("Test Pixel",editor.getCtrlValue());
@@ -341,12 +338,9 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_RGB_PIXELS > 0
     case BMC_CTRL_RGB_PIXEL_STATES:
-      globals.rgbPixelStates[0].clear();
-      globals.rgbPixelStates[1].clear();
-      globals.rgbPixelStates[2].clear();
-      //rgbPixelStatesR = ~rgbPixelStatesR;
-      //rgbPixelStatesG = ~rgbPixelStatesG;
-      //rgbPixelStatesB = ~rgbPixelStatesB;
+      //globals.rgbPixelStates[0].clear();
+      //globals.rgbPixelStates[1].clear();
+      //globals.rgbPixelStates[2].clear();
       break;
     case BMC_CTRL_RGB_PIXEL_TEST:
       BMC_PRINTLN("Test RGB Pixel",editor.getCtrlValue());
@@ -358,7 +352,7 @@ void BMC::ctrlHardware(){
 
 #if BMC_MAX_GLOBAL_LEDS > 0
     case BMC_CTRL_GLOBAL_LED_STATES:
-      globals.globalLedStates.clear();
+      //globals.globalLedStates.clear();
       break;
     case BMC_CTRL_GLOBAL_LED_TEST:
       if(editor.getCtrlValue() < BMC_MAX_GLOBAL_LEDS){
@@ -459,7 +453,7 @@ void BMC::ctrlPreset(){
       break;
     case BMC_CTRL_PRESET_SET:
       if(editor.getCtrlWrite() && editor.getCtrlValue() < BMC_MAX_PRESETS){
-        presets.set((bmcPreset_t) editor.getCtrlValue());
+        presets.set((uint16_t) editor.getCtrlValue());
         // since this is a request that can be sent not just by the editor app
         // we need to send a notification of this change right away
         // so we send it out (second parameter false means it should be sent

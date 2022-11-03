@@ -36,6 +36,7 @@
 #define BMC_EDITOR_FLAG_BACKUP_STARTED 12
 #define BMC_EDITOR_FLAG_BACKUP_COMPLETE 13
 #define BMC_EDITOR_FLAG_BACKUP_CANCELED 14
+#define BMC_EDITOR_FLAG_SEND_STATES 15
 
 
 class BMCEditor {
@@ -51,6 +52,12 @@ public:
   bool dataForBMCAvailable();
   void saveEEPROM(){
     saveStore();
+  }
+  void triggerStates(){
+    flags.on(BMC_EDITOR_FLAG_SEND_STATES);
+  }
+  bool isTriggerStates(){
+    return flags.read(BMC_EDITOR_FLAG_SEND_STATES);
   }
   bmcStoreName getDeviceName(uint16_t n){
     bmcStoreName name;
@@ -397,7 +404,7 @@ private:
 
   uint32_t getLibraryOffset(bmcLibrary_t index);
   uint32_t getPresetOffset();
-  uint32_t getPresetOffset(bmcPreset_t index);
+  uint32_t getPresetOffset(uint16_t index);
   uint32_t getSetListOffset();
   uint32_t getSetListOffset(uint8_t index);
   uint32_t getSetListSongOffset();
@@ -405,28 +412,34 @@ private:
 
 
   uint32_t getGlobalButtonOffset();
-  uint32_t getGlobalButtonOffset(uint8_t index);
+  uint32_t getGlobalButtonOffset(uint16_t index);
 
   uint32_t getGlobalLedOffset();
-  uint32_t getGlobalLedOffset(uint8_t index);
+  uint32_t getGlobalLedOffset(uint16_t index);
 
   uint32_t getGlobalEncoderOffset();
-  uint32_t getGlobalEncoderOffset(uint8_t index);
+  uint32_t getGlobalEncoderOffset(uint16_t index);
 
   uint32_t getGlobalPotOffset();
-  uint32_t getGlobalPotOffset(uint8_t index);
+  uint32_t getGlobalPotOffset(uint16_t index);
 
   uint32_t getGlobalPotCalibrationOffset();
-  uint32_t getGlobalPotCalibrationOffset(uint8_t index);
+  uint32_t getGlobalPotCalibrationOffset(uint16_t index);
 
   uint32_t getPotCalibrationOffset();
-  uint32_t getPotCalibrationOffset(uint8_t index);
+  uint32_t getPotCalibrationOffset(uint16_t index);
+
+  uint32_t getGlobalPixelOffset();
+  uint32_t getGlobalPixelOffset(uint16_t index);
+
+  uint32_t getGlobalRgbPixelOffset();
+  uint32_t getGlobalRgbPixelOffset(uint16_t index);
 
   uint32_t getNLRelayOffset();
-  uint32_t getNLRelayOffset(uint8_t index);
+  uint32_t getNLRelayOffset(uint16_t index);
 
   uint32_t getLRelayOffset();
-  uint32_t getLRelayOffset(uint8_t index);
+  uint32_t getLRelayOffset(uint16_t index);
 
 
   uint32_t getCustomSysExOffset();
@@ -563,7 +576,7 @@ public:
     #endif
   }
   // save a single "preset" to EEPROM
-  void savePreset(bmcPreset_t index){
+  void savePreset(uint16_t index){
     if(index>=BMC_MAX_PRESETS){
       return;
     }
@@ -697,6 +710,40 @@ public:
     #endif
   }
 #endif
+
+
+#if BMC_MAX_GLOBAL_PIXELS > 0
+  // save a single "Tempo To Tap" to EEPROM
+  void saveGlobalPixel(uint8_t index){
+    if(index>=BMC_MAX_GLOBAL_PIXELS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalPixelOffset(index);
+      storage.set(address, store.global.pixels[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+  // save a single "Tempo To Tap" to EEPROM
+  void saveGlobalRgbPixel(uint8_t index){
+    if(index>=BMC_MAX_GLOBAL_RGB_PIXELS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalRgbPixelOffset(index);
+      storage.set(address, store.global.rgbPixels[index]);
+    #endif
+  }
+#endif
+
 
 #if BMC_MAX_NL_RELAYS > 0
   // save a single "Tempo To Tap" to EEPROM
@@ -976,6 +1023,9 @@ private:
   bool isWriteToAllPages(){
     return midiFlags.isPage() && midiFlags.isAllPages();
   }
+  bool isDeviceWriteToAllPages(){
+    return !midiFlags.isPage() && midiFlags.isAllPages();
+  }
   bool isPageMessage(){
     return midiFlags.isPage();
   }
@@ -1150,7 +1200,7 @@ public:
 
   void utilitySendGlobalLedActivity(uint16_t data,
                                     bool onlyIfConnected=true);
-  void utilitySendPreset(bmcPreset_t presetNumber,
+  void utilitySendPreset(uint16_t presetNumber,
                         bool onlyIfConnected=true);
 
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,

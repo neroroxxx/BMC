@@ -60,8 +60,6 @@
   #define BMC_LIMIT_MAX_PIXEL_PROGRAMS 32
 
 
-
-
   #if !defined(BMC_MAX_EVENTS_LIBRARY)
     #define BMC_MAX_EVENTS_LIBRARY 8
   #endif
@@ -100,24 +98,105 @@
     #define BMC_MAX_NAMES_LENGTH 32
   #endif
 
-  #if BMC_MAX_EVENTS_LIBRARY > 255
+  #if BMC_MAX_EVENTS_LIBRARY > 254
     typedef uint16_t bmcEvent_t;
   #else
     typedef uint8_t bmcEvent_t;
   #endif
 
-  #if BMC_MAX_NAMES_LIBRARY > 255
+  #if BMC_MAX_NAMES_LIBRARY > 254
     typedef uint16_t bmcName_t;
   #else
     typedef uint8_t bmcName_t;
   #endif
 
 
+
+
+  #ifdef BMC_MAX_PRESETS
+    #undef BMC_MAX_PRESETS
+    #define BMC_MAX_PRESETS 0
+  #endif
+
+  #ifndef BMC_MAX_PRESET_BANKS
+    #def BMC_MAX_PRESET_BANKS 0
+  #endif
+
+  #ifndef BMC_MAX_PRESETS_PER_BANK
+    #def BMC_MAX_PRESETS_PER_BANK 0
+  #endif
+
+  #ifndef BMC_MAX_PRESET_ITEMS
+    #define BMC_MAX_PRESET_ITEMS 0
+  #endif
+
+  #if BMC_MAX_PRESET_ITEMS < 0
+    #undef BMC_MAX_PRESET_ITEMS 0
+    #define BMC_MAX_PRESET_ITEMS 0
+  #endif
+
+  #if BMC_MAX_PRESET_ITEMS > 16
+    #undef BMC_MAX_PRESET_ITEMS 0
+    #define BMC_MAX_PRESET_ITEMS 16
+  #endif
+
+  #if BMC_MAX_PRESET_BANKS == 0 || BMC_MAX_PRESETS_PER_BANK == 0
+    #undef BMC_MAX_PRESET_BANKS
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #undef BMC_MAX_PRESETS
+    #define BMC_MAX_PRESET_BANKS 0
+    #define BMC_MAX_PRESETS_PER_BANK 0
+    #define BMC_MAX_PRESETS 0
+  #endif
+
+  #if BMC_MAX_PRESET_BANKS < 0
+    #undef BMC_MAX_PRESET_BANKS
+    #define BMC_MAX_PRESET_BANKS 0
+  #endif
+  #if BMC_MAX_PRESET_BANKS > 32
+    #undef BMC_MAX_PRESET_BANKS
+    #define BMC_MAX_PRESET_BANKS 32
+  #endif
+
+  #if BMC_MAX_PRESETS_PER_BANK < 0
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #define BMC_MAX_PRESETS_PER_BANK 0
+  #endif
+  #if BMC_MAX_PRESETS_PER_BANK > 32
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #define BMC_MAX_PRESETS_PER_BANK 32
+  #endif
+
+
+
+  #if BMC_MAX_PRESETS_PER_BANK > 0
+    #if BMC_MAX_PRESETS_PER_BANK == 4
+      #define BMC_PRESET_BANK_MASK 2
+    #elif BMC_MAX_PRESETS_PER_BANK == 8
+      #define BMC_PRESET_BANK_MASK 3
+    #elif BMC_MAX_PRESETS_PER_BANK == 16
+      #define BMC_PRESET_BANK_MASK 4
+    #elif BMC_MAX_PRESETS_PER_BANK == 32
+      #define BMC_PRESET_BANK_MASK 5
+    #else
+      #error "BMC_MAX_PRESETS_PER_BANK must be 4, 8, 16 or 32"
+    #endif
+  #endif
+
+
+  #if BMC_MAX_PRESET_BANKS > 0 && BMC_MAX_PRESETS_PER_BANK > 0 && BMC_MAX_PRESET_ITEMS > 0
+    #undef BMC_MAX_PRESETS
+    #define BMC_MAX_PRESETS (BMC_MAX_PRESET_BANKS*BMC_MAX_PRESETS_PER_BANK)
+  #endif
+
+
+/*
   // presets check
   #if !defined(BMC_MAX_PRESETS)
     #define BMC_MAX_PRESETS BMC_LIMIT_MIN_PRESETS
     #define BMC_MAX_PRESETS_PER_BANK 0
   #endif
+
   #if BMC_MAX_PRESETS > BMC_LIMIT_MAX_PRESETS
     #error "The maximum number of presets is 512"
   #endif
@@ -134,6 +213,10 @@
       #define BMC_MAX_PRESETS_PER_BANK 128
     #endif
   #endif
+*/
+
+
+
 
   #if defined(BMC_USE_POT_TOE_SWITCH)
     #if (BMC_MAX_POTS == 0 && BMC_MAX_GLOBAL_POTS == 0)
@@ -534,7 +617,7 @@
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MAX_BUTTON_EVENTS
   #endif
 
-  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_PWM_LEDS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0
+  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0
     #if BMC_MAX_PAGES != BMC_LIMIT_MIN_PAGES
       #undef BMC_MAX_PAGES
       #define BMC_MAX_PAGES BMC_LIMIT_MIN_PAGES
@@ -556,20 +639,22 @@
   //
 
 
-  #if defined(BMC_MAX_PIXELS) || defined(BMC_MAX_RGB_PIXELS)
+  #if defined(BMC_MAX_PIXELS) || defined(BMC_MAX_RGB_PIXELS) || defined(BMC_MAX_GLOBAL_PIXELS) || defined(BMC_MAX_GLOBAL_RGB_PIXELS)
     #if (BMC_MAX_PIXELS > 0 && BMC_MAX_PIXELS <=32) || (BMC_MAX_RGB_PIXELS > 0 && BMC_MAX_RGB_PIXELS <=32)
       #if BMC_PIXELS_PORT == 0
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
-        #error "................."
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
       #endif
     #else
 
       #if BMC_MAX_PIXELS < 0
         #undef BMC_MAX_PIXELS
-        #error "==================="
         #define BMC_MAX_PIXELS 0
       #endif
 
@@ -578,24 +663,48 @@
         #define BMC_MAX_RGB_PIXELS 0
       #endif
 
-      #if BMC_MAX_PIXELS <= 0 && BMC_MAX_RGB_PIXELS <= 0
+      #if BMC_MAX_GLOBAL_PIXELS < 0
+        #undef BMC_MAX_PIXELS
+        #define BMC_MAX_PIXELS 0
+      #endif
+
+      #if BMC_MAX_GLOBAL_RGB_PIXELS < 0
+        #undef BMC_MAX_RGB_PIXELS
+        #define BMC_MAX_RGB_PIXELS 0
+      #endif
+
+      #if BMC_MAX_PIXELS <= 0 && BMC_MAX_RGB_PIXELS <= 0 && BMC_MAX_GLOBAL_PIXELS <= 0 && BMC_MAX_GLOBAL_RGB_PIXELS <= 0
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #error "*****************"
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
       #endif
 
-      #if BMC_MAX_PIXELS > 32
+      #if BMC_MAX_PIXELS > 128
         #undef BMC_MAX_PIXELS
-        #define BMC_MAX_PIXELS 32
+        #define BMC_MAX_PIXELS 128
       #endif
 
-      #if BMC_MAX_RGB_PIXELS > 32
+      #if BMC_MAX_RGB_PIXELS > 128
         #undef BMC_MAX_RGB_PIXELS
-        #define BMC_MAX_RGB_PIXELS 32
+        #define BMC_MAX_RGB_PIXELS 128
+      #endif
+
+      #if BMC_MAX_GLOBAL_PIXELS > 128
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #define BMC_MAX_GLOBAL_PIXELS 128
+      #endif
+
+      #if BMC_MAX_GLOBAL_RGB_PIXELS > 128
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 128
       #endif
 
     #endif
@@ -603,22 +712,25 @@
     #undef BMC_PIXELS_PORT
     #error "%%%%%%%%%%%%%%%%%%%%%"
     #define BMC_PIXELS_PORT 0
-    #define BMC_MAX_PIXELS 0
   #endif
 
 
 
 
-  #if BMC_PIXELS_PORT > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
+  #if BMC_PIXELS_PORT > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_GLOBAL_RGB_PIXELS > 0)
     #if BMC_TEENSY_MODEL == 10
       // Teensy LC only use Serial1
       // disabled Pixels if the value is not 1
       #if BMC_PIXELS_PORT != 1
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
         #error "Only Serial 1 can be used with Pixels with Teensy LC"
       #else
@@ -627,12 +739,16 @@
     #elif BMC_TEENSY_MODEL == 32
       // Teensy 3.2
       #if BMC_PIXELS_PORT > 3
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_PIXELS_PORT 0
+      #undef BMC_MAX_PIXELS
+      #undef BMC_MAX_RGB_PIXELS
+      #undef BMC_MAX_GLOBAL_PIXELS
+      #undef BMC_MAX_GLOBAL_RGB_PIXELS
+      #undef BMC_PIXELS_PORT
+      #define BMC_MAX_PIXELS 0
+      #define BMC_MAX_RGB_PIXELS 0
+      #define BMC_MAX_GLOBAL_PIXELS 0
+      #define BMC_MAX_GLOBAL_RGB_PIXELS 0
+      #define BMC_PIXELS_PORT 0
         #error "Only Serial 1, 2 and 3 can be used with Pixels with Teensy 3.2"
       #else
         #if BMC_PIXELS_PORT == 1
@@ -648,9 +764,13 @@
       #if BMC_PIXELS_PORT > 6
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
         #error "Only Serial 1, 2, 3, 4, 5 and 6 can be used with Pixels with Teensy 3.5"
       #else
@@ -673,9 +793,13 @@
       #if BMC_PIXELS_PORT > 5
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
         #error "Only Serial 1, 2, 3, 4 and 5 can be used with Pixels with Teensy 3.6"
       #else
@@ -696,9 +820,13 @@
       #if BMC_PIXELS_PORT > 7
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
         #error "Invalid Pixel Serial Port"
         #error "Only Serial 1, 2, 3, 4, 5, 6 and 7 can be used with Pixels with Teensy 4.0"
@@ -724,9 +852,13 @@
       #if BMC_PIXELS_PORT > 7
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
+        #undef BMC_MAX_GLOBAL_PIXELS
+        #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_PIXELS_PORT
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
+        #define BMC_MAX_GLOBAL_PIXELS 0
+        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_PIXELS_PORT 0
         #error "Invalid Pixel Serial Port"
         #error "Only Serial 1, 2, 3, 4, 5, 6 and 7 can be used with Pixels with Teensy 4.1"
@@ -760,7 +892,7 @@
     #endif
   #endif
 
-  #if BMC_MAX_PIXELS == 0
+  #if BMC_MAX_PIXELS == 0 || BMC_MAX_GLOBAL_PIXELS == 0
     #undef BMC_MAX_PIXEL_PROGRAMS
     #define BMC_MAX_PIXEL_PROGRAMS 0
   #endif
@@ -963,8 +1095,8 @@
     #endif
   #endif
 
-  #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_PWM_LEDS+BMC_MAX_GLOBAL_LEDS)
-  #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS)
+  #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS)
+  #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS)
 
 #if defined(BMC_USE_POT_TOE_SWITCH)
   #define _____BMC_POT_TOE_SWITCH 15
@@ -1049,7 +1181,7 @@
   // Create a CRC based on the current build
   #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_SETLISTSONGNAMES) + (_____BMC_SETLISTSONGPARTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
   #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77))
-  #define BMC_CRC (uint16_t)((((_____BMC_NAMES)+(_____BMC_GLOBAL)+(_____BMC_NAMES)+(sizeof(bmcStore))) & 0xFFFF))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
+  #define BMC_CRC (uint16_t)((((_____BMC_GLOBAL)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

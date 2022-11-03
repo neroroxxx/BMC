@@ -16,16 +16,7 @@ class BMC_ILI9341_BLOCK {
 
   }
   void begin(uint8_t n){
-    /*
-    xBound = BMCBuildData::getIliDisplayBlockPosition(n, 0);
-    yBound = BMCBuildData::getIliDisplayBlockPosition(n, 1);
-    blockSize = BMCBuildData::getIliDisplayBlockPosition(n, 2);
-    background = BMCBuildData::getIliDisplayBlockPosition(n, 3);
-    color = BMCBuildData::getIliDisplayBlockPosition(n, 4);
-    */
-
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, n);
-
     xBound = ui.x;
     yBound = ui.y;
     blockSize = ui.style;
@@ -46,11 +37,7 @@ class BMC_ILI9341_BLOCK {
       case 10: wBound = 64;  hBound = 80; break;
       case 11: wBound = 64;  hBound = 40; break;
     }
-    maxFontTwoLines  = hBound == 80 ? 4 : 2;
-    if(wBound==64){
-      maxFontTwoLines = 2;
-    }
-    maxCharsTwoLines = wBound / (6*maxFontTwoLines);
+    maxCharsPerLine = (wBound / 12)-1;
   }
   void clear(ILI9341_t3 & tft){
     tft.fillRect(xBound, yBound, wBound, hBound, background);
@@ -71,9 +58,13 @@ class BMC_ILI9341_BLOCK {
       return;
     }
     uint8_t lines = 1;
-    len = (len > (maxCharsTwoLines*2)) ? (maxCharsTwoLines*2) : len;
-    if(len > maxCharsTwoLines){
-      lines = 2;
+    //len = len > maxCharsPerLine ? maxCharsPerLine : len;
+    if(len > maxCharsPerLine){
+      if(hBound==80){
+        lines = 2;
+      } else {
+        len = maxCharsPerLine;
+      }
     }
     tft.setTextColor(color);
     tft.setTextWrap(false);
@@ -143,10 +134,70 @@ class BMC_ILI9341_BLOCK {
     uint8_t blockSize = 0;
     uint8_t xShift = 0;
     uint8_t yShift = 0;
-    uint8_t maxFontTwoLines = 0;
-    uint8_t maxCharsTwoLines = 0;
+    uint8_t maxCharsPerLine = 0;
 
     void renderLine(ILI9341_t3 & tft, char * str, uint8_t lineNumber, uint8_t totalLines, uint8_t start, uint8_t end){
+      uint8_t len = end - start;
+      char outStr[len+1];
+      memset(outStr, 0, len+1);
+      bool trimmed = false;
+      uint8_t ee = 0;
+      for(uint8_t i = start, e=0, n = len ; e < n ; i++, e++){
+        if(!trimmed && str[i]==' '){
+          continue;
+        }
+        trimmed = true;
+        outStr[ee++] = str[i];
+        if(ee >= n){
+          break;
+        }
+      }
+      for(int i = strlen(outStr); i --> 0;){
+        if(outStr[i] == ' '){
+          outStr[i] = 0;
+          continue;
+        }
+        break;
+      }
+      len = strlen(outStr);
+      uint8_t fontH = 0;
+      uint16_t wPixels = 0;
+      if(totalLines==1){
+        if(len==1){
+          if(hBound==40){
+            tft.setFont(Arial_20);
+            fontH = 25;
+          } else {
+            tft.setFont(Arial_40);
+            fontH = 50; // 40 + (40/4)
+          }
+        } else if(len==2){
+          if(hBound==40){
+            tft.setFont(Arial_20);
+            fontH = 25;
+          } else {
+            tft.setFont(Arial_32);
+            fontH = 40; // 32 + (32/4)
+          }
+        } else {
+          tft.setFont(Arial_18);
+          fontH = 22; // 18 + (18/4)
+        }
+      } else {
+        tft.setFont(Arial_18);
+        fontH = 27; // 18 + (18/4)
+      }
+
+      wPixels = tft.strPixelLen(outStr);
+      uint8_t hPixels = totalLines * fontH;
+      uint16_t x = xBound + ((wBound - wPixels) / 2);
+      uint8_t  y =  yBound + (((hBound - hPixels)/2) + ((lineNumber-1)*fontH));
+
+      tft.setCursor(x, y);
+      tft.print(outStr);
+    }
+
+    void renderLine2(ILI9341_t3 & tft, char * str, uint8_t lineNumber, uint8_t totalLines, uint8_t start, uint8_t end){
       uint16_t hBoundLine = hBound / totalLines;
       uint8_t font = 2;
       uint8_t len = end - start;

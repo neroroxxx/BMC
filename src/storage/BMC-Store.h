@@ -244,14 +244,15 @@
     #endif
     #if BMC_MAX_LIBRARY > 0
       bmcStoreGlobalLibrary library[BMC_MAX_LIBRARY];
-      #if BMC_MAX_PRESETS > 0
-        bmcPreset_t startup = 0;
-        //bmcStoreGlobalPresets presets[BMC_MAX_PRESETS];
-        bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS> presets[BMC_MAX_PRESETS];
-        #if BMC_MAX_SETLISTS > 0
-          bmcStoreGlobalSetList setLists[BMC_MAX_SETLISTS];
-          bmcStoreGlobalSetListSong songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
-        #endif
+    #endif
+    #if BMC_MAX_PRESETS > 0
+      uint16_t startup = 0;
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS> presets[BMC_MAX_PRESETS];
+      #if BMC_MAX_SETLISTS > 0
+        bmcStoreDevice <1, BMC_MAX_SETLISTS_SONGS> setLists[BMC_MAX_SETLISTS];
+        bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS> songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
+        //bmcStoreGlobalSetList setLists[BMC_MAX_SETLISTS];
+        //bmcStoreGlobalSetListSong songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
       #endif
     #endif
     #if BMC_MAX_GLOBAL_BUTTONS > 0
@@ -274,13 +275,17 @@
     #if BMC_MAX_POTS > 0
       bmcStoreGlobalPotCalibration potCalibration[BMC_MAX_POTS];
     #endif
+    #if BMC_MAX_GLOBAL_PIXELS > 0
+      bmcStoreDevice <1, 1> pixels[BMC_MAX_GLOBAL_PIXELS];
+    #endif
+    #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+      bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_GLOBAL_RGB_PIXELS];
+    #endif
     #if BMC_MAX_NL_RELAYS > 0
       bmcStoreDevice <1, 1> relaysNL[BMC_MAX_NL_RELAYS];
-      //bmcStoreGlobalRelay relaysNL[BMC_MAX_NL_RELAYS];
     #endif
     #if BMC_MAX_L_RELAYS > 0
       bmcStoreDevice <1, 1> relaysL[BMC_MAX_L_RELAYS];
-      //bmcStoreGlobalRelay relaysL[BMC_MAX_L_RELAYS];
     #endif
     #if BMC_MAX_CUSTOM_SYSEX > 0
       bmcStoreGlobalCustomSysEx customSysEx[BMC_MAX_CUSTOM_SYSEX];
@@ -292,7 +297,7 @@
       bmcStoreGlobalTempoToTap tempoToTap[BMC_MAX_TEMPO_TO_TAP];
     #endif
     bmcStorePortPresets portPresets;
-    #if BMC_MAX_PIXEL_PROGRAMS > 0 && BMC_MAX_PIXELS > 0
+    #if BMC_MAX_PIXEL_PROGRAMS > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0)
       //bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
     #endif
     #if BMC_MAX_TIMED_EVENTS > 0

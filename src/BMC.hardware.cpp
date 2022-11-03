@@ -38,14 +38,9 @@ void BMC::setupHardware(){
   mux.begin();
 #endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   setupPixels();
-#endif
-
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.rgbPixels
-  setupRgbPixels();
 #endif
 
 #if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
@@ -105,15 +100,11 @@ void BMC::assignHardware() {
   assignPots();
 #endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   assignPixels();
 #endif
 
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.rgbPixels
-  assignRgbPixels();
-#endif
 
 #if BMC_MAX_LEDS > 0
   // BMC.hardware.leds
@@ -225,14 +216,9 @@ void BMC::readHardware(){
   readPwmLeds();
 #endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   readPixels();
-#endif
-
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.pixels
-  readRgbPixels();
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0

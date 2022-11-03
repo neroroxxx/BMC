@@ -18,10 +18,25 @@ class BMCBuildData {
     //pin, pinB, x, y, style, rotation, mergeType, mergeIndex, other1, other2
     static BMCUIData getUIData(uint8_t device, int16_t n){
       switch(device){
-          case BMC_DEVICE_ID_BUTTON:
-        #if BMC_MAX_BUTTONS > 0
-          switch(n){
-            #if BMC_MAX_BUTTONS > 0 && defined(BMC_DEVICE_UI_BUTTON_1)
+          case BMC_DEVICE_ID_PRESET:
+          #if BMC_MAX_PRESETS > 0
+          {BMCUIData e; return e;}
+          #endif
+          break;
+      case BMC_DEVICE_ID_SETLIST:
+          #if BMC_MAX_SETLISTS > 0
+          {BMCUIData e; return e;}
+          #endif
+          break;
+      case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
+          #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+          {BMCUIData e; return e;}
+          #endif
+          break;
+      case BMC_DEVICE_ID_BUTTON:
+          #if BMC_MAX_BUTTONS > 0
+            switch(n){
+              #if BMC_MAX_BUTTONS > 0 && defined(BMC_DEVICE_UI_BUTTON_1)
               case 0: return BMC_DEVICE_UI_BUTTON_1;
             #endif
             #if BMC_MAX_BUTTONS > 1 && defined(BMC_DEVICE_UI_BUTTON_2)
@@ -403,13 +418,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_BUTTON_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
-        #if BMC_MAX_GLOBAL_BUTTONS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_BUTTONS > 0 && defined(BMC_DEVICE_UI_GLOBAL_BUTTON_1)
+          #if BMC_MAX_GLOBAL_BUTTONS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_BUTTONS > 0 && defined(BMC_DEVICE_UI_GLOBAL_BUTTON_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_BUTTON_1;
             #endif
             #if BMC_MAX_GLOBAL_BUTTONS > 1 && defined(BMC_DEVICE_UI_GLOBAL_BUTTON_2)
@@ -791,13 +806,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_BUTTON_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_LED:
-        #if BMC_MAX_LEDS > 0
-          switch(n){
-            #if BMC_MAX_LEDS > 0 && defined(BMC_DEVICE_UI_LED_1)
+          #if BMC_MAX_LEDS > 0
+            switch(n){
+              #if BMC_MAX_LEDS > 0 && defined(BMC_DEVICE_UI_LED_1)
               case 0: return BMC_DEVICE_UI_LED_1;
             #endif
             #if BMC_MAX_LEDS > 1 && defined(BMC_DEVICE_UI_LED_2)
@@ -1179,13 +1194,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_LED_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_LED:
-        #if BMC_MAX_GLOBAL_LEDS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_LEDS > 0 && defined(BMC_DEVICE_UI_GLOBAL_LED_1)
+          #if BMC_MAX_GLOBAL_LEDS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_LEDS > 0 && defined(BMC_DEVICE_UI_GLOBAL_LED_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_LED_1;
             #endif
             #if BMC_MAX_GLOBAL_LEDS > 1 && defined(BMC_DEVICE_UI_GLOBAL_LED_2)
@@ -1567,13 +1582,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_LED_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_PIXEL:
-        #if BMC_MAX_PIXELS > 0
-          switch(n){
-            #if BMC_MAX_PIXELS > 0 && defined(BMC_DEVICE_UI_PIXEL_1)
+          #if BMC_MAX_PIXELS > 0
+            switch(n){
+              #if BMC_MAX_PIXELS > 0 && defined(BMC_DEVICE_UI_PIXEL_1)
               case 0: return BMC_DEVICE_UI_PIXEL_1;
             #endif
             #if BMC_MAX_PIXELS > 1 && defined(BMC_DEVICE_UI_PIXEL_2)
@@ -1955,13 +1970,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_PIXEL_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
-        #if BMC_MAX_GLOBAL_PIXELS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_PIXEL_1)
+          #if BMC_MAX_GLOBAL_PIXELS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_PIXEL_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_PIXEL_1;
             #endif
             #if BMC_MAX_GLOBAL_PIXELS > 1 && defined(BMC_DEVICE_UI_GLOBAL_PIXEL_2)
@@ -2343,13 +2358,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_PIXEL_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_RGB_PIXEL:
-        #if BMC_MAX_RGB_PIXELS > 0
-          switch(n){
-            #if BMC_MAX_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_RGB_PIXEL_1)
+          #if BMC_MAX_RGB_PIXELS > 0
+            switch(n){
+              #if BMC_MAX_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_RGB_PIXEL_1)
               case 0: return BMC_DEVICE_UI_RGB_PIXEL_1;
             #endif
             #if BMC_MAX_RGB_PIXELS > 1 && defined(BMC_DEVICE_UI_RGB_PIXEL_2)
@@ -2731,13 +2746,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_RGB_PIXEL_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
-        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_1)
+          #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_RGB_PIXELS > 0 && defined(BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_1;
             #endif
             #if BMC_MAX_GLOBAL_RGB_PIXELS > 1 && defined(BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_2)
@@ -3119,13 +3134,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_RGB_PIXEL_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_POT:
-        #if BMC_MAX_POTS > 0
-          switch(n){
-            #if BMC_MAX_POTS > 0 && defined(BMC_DEVICE_UI_POT_1)
+          #if BMC_MAX_POTS > 0
+            switch(n){
+              #if BMC_MAX_POTS > 0 && defined(BMC_DEVICE_UI_POT_1)
               case 0: return BMC_DEVICE_UI_POT_1;
             #endif
             #if BMC_MAX_POTS > 1 && defined(BMC_DEVICE_UI_POT_2)
@@ -3507,13 +3522,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_POT_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_POT:
-        #if BMC_MAX_GLOBAL_POTS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_DEVICE_UI_GLOBAL_POT_1)
+          #if BMC_MAX_GLOBAL_POTS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_DEVICE_UI_GLOBAL_POT_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_POT_1;
             #endif
             #if BMC_MAX_GLOBAL_POTS > 1 && defined(BMC_DEVICE_UI_GLOBAL_POT_2)
@@ -3895,13 +3910,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_POT_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_ENCODER:
-        #if BMC_MAX_ENCODERS > 0
-          switch(n){
-            #if BMC_MAX_ENCODERS > 0 && defined(BMC_DEVICE_UI_ENCODER_1)
+          #if BMC_MAX_ENCODERS > 0
+            switch(n){
+              #if BMC_MAX_ENCODERS > 0 && defined(BMC_DEVICE_UI_ENCODER_1)
               case 0: return BMC_DEVICE_UI_ENCODER_1;
             #endif
             #if BMC_MAX_ENCODERS > 1 && defined(BMC_DEVICE_UI_ENCODER_2)
@@ -4283,13 +4298,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_ENCODER_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
-        #if BMC_MAX_GLOBAL_ENCODERS > 0
-          switch(n){
-            #if BMC_MAX_GLOBAL_ENCODERS > 0 && defined(BMC_DEVICE_UI_GLOBAL_ENCODER_1)
+          #if BMC_MAX_GLOBAL_ENCODERS > 0
+            switch(n){
+              #if BMC_MAX_GLOBAL_ENCODERS > 0 && defined(BMC_DEVICE_UI_GLOBAL_ENCODER_1)
               case 0: return BMC_DEVICE_UI_GLOBAL_ENCODER_1;
             #endif
             #if BMC_MAX_GLOBAL_ENCODERS > 1 && defined(BMC_DEVICE_UI_GLOBAL_ENCODER_2)
@@ -4671,13 +4686,13 @@ class BMCBuildData {
               case 126: return BMC_DEVICE_UI_GLOBAL_ENCODER_127;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_NL_RELAY:
-        #if BMC_MAX_NL_RELAYS > 0
-          switch(n){
-            #if BMC_MAX_NL_RELAYS > 0 && defined(BMC_DEVICE_UI_NL_RELAY_1)
+          #if BMC_MAX_NL_RELAYS > 0
+            switch(n){
+              #if BMC_MAX_NL_RELAYS > 0 && defined(BMC_DEVICE_UI_NL_RELAY_1)
               case 0: return BMC_DEVICE_UI_NL_RELAY_1;
             #endif
             #if BMC_MAX_NL_RELAYS > 1 && defined(BMC_DEVICE_UI_NL_RELAY_2)
@@ -4869,203 +4884,14 @@ class BMCBuildData {
             #if BMC_MAX_NL_RELAYS > 63 && defined(BMC_DEVICE_UI_NL_RELAY_64)
               case 63: return BMC_DEVICE_UI_NL_RELAY_64;
             #endif
-            #if BMC_MAX_NL_RELAYS > 64 && defined(BMC_DEVICE_UI_NL_RELAY_65)
-              case 64: return BMC_DEVICE_UI_NL_RELAY_65;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 65 && defined(BMC_DEVICE_UI_NL_RELAY_66)
-              case 65: return BMC_DEVICE_UI_NL_RELAY_66;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 66 && defined(BMC_DEVICE_UI_NL_RELAY_67)
-              case 66: return BMC_DEVICE_UI_NL_RELAY_67;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 67 && defined(BMC_DEVICE_UI_NL_RELAY_68)
-              case 67: return BMC_DEVICE_UI_NL_RELAY_68;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 68 && defined(BMC_DEVICE_UI_NL_RELAY_69)
-              case 68: return BMC_DEVICE_UI_NL_RELAY_69;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 69 && defined(BMC_DEVICE_UI_NL_RELAY_70)
-              case 69: return BMC_DEVICE_UI_NL_RELAY_70;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 70 && defined(BMC_DEVICE_UI_NL_RELAY_71)
-              case 70: return BMC_DEVICE_UI_NL_RELAY_71;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 71 && defined(BMC_DEVICE_UI_NL_RELAY_72)
-              case 71: return BMC_DEVICE_UI_NL_RELAY_72;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 72 && defined(BMC_DEVICE_UI_NL_RELAY_73)
-              case 72: return BMC_DEVICE_UI_NL_RELAY_73;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 73 && defined(BMC_DEVICE_UI_NL_RELAY_74)
-              case 73: return BMC_DEVICE_UI_NL_RELAY_74;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 74 && defined(BMC_DEVICE_UI_NL_RELAY_75)
-              case 74: return BMC_DEVICE_UI_NL_RELAY_75;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 75 && defined(BMC_DEVICE_UI_NL_RELAY_76)
-              case 75: return BMC_DEVICE_UI_NL_RELAY_76;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 76 && defined(BMC_DEVICE_UI_NL_RELAY_77)
-              case 76: return BMC_DEVICE_UI_NL_RELAY_77;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 77 && defined(BMC_DEVICE_UI_NL_RELAY_78)
-              case 77: return BMC_DEVICE_UI_NL_RELAY_78;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 78 && defined(BMC_DEVICE_UI_NL_RELAY_79)
-              case 78: return BMC_DEVICE_UI_NL_RELAY_79;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 79 && defined(BMC_DEVICE_UI_NL_RELAY_80)
-              case 79: return BMC_DEVICE_UI_NL_RELAY_80;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 80 && defined(BMC_DEVICE_UI_NL_RELAY_81)
-              case 80: return BMC_DEVICE_UI_NL_RELAY_81;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 81 && defined(BMC_DEVICE_UI_NL_RELAY_82)
-              case 81: return BMC_DEVICE_UI_NL_RELAY_82;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 82 && defined(BMC_DEVICE_UI_NL_RELAY_83)
-              case 82: return BMC_DEVICE_UI_NL_RELAY_83;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 83 && defined(BMC_DEVICE_UI_NL_RELAY_84)
-              case 83: return BMC_DEVICE_UI_NL_RELAY_84;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 84 && defined(BMC_DEVICE_UI_NL_RELAY_85)
-              case 84: return BMC_DEVICE_UI_NL_RELAY_85;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 85 && defined(BMC_DEVICE_UI_NL_RELAY_86)
-              case 85: return BMC_DEVICE_UI_NL_RELAY_86;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 86 && defined(BMC_DEVICE_UI_NL_RELAY_87)
-              case 86: return BMC_DEVICE_UI_NL_RELAY_87;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 87 && defined(BMC_DEVICE_UI_NL_RELAY_88)
-              case 87: return BMC_DEVICE_UI_NL_RELAY_88;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 88 && defined(BMC_DEVICE_UI_NL_RELAY_89)
-              case 88: return BMC_DEVICE_UI_NL_RELAY_89;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 89 && defined(BMC_DEVICE_UI_NL_RELAY_90)
-              case 89: return BMC_DEVICE_UI_NL_RELAY_90;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 90 && defined(BMC_DEVICE_UI_NL_RELAY_91)
-              case 90: return BMC_DEVICE_UI_NL_RELAY_91;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 91 && defined(BMC_DEVICE_UI_NL_RELAY_92)
-              case 91: return BMC_DEVICE_UI_NL_RELAY_92;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 92 && defined(BMC_DEVICE_UI_NL_RELAY_93)
-              case 92: return BMC_DEVICE_UI_NL_RELAY_93;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 93 && defined(BMC_DEVICE_UI_NL_RELAY_94)
-              case 93: return BMC_DEVICE_UI_NL_RELAY_94;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 94 && defined(BMC_DEVICE_UI_NL_RELAY_95)
-              case 94: return BMC_DEVICE_UI_NL_RELAY_95;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 95 && defined(BMC_DEVICE_UI_NL_RELAY_96)
-              case 95: return BMC_DEVICE_UI_NL_RELAY_96;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 96 && defined(BMC_DEVICE_UI_NL_RELAY_97)
-              case 96: return BMC_DEVICE_UI_NL_RELAY_97;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 97 && defined(BMC_DEVICE_UI_NL_RELAY_98)
-              case 97: return BMC_DEVICE_UI_NL_RELAY_98;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 98 && defined(BMC_DEVICE_UI_NL_RELAY_99)
-              case 98: return BMC_DEVICE_UI_NL_RELAY_99;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 99 && defined(BMC_DEVICE_UI_NL_RELAY_100)
-              case 99: return BMC_DEVICE_UI_NL_RELAY_100;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 100 && defined(BMC_DEVICE_UI_NL_RELAY_101)
-              case 100: return BMC_DEVICE_UI_NL_RELAY_101;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 101 && defined(BMC_DEVICE_UI_NL_RELAY_102)
-              case 101: return BMC_DEVICE_UI_NL_RELAY_102;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 102 && defined(BMC_DEVICE_UI_NL_RELAY_103)
-              case 102: return BMC_DEVICE_UI_NL_RELAY_103;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 103 && defined(BMC_DEVICE_UI_NL_RELAY_104)
-              case 103: return BMC_DEVICE_UI_NL_RELAY_104;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 104 && defined(BMC_DEVICE_UI_NL_RELAY_105)
-              case 104: return BMC_DEVICE_UI_NL_RELAY_105;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 105 && defined(BMC_DEVICE_UI_NL_RELAY_106)
-              case 105: return BMC_DEVICE_UI_NL_RELAY_106;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 106 && defined(BMC_DEVICE_UI_NL_RELAY_107)
-              case 106: return BMC_DEVICE_UI_NL_RELAY_107;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 107 && defined(BMC_DEVICE_UI_NL_RELAY_108)
-              case 107: return BMC_DEVICE_UI_NL_RELAY_108;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 108 && defined(BMC_DEVICE_UI_NL_RELAY_109)
-              case 108: return BMC_DEVICE_UI_NL_RELAY_109;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 109 && defined(BMC_DEVICE_UI_NL_RELAY_110)
-              case 109: return BMC_DEVICE_UI_NL_RELAY_110;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 110 && defined(BMC_DEVICE_UI_NL_RELAY_111)
-              case 110: return BMC_DEVICE_UI_NL_RELAY_111;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 111 && defined(BMC_DEVICE_UI_NL_RELAY_112)
-              case 111: return BMC_DEVICE_UI_NL_RELAY_112;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 112 && defined(BMC_DEVICE_UI_NL_RELAY_113)
-              case 112: return BMC_DEVICE_UI_NL_RELAY_113;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 113 && defined(BMC_DEVICE_UI_NL_RELAY_114)
-              case 113: return BMC_DEVICE_UI_NL_RELAY_114;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 114 && defined(BMC_DEVICE_UI_NL_RELAY_115)
-              case 114: return BMC_DEVICE_UI_NL_RELAY_115;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 115 && defined(BMC_DEVICE_UI_NL_RELAY_116)
-              case 115: return BMC_DEVICE_UI_NL_RELAY_116;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 116 && defined(BMC_DEVICE_UI_NL_RELAY_117)
-              case 116: return BMC_DEVICE_UI_NL_RELAY_117;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 117 && defined(BMC_DEVICE_UI_NL_RELAY_118)
-              case 117: return BMC_DEVICE_UI_NL_RELAY_118;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 118 && defined(BMC_DEVICE_UI_NL_RELAY_119)
-              case 118: return BMC_DEVICE_UI_NL_RELAY_119;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 119 && defined(BMC_DEVICE_UI_NL_RELAY_120)
-              case 119: return BMC_DEVICE_UI_NL_RELAY_120;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 120 && defined(BMC_DEVICE_UI_NL_RELAY_121)
-              case 120: return BMC_DEVICE_UI_NL_RELAY_121;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 121 && defined(BMC_DEVICE_UI_NL_RELAY_122)
-              case 121: return BMC_DEVICE_UI_NL_RELAY_122;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 122 && defined(BMC_DEVICE_UI_NL_RELAY_123)
-              case 122: return BMC_DEVICE_UI_NL_RELAY_123;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 123 && defined(BMC_DEVICE_UI_NL_RELAY_124)
-              case 123: return BMC_DEVICE_UI_NL_RELAY_124;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 124 && defined(BMC_DEVICE_UI_NL_RELAY_125)
-              case 124: return BMC_DEVICE_UI_NL_RELAY_125;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 125 && defined(BMC_DEVICE_UI_NL_RELAY_126)
-              case 125: return BMC_DEVICE_UI_NL_RELAY_126;
-            #endif
-            #if BMC_MAX_NL_RELAYS > 126 && defined(BMC_DEVICE_UI_NL_RELAY_127)
-              case 126: return BMC_DEVICE_UI_NL_RELAY_127;
-            #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_L_RELAY:
-        #if BMC_MAX_L_RELAYS > 0
-          switch(n){
-            #if BMC_MAX_L_RELAYS > 0 && defined(BMC_DEVICE_UI_L_RELAY_1)
+          #if BMC_MAX_L_RELAYS > 0
+            switch(n){
+              #if BMC_MAX_L_RELAYS > 0 && defined(BMC_DEVICE_UI_L_RELAY_1)
               case 0: return BMC_DEVICE_UI_L_RELAY_1;
             #endif
             #if BMC_MAX_L_RELAYS > 1 && defined(BMC_DEVICE_UI_L_RELAY_2)
@@ -5257,203 +5083,14 @@ class BMCBuildData {
             #if BMC_MAX_L_RELAYS > 63 && defined(BMC_DEVICE_UI_L_RELAY_64)
               case 63: return BMC_DEVICE_UI_L_RELAY_64;
             #endif
-            #if BMC_MAX_L_RELAYS > 64 && defined(BMC_DEVICE_UI_L_RELAY_65)
-              case 64: return BMC_DEVICE_UI_L_RELAY_65;
-            #endif
-            #if BMC_MAX_L_RELAYS > 65 && defined(BMC_DEVICE_UI_L_RELAY_66)
-              case 65: return BMC_DEVICE_UI_L_RELAY_66;
-            #endif
-            #if BMC_MAX_L_RELAYS > 66 && defined(BMC_DEVICE_UI_L_RELAY_67)
-              case 66: return BMC_DEVICE_UI_L_RELAY_67;
-            #endif
-            #if BMC_MAX_L_RELAYS > 67 && defined(BMC_DEVICE_UI_L_RELAY_68)
-              case 67: return BMC_DEVICE_UI_L_RELAY_68;
-            #endif
-            #if BMC_MAX_L_RELAYS > 68 && defined(BMC_DEVICE_UI_L_RELAY_69)
-              case 68: return BMC_DEVICE_UI_L_RELAY_69;
-            #endif
-            #if BMC_MAX_L_RELAYS > 69 && defined(BMC_DEVICE_UI_L_RELAY_70)
-              case 69: return BMC_DEVICE_UI_L_RELAY_70;
-            #endif
-            #if BMC_MAX_L_RELAYS > 70 && defined(BMC_DEVICE_UI_L_RELAY_71)
-              case 70: return BMC_DEVICE_UI_L_RELAY_71;
-            #endif
-            #if BMC_MAX_L_RELAYS > 71 && defined(BMC_DEVICE_UI_L_RELAY_72)
-              case 71: return BMC_DEVICE_UI_L_RELAY_72;
-            #endif
-            #if BMC_MAX_L_RELAYS > 72 && defined(BMC_DEVICE_UI_L_RELAY_73)
-              case 72: return BMC_DEVICE_UI_L_RELAY_73;
-            #endif
-            #if BMC_MAX_L_RELAYS > 73 && defined(BMC_DEVICE_UI_L_RELAY_74)
-              case 73: return BMC_DEVICE_UI_L_RELAY_74;
-            #endif
-            #if BMC_MAX_L_RELAYS > 74 && defined(BMC_DEVICE_UI_L_RELAY_75)
-              case 74: return BMC_DEVICE_UI_L_RELAY_75;
-            #endif
-            #if BMC_MAX_L_RELAYS > 75 && defined(BMC_DEVICE_UI_L_RELAY_76)
-              case 75: return BMC_DEVICE_UI_L_RELAY_76;
-            #endif
-            #if BMC_MAX_L_RELAYS > 76 && defined(BMC_DEVICE_UI_L_RELAY_77)
-              case 76: return BMC_DEVICE_UI_L_RELAY_77;
-            #endif
-            #if BMC_MAX_L_RELAYS > 77 && defined(BMC_DEVICE_UI_L_RELAY_78)
-              case 77: return BMC_DEVICE_UI_L_RELAY_78;
-            #endif
-            #if BMC_MAX_L_RELAYS > 78 && defined(BMC_DEVICE_UI_L_RELAY_79)
-              case 78: return BMC_DEVICE_UI_L_RELAY_79;
-            #endif
-            #if BMC_MAX_L_RELAYS > 79 && defined(BMC_DEVICE_UI_L_RELAY_80)
-              case 79: return BMC_DEVICE_UI_L_RELAY_80;
-            #endif
-            #if BMC_MAX_L_RELAYS > 80 && defined(BMC_DEVICE_UI_L_RELAY_81)
-              case 80: return BMC_DEVICE_UI_L_RELAY_81;
-            #endif
-            #if BMC_MAX_L_RELAYS > 81 && defined(BMC_DEVICE_UI_L_RELAY_82)
-              case 81: return BMC_DEVICE_UI_L_RELAY_82;
-            #endif
-            #if BMC_MAX_L_RELAYS > 82 && defined(BMC_DEVICE_UI_L_RELAY_83)
-              case 82: return BMC_DEVICE_UI_L_RELAY_83;
-            #endif
-            #if BMC_MAX_L_RELAYS > 83 && defined(BMC_DEVICE_UI_L_RELAY_84)
-              case 83: return BMC_DEVICE_UI_L_RELAY_84;
-            #endif
-            #if BMC_MAX_L_RELAYS > 84 && defined(BMC_DEVICE_UI_L_RELAY_85)
-              case 84: return BMC_DEVICE_UI_L_RELAY_85;
-            #endif
-            #if BMC_MAX_L_RELAYS > 85 && defined(BMC_DEVICE_UI_L_RELAY_86)
-              case 85: return BMC_DEVICE_UI_L_RELAY_86;
-            #endif
-            #if BMC_MAX_L_RELAYS > 86 && defined(BMC_DEVICE_UI_L_RELAY_87)
-              case 86: return BMC_DEVICE_UI_L_RELAY_87;
-            #endif
-            #if BMC_MAX_L_RELAYS > 87 && defined(BMC_DEVICE_UI_L_RELAY_88)
-              case 87: return BMC_DEVICE_UI_L_RELAY_88;
-            #endif
-            #if BMC_MAX_L_RELAYS > 88 && defined(BMC_DEVICE_UI_L_RELAY_89)
-              case 88: return BMC_DEVICE_UI_L_RELAY_89;
-            #endif
-            #if BMC_MAX_L_RELAYS > 89 && defined(BMC_DEVICE_UI_L_RELAY_90)
-              case 89: return BMC_DEVICE_UI_L_RELAY_90;
-            #endif
-            #if BMC_MAX_L_RELAYS > 90 && defined(BMC_DEVICE_UI_L_RELAY_91)
-              case 90: return BMC_DEVICE_UI_L_RELAY_91;
-            #endif
-            #if BMC_MAX_L_RELAYS > 91 && defined(BMC_DEVICE_UI_L_RELAY_92)
-              case 91: return BMC_DEVICE_UI_L_RELAY_92;
-            #endif
-            #if BMC_MAX_L_RELAYS > 92 && defined(BMC_DEVICE_UI_L_RELAY_93)
-              case 92: return BMC_DEVICE_UI_L_RELAY_93;
-            #endif
-            #if BMC_MAX_L_RELAYS > 93 && defined(BMC_DEVICE_UI_L_RELAY_94)
-              case 93: return BMC_DEVICE_UI_L_RELAY_94;
-            #endif
-            #if BMC_MAX_L_RELAYS > 94 && defined(BMC_DEVICE_UI_L_RELAY_95)
-              case 94: return BMC_DEVICE_UI_L_RELAY_95;
-            #endif
-            #if BMC_MAX_L_RELAYS > 95 && defined(BMC_DEVICE_UI_L_RELAY_96)
-              case 95: return BMC_DEVICE_UI_L_RELAY_96;
-            #endif
-            #if BMC_MAX_L_RELAYS > 96 && defined(BMC_DEVICE_UI_L_RELAY_97)
-              case 96: return BMC_DEVICE_UI_L_RELAY_97;
-            #endif
-            #if BMC_MAX_L_RELAYS > 97 && defined(BMC_DEVICE_UI_L_RELAY_98)
-              case 97: return BMC_DEVICE_UI_L_RELAY_98;
-            #endif
-            #if BMC_MAX_L_RELAYS > 98 && defined(BMC_DEVICE_UI_L_RELAY_99)
-              case 98: return BMC_DEVICE_UI_L_RELAY_99;
-            #endif
-            #if BMC_MAX_L_RELAYS > 99 && defined(BMC_DEVICE_UI_L_RELAY_100)
-              case 99: return BMC_DEVICE_UI_L_RELAY_100;
-            #endif
-            #if BMC_MAX_L_RELAYS > 100 && defined(BMC_DEVICE_UI_L_RELAY_101)
-              case 100: return BMC_DEVICE_UI_L_RELAY_101;
-            #endif
-            #if BMC_MAX_L_RELAYS > 101 && defined(BMC_DEVICE_UI_L_RELAY_102)
-              case 101: return BMC_DEVICE_UI_L_RELAY_102;
-            #endif
-            #if BMC_MAX_L_RELAYS > 102 && defined(BMC_DEVICE_UI_L_RELAY_103)
-              case 102: return BMC_DEVICE_UI_L_RELAY_103;
-            #endif
-            #if BMC_MAX_L_RELAYS > 103 && defined(BMC_DEVICE_UI_L_RELAY_104)
-              case 103: return BMC_DEVICE_UI_L_RELAY_104;
-            #endif
-            #if BMC_MAX_L_RELAYS > 104 && defined(BMC_DEVICE_UI_L_RELAY_105)
-              case 104: return BMC_DEVICE_UI_L_RELAY_105;
-            #endif
-            #if BMC_MAX_L_RELAYS > 105 && defined(BMC_DEVICE_UI_L_RELAY_106)
-              case 105: return BMC_DEVICE_UI_L_RELAY_106;
-            #endif
-            #if BMC_MAX_L_RELAYS > 106 && defined(BMC_DEVICE_UI_L_RELAY_107)
-              case 106: return BMC_DEVICE_UI_L_RELAY_107;
-            #endif
-            #if BMC_MAX_L_RELAYS > 107 && defined(BMC_DEVICE_UI_L_RELAY_108)
-              case 107: return BMC_DEVICE_UI_L_RELAY_108;
-            #endif
-            #if BMC_MAX_L_RELAYS > 108 && defined(BMC_DEVICE_UI_L_RELAY_109)
-              case 108: return BMC_DEVICE_UI_L_RELAY_109;
-            #endif
-            #if BMC_MAX_L_RELAYS > 109 && defined(BMC_DEVICE_UI_L_RELAY_110)
-              case 109: return BMC_DEVICE_UI_L_RELAY_110;
-            #endif
-            #if BMC_MAX_L_RELAYS > 110 && defined(BMC_DEVICE_UI_L_RELAY_111)
-              case 110: return BMC_DEVICE_UI_L_RELAY_111;
-            #endif
-            #if BMC_MAX_L_RELAYS > 111 && defined(BMC_DEVICE_UI_L_RELAY_112)
-              case 111: return BMC_DEVICE_UI_L_RELAY_112;
-            #endif
-            #if BMC_MAX_L_RELAYS > 112 && defined(BMC_DEVICE_UI_L_RELAY_113)
-              case 112: return BMC_DEVICE_UI_L_RELAY_113;
-            #endif
-            #if BMC_MAX_L_RELAYS > 113 && defined(BMC_DEVICE_UI_L_RELAY_114)
-              case 113: return BMC_DEVICE_UI_L_RELAY_114;
-            #endif
-            #if BMC_MAX_L_RELAYS > 114 && defined(BMC_DEVICE_UI_L_RELAY_115)
-              case 114: return BMC_DEVICE_UI_L_RELAY_115;
-            #endif
-            #if BMC_MAX_L_RELAYS > 115 && defined(BMC_DEVICE_UI_L_RELAY_116)
-              case 115: return BMC_DEVICE_UI_L_RELAY_116;
-            #endif
-            #if BMC_MAX_L_RELAYS > 116 && defined(BMC_DEVICE_UI_L_RELAY_117)
-              case 116: return BMC_DEVICE_UI_L_RELAY_117;
-            #endif
-            #if BMC_MAX_L_RELAYS > 117 && defined(BMC_DEVICE_UI_L_RELAY_118)
-              case 117: return BMC_DEVICE_UI_L_RELAY_118;
-            #endif
-            #if BMC_MAX_L_RELAYS > 118 && defined(BMC_DEVICE_UI_L_RELAY_119)
-              case 118: return BMC_DEVICE_UI_L_RELAY_119;
-            #endif
-            #if BMC_MAX_L_RELAYS > 119 && defined(BMC_DEVICE_UI_L_RELAY_120)
-              case 119: return BMC_DEVICE_UI_L_RELAY_120;
-            #endif
-            #if BMC_MAX_L_RELAYS > 120 && defined(BMC_DEVICE_UI_L_RELAY_121)
-              case 120: return BMC_DEVICE_UI_L_RELAY_121;
-            #endif
-            #if BMC_MAX_L_RELAYS > 121 && defined(BMC_DEVICE_UI_L_RELAY_122)
-              case 121: return BMC_DEVICE_UI_L_RELAY_122;
-            #endif
-            #if BMC_MAX_L_RELAYS > 122 && defined(BMC_DEVICE_UI_L_RELAY_123)
-              case 122: return BMC_DEVICE_UI_L_RELAY_123;
-            #endif
-            #if BMC_MAX_L_RELAYS > 123 && defined(BMC_DEVICE_UI_L_RELAY_124)
-              case 123: return BMC_DEVICE_UI_L_RELAY_124;
-            #endif
-            #if BMC_MAX_L_RELAYS > 124 && defined(BMC_DEVICE_UI_L_RELAY_125)
-              case 124: return BMC_DEVICE_UI_L_RELAY_125;
-            #endif
-            #if BMC_MAX_L_RELAYS > 125 && defined(BMC_DEVICE_UI_L_RELAY_126)
-              case 125: return BMC_DEVICE_UI_L_RELAY_126;
-            #endif
-            #if BMC_MAX_L_RELAYS > 126 && defined(BMC_DEVICE_UI_L_RELAY_127)
-              case 126: return BMC_DEVICE_UI_L_RELAY_127;
-            #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_OLED:
-        #if BMC_MAX_OLED > 0
-          switch(n){
-            #if BMC_MAX_OLED > 0 && defined(BMC_DEVICE_UI_OLED_1)
+          #if BMC_MAX_OLED > 0
+            switch(n){
+              #if BMC_MAX_OLED > 0 && defined(BMC_DEVICE_UI_OLED_1)
               case 0: return BMC_DEVICE_UI_OLED_1;
             #endif
             #if BMC_MAX_OLED > 1 && defined(BMC_DEVICE_UI_OLED_2)
@@ -5646,18 +5283,18 @@ class BMCBuildData {
               case 63: return BMC_DEVICE_UI_OLED_64;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_ILI:
-        #if BMC_MAX_ILI9341_BLOCKS > 0
+          #if BMC_MAX_ILI9341_BLOCKS > 0
           #if defined(BMC_DEVICE_UI_ILI)
             if(n==-1){
               return BMC_DEVICE_UI_ILI;
             }
           #endif
-          switch(n){
-            #if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_1)
+            switch(n){
+              #if BMC_MAX_ILI9341_BLOCKS > 0 && defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_1)
               case 0: return BMC_DEVICE_UI_ILI_1;
             #endif
             #if BMC_MAX_ILI9341_BLOCKS > 1 && defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_2)
@@ -5706,9 +5343,9 @@ class BMCBuildData {
               case 15: return BMC_DEVICE_UI_ILI_16;
             #endif
 
-          }
-        #endif
-        break;
+            }
+          #endif
+          break;
 }
     BMCUIData e;
     return e;

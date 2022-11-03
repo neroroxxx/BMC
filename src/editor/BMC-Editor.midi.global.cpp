@@ -240,7 +240,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     //backupEventMessage(sysExLength);
     return;
   }
-  BMC_PRINTLN("RECEIVED DEVICE REQUEST");
+  //BMC_PRINTLN("RECEIVED DEVICE REQUEST");
 
   uint8_t deviceType = incoming.get8Bits(9);
   uint16_t index = incoming.get14Bits(11);
@@ -262,6 +262,15 @@ void BMCEditor::incomingMessageDevice(bool write){
     return;
   }
   if(write && maxDevices > 0){
+    uint16_t pageToWrite = page;
+    uint16_t maxPageToWrite = page+1;
+    if(isDeviceWriteToAllPages()){
+      pageToWrite = 0;
+      maxPageToWrite = BMC_MAX_PAGES;
+      BMC_PRINTLN("Save to all pages",pageToWrite, maxPageToWrite);
+    } else {
+      BMC_PRINTLN("DO NOT Save to all pages",pageToWrite, maxPageToWrite);
+    }
     switch(deviceType){
       case BMC_DEVICE_ID_PAGE:
         {
@@ -275,137 +284,132 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_BUTTON:
         {
           #if BMC_MAX_BUTTONS > 0
-            incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.pages[page].buttons[index], index, page);
+            for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+              incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.pages[p].buttons[index], index, p);
+            }
           #endif
         }
         break;
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
-        {
-          #if BMC_MAX_GLOBAL_BUTTONS > 0
-            incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.global.buttons[index], index);
-            if(!backupActive()){
-              saveGlobalButton(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_GLOBAL_BUTTONS > 0
+          incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.global.buttons[index], index);
+          if(!backupActive()){
+            saveGlobalButton(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_LED:
-        {
-          #if BMC_MAX_LEDS > 0
-            incomingMessageDeviceWrite<1,1>(store.pages[page].leds[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_LEDS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.pages[p].leds[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_LED:
-        {
-          #if BMC_MAX_GLOBAL_LEDS > 0
-            incomingMessageDeviceWrite<1,1>(store.global.leds[index], index);
-            if(!backupActive()){
-              saveGlobalLed(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_GLOBAL_LEDS > 0
+          incomingMessageDeviceWrite<1,1>(store.global.leds[index], index);
+          if(!backupActive()){
+            saveGlobalLed(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_ENCODER:
-        {
-          #if BMC_MAX_ENCODERS > 0
-            incomingMessageDeviceWrite<1,1>(store.pages[page].encoders[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_ENCODERS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.pages[p].encoders[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
-        {
-          #if BMC_MAX_GLOBAL_ENCODERS > 0
-            incomingMessageDeviceWrite<1,1>(store.global.encoders[index], index);
-            if(!backupActive()){
-              saveGlobalEncoder(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_GLOBAL_ENCODERS > 0
+          incomingMessageDeviceWrite<1,1>(store.global.encoders[index], index);
+          if(!backupActive()){
+            saveGlobalEncoder(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_POT:
-        {
-          #if BMC_MAX_POTS > 0
-            incomingMessageDeviceWrite<1,2>(store.pages[page].pots[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_POTS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,2>(store.pages[p].pots[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_POT:
-        {
-          #if BMC_MAX_GLOBAL_POTS > 0
-            incomingMessageDeviceWrite<1,2>(store.global.pots[index], index);
-            if(!backupActive()){
-              saveGlobalPot(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_GLOBAL_POTS > 0
+          incomingMessageDeviceWrite<1,2>(store.global.pots[index], index);
+          if(!backupActive()){
+            saveGlobalPot(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
-        {
-          #if BMC_MAX_PIXELS > 0
-            incomingMessageDeviceWrite<1,1>(store.pages[page].pixels[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_PIXELS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.pages[p].pixels[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
-        {
-          //
-        }
+        #if BMC_MAX_GLOBAL_PIXELS > 0
+          incomingMessageDeviceWrite<1,1>(store.global.pixels[index], index);
+          if(!backupActive()){
+            saveGlobalPixel(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_RGB_PIXEL:
-        {
-          #if BMC_MAX_RGB_PIXELS > 0
-            incomingMessageDeviceWrite<1,3>(store.pages[page].rgbPixels[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_RGB_PIXELS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,3>(store.pages[p].rgbPixels[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
-        {
-          //
-        }
+        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+          incomingMessageDeviceWrite<1,3>(store.global.rgbPixels[index], index);
+          if(!backupActive()){
+            saveGlobalRgbPixel(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_NL_RELAY:
-        {
-          #if BMC_MAX_NL_RELAYS > 0
-            incomingMessageDeviceWrite<1,1>(store.global.relaysNL[index], index);
-            if(!backupActive()){
-              saveNLRelay(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_NL_RELAYS > 0
+          incomingMessageDeviceWrite<1,1>(store.global.relaysNL[index], index);
+          if(!backupActive()){
+            saveNLRelay(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_L_RELAY:
-        {
-          #if BMC_MAX_L_RELAYS > 0
-            incomingMessageDeviceWrite<1,1>(store.global.relaysL[index], index);
-            if(!backupActive()){
-              saveLRelay(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_L_RELAYS > 0
+          incomingMessageDeviceWrite<1,1>(store.global.relaysL[index], index);
+          if(!backupActive()){
+            saveLRelay(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_OLED:
-        {
-          // write new data and save, starts at byte 13
-          #if BMC_MAX_OLED > 0
-            incomingMessageDeviceWrite<1,1>(store.pages[page].oled[index], index, page);
-          #endif
-        }
+        #if BMC_MAX_OLED > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.pages[p].oled[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_ILI:
-        {
-          // write new data and save, starts at byte 13
-          #if BMC_MAX_ILI9341_BLOCKS > 0
-            incomingMessageDeviceWrite<1,1>(store.pages[page].ili[index], index, page);
-          #endif
-        }
-        break;
+        #if BMC_MAX_ILI9341_BLOCKS > 0
+          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.pages[p].ili[index], index, p);
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_LIBRARY:
         {
@@ -413,15 +417,14 @@ void BMCEditor::incomingMessageDevice(bool write){
         }
         break;
       case BMC_DEVICE_ID_PRESET:
-        {
-          #if BMC_MAX_PRESETS > 0
-            incomingMessageDeviceWrite<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[index], index);
-            if(!backupActive()){
-              savePreset(index);
-              reloadData();
-            }
-          #endif
-        }
+        #if BMC_MAX_PRESETS > 0
+          incomingMessageDeviceWrite<1,BMC_MAX_PRESET_ITEMS>
+          (store.global.presets[index], index);
+          if(!backupActive()){
+            savePreset(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_CUSTOM_SYSEX:
         {
@@ -449,19 +452,27 @@ void BMCEditor::incomingMessageDevice(bool write){
         }
         break;
       case BMC_DEVICE_ID_SETLIST:
-        {
-          //
-        }
+        #if BMC_MAX_SETLISTS > 0
+          incomingMessageDeviceWrite<1,BMC_MAX_SETLISTS_SONGS>
+          (store.global.setLists[index], index);
+          if(!backupActive()){
+            saveSetList(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_SETLIST_SONG:
-        {
-          //
-        }
+
         break;
       case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
-        {
-          //
-        }
+        #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+          incomingMessageDeviceWrite<1,BMC_MAX_SETLISTS_SONG_PARTS>
+          (store.global.songLibrary[index], index);
+          if(!backupActive()){
+            saveSetListSong(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_TIMED_EVENT:
         {
@@ -484,7 +495,7 @@ void BMCEditor::incomingMessageDevice(bool write){
   switch(deviceType){
     case BMC_DEVICE_ID_PAGE:
       {
-        BMC_PRINTLN("BMC_DEVICE_ID_PAGE");
+        //BMC_PRINTLN("BMC_DEVICE_ID_PAGE");
         // page names only include the name
         buff.appendToSysEx14Bits(store.pages[index].name);
       }
@@ -492,7 +503,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_BUTTON:
       {
         #if BMC_MAX_BUTTONS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_BUTTON");
+          //BMC_PRINTLN("BMC_DEVICE_ID_BUTTON");
           deviceResponseData <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>
           (store.pages[page].buttons[index], buff, index, deviceType);
         #endif
@@ -501,7 +512,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_GLOBAL_BUTTON:
       {
         #if BMC_MAX_GLOBAL_BUTTONS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_BUTTON");
+          //BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_BUTTON");
           deviceResponseData <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>
           (store.global.buttons[index], buff, index, deviceType);
         #endif
@@ -510,7 +521,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_LED:
       {
         #if BMC_MAX_LEDS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_LED");
+          //BMC_PRINTLN("BMC_DEVICE_ID_LED");
           deviceResponseData <1, 1>
           (store.pages[page].leds[index], buff, index, deviceType);
         #endif
@@ -519,7 +530,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_GLOBAL_LED:
       {
         #if BMC_MAX_GLOBAL_LEDS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_LED");
+          //BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_LED");
           deviceResponseData <1, 1>
           (store.global.leds[index], buff, index, deviceType);
         #endif
@@ -528,7 +539,6 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_ENCODER:
       {
         #if BMC_MAX_ENCODERS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_ENCODER");
           deviceResponseData <1, 1>
           (store.pages[page].encoders[index], buff, index, deviceType);
         #endif
@@ -537,7 +547,6 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_GLOBAL_ENCODER:
       {
         #if BMC_MAX_GLOBAL_ENCODERS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_ENCODER");
           deviceResponseData <1, 1>
           (store.global.encoders[index], buff, index, deviceType);
         #endif
@@ -546,7 +555,6 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_POT:
       {
         #if BMC_MAX_POTS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_POT");
           deviceResponseData <1, 2>
           (store.pages[page].pots[index], buff, index, deviceType);
         #endif
@@ -555,73 +563,58 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_GLOBAL_POT:
       {
         #if BMC_MAX_GLOBAL_POTS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_GLOBAL_POT");
           deviceResponseData <1, 2>
           (store.global.pots[index], buff, index, deviceType);
         #endif
       }
       break;
     case BMC_DEVICE_ID_PIXEL:
-      {
-        #if BMC_MAX_PIXELS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_PIXEL");
-          deviceResponseData <1, 1>
-          (store.pages[page].pixels[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_PIXELS > 0
+        deviceResponseData <1, 1>
+        (store.pages[page].pixels[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_PIXEL:
-      {
-        //
-      }
+      #if BMC_MAX_GLOBAL_PIXELS > 0
+        deviceResponseData <1, 1>
+        (store.global.pixels[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_RGB_PIXEL:
-      {
-        #if BMC_MAX_RGB_PIXELS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_RGB_PIXEL");
-          deviceResponseData <1, 3>
-          (store.pages[page].rgbPixels[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_RGB_PIXELS > 0
+        deviceResponseData <1, 3>
+        (store.pages[page].rgbPixels[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
-      {
-        //
-      }
+      #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+        deviceResponseData <1, 3>
+        (store.global.rgbPixels[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_NL_RELAY:
-      {
-        #if BMC_MAX_NL_RELAYS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_NL_RELAY");
-          deviceResponseData <1, 1>
-          (store.global.relaysNL[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_NL_RELAYS > 0
+        deviceResponseData <1, 1>
+        (store.global.relaysNL[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_L_RELAY:
-      {
-        #if BMC_MAX_L_RELAYS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_L_RELAY");
-          deviceResponseData <1, 1>
-          (store.global.relaysL[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_L_RELAYS > 0
+        deviceResponseData <1, 1>
+        (store.global.relaysL[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_OLED:
-      {
-        // write new data and save, starts at byte 9
-        #if BMC_MAX_OLED > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_OLED");
-          deviceResponseData <1, 1>
-          (store.pages[page].oled[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_OLED > 0
+        deviceResponseData <1, 1>
+        (store.pages[page].oled[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_ILI:
       {
         // write new data and save, starts at byte 9
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_ILI");
+          //BMC_PRINTLN("BMC_DEVICE_ID_ILI");
           bmcStoreDevice <1,1>& item = store.pages[page].ili[index];
           BMCUIData ui = BMCBuildData::getUIData(deviceType, -1);
           buff.appendToSysEx16Bits(ui.x);
@@ -655,13 +648,11 @@ void BMCEditor::incomingMessageDevice(bool write){
       }
       break;
     case BMC_DEVICE_ID_PRESET:
-      {
-        #if BMC_MAX_PRESETS > 0
-          BMC_PRINTLN("BMC_DEVICE_ID_PRESET");
-          deviceResponseData <1, BMC_MAX_PRESET_ITEMS>
-          (store.global.presets[index], buff, index, deviceType);
-        #endif
-      }
+      #if BMC_MAX_PRESETS > 0
+        //BMC_PRINTLN("BMC_DEVICE_ID_PRESET");
+        deviceResponseData <1, BMC_MAX_PRESET_ITEMS>
+        (store.global.presets[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_CUSTOM_SYSEX:
       {
@@ -689,19 +680,19 @@ void BMCEditor::incomingMessageDevice(bool write){
       }
       break;
     case BMC_DEVICE_ID_SETLIST:
-      {
-        //
-      }
+      #if BMC_MAX_SETLISTS > 0
+        deviceResponseData <1, BMC_MAX_SETLISTS_SONGS>
+        (store.global.setLists[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_SETLIST_SONG:
-      {
-        //
-      }
+
       break;
     case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
-      {
-        //
-      }
+      #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+        deviceResponseData <1, BMC_MAX_SETLISTS_SONG_PARTS>
+        (store.global.songLibrary[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_TIMED_EVENT:
       {
@@ -713,66 +704,46 @@ void BMCEditor::incomingMessageDevice(bool write){
 }
 template <uint8_t sLen, uint8_t eLen>
 void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen>& item, uint16_t index, int16_t page){
-  BMC_PRINTLN("====================");
-  uint16_t n1 = incoming.get14Bits(13);
-  if(item.name!= n1){
-    BMC_PRINTLN("*** name", n1, item.name);
-    item.name  = n1;
+  //BMC_PRINTLN("====================");
+  uint16_t name = incoming.get14Bits(13);
+  if(item.name!= name){
+    item.name  = name;
   }
-
   uint8_t lenEvents = incoming.get7Bits(15);
   uint8_t lenSettings = incoming.get7Bits(16);
   uint8_t lenCount = 17;
   for(uint8_t i = 0 ; i < lenEvents ; i++){
-    uint8_t n2 = incoming.get8Bits(lenCount);
-    if(item.settings[i] != n2){
-      item.settings[i]  = n2;
-      BMC_PRINTLN("*** setting", i, n1, item.settings[i]);
+    uint8_t value = incoming.get8Bits(lenCount);
+    if(item.settings[i] != value){
+      item.settings[i]  = value;
     }
     lenCount += 2;
   }
   for(uint8_t i = 0 ; i < lenSettings ; i++){
-    uint16_t n3 = incoming.get14Bits(lenCount);
-    if(item.events[i] != n3){
-      item.events[i]  = n3;
-      BMC_PRINTLN("*** events", n1, item.events[i]);
+    uint16_t value = incoming.get14Bits(lenCount);
+    if(item.events[i] != value){
+      item.events[i]  = value;
     }
     lenCount += 2;
   }
+
+
+
+
   if(page >= 0){
     BMC_PRINTLN("************* SAVE PAGES AND RELOAD", page);
     savePagesAndReloadData(page);
     reloadData();
   }
-
-  /*
-  item.name  = incoming.get14Bits(13);
-  uint8_t lenEvents = incoming.get7Bits(15);
-  uint8_t lenSettings = incoming.get7Bits(16);
-  uint8_t lenCount = 17;
-  for(uint8_t i = 0 ; i < lenEvents ; i++){
-    item.settings[i]  = incoming.get8Bits(lenCount);
-    BMC_PRINTLN("item.settings[i]", item.settings[i]);
-    lenCount += 2;
-  }
-  for(uint8_t i = 0 ; i < lenSettings ; i++){
-    item.events[i]    = incoming.get14Bits(lenCount);
-    BMC_PRINTLN("item.events[i]", item.events[i]);
-    lenCount += 2;
-  }
-  if(page >= 0){
-    BMC_PRINTLN("************* SAVE PAGES AND RELOAD", page);
-    savePagesAndReloadData(page);
-    reloadData();
-  }
-  */
 }
 template <uint8_t slen, uint8_t elen>
 void BMCEditor::deviceResponseData(bmcStoreDevice<slen, elen>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType){
   //bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>& item = store.global.buttons[index];
+  //BMC_PRINTLN(deviceType, index);
   BMCUIData ui = BMCBuildData::getUIData(deviceType, index);
-  buff.appendToSysEx14Bits(ui.pin);
-  buff.appendToSysEx14Bits(ui.pinB);
+  buff.appendToSysEx14Bits(ui.pins[0]);
+  buff.appendToSysEx14Bits(ui.pins[1]);
+  buff.appendToSysEx14Bits(ui.pins[2]);
   buff.appendToSysEx16Bits(ui.x);
   buff.appendToSysEx16Bits(ui.y);
   buff.appendToSysEx7Bits(ui.style);
@@ -958,56 +929,44 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_NAMES_LENGTH);
 
     buff.appendToSysEx14Bits(BMC_MAX_LIBRARY);
+
     buff.appendToSysEx14Bits(BMC_MAX_PRESETS);
-    buff.appendToSysEx8Bits(BMC_MAX_PRESET_ITEMS);
+    buff.appendToSysEx7Bits(BMC_MAX_PRESET_BANKS);
+    buff.appendToSysEx7Bits(BMC_MAX_PRESETS_PER_BANK);
+    buff.appendToSysEx7Bits(BMC_MAX_PRESET_ITEMS);
+
     buff.appendToSysEx7Bits(BMC_MAX_CUSTOM_SYSEX);
     buff.appendToSysEx7Bits(BMC_MAX_TRIGGERS);
     buff.appendToSysEx7Bits(BMC_MAX_TEMPO_TO_TAP);
     buff.appendToSysEx7Bits(BMC_MAX_SKETCH_BYTES);
-    buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_LEDS);
-    buff.appendToSysEx7Bits(BMC_MAX_NL_RELAYS);
-    buff.appendToSysEx7Bits(BMC_MAX_L_RELAYS);
-
-    buff.appendToSysEx8Bits(BMC_MAX_PAGES);
-    buff.appendToSysEx7Bits(BMC_MAX_BUTTONS);
-    buff.appendToSysEx7Bits(BMC_MAX_BUTTON_EVENTS);
-    buff.appendToSysEx7Bits(BMC_MAX_LEDS);
-    buff.appendToSysEx7Bits(BMC_MAX_PWM_LEDS);
-    buff.appendToSysEx7Bits(BMC_MAX_PIXELS);
-    buff.appendToSysEx7Bits(BMC_MAX_POTS);
-    buff.appendToSysEx7Bits(BMC_MAX_ENCODERS);
-    buff.appendToSysEx7Bits(BMC_MAX_RGB_PIXELS);
-
-    buff.appendToSysEx7Bits(BMC_MAX_PRESETS_PER_BANK);
-    buff.appendToSysEx7Bits(BMC_MAX_SETLISTS);
-    buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONGS);
-    // these are available, all 7 bits only
     buff.appendToSysEx7Bits(BMC_MAX_STRING_LIBRARY);
-    buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_BUTTONS);
-    buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_ENCODERS);
-    buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_POTS);
     buff.appendToSysEx7Bits(BMC_MAX_PIXEL_PROGRAMS);
     buff.appendToSysEx7Bits(BMC_MAX_TIMED_EVENTS);
-    buff.appendToSysEx7Bits(BMC_MAX_OLED);
-    buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
+    // setlist
+    buff.appendToSysEx7Bits(BMC_MAX_SETLISTS);
+    buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONGS);
     buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONG_PARTS);
+    buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
+    //pages
+    buff.appendToSysEx14Bits(BMC_MAX_PAGES);
+    // hardware
+    buff.appendToSysEx14Bits(BMC_MAX_BUTTON_EVENTS);
+    buff.appendToSysEx14Bits(BMC_MAX_BUTTONS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_BUTTONS);
+    buff.appendToSysEx14Bits(BMC_MAX_ENCODERS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_ENCODERS);
+    buff.appendToSysEx14Bits(BMC_MAX_POTS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_POTS);
+    buff.appendToSysEx14Bits(BMC_MAX_LEDS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_LEDS);
+    buff.appendToSysEx14Bits(BMC_MAX_PIXELS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_PIXELS);
+    buff.appendToSysEx14Bits(BMC_MAX_RGB_PIXELS);
+    buff.appendToSysEx14Bits(BMC_MAX_GLOBAL_RGB_PIXELS);
+    buff.appendToSysEx14Bits(BMC_MAX_NL_RELAYS);
+    buff.appendToSysEx14Bits(BMC_MAX_L_RELAYS);
+    buff.appendToSysEx7Bits(BMC_MAX_OLED);
     buff.appendToSysEx7Bits(BMC_MAX_ILI9341_BLOCKS);
-    // name lengths
-
-
-
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLISTS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_BUTTONS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_LEDS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_POTS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_ENCODERS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_LIBRARY);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_PRESETS);
-    buff.appendToSysEx7Bits(0);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_RELAYS);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_STRING_LIBRARY);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG);
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_SETLIST_SONG_PART);
 
 
 
@@ -1018,7 +977,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_BUTTONS > 0
       for(uint8_t i=0;i<BMC_MAX_BUTTONS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, i);
-        buff.appendToSysEx7Bits(ui.pin);
+        buff.appendToSysEx7Bits(ui.pins[0]);
       }
     #endif
 
@@ -1029,7 +988,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_GLOBAL_BUTTONS > 0
       for(uint8_t i=0;i<BMC_MAX_GLOBAL_BUTTONS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
-        buff.appendToSysEx7Bits(ui.pin);
+        buff.appendToSysEx7Bits(ui.pins[0]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_ENCODERS){
@@ -1038,8 +997,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_GLOBAL_ENCODERS > 0
       for(uint8_t i=0;i<BMC_MAX_GLOBAL_ENCODERS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
-        buff.appendToSysEx7Bits(ui.pin);
-        buff.appendToSysEx7Bits(ui.pinB);
+        buff.appendToSysEx7Bits(ui.pins[0]);
+        buff.appendToSysEx7Bits(ui.pins[1]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_POTS ||
@@ -1075,7 +1034,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
       for(uint8_t i=min;i<max;i++){
         if(i<BMC_MAX_POTS){
           BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_POT, i);
-          buff.appendToSysEx8Bits(ui.pin);
+          buff.appendToSysEx8Bits(ui.pins[0]);
         } else {
           break;
         }
@@ -1113,7 +1072,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
       for(uint8_t i=min;i<max;i++){
         if(i<BMC_MAX_GLOBAL_POTS){
           BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_POT, i);
-          buff.appendToSysEx8Bits(ui.pin);
+          buff.appendToSysEx8Bits(ui.pins[0]);
         } else {
           break;
         }
@@ -1125,7 +1084,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_LEDS > 0
       for(uint8_t i=0;i<BMC_MAX_LEDS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
-        buff.appendToSysEx7Bits(ui.pin);
+        buff.appendToSysEx7Bits(ui.pins[0]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_PWM_LEDS){
@@ -1142,8 +1101,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_ENCODERS > 0
       for(uint8_t i=0;i<BMC_MAX_ENCODERS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ENCODER, i);
-        buff.appendToSysEx7Bits(ui.pin);
-        buff.appendToSysEx7Bits(ui.pinB);
+        buff.appendToSysEx7Bits(ui.pins[0]);
+        buff.appendToSysEx7Bits(ui.pins[1]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_GLOBAL_LEDS){
@@ -1152,7 +1111,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_GLOBAL_LEDS > 0
       for(uint8_t i=0;i<BMC_MAX_GLOBAL_LEDS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_LED, i);
-        buff.appendToSysEx7Bits(ui.pin);
+        buff.appendToSysEx7Bits(ui.pins[0]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_NL_RELAYS){
@@ -1161,7 +1120,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_NL_RELAYS > 0
       for(uint8_t i=0;i<BMC_MAX_NL_RELAYS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_NL_RELAY, i);
-        buff.appendToSysEx7Bits(ui.pin);
+        buff.appendToSysEx7Bits(ui.pins[0]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_L_RELAYS){
@@ -1170,8 +1129,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_L_RELAYS > 0
       for(uint8_t i=0;i<BMC_MAX_L_RELAYS;i++){
         BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_L_RELAY, i);
-        buff.appendToSysEx7Bits(ui.pin);
-        buff.appendToSysEx7Bits(ui.pinB);
+        buff.appendToSysEx7Bits(ui.pins[0]);
+        buff.appendToSysEx7Bits(ui.pins[1]);
       }
     #endif
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_PINS_PIXELS){
@@ -1533,7 +1492,7 @@ void BMCEditor::globalPreset(bool write){
     backupGlobalPreset(sysExLength);
     return;
   }
-  bmcPreset_t index = getMessagePageNumber();
+  uint16_t index = getMessagePageNumber();
   if(index>0 && index>=BMC_MAX_PRESETS){
     sendNotification(BMC_NOTIFY_INVALID_PRESET, index, true);
     return;
@@ -1611,7 +1570,7 @@ void BMCEditor::globalStartup(bool write){
   }
 #if BMC_MAX_PRESETS > 0
   if(write){
-    bmcPreset_t index = incoming.get14Bits(9);
+    uint16_t index = incoming.get14Bits(9);
     if(index >= BMC_MAX_PRESETS){
       sendNotification(BMC_NOTIFY_INVALID_PRESET, index, true);
       return;
@@ -1638,6 +1597,7 @@ void BMCEditor::globalStartup(bool write){
 
 
 void BMCEditor::globalSetList(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1669,7 +1629,7 @@ void BMCEditor::globalSetList(bool write){
     uint8_t e = 10;
     memset(item.songs, 0, BMC_MAX_SETLISTS_SONGS);
     for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
-      item.songs[i] = (bmcPreset_t) incoming.get14Bits(e);
+      item.songs[i] = (uint16_t) incoming.get14Bits(e);
       if(item.songs[i] >= BMC_MAX_PRESETS){
         item.songs[i] = 0;
       }
@@ -1706,6 +1666,7 @@ void BMCEditor::globalSetList(bool write){
     #endif
   #endif
   sendToEditor(buff);
+  */
 }
 
 
@@ -1718,6 +1679,7 @@ void BMCEditor::globalSetList(bool write){
 
 
 void BMCEditor::globalSetListSong(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1727,7 +1689,7 @@ void BMCEditor::globalSetListSong(bool write){
     backupGlobalSetListSong(sysExLength);
     return;
   }
-  bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+  uint16_t songIndex = (uint16_t) incoming.get14Bits(9);
   uint8_t partIndex = incoming.sysex[11];
   if(songIndex>0 && songIndex>=BMC_MAX_SETLISTS_SONGS_LIBRARY){
     sendNotification(BMC_NOTIFY_INVALID_SETLIST_SONG_LIBRARY, songIndex, true);
@@ -1756,7 +1718,7 @@ void BMCEditor::globalSetListSong(bool write){
     song.length = incoming.get8Bits(14);//+2
 
     part.length = incoming.get8Bits(16);//+2
-    part.preset = (bmcPreset_t) incoming.get14Bits(18);
+    part.preset = (uint16_t) incoming.get14Bits(18);
 
     #if BMC_NAME_LEN_SETLIST_SONG > 1
       incoming.getStringFromSysEx(20, song.name, BMC_NAME_LEN_SETLIST_SONG);
@@ -1800,9 +1762,11 @@ void BMCEditor::globalSetListSong(bool write){
   #endif
 #endif
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::globalSetListSongPartShiftPosition(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1815,7 +1779,7 @@ void BMCEditor::globalSetListSongPartShiftPosition(bool write){
   uint8_t resp = 0;
 #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 1
   if(write){
-    bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+    uint16_t songIndex = (uint16_t) incoming.get14Bits(9);
     uint8_t partSource = incoming.sysex[11];
     uint8_t partTarget = incoming.sysex[12];
     if(songIndex < BMC_MAX_SETLISTS_SONGS_LIBRARY && partSource < BMC_MAX_SETLISTS_SONG_PARTS && partTarget < BMC_MAX_SETLISTS_SONG_PARTS){
@@ -1851,6 +1815,7 @@ void BMCEditor::globalSetListSongPartShiftPosition(bool write){
   buff.prepareEditorMessage(port, deviceId, BMC_GLOBALF_SETLISTS_SONG_SHIFT_POSITION, 0, 0);
   buff.appendToSysEx7Bits(resp);
   sendToEditor(buff);
+  */
 }
 
 

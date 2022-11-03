@@ -22,10 +22,6 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
   editor.setPage(page);
   editor.pageSendChangeMessage();
 
-  #if BMC_MAX_LEDS > 0
-    globals.ledStates.clear();
-  #endif
-
   #if BMC_MAX_PWM_LEDS > 0
     pwmLedStates = ~pwmLedStates;
   #endif
@@ -70,6 +66,9 @@ void BMC::nextPage(){
 void BMC::prevPage(){
   BMCScroller <uint8_t> scroller(0, BMC_MAX_PAGES-1);
   setPage(scroller.scroll(1, false, true, page, 0, BMC_MAX_PAGES-1));
+}
+void BMC::scrollPage(bool t_dir, bool t_endless, uint8_t t_amount){
+  scrollPage(t_dir, t_endless, 0, BMC_MAX_PAGES-1, t_amount);
 }
 
 void BMC::scrollPage(uint8_t t_settings, uint8_t t_amount){

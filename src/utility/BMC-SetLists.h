@@ -10,6 +10,7 @@
 
 #define BMC_FLAG_SETLISTS_CHANGED 0
 #define BMC_FLAG_SETLISTS_SONG_CHANGED 1
+#define BMC_FLAG_SETLISTS_SONG_PART_CHANGED 2
 
 //song flags
 #define BMC_SETLIST_FLAG_EMPTY_SET  0
@@ -20,15 +21,15 @@
 
 class BMCSetLists {
 public:
-  BMCSetLists(BMCGlobals& t_globals, bmcStoreGlobal& t_global, BMCPresets& t_presets):
-            globals(t_globals),
-            global(t_global),
+  BMCSetLists(BMCPresets& t_presets):
+            globals(t_presets.globals),
+            global(t_presets.global),
             presets(t_presets),
-            setList(t_globals.setList),
-            song(t_globals.song),
-            songPart(t_globals.songPart),
-            songInLibrary(t_globals.songInLibrary),
-            songFlags(t_globals.setListFlags)
+            setList(globals.setList),
+            song(globals.song),
+            songPart(globals.songPart),
+            songInLibrary(globals.songInLibrary),
+            songFlags(globals.setListFlags)
 
   {
   }
@@ -36,47 +37,51 @@ public:
     if(n >= BMC_MAX_SETLISTS){
       return;
     }
-    setList = n;
-    BMC_PRINTLN("SetList #",n);
-    flags.on(BMC_FLAG_SETLISTS_CHANGED);
-    if(firstSong){
-      setSong(0);
+    if(global.setLists[n].settings[0] > 0){
+      setList = n;
+      BMC_PRINTLN("SetList #", n);
+      flags.on(BMC_FLAG_SETLISTS_CHANGED);
+      if(autoTriggerFirstSong()){
+        setSong(0);
+      }
     }
   }
   void setSong(uint8_t n=0){
     if(n >= BMC_MAX_SETLISTS_SONGS){
       return;
     }
-    song = n;
-    songInLibrary = global.setLists[setList].songs[song];
-    if(setHasSong(n)){
-      songEmpty(false); // song has parts
-      if(autoTriggerFirstPart()){
-        // trigger first part
-        setPart(0);
+    if(global.setLists[setList].settings[0] > n){
+      song = n;
+      songInLibrary = global.setLists[setList].events[song];
+      if(setHasSong(n)){
+        songEmpty(false); // song has parts
+        if(autoTriggerFirstPart()){
+          // trigger first part
+          setPart(0);
+        }
+      } else {
+        songEmpty(true);
       }
-    } else {
-      songEmpty(true);
+      BMC_PRINTLN("Song #", n);
+      flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
     }
-    BMC_PRINTLN("Song #", n);
-    flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
   }
-
   void setPart(uint8_t n=0){
     if(n >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    songPart = n;
-    //if(songEmpty() && global.songLibrary[songInLibrary].parts[songPart].length==1){
-    if(songHasPart(songPart)){
-      partEmpty(false);
-      bmcPreset_t value = global.songLibrary[songInLibrary].parts[songPart].preset;
-      presets.set(value);
-    } else {
-      partEmpty(true);
+    if(global.songLibrary[songInLibrary].settings[0] > n){
+      songPart = n;
+      if(songHasPart(songPart)){
+        partEmpty(false);
+        uint16_t value = global.songLibrary[songInLibrary].events[songPart];
+        presets.set(value);
+      } else {
+        partEmpty(true);
+      }
+      BMC_PRINTLN("Part #", n);
+      flags.on(BMC_FLAG_SETLISTS_SONG_PART_CHANGED);
     }
-    BMC_PRINTLN("Part #", n);
-    flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
   }
 
   // get setlist info
@@ -88,102 +93,22 @@ public:
   }
   uint8_t getSetListLength(uint8_t n){
     if(n < BMC_MAX_SETLISTS_SONGS){
-      return global.setLists[n].length;
+      return global.setLists[n].settings[0];
     }
     return 0;
   }
-  void getName(char* t_string){
-    getName(setList, t_string);
-  }
-  void getName(uint8_t n, char* t_string){
-#if BMC_NAME_LEN_SETLISTS > 1
-    if(n < BMC_MAX_SETLISTS){
-      strcpy(t_string, global.setLists[n].name);
-    }
-#endif
-  }
-  // ****************
-  // get song info
-  // ****************
   uint8_t getSet(){
     return setList;
   }
-  // ****************
-  // get song info
-  // ****************
-  bmcPreset_t getSong(){
+  uint8_t getSong(){
     return song;
   }
-  // ****************
-  // get part info
-  // ****************
+  uint16_t getSongInLibrary(){
+    return songInLibrary;
+  }
   uint8_t getPart(){
     return songPart;
   }
-
-
-  bmcPreset_t getSongPreset(){
-    return global.setLists[setList].songs[song];
-  }
-  bmcPreset_t getSongPreset(uint8_t n){
-    if(n<BMC_MAX_SETLISTS_SONGS){
-      return global.setLists[setList].songs[n];
-    }
-    return 0;
-  }
-
-
-
-
-  // Set List Scrolling
-  void scroll(uint8_t t_amount, bool t_up, bool t_endless){
-
-    scroll(t_amount, t_up, t_up, 0, BMC_MAX_SETLISTS-1);
-  }
-  void scroll(uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
-    scroll(t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
-  }
-  void scroll(uint8_t t_amount, bool t_up, bool t_endless, uint8_t t_min, uint8_t t_max){
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_SETLISTS-1);
-    set(scroller.scroll(t_amount, t_up, t_endless, setList, t_min, t_max));
-  }
-
-  // Song Scrolling
-  void scrollSong(uint8_t t_amount, bool t_up, bool t_endless){
-    uint8_t t_max = BMC_MAX_SETLISTS_SONGS-1;
-    if(global.setLists[setList].length > 1){
-      t_max = global.setLists[setList].length-1;
-    }
-    scrollSong(t_amount, t_up, t_up, 0, t_max);
-  }
-  void scrollSong(uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
-    scrollSong(t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
-  }
-  void scrollSong(uint8_t t_amount, bool t_up, bool t_endless, uint8_t t_min, uint8_t t_max){
-    if(t_min == t_max  || ((t_min==0 && t_max == BMC_MAX_SETLISTS_SONGS-1) && global.setLists[setList].length > 1)){
-      t_min = 0;
-      t_max = global.setLists[setList].length-1;
-    }
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_SETLISTS_SONGS-1);
-    setSong(scroller.scroll(t_amount, t_up, t_endless, song, t_min, t_max));
-  }
-
-  // Part Scrolling
-  void scrollPart(uint8_t t_amount, bool t_up, bool t_endless){
-    scrollPart(t_amount, t_up, t_up, 0, BMC_MAX_SETLISTS_SONG_PARTS-1);
-  }
-  void scrollPart(uint8_t t_amount, uint8_t t_flags, uint8_t t_min, uint8_t t_max){
-    scrollPart(t_amount, bitRead(t_flags,0), bitRead(t_flags,1), t_min, t_max);
-  }
-  void scrollPart(uint8_t t_amount, bool t_up, bool t_endless, uint8_t t_min, uint8_t t_max){
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_SETLISTS_SONG_PARTS-1);
-    setPart(scroller.scroll(t_amount, t_up, t_endless, song, t_min, t_max));
-  }
-
-  bool autoTriggerFirstPart(){
-    return bitRead(global.songLibrary[songInLibrary].settings, 0)==0;
-  }
-
   // notification
   bool setListChanged(){
     return flags.toggleIfTrue(BMC_FLAG_SETLISTS_CHANGED);
@@ -191,137 +116,130 @@ public:
   bool songChanged(){
     return flags.toggleIfTrue(BMC_FLAG_SETLISTS_SONG_CHANGED);
   }
+  bool partChanged(){
+    return flags.toggleIfTrue(BMC_FLAG_SETLISTS_SONG_PART_CHANGED);
+  }
+  uint16_t getSongPreset(){
+    return global.setLists[setList].events[song];
+  }
+  uint16_t getSongPreset(uint8_t n){
+    if(n<BMC_MAX_SETLISTS_SONGS){
+      return global.setLists[setList].events[n];
+    }
+    return 0;
+  }
+  void scrollSet(bool t_up, bool t_endless, uint8_t t_amount, bool firstSong=true){
+    uint8_t t_max = BMC_MAX_SETLISTS-1;
+    //uint8_t t_max = global.setLists[n].settings[0];
+    BMCScroller <uint8_t> scroller(0, t_max);
+    set(scroller.scroll(t_amount, t_up, t_endless, setList, 0, t_max), firstSong);
+  }
+  void scrollSong(bool t_up, bool t_endless, uint8_t t_amount){
+    uint8_t len = global.setLists[setList].settings[0];
 
-
-
+    if(len > 1){
+      //uint8_t t_max = BMC_MAX_SETLISTS_SONGS-1;
+      uint8_t t_max = global.setLists[setList].settings[0]-1;
+      BMCScroller <uint8_t> scroller(0, t_max);
+      setSong(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
+    }
+  }
+  void scrollPart(bool t_up, bool t_endless, uint8_t t_amount){
+    //uint8_t t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
+    uint8_t t_max = global.songLibrary[songInLibrary].settings[0]-1;
+    BMCScroller <uint8_t> scroller(0, t_max);
+    setPart(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
+  }
+  bool autoTriggerFirstSong(){
+    return globals.settings.getSetListTriggerFirstSong();
+  }
+  bool autoTriggerFirstPart(){
+    return globals.settings.getSetListTriggerFirstSongPart();
+  }
 
 
   // check if the current set has any songs
   bool setHasSongs(){
-    return global.setLists[setList].length > 0;
+    return global.setLists[setList].settings[0] > 0;
   }
   // check if a specific set has any songs
   bool setHasSongs(uint8_t n){
     if(n > BMC_MAX_SETLISTS){
       return false;
     }
-    return global.setLists[n].length > 0;
+    return global.setLists[n].settings[0] > 0;
   }
   // check if the current set has a specific song number
   bool setHasSong(uint8_t n){
     if(!setHasSongs()){
       return false;
     }
-    return global.setLists[setList].length > n;
+    return global.setLists[setList].settings[0] > n;
   }
 
 
 
   // check if the current song has any parts
   bool songHasParts(){
-    return global.songLibrary[songInLibrary].length > 0;
+    return global.songLibrary[songInLibrary].settings[0] > 0;
   }
   // check if the current song has any parts
   bool songHasParts(uint8_t n){
     if(n > BMC_MAX_SETLISTS_SONG_PARTS){
       return false;
     }
-    n = global.setLists[setList].songs[n];
-    return global.songLibrary[n].length > 0;
+    n = global.setLists[setList].events[n];
+    return global.songLibrary[n].settings[0] > 0;
   }
   // check if the current song has a specific part number
   bool songHasPart(uint8_t n){
     if(!songHasParts() || n > BMC_MAX_SETLISTS_SONG_PARTS){
       return false;
     }
-    return global.songLibrary[songInLibrary].parts[n].length==1;
+    return global.songLibrary[songInLibrary].events[n] > 0;
   }
 
-
-  void getSetName(uint8_t n, char * str){
-#if BMC_NAME_LEN_SETLISTS > 1
-    if(!setHasSongs(n) || n > BMC_MAX_SETLISTS || strlen(global.setLists[n].name)==0){
-      strcpy(str, "-");
-    } else {
-      strcpy(str, global.setLists[n].name);
+  bmcStoreName getSetName(){
+    return getSetName(setList);
+  }
+  bmcStoreName getSetName(uint8_t t_set){
+    if(t_set < BMC_MAX_SETLISTS && global.setLists[t_set].name != 0){
+      return globals.getDeviceName(global.setLists[t_set].name);
     }
-#else
-    strcpy(str, "-");
-#endif
-  }
-  void getSetName(char * str){
-#if BMC_NAME_LEN_SETLISTS > 1
-    if(!setHasSongs() || strlen(global.setLists[setList].name)==0){
-      strcpy(str, "-");
-    } else {
-      strcpy(str, global.setLists[setList].name);
-    }
-#else
-    strcpy(str, "-");
-#endif
+    bmcStoreName t;
+    sprintf(t.name, "Set # %02u", t_set+1);
+    return t;
   }
 
-
-
-  void getSongName(uint8_t n, char * str){
-#if BMC_NAME_LEN_SETLIST_SONG > 1
-    if(!songHasParts(n) || n > BMC_MAX_SETLISTS_SONGS){
-      strcpy(str, "-");
-    } else {
-      bmcPreset_t s = global.setLists[setList].songs[n];
-      if(strlen(global.songLibrary[s].name)==0){
-        strcpy(str, "-");
-      } else {
-        strcpy(str, global.songLibrary[s].name);
+  bmcStoreName getSongName(){
+    return getSongName(song);
+  }
+  bmcStoreName getSongName(uint8_t t_song){
+    if(global.setLists[setList].settings[0] > t_song){
+      uint16_t s = global.setLists[setList].events[t_song]-1;
+      if(global.songLibrary[s].name != 0){
+        return globals.getDeviceName(global.songLibrary[s].name);
       }
     }
-#else
-    strcpy(str, "-");
-#endif
+    bmcStoreName t;
+    sprintf(t.name, "Song # %02u", t_song+1);
+    return t;
   }
-  void getSongName(char * str){
-#if BMC_NAME_LEN_SETLIST_SONG > 1
-    if(!songHasParts(song)){
-      strcpy(str, "-");
-    } else {
-      bmcPreset_t s = global.setLists[setList].songs[song];
-      if(strlen(global.songLibrary[s].name)==0){
-        strcpy(str, "-");
-      } else {
-        strcpy(str, global.songLibrary[s].name);
+
+  bmcStoreName getPartName(){
+    return getPartName(songPart);
+  }
+  bmcStoreName getPartName(uint8_t t_part){
+    if(global.songLibrary[songInLibrary].settings[0] > t_part){
+      uint16_t p = global.songLibrary[songInLibrary].events[t_part]-1;
+      if(p < BMC_MAX_PRESETS && global.presets[p].name != 0){
+        return globals.getDeviceName(global.presets[p].name);
       }
     }
-#else
-    strcpy(str, "-");
-#endif
+    bmcStoreName t;
+    sprintf(t.name, "Part # %02u", t_part+1);
+    return t;
   }
-
-
-  void getPartName(uint8_t n, char * str){
-#if BMC_NAME_LEN_SETLIST_SONG_PART > 1
-    if(!songHasPart(n) || n > BMC_MAX_SETLISTS_SONG_PARTS || strlen(global.songLibrary[songInLibrary].parts[n].name)==0){
-      strcpy(str, "-");
-    } else {
-      strcpy(str, global.songLibrary[songInLibrary].parts[n].name);
-    }
-#else
-    strcpy(str, "-");
-#endif
-  }
-  void getPartName(char * str){
-#if BMC_NAME_LEN_SETLIST_SONG_PART > 1
-    if(!songHasPart(songPart) || strlen(global.songLibrary[songInLibrary].parts[songPart].name)==0){
-      strcpy(str, "-");
-    } else {
-      strcpy(str, global.songLibrary[songInLibrary].parts[songPart].name);
-    }
-#else
-    strcpy(str, "-");
-#endif
-  }
-
-
-
   // setlist
   bool setListEmpty(bool state){
     bitWrite(songFlags, BMC_SETLIST_FLAG_EMPTY_SET, state);
@@ -357,9 +275,9 @@ private:
   BMCPresets& presets;
   BMCFlags <uint8_t> flags;
   uint8_t & setList;
-  bmcPreset_t & song;
+  uint16_t & song;
   uint8_t & songPart;
-  bmcPreset_t & songInLibrary;
+  uint16_t & songInLibrary;
   uint8_t & songFlags;
 };
 

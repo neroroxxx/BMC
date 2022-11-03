@@ -19,7 +19,7 @@ void BMC::setupRelaysNL(){
     bool momentary = bitRead(device.settings[0], 1);
     bool reversed = bitRead(device.settings[0], 2);
 
-    relaysNL[i].begin(ui.pin, momentary, reversed);
+    relaysNL[i].begin(ui.pins[0], momentary, reversed);
     relaysNL[i].command(initialState);
   }
   assignRelaysNL();
@@ -139,7 +139,7 @@ void BMC::setupRelaysL(){
     bool momentary = bitRead(device.settings[0], 1);
     bool reversed = bitRead(device.settings[0], 2);
 
-    relaysL[i].begin(ui.pin, ui.pinB, momentary, reversed);
+    relaysL[i].begin(ui.pins[0], ui.pins[1], momentary, reversed);
     // bit 0 of event is initial state
     relaysL[i].command(initialState);
 
@@ -148,7 +148,7 @@ void BMC::setupRelaysL(){
     uint8_t m = BMC_GET_BYTE(3,globalData.relaysL[i].event>>1);
     bool momentary = bitRead(m, 5);
     bool reversed = bitRead(m, 6);
-    relaysL[i].begin(ui.pin, ui.pinB, momentary, reversed);
+    relaysL[i].begin(ui.pins[0], ui.pins[1], momentary, reversed);
      // bit 0 of event is initial state
     relaysL[i].command(globalData.relaysL[i].event & 0x01);
     */

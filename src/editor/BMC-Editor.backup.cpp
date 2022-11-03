@@ -137,7 +137,7 @@ void BMCEditor::backupGlobalLibrary(uint16_t t_minLength){
 void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
   /*
 #if BMC_MAX_PRESETS > 0
-  bmcPreset_t index = (bmcPreset_t) getMessagePageNumber();
+  uint16_t index = (uint16_t) getMessagePageNumber();
   if(index >= BMC_MAX_PRESETS){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
@@ -200,7 +200,7 @@ void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
   // from the standard read/write messages
   if(incoming.size() >= t_minLength){
     //uint8_t index = BMC_MIDI_ARRAY_TO_8BITS(9,incoming.sysex);
-    bmcPreset_t index = incoming.get14Bits(9);
+    uint16_t index = incoming.get14Bits(9);
     if(index >= BMC_MAX_PRESETS){
       index = 0;
     }
@@ -211,6 +211,7 @@ void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
   */
 }
 void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
+  /*
 #if BMC_MAX_SETLISTS > 0
   uint16_t index = getMessagePageNumber();
   if(index >= BMC_MAX_SETLISTS){
@@ -243,7 +244,7 @@ void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
         // only add the item if it's within the limir compiled
         if(i < BMC_MAX_SETLISTS_SONGS){
           //item.songs[i] = BMC_MIDI_ARRAY_TO_8BITS(e,incoming.sysex);
-          item.songs[i] = (bmcPreset_t) incoming.get14Bits(e);
+          item.songs[i] = (uint16_t) incoming.get14Bits(e);
           // if the library item is higher than the compiled we set it
           // to 0 and we lower the length of items that are part of the preset
           if(item.songs[i] >= BMC_MAX_PRESETS){
@@ -266,8 +267,10 @@ void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
+  /*
 #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0 && BMC_MAX_SETLISTS_SONG_PARTS > 0
   // the name length must be appended to the sysex before the CRC
   if(incoming.size() >= (t_minLength+2)){
@@ -276,7 +279,7 @@ void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
     // check the length of the message, it must match this length
     // for it to be used
     if(incoming.size()==(nameLengthSong+nameLengthPart+t_minLength+2)){
-      bmcPreset_t songIndex = (bmcPreset_t) incoming.get14Bits(9);
+      uint16_t songIndex = (uint16_t) incoming.get14Bits(9);
       uint8_t partIndex = incoming.sysex[11];
 
       bmcStoreGlobalSetListSong& song = store.global.songLibrary[songIndex];
@@ -286,7 +289,7 @@ void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
       song.length = incoming.get8Bits(14);//+2
 
       part.length = incoming.get8Bits(16);//+2
-      part.preset = (bmcPreset_t) incoming.get14Bits(18);
+      part.preset = (uint16_t) incoming.get14Bits(18);
 
       if(part.preset > BMC_MAX_PRESETS){
         part.length = 0;
@@ -313,6 +316,7 @@ void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalCustomSysEx(uint16_t t_minLength){
 #if BMC_MAX_CUSTOM_SYSEX > 0

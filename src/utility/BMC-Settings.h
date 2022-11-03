@@ -157,7 +157,7 @@ public:
   }
 
   // data array
-  
+
   uint8_t getListenerChannel(){
     return (settings.data[0]>>2) & 0x1F;
   }
@@ -372,12 +372,25 @@ public:
   uint16_t getBleRouting(){
     return settings.routing[6];
   }
-
+  // button hold threshold
   uint8_t getButtonHoldThreshold(){
     return settings.data[2] & 0x0F;
   }
   void setButtonHoldThreshold(uint8_t value){
-    BMC_WRITE_BITS(settings.data[2],value,0x0F,0);
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 0); //0-3
+  }
+  // set lists
+  uint8_t getSetListTriggerFirstSong(){
+    return bitRead(settings.data[2], 4);
+  }
+  void setSetListTriggerFirstSong(uint8_t value){
+    bitWrite(settings.data[2], value, 4);
+  }
+  uint8_t getSetListTriggerFirstSongPart(){
+    return bitRead(settings.data[2], 5);
+  }
+  void setSetListTriggerFirstSongPart(uint8_t value){
+    bitWrite(settings.data[2], value, 5);
   }
 };
 

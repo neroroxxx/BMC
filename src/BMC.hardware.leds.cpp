@@ -12,7 +12,7 @@ void BMC::setupLeds(){
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
-    leds[i].begin(ui.pin);
+    leds[i].begin(ui.pins[0]);
 
     #if BMC_PAGE_LED_DIM == true
     leds[i].setPwmOffValue(settings.getPwmDimWhenOff());
@@ -33,7 +33,7 @@ void BMC::setupLeds(){
 #if BMC_MAX_GLOBAL_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_LED, i);
-    globalLeds[i].begin(ui.pin);
+    globalLeds[i].begin(ui.pins[0]);
     //globalLeds[i].begin(BMCBuildData::getGlobalLedPin(i));
 
     #if BMC_GLOBAL_LED_DIM == true
@@ -57,6 +57,7 @@ void BMC::setupLeds(){
 
 #if BMC_MAX_LEDS > 0
 void BMC::assignLeds(){
+  globals.ledStates.clear();
   for(uint16_t index = 0; index < BMC_MAX_LEDS; index++){
     bmcStoreDevice <1, 1>& device = store.pages[page].leds[index];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
@@ -104,7 +105,7 @@ void BMC::readLeds(){
 #endif
 
   }
-  if(globals.ledStates.hasChanged()){
+  if(globals.ledStates.hasChanged() || editor.triggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_LED);
   }
 }
@@ -115,6 +116,7 @@ void BMC::readLeds(){
   Read
 */
 void BMC::assignGlobalLeds(){
+  globals.globalLedStates.clear();
   for(uint16_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
     bmcStoreDevice <1, 1>& device = store.global.leds[index];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
@@ -164,7 +166,7 @@ void BMC::readGlobalLeds(){
 #endif
   }
 
-  if(globals.globalLedStates.hasChanged()){
+  if(globals.globalLedStates.hasChanged() || editor.triggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_LED);
   }
 }

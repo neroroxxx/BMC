@@ -85,6 +85,7 @@ public:
     presetChanged = 0;
     setListChanged = 0;
     setListSongChanged = 0;
+    setListSongPartChanged = 0;
     presetBankChanged = 0;
     eepromErased = 0;
     programBankChanged = 0;
@@ -210,10 +211,11 @@ public:
   bool (*midiPreRoute)(BMCMidiMessage& data, uint8_t destinations);
 
   void (*valueStream)(BMCValueStream item);
-  void (*presetChanged)(bmcPreset_t n);
+  void (*presetChanged)(uint8_t t_bank, uint8_t t_preset);
   void (*presetBankChanged)(uint8_t n);
   void (*setListChanged)(uint8_t n);
   void (*setListSongChanged)(uint8_t n);
+  void (*setListSongPartChanged)(uint8_t n);
 
   void (*programBankChanged)(uint8_t n);
   void (*programBankTrigger)(uint8_t n);

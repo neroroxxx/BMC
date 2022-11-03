@@ -339,7 +339,7 @@ public:
   }
 #endif
   // triggered when a BMC Preset has changed
-  void onPresetChange(void (*fptr)(bmcPreset_t n)){
+  void onPresetChange(void (*fptr)(uint8_t t_bank, uint8_t t_preset)){
     callback.presetChanged = fptr;
   }
   // triggered when a BMC Preset Bank has changed
@@ -660,7 +660,7 @@ public:
       getPresetName(presets.get(), t_string);
     }
     // retrieve a preset name
-    void getPresetName(bmcPreset_t n, char* t_string){
+    void getPresetName(uint16_t n, char* t_string){
       if(n<BMC_MAX_PRESETS){
         presets.getName(n, t_string);
       }
@@ -668,17 +668,18 @@ public:
     */
   #endif
   // get how many library messages this preset has
-  uint8_t getPresetLength(bmcPreset_t n){
+  /*
+  uint8_t getPresetLength(uint16_t n){
     return presets.getLength(n);
   }
-  /*
+
   // get a library message id
-  bmcLibrary_t getPresetItem(bmcPreset_t n, bmcLibrary_t e){
+  bmcLibrary_t getPresetItem(uint16_t n, bmcLibrary_t e){
     return presets.getPresetItem(n, e);
   }
-  */
+
   // get the current preset number
-  bmcPreset_t getPreset(){
+  uint16_t getPreset(){
     return presets.get();
   }
   // get the current preset bank
@@ -690,7 +691,7 @@ public:
     return presets.getPresetInBank();
   }
   // change to a preset
-  void setPreset(bmcPreset_t n){
+  void setPreset(uint16_t n){
     presets.set(n);
   }
   // go to the next preset
@@ -731,9 +732,11 @@ public:
   void presetInBankDown(bool endless){
     presets.scrollInBank(1, false, endless);
   }
+  */
 #endif
 
 #if BMC_MAX_SETLISTS > 0
+/*
   #if BMC_NAME_LEN_SETLISTS > 1
     // get the name of the current setlist
     void getSetListName(char* t_string){
@@ -746,6 +749,7 @@ public:
       }
     }
   #endif
+*/
   #if BMC_NAME_LEN_PRESETS > 1
   /*
     // get the name of the current song in the current setlist
@@ -761,6 +765,7 @@ public:
     */
   #endif
   // get the current SetList number
+/*
   uint8_t getSetList(){
     return setLists.get();
   }
@@ -888,6 +893,7 @@ public:
     editor.saveSetList(s);
     return true;
   }
+*/
 #endif
 
 #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0

@@ -8,6 +8,7 @@
 #define BMC_DISPLAY_H
 #include "utility/BMC-Def.h"
 
+
 #if defined(BMC_HAS_DISPLAY)
 #define BMC_ILI9341_VU_GREY 0x39C7
 #define BMC_ILI9341_VU_METER_H 2
@@ -125,7 +126,6 @@ public:
         }
       }
 #endif
-
     }
 #endif
   }
@@ -300,7 +300,7 @@ public:
   void update(uint8_t page){
 
   }
-  void renderPresetNumber(bmcPreset_t n){
+  void renderPresetNumber(uint16_t n){
 
   }
   void printHorizontalMeter(uint8_t n, uint8_t value){
@@ -323,11 +323,39 @@ public:
 #endif
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
-ILI9341_t3 & getILI9341(){
-  return tft.display;
-}
+  ILI9341_t3 & getILI9341(){
+    return tft.display;
+  }
+  void menuCommand(uint8_t cmd){
+    if(cmd == 0){
+      return;
+    }
+    /*
+    #define BMC_MENU_TOGGLE	 1
+    #define BMC_MENU_SELECT	 2
+    #define BMC_MENU_BACK  	 3
+    #define BMC_MENU_UP    	 4
+    #define BMC_MENU_DOWN  	 5
+    #define BMC_MENU_INC   	 6
+    #define BMC_MENU_DEC   	 7
+    */
+  }
 #endif
 
+void renderNumber(uint8_t n, bool isOled, uint8_t type, uint16_t value, const char * format){
+  char str[6] = "";
+  if(value<10){
+    sprintf(str, "%01u", value);
+  } else if(value<100){
+    sprintf(str, "%02u", value);
+  } else if(value<1000){
+    sprintf(str, "%03u", value);
+  } else {
+    sprintf(str, "%04u", value);
+  }
+
+  renderText(n, isOled, type, str);
+}
 
 void renderText(uint8_t n, bool isOled, uint8_t type, const char * str, uint8_t xShift=0, uint8_t yShift=0){
   uint8_t len = strlen(str)+1;
@@ -335,6 +363,7 @@ void renderText(uint8_t n, bool isOled, uint8_t type, const char * str, uint8_t 
   strncpy(c, str, len);
   renderText(n, isOled, type, c, xShift, yShift);
 }
+
 void renderText(uint8_t n, bool isOled, uint8_t type, char * t_str, uint8_t xShift=0, uint8_t yShift=0){
 #if BMC_MAX_OLED > 1
   if(isOled){

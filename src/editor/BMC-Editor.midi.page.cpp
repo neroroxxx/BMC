@@ -1331,6 +1331,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 #endif
       break;
     case BMC_DEVICE_ID_SETLIST:
+/*
 #if BMC_MAX_SETLISTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalSetList x = store.global.setLists[sourceItem];
@@ -1349,8 +1350,10 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+*/
       break;
     case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
+/*
 #if BMC_MAX_SETLISTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalSetListSong x = store.global.songLibrary[sourceItem];
@@ -1369,6 +1372,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+*/
       break;
     case BMC_DEVICE_ID_CUSTOM_SYSEX:
 #if BMC_MAX_CUSTOM_SYSEX > 0

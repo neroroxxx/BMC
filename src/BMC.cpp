@@ -7,9 +7,9 @@
 #include <BMC.h>
 // Initialize all compiled objects
 BMC::BMC():
-  globals(store),
-  globalData(store.global),
   settings(store.global.settings),
+  globals(store, settings),
+  globalData(store.global),
   midi(callback, globals, store.global.portPresets),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
@@ -50,11 +50,13 @@ BMC::BMC():
       ,beatBuddy
     #endif
     )
-    #if BMC_MAX_PRESETS > 0
-      ,presets(midi, store.global, library)
-      #if BMC_MAX_SETLISTS > 0
-        ,setLists(globals, store.global, presets)
-      #endif
+  #endif
+  #if BMC_MAX_PRESETS > 0
+    //,presets(globals, store.global)
+    ,presets(globals)
+    #if BMC_MAX_SETLISTS > 0
+      //,setLists(globals, store.global, presets)
+      ,setLists(presets)
     #endif
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
@@ -194,11 +196,11 @@ void BMC::update(){
       // send the startup Preset if any
       if(settings.getMidiStartup()){
         delay(1);
-        presets.send(globalData.startup);
+        presets.set(globalData.startup);
       }
       #if BMC_MAX_SETLISTS > 0
         // set the first setlist and trigger it's first song and part
-        setLists.set(0, true);
+        setLists.set(0);
         setLists.setPart(0);
       #endif
     #endif
@@ -284,6 +286,9 @@ void BMC::update(){
       }
       if(setLists.songChanged()){
         runSongChanged();
+      }
+      if(setLists.partChanged()){
+        runSongPartChanged();
       }
     #endif
   #endif

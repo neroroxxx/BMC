@@ -12,14 +12,14 @@ void BMC::setupEncoders(){
 #if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ENCODER, i);
-    encoders[i].begin(ui.pin, ui.pinB);
+    encoders[i].begin(ui.pins[0], ui.pins[1]);
   }
 #endif
 
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
-    globalEncoders[i].begin(ui.pin, ui.pinB);
+    globalEncoders[i].begin(ui.pins[0], ui.pins[1]);
   }
   assignGlobalEncoders();
 #endif
@@ -251,7 +251,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       // byteA = max Presets
       // byteB = max Presets
       // byteC = limit, BMC_SCROLL_LIMITED, BMC_SCROLL_ENDLESS
-      tmp = (bmcPreset_t) getNewEncoderValue(
+      tmp = (uint16_t) getNewEncoderValue(
         mode,
         presets.get(),
         0, BMC_MAX_PRESETS-1,

@@ -65,11 +65,11 @@
 #endif
 
 
-#if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   #include "hardware/BMC-Led.h"
 #endif
 
-#if BMC_PIXELS_PORT > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
+#if BMC_TOTAL_PIXELS > 0
   #include "hardware/BMC-Pixels.h"
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     #include "utility/BMC-PixelPrograms.h"
@@ -178,6 +178,7 @@ public:
   void nextPage();
   void prevPage();
   // scroll to a different page, either the previous or next page
+  void scrollPage(bool t_dir, bool t_endless, uint8_t t_amount);
   void scrollPage(uint8_t t_settings, uint8_t t_amount);
   void scrollPage(uint8_t t_flags, uint8_t t_min,
                   uint8_t t_max, uint8_t t_amount);
@@ -210,14 +211,14 @@ private:
   // MAIN OBJECTS, these must remain in this order!!!!
   // the struct holding all data stored in EEPROM/SD
   bmcStore store;
+  // this is wrapper to get/set data into store.global.settings
+  BMCSettings settings;
   // BMC data that holds flags and global variables
   BMCGlobals globals;
   // a reference to store.global
   bmcStoreGlobal& globalData;
   // it holds a reference to store.global.settings
   BMCFlags <uint8_t> flags;
-  // this is wrapper to get/set data into store.global.settings
-  BMCSettings settings;
   // the global midi object
   BMCMidi midi;
   // value typer object
@@ -314,8 +315,8 @@ private:
   }
   void runPresetChanged(){
 #if BMC_MAX_PRESETS > 0
-    bmcPreset_t t_preset = presets.get();
-    uint8_t len = presets.getLength();
+    triggerPreset(presets.getIndex(), presets.getLength());
+    /*
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
       //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
@@ -326,14 +327,28 @@ private:
 
     }
     editor.utilitySendPreset(t_preset);
-    /*
+    */
+/*
     char presetName[30] = "";
     presets.getName(t_preset, presetName);
     streamToSketch(BMC_DEVICE_ID_PRESET, t_preset, presetName);
-    */
+*/
     if(callback.presetChanged){
-      callback.presetChanged(t_preset);
+      callback.presetChanged(presets.getBank(), presets.get());
     }
+#endif
+  }
+  void triggerPreset(uint16_t t_preset, uint8_t len){
+#if BMC_MAX_PRESETS > 0
+    if(len > 0){
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
+      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+      for(uint8_t i = 0 ; i < len ; i++){
+        processEvent(BMC_DEVICE_GROUP_PRESET, BMC_DEVICE_ID_PRESET,
+                     t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
+      }
+    }
+    editor.utilitySendPreset(t_preset);
 #endif
   }
   void runBankChanged(){
@@ -345,9 +360,11 @@ private:
   }
   void runSetListChanged(){
 #if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+/*
     char setListName[30] = "";
     setLists.getName(setLists.get(), setListName);
     streamToSketch(BMC_DEVICE_ID_SETLIST, setLists.get(), setListName);
+*/
     if(callback.setListChanged){
       callback.setListChanged(setLists.get());
     }
@@ -355,13 +372,29 @@ private:
   }
   void runSongChanged(){
 #if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+
+/*
     char songName[30] = "";
     setLists.getSongName(songName);
     streamToSketch(BMC_DEVICE_ID_SETLIST_SONG, setLists.getSong(), songName);
+*/
     if(callback.setListSongChanged){
       callback.setListSongChanged(setLists.getSong());
     }
 #endif
+  }
+  void runSongPartChanged(){
+    uint16_t songInLibrary = setLists.getSongInLibrary();
+    uint8_t part = setLists.getPart();
+    uint8_t len = store.global.songLibrary[songInLibrary].settings[0];
+    uint16_t p = store.global.songLibrary[songInLibrary].events[part];
+    if(len > 0){
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& preset = store.global.presets[p];
+      triggerPreset(preset.events[part], preset.settings[0]);
+    }
+    if(callback.setListSongPartChanged){
+      callback.setListSongPartChanged(setLists.getPart());
+    }
   }
   void runLibraryChanged(){
 #if BMC_MAX_LIBRARY > 0
@@ -450,60 +483,31 @@ private:
 // PIXELS AND LEDS
 #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
 
-  #if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
+  #if BMC_TOTAL_PIXELS > 0
     // pixels holds both standard pixels and rgb pixels
-
     BMCPixels pixels = BMCPixels(globals);
-
     #if BMC_MAX_PIXELS > 0
-      // code @ BMC.hardware.pixels.cpp
-      /*
-      #if BMC_MAX_PIXELS <= 8
-        uint8_t pixelStates = 0;
-      #elif BMC_MAX_PIXELS <= 16
-        uint16_t pixelStates = 0;
-      #else
-        uint32_t pixelStates = 0;
-      #endif
-      */
-
       uint8_t pixelCustomState[BMC_MAX_PIXELS];
-      void setupPixels();
-      void assignPixels();
-      void readPixels();
-      //void handlePixel(uint8_t index, uint32_t event);
     #endif //#if BMC_MAX_PIXELS > 0
 
     #if BMC_MAX_RGB_PIXELS > 0
-      // code @ BMC.hardware.rgbPixels.cpp
-
-      /*
-      #if BMC_MAX_RGB_PIXELS <= 8
-        uint8_t rgbPixelStatesR = 0;
-        uint8_t rgbPixelStatesG = 0;
-        uint8_t rgbPixelStatesB = 0;
-      #elif BMC_MAX_RGB_PIXELS <= 16
-        uint16_t rgbPixelStatesR = 0;
-        uint16_t rgbPixelStatesG = 0;
-        uint16_t rgbPixelStatesB = 0;
-      #else
-        uint32_t rgbPixelStatesR = 0;
-        uint32_t rgbPixelStatesG = 0;
-        uint32_t rgbPixelStatesB = 0;
-      #endif
-      */
       uint8_t rgbPixelCustomState[BMC_MAX_RGB_PIXELS];
-      void setupRgbPixels();
-      void assignRgbPixels();
-      void readRgbPixels();
-      //void handleRgbPixel(uint8_t index, uint32_t event, uint8_t nColor);
     #endif //#if BMC_MAX_RGB_PIXELS > 0
-
+    void setupPixels();
+    void assignPixels();
+    void readPixels();
     #if BMC_MAX_PIXEL_PROGRAMS > 0
       BMCPixelPrograms pixelPrograms;
     #endif
-
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
+
+
+
+
+
+
+
+
   uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);
 
   void handleClockLeds();

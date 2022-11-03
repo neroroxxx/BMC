@@ -285,6 +285,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // example: BMC_GET_BYTE(2,0x1A2B3C) = 0x1A
 #define BMC_GET_BYTE(byteIndex,item) ((byteIndex>0) ? ((item >> (byteIndex*8)) & 0xFF) : (item & 0xFF))
 
+#define BMC_GET_BYTE_2(byteIndex,item) ((byteIndex>0)?((item >> (byteIndex*8)) & 0xFFFF): (item & 0xFFFF))
+
 // BMC_MERGE_BYTES, merges mutiple bytes into a single int
 // where the first argument becomes the MSB
 // example: BMC_MERGE_BYTES(0x1A,0x2B,0x3C) = 0x1A2B3C
@@ -353,21 +355,13 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_SCROLL_ENDLESS 1
 
 // for menu
-#define BMC_MENU_ENTER    1
-#define BMC_MENU_SELECT   2
-#define BMC_MENU_BACK     3
-#define BMC_MENU_EXIT     4
-#define BMC_MENU_UP       5
-#define BMC_MENU_DOWN     6
-#define BMC_MENU_RIGHT    7
-#define BMC_MENU_LEFT     8
-#define BMC_MENU_INC      9
-#define BMC_MENU_DEC      10
-#define BMC_MENU_SAVE     11
-
-
-
-
+#define BMC_MENU_TOGGLE	 1
+#define BMC_MENU_SELECT	 2
+#define BMC_MENU_BACK  	 3
+#define BMC_MENU_UP    	 4
+#define BMC_MENU_DOWN  	 5
+#define BMC_MENU_INC   	 6
+#define BMC_MENU_DEC   	 7
 
 
 
@@ -2543,6 +2537,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #define BMC_CTRL_RGB_PIXEL_TEST 31
   // fas state
   #define BMC_CTRL_FAS_STATE 35
+  #define BMC_CTRL_GET_STATES 36
+
 
   // BMC_CTRL_GROUP_PRESET 1
   #define BMC_CTRL_PRESET_GET 0

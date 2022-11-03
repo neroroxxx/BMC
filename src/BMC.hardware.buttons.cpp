@@ -12,14 +12,14 @@ void BMC::setupButtons(){
 #if BMC_MAX_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, i);
-    buttons[i].begin(ui.pin);
+    buttons[i].begin(ui.pins[0]);
   }
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
-    globalButtons[i].begin(ui.pin);
+    globalButtons[i].begin(ui.pins[0]);
   }
   assignGlobalButtons();
 #endif

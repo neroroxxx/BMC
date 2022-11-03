@@ -9,6 +9,7 @@
 // these are used for all LEDs and Pixels
 #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
 uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
+  /*
   // ledType
   // 0 = page led (BMC_LED_TYPE_PAGE)
   // 1 = global led (BMC_LED_TYPE_GLOBAL)
@@ -313,6 +314,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
       }
       break;
   }
+  */
   return BMC_OFF_LED_EVENT;
 }
 
@@ -348,12 +350,11 @@ void BMC::handleClockLeds(){
       // last 4 bits are always the color
       leds[index].pulse();
     }
-    /*
-    bmcStoreLed& item = store.pages[page].leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      leds[index].pulse();
-    }
-    */
+
+    //bmcStoreLed& item = store.pages[page].leds[index];
+    //if(BMCTools::isMidiClockLedEvent(item.event)){
+      //leds[index].pulse();
+    //}
   }
 #endif
 
@@ -410,6 +411,7 @@ void BMC::handleClockLeds(){
     }
   }
 #endif
+
 }
 
 

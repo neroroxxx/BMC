@@ -24,7 +24,8 @@ class BMC_ILI9341 {
     //display.setFont(&BMCDisplay_Font);
     //display.setFont(Arial_24);
     display.setTextWrap(false);
-    display.setTextSize(2);
+    //display.setTextSize(2);
+    //display.setFont(Arial_16);
     display.setTextColor(BMC_ILI9341_WHITE);
     display.setRotation(rotation);
     display.drawRect(0, 0, 320, 240, BMC_ILI9341_WHITE);

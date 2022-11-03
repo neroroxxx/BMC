@@ -12,14 +12,14 @@ void BMC::setupPots(){
 #if BMC_MAX_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_POT, i);
-    pots[i].begin(ui.pin);
+    pots[i].begin(ui.pins[0]);
   }
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_POT, i);
-    globalPots[i].begin(ui.pin);
+    globalPots[i].begin(ui.pins[0]);
   }
   assignGlobalPots();
 #endif
@@ -87,8 +87,9 @@ void BMC::readPots(){
       }
     }
 #endif
+    bool sendData = false;
     if(pots[i].update()){
-
+      sendData = true;
       uint8_t value = pots[i].getValue();
 #if defined(BMC_DEBUG)
       if(globals.getPotsDebug()){
@@ -105,10 +106,11 @@ void BMC::readPots(){
       } else if(callback.potActivity){
         callback.potActivity(i, value);
       }
-      if(globals.editorConnected()){
-        editor.utilitySendPotActivity(i, pots[i].getPosition());
-      }
     }
+    if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
+      editor.utilitySendPotActivity(i, pots[i].getPosition());
+    }
+
   }
 }
 void BMC::potParseToeSwitch(uint16_t event, bool on, uint8_t ports){
@@ -191,15 +193,15 @@ void BMC::readGlobalPots(){
       }
     }
 #endif
-
+    bool sendData = false;
     if(globalPots[i].update()){
+      sendData = true;
       uint8_t value = globalPots[i].getValue();
 #if defined(BMC_DEBUG)
       if(globals.getPotsDebug()){
         BMC_PRINTLN("Global Pot #",i," > value:",value,"raw:",getGlobalPotAnalogValue(i));
       }
 #endif
-      //handlePot(globalData.pots[i], value);
       processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_GLOBAL_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
       // HANDLE CALLBACKS
 
@@ -208,9 +210,10 @@ void BMC::readGlobalPots(){
       } else if(callback.globalPotActivity){
         callback.globalPotActivity(i, value);
       }
-      if(globals.editorConnected()){
-        editor.utilitySendGlobalPotActivity(i, globalPots[i].getPosition());
-      }
+
+    }
+    if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
+      editor.utilitySendGlobalPotActivity(i, globalPots[i].getPosition());
     }
   }
 }

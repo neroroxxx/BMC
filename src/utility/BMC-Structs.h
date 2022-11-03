@@ -11,8 +11,7 @@
 
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
-  int16_t pin = -1;
-  int16_t pinB = -1;
+  int16_t pins[3] = {-1};
   uint16_t x = 0;
   uint16_t y = 0;
   uint8_t style = 0;
@@ -23,11 +22,34 @@ struct BMCUIData {
   uint16_t other2 = 0;
 };
 
-
+struct BMCEventScrollData {
+  bool enabled = false;
+  bool direction = false;
+  bool endless = true;
+  uint8_t amount = 1;
+  BMCEventScrollData(uint8_t settings, uint8_t ticks){
+    enabled = bitRead(settings, 0);
+    direction = bitRead(settings, 1);
+    endless = bitRead(settings, 2);
+    if(ticks > 0){
+      direction = bitRead(ticks, 7);
+    }
+    if(!enabled){
+      endless = true;
+    }
+    amount = ticks & 0x7F;
+    if(amount==0){
+      amount = 1;
+    }
+  }
+};
 template <uint16_t len>
 struct BMCBitStates {
   uint16_t value[((len >> 4) & 0x0F)+1];
   bool updated = false;
+  BMCBitStates(){
+    memset(value, 0 , ((len >> 4) & 0x0F)+1);
+  }
   uint8_t getLength(){
     return ((len >> 4) & 0x0F)+1;
   }
@@ -54,7 +76,7 @@ struct BMCBitStates {
   void setBit(uint16_t n, bool newValue){
     uint8_t mask = (n >> 4) & 0x0F;
     uint8_t bit = n & 0x0F;
-    if(bitRead(value[mask], bit)!=newValue){
+    if(bitRead(value[mask], bit) != newValue){
       bitWrite(value[mask], bit, newValue);
       updated = true;
     }
