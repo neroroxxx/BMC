@@ -123,7 +123,7 @@
     #endif
     #if BMC_MAX_POTS > 0
       //bmcStorePot      pots[BMC_MAX_POTS];
-      bmcStoreDevice <1, 2> pots[BMC_MAX_POTS];
+      bmcStoreDevice <1, 6> pots[BMC_MAX_POTS];
     #endif
     #if BMC_MAX_OLED > 0
       bmcStoreDevice <1, 1> oled[BMC_MAX_OLED];
@@ -269,7 +269,7 @@
     #endif
     #if BMC_MAX_GLOBAL_POTS > 0
       //bmcStorePot      pots[BMC_MAX_GLOBAL_POTS];
-      bmcStoreDevice <1, 2> pots[BMC_MAX_GLOBAL_POTS];
+      bmcStoreDevice <1, 3> pots[BMC_MAX_GLOBAL_POTS];
       bmcStoreGlobalPotCalibration globalPotCalibration[BMC_MAX_GLOBAL_POTS];
     #endif
     #if BMC_MAX_POTS > 0
@@ -298,7 +298,7 @@
     #endif
     bmcStorePortPresets portPresets;
     #if BMC_MAX_PIXEL_PROGRAMS > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0)
-      //bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
+      bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
     #endif
     #if BMC_MAX_TIMED_EVENTS > 0
       bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];

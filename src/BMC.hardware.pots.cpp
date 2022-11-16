@@ -24,6 +24,7 @@ void BMC::setupPots(){
   assignGlobalPots();
 #endif
 }
+/*
 void BMC::assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration){
   pot.reassign();
   pot.setCalibration(
@@ -31,7 +32,7 @@ void BMC::assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibrati
     calibration.max
   );
   uint32_t event = data.event;
-  pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
+  //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
   switch(event & 0xF0){
     case BMC_MIDI_CONTROL_CHANGE:
     case BMC_MIDI_PROGRAM_CHANGE:
@@ -43,19 +44,56 @@ void BMC::assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibrati
       );
       break;
   }
-  #if defined(BMC_USE_POT_TOE_SWITCH)
-    pot.assignToeSwitch(storeData.toeSwitch, data.toeSwitchFlags);
-  #endif
+  //pot.assignToeSwitch(storeData.toeSwitch, data.toeSwitchFlags);
+}
+*/
+
+void BMC::potParseToeSwitch(BMCPot& pot){
+  if(!pot.toeSwitchAvailable()){
+    return;
+  }
+  BMC_PRINTLN("potParseToeSwitch", pot.toeSwitchGetEvent());
+  processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, 0, BMC_EVENT_IO_TYPE_INPUT, pot.toeSwitchGetEvent());
+  //pot.toeSwitchGetEvent();
+  //pot.toeSwitchGetState();
+  /*
+  uint8_t type = BMC_GET_BYTE(0, event);
+  switch(parseMidiEventType(type)){
+#if BMC_MAX_LIBRARY > 0
+    case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:
+      library.send(BMC_GET_BYTE(1, event));
+      break;
+#endif
+    case BMC_MIDI_CONTROL_CHANGE:
+    case BMC_MIDI_NOTE_ON:
+    case BMC_MIDI_NOTE_OFF:
+      midi.send(ports, (uint32_t)((event & 0xFFFF) | ((on?127:0) << 16)));
+      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event), (on?127:0));
+      break;
+    case BMC_MIDI_PROGRAM_CHANGE:
+      midi.sendProgramChange(ports, BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
+      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
+      break;
+  }
+  */
 }
 #endif
 
 #if BMC_MAX_POTS > 0
 void BMC::assignPots(){
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-    bmcStoreDevice <1, 2>& device = store.pages[page].pots[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
-    assignPot(pots[i], data, globalData.potCalibration[i]);
+    bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    bmcEvent_t toeEngage = device.events[1];
+    bmcEvent_t toeDisengage = device.events[2];
+    //assignPot(pots[i], data, globalData.potCalibration[i]);
+    pots[i].reassign();
+    pots[i].setCalibration(
+      globalData.potCalibration[i].min,
+      globalData.potCalibration[i].max
+    );
+    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
+    pots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
   }
 }
 // READ
@@ -65,13 +103,14 @@ void BMC::readPots(){
     return;
   }
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
+
 #if BMC_MAX_AUX_JACKS > 0
     if(!auxJacks.readPot(i)){
       continue;
     }
 #endif
 
-    bmcStoreDevice <1, 2>& device = store.pages[page].pots[i];
+    bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
 
@@ -79,14 +118,31 @@ void BMC::readPots(){
     pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));
 #endif
 
-#if defined(BMC_USE_POT_TOE_SWITCH)
+
+
+
+
+
+
     if(pots[i].toeSwitchActive()){
-      potParseToeSwitch(pots[i].toeSwitchGetEvent(), pots[i].toeSwitchGetState(), data.ports);
+      //potParseToeSwitch(pots[i].toeSwitchGetEvent(), pots[i].toeSwitchGetState(), data.ports);
+      potParseToeSwitch(pots[i]);
+      /*
       if(callback.potsToeSwitchState && BMC_GET_BYTE(0, pots[i].toeSwitchGetEvent())>0){
         callback.potsToeSwitchState(i, pots[i].toeSwitchGetState());
       }
+      */
     }
-#endif
+
+
+
+
+
+
+
+
+
+
     bool sendData = false;
     if(pots[i].update()){
       sendData = true;
@@ -108,29 +164,9 @@ void BMC::readPots(){
       }
     }
     if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
-      editor.utilitySendPotActivity(i, pots[i].getPosition());
+      editor.utilitySendPotActivity(false, i, pots[i].getPosition());
     }
 
-  }
-}
-void BMC::potParseToeSwitch(uint16_t event, bool on, uint8_t ports){
-  uint8_t type = BMC_GET_BYTE(0, event);
-  switch(parseMidiEventType(type)){
-#if BMC_MAX_LIBRARY > 0
-    case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:
-      library.send(BMC_GET_BYTE(1, event));
-      break;
-#endif
-    case BMC_MIDI_CONTROL_CHANGE:
-    case BMC_MIDI_NOTE_ON:
-    case BMC_MIDI_NOTE_OFF:
-      midi.send(ports, (uint32_t)((event & 0xFFFF) | ((on?127:0) << 16)));
-      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event), (on?127:0));
-      break;
-    case BMC_MIDI_PROGRAM_CHANGE:
-      midi.sendProgramChange(ports, BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
-      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
-      break;
   }
 }
 // CALIBRATION
@@ -154,17 +190,25 @@ uint16_t BMC::getPotAnalogValue(uint8_t n){
 // ASSIGN
 void BMC::assignGlobalPots(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
-    bmcStoreDevice <1, 2>& device = store.global.pots[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
-    assignPot(globalPots[i], data, globalData.globalPotCalibration[i]);
+    bmcStoreDevice <1, 3>& device = store.global.pots[i];
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    bmcEvent_t toeEngage = device.events[1];
+    bmcEvent_t toeDisengage = device.events[2];
+    //assignPot(globalPots[i], data, globalData.globalPotCalibration[i]);
+
+    globalPots[i].reassign();
+    globalPots[i].setCalibration(
+      globalData.globalPotCalibration[i].min,
+      globalData.globalPotCalibration[i].max
+    );
+    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
+    globalPots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
   }
 }
 // READ
 void BMC::readGlobalPots(){
   if(potCalibration.active()){
     potCalibration.setValue(getGlobalPotAnalogValue(potCalibration.getIndex()));
-
 
 #if defined(BMC_DEBUG)
   if(globals.getPotsDebug()){
@@ -181,18 +225,18 @@ void BMC::readGlobalPots(){
     globalPots[i].setMuxValue(mux.readAnalog(globalPots[i].getMuxPin()));
 #endif
 
-    bmcStoreDevice <1, 2>& device = store.global.pots[i];
+    bmcStoreDevice <1, 3>& device = store.global.pots[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
-
-#if defined(BMC_USE_POT_TOE_SWITCH)
     if(globalPots[i].toeSwitchActive()){
-      potParseToeSwitch(globalPots[i].toeSwitchGetEvent(), globalPots[i].toeSwitchGetState(), globalData.pots[i].ports);
+      //potParseToeSwitch(globalPots[i].toeSwitchGetEvent(), globalPots[i].toeSwitchGetState(), globalData.pots[i].ports);
+      potParseToeSwitch(globalPots[i]);
+      /*
       if(callback.globalPotsToeSwitchState && BMC_GET_BYTE(0, globalPots[i].toeSwitchGetEvent())>0){
         callback.globalPotsToeSwitchState(i, globalPots[i].toeSwitchGetState());
       }
+      */
     }
-#endif
     bool sendData = false;
     if(globalPots[i].update()){
       sendData = true;
@@ -210,10 +254,9 @@ void BMC::readGlobalPots(){
       } else if(callback.globalPotActivity){
         callback.globalPotActivity(i, value);
       }
-
     }
     if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
-      editor.utilitySendGlobalPotActivity(i, globalPots[i].getPosition());
+      editor.utilitySendPotActivity(true, i, globalPots[i].getPosition());
     }
   }
 }
@@ -246,13 +289,6 @@ void BMC::handlePot(bmcStorePot& data, uint8_t value){
     case BMC_MIDI_NOTE_OFF:
       midi.send(data.ports, ((data.event & 0xFFFF) | value << 16));
       streamMidi(type & 0xF0, BMC_TO_MIDI_CHANNEL(type), byteA, value);
-
-//#if defined(BMC_DEBUG)
-//      if(globals.getPotsDebug()){
-//        BMC_PRINTLN("Pot Sending CC#",byteA,"ch:",BMC_TO_MIDI_CHANNEL(type),"value:", value);
-//      }
-//#endif
-
       break;
     case BMC_MIDI_PROGRAM_CHANGE:
       midi.sendProgramChange(data.ports, BMC_TO_MIDI_CHANNEL(type), value);

@@ -334,13 +334,13 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_POT:
         #if BMC_MAX_POTS > 0
           for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,2>(store.pages[p].pots[index], index, p);
+            incomingMessageDeviceWrite<1,3>(store.pages[p].pots[index], index, p);
           }
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_POT:
         #if BMC_MAX_GLOBAL_POTS > 0
-          incomingMessageDeviceWrite<1,2>(store.global.pots[index], index);
+          incomingMessageDeviceWrite<1,3>(store.global.pots[index], index);
           if(!backupActive()){
             saveGlobalPot(index);
             reloadData();
@@ -555,7 +555,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_POT:
       {
         #if BMC_MAX_POTS > 0
-          deviceResponseData <1, 2>
+          deviceResponseData <1, 3>
           (store.pages[page].pots[index], buff, index, deviceType);
         #endif
       }
@@ -563,7 +563,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_GLOBAL_POT:
       {
         #if BMC_MAX_GLOBAL_POTS > 0
-          deviceResponseData <1, 2>
+          deviceResponseData <1, 3>
           (store.global.pots[index], buff, index, deviceType);
         #endif
       }

@@ -140,23 +140,33 @@ public:
     flags.on(BMC_FLAG_POT_REASSIGNED);
   }
 
-#if defined(BMC_USE_POT_TOE_SWITCH)
-  void assignToeSwitch(uint32_t ev, uint16_t t_flags){
-    toeOnEvent = validateToeSwitchEvent((ev & 0xFFFF));
-    toeOffEvent = validateToeSwitchEvent(((ev>>16) & 0xFFFF));
-    flags.write(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE, (toeOnEvent+toeOffEvent>0));
-    toeSwitchFlags = (toeOnEvent+toeOffEvent>0)?t_flags:0;
-  }
-  uint16_t validateToeSwitchEvent(uint16_t t_event){
-    uint8_t type = BMC_GET_BYTE(0, t_event);
-    if(type == BMC_NONE){
-      return 0;
-    } else if(type == BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY){
-      return (BMC_MAX_LIBRARY>0) ? t_event : 0;
+
+
+
+
+
+
+
+
+
+
+  void assignToeSwitch(bmcEvent_t t_engage, bmcEvent_t t_disengage, uint8_t t_settings){
+    if(t_engage > 0 && t_disengage > 0){
+      toeOnEvent = t_engage;
+      toeOffEvent = t_disengage;
+      toeSwitchSettings = t_settings;
+      flags.on(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE);
+    } else {
+      toeOnEvent = 0;
+      toeOffEvent = 0;
+      toeSwitchSettings = 0;
+      flags.off(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE);
     }
-    return t_event;
   }
   bool toeSwitchActive(){
+    if(!toeSwitchAvailable()){
+      return false;
+    }
     return flags.toggleIfTrue(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
   }
   bool toeSwitchAvailable(){
@@ -167,18 +177,18 @@ public:
   }
   uint8_t toeSwitchGetOffValue(){
     // use 3 bits for off value (0-2)
-    return (toeSwitchFlags & 0x07)*5;
+    return (toeSwitchSettings & 0x07)*5;
   }
   uint16_t toeSwitchGetOffSpeed(){
     // use 3 bits for off speed (3-5)
-    uint8_t value = ((toeSwitchFlags>>3) & 0x07);
+    uint8_t value = ((toeSwitchSettings>>3) & 0x07);
     return ((value+1)*100)+200;
   }
   uint8_t toeSwitchGetMode(){
     // use 2 bits for Mode (6-7)
-    return (toeSwitchFlags>>6) & 0x03;
+    return (toeSwitchSettings>>6) & 0x03;
   }
-  uint16_t toeSwitchGetEvent(){
+  bmcEvent_t toeSwitchGetEvent(){
     if(toeSwitchGetState()){
       return toeOnEvent;
     }
@@ -241,7 +251,15 @@ public:
       flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
     }
   }
-#endif
+
+
+
+
+
+
+
+
+
   bool update(){
 
     // last value read
@@ -257,10 +275,7 @@ public:
     if(flags.toggleIfTrue(BMC_FLAG_POT_REASSIGNED)){
       return true;
     }
-
-#if defined(BMC_USE_POT_TOE_SWITCH)
     handleToeSwitch(lastValue);
-#endif
     return (lastValue != value);
   }
   // get the current reading of the pot mapped to the range min/max
@@ -339,12 +354,12 @@ private:
   uint16_t calMin = 0;
   uint16_t calMax = 1023;
 
-#if defined(BMC_USE_POT_TOE_SWITCH)
+
   BMCTimer toeSwitch;
-  uint16_t toeOnEvent = 0;
-  uint16_t toeOffEvent = 0;
-  uint16_t toeSwitchFlags = 0;
-#endif
+  bmcEvent_t toeOnEvent = 0;
+  bmcEvent_t toeOffEvent = 0;
+  uint8_t toeSwitchSettings = 0;
+
 
   // this is the best way i've found to keep steady readings from a pot
   // specially since we're lowering the resolution down to 7-bits

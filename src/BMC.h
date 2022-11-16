@@ -657,9 +657,10 @@ private:
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   BMCPotCalibration potCalibration;
   void setupPots();
-  //void assignPot(BMCPot& pot, bmcStorePot& storeData, bmcStoreGlobalPotCalibration& calibration);
-  void assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration);
+  //void assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration);
   void handlePot(bmcStorePot& data, uint8_t value=0);
+  //void potParseToeSwitch(uint16_t event, bool on, uint8_t ports);
+  void potParseToeSwitch(BMCPot& pot);
 #endif
 
 #if BMC_MAX_POTS > 0
@@ -667,7 +668,6 @@ private:
   BMCPot pots[BMC_MAX_POTS];
   void assignPots();
   void readPots();
-  void potParseToeSwitch(uint16_t event, bool on, uint8_t ports);
   uint16_t getPotAnalogValue(uint8_t n=255);
   void potCalibrationToggle(uint8_t n=255);
 #endif

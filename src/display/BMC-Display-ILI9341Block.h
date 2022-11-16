@@ -38,6 +38,7 @@ class BMC_ILI9341_BLOCK {
       case 11: wBound = 64;  hBound = 40; break;
     }
     maxCharsPerLine = (wBound / 12)-1;
+    //maxCharsPerLine
   }
   void clear(ILI9341_t3 & tft){
     tft.fillRect(xBound, yBound, wBound, hBound, background);
@@ -69,8 +70,10 @@ class BMC_ILI9341_BLOCK {
     tft.setTextColor(color);
     tft.setTextWrap(false);
     if(lines == 2){
-      renderLine(tft, str, 1, lines, 0, len/2);
-      renderLine(tft, str, 2, lines, len/2, len);
+      uint8_t l = len/2;
+      l = (l >= maxCharsPerLine) ? maxCharsPerLine : l;
+      renderLine(tft, str, 1, lines, 0, l);
+      renderLine(tft, str, 2, lines, l, len);
     } else {
       renderLine(tft, str, 1, lines, 0, len);
     }
@@ -147,6 +150,9 @@ class BMC_ILI9341_BLOCK {
           continue;
         }
         trimmed = true;
+        if(ee >= maxCharsPerLine){
+          break;
+        }
         outStr[ee++] = str[i];
         if(ee >= n){
           break;

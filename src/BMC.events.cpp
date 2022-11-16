@@ -39,6 +39,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         } else if(group==BMC_DEVICE_GROUP_ENCODER){
           uint8_t val = midi.scrollPC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), scroll.direction, scroll.endless,0,127);
           streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), val);
+        } else if(group==BMC_DEVICE_GROUP_POT){
+          midi.sendProgramChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), value);
+          streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), value);
         }
       } else {
         if(group != BMC_DEVICE_GROUP_DISPLAY){
@@ -61,6 +64,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         } else if(group==BMC_DEVICE_GROUP_ENCODER){
           uint8_t val = midi.scrollCC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, scroll.direction, scroll.endless,0,127);
           streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, val);
+        } else if(group==BMC_DEVICE_GROUP_POT){
+          midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
         }
       } else {
         if(group != BMC_DEVICE_GROUP_DISPLAY){
@@ -75,6 +81,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         if(group==BMC_DEVICE_GROUP_BUTTON){
           midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
           streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+        } else if(group==BMC_DEVICE_GROUP_POT){
+          midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
         }
       }
       break;
@@ -83,6 +92,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         if(group==BMC_DEVICE_GROUP_BUTTON){
           midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
           streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+        } else if(group==BMC_DEVICE_GROUP_POT){
+          midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
         }
       }
       break;

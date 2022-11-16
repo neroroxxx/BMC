@@ -1189,10 +1189,10 @@ public:
   void utilitySendPwmLedActivity(uint32_t data,
                               bool onlyIfConnected=true);
 
-  void utilitySendPotActivity(uint8_t index, uint8_t value=0,
+  void utilitySendPotActivity(bool t_global, uint16_t index, uint8_t value=0,
                               bool onlyIfConnected=true);
 
-  void utilitySendPotsActivity(uint8_t *values, uint8_t length,
+  void utilitySendPotsActivity(bool t_global, uint8_t *values, uint16_t length,
                                bool onlyIfConnected=true);
 
   void utilitySendEncoderActivity(uint8_t index, bool increased,
@@ -1212,13 +1212,6 @@ public:
   void utilitySendSketchBytes(bool onlyIfConnected);
 
 
-
-
-  void utilitySendGlobalPotActivity(uint8_t index, uint8_t value=0,
-                              bool onlyIfConnected=true);
-
-  void utilitySendGlobalPotsActivity(uint8_t *values, uint8_t length,
-                               bool onlyIfConnected=true);
 
   void utilitySendGlobalEncoderActivity(uint8_t index, bool increased,
                                   bool onlyIfConnected=true);

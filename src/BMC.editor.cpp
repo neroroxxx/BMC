@@ -368,7 +368,7 @@ void BMC::ctrlHardware(){
         for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
           values[i] = pots[i].getValue();
         }
-        editor.utilitySendPotsActivity(values, BMC_MAX_POTS, false);
+        editor.utilitySendPotsActivity(false, values, BMC_MAX_POTS, false);
       }
       break;
 
@@ -409,7 +409,7 @@ void BMC::ctrlHardware(){
         for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
           values[i] = globalPots[i].getValue();
         }
-        editor.utilitySendGlobalPotsActivity(values, BMC_MAX_GLOBAL_POTS, false);
+        editor.utilitySendPotsActivity(true, values, BMC_MAX_GLOBAL_POTS, false);
       }
       break;
 

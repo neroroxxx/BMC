@@ -119,12 +119,10 @@
     #define BMC_UTILF_AUX_JACK 20
     #define BMC_UTILF_RGB_PIXEL 21
     #define BMC_UTILF_GLOBAL_ENCODER 23
-    #define BMC_UTILF_GLOBAL_POT 24
-    #define BMC_UTILF_GLOBAL_POTS 25
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION 26
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_STATUS 27
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_CANCEL 28
-    #define BMC_UTILF_FAS_STATE 29
+    #define BMC_UTILF_GLOBAL_POT_CALIBRATION 24
+    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_STATUS 25
+    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_CANCEL 26
+    #define BMC_UTILF_FAS_STATE 27
 
 
 // if read/write flag is 0 it's checking the connection status, if 1, it's trying to connect

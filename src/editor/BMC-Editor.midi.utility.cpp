@@ -304,9 +304,10 @@ void BMCEditor::utilitySendPwmLedActivity(uint32_t data, bool onlyIfConnected){
   }
 #endif
 }
-void BMCEditor::utilitySendPotActivity(uint8_t index, uint8_t value,
+void BMCEditor::utilitySendPotActivity(bool t_global, uint16_t index,
+                                       uint8_t value,
                                        bool onlyIfConnected){
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
   }
@@ -317,7 +318,8 @@ void BMCEditor::utilitySendPotActivity(uint8_t index, uint8_t value,
   if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
     return;
   }
-  if(!connectionOngoing() && index < BMC_MAX_POTS){
+  uint16_t len = t_global ? BMC_MAX_GLOBAL_POTS : BMC_MAX_POTS;
+  if(!connectionOngoing() && index < len){
     BMCEditorMidiFlags flag;
     flag.setWrite(true);
     BMCMidiMessage buff;
@@ -325,15 +327,16 @@ void BMCEditor::utilitySendPotActivity(uint8_t index, uint8_t value,
       port, deviceId,
       BMC_GLOBALF_UTILITY, flag,
       BMC_UTILF_POT);
+    buff.appendToSysEx7Bits(t_global);
     buff.appendToSysEx7Bits(index);
     buff.appendToSysEx7Bits(value);
     sendToEditor(buff,true,false); // don't show midi activity
   }
 #endif
 }
-void BMCEditor::utilitySendPotsActivity(uint8_t *values, uint8_t length,
+void BMCEditor::utilitySendPotsActivity(bool t_global, uint8_t *values, uint16_t length,
                                         bool onlyIfConnected){
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
   }
@@ -353,6 +356,7 @@ void BMCEditor::utilitySendPotsActivity(uint8_t *values, uint8_t length,
       BMC_GLOBALF_UTILITY, flag,
       BMC_UTILF_POTS
     );
+    buff.appendToSysEx7Bits(t_global);
     buff.appendToSysEx7Bits(length);
     for(uint8_t i = 0; i < length; i++){
       buff.appendToSysEx7Bits(values[i]);
@@ -362,63 +366,6 @@ void BMCEditor::utilitySendPotsActivity(uint8_t *values, uint8_t length,
 #endif
 }
 
-void BMCEditor::utilitySendGlobalPotActivity(uint8_t index, uint8_t value,
-                                       bool onlyIfConnected){
-#if BMC_MAX_GLOBAL_POTS > 0
-  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
-    return;
-  }
-  if(onlyIfConnected && !midi.globals.editorConnected()){
-    return;
-  }
-  // if editor feedback is disabled...
-  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
-    return;
-  }
-  if(!connectionOngoing() && index < BMC_MAX_GLOBAL_POTS){
-    BMCEditorMidiFlags flag;
-    flag.setWrite(true);
-    BMCMidiMessage buff;
-    buff.prepareEditorMessage(
-      port, deviceId,
-      BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_GLOBAL_POT);
-    buff.appendToSysEx7Bits(index);
-    buff.appendToSysEx7Bits(value);
-    sendToEditor(buff,true,false); // don't show midi activity
-  }
-#endif
-}
-void BMCEditor::utilitySendGlobalPotsActivity(uint8_t *values, uint8_t length,
-                                        bool onlyIfConnected){
-#if BMC_MAX_GLOBAL_POTS > 0
-  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
-    return;
-  }
-  if(onlyIfConnected && !midi.globals.editorConnected()){
-    return;
-  }
-  // if editor feedback is disabled...
-  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
-    return;
-  }
-  if(!connectionOngoing()){
-    BMCEditorMidiFlags flag;
-    flag.setWrite(true);
-    BMCMidiMessage buff;
-    buff.prepareEditorMessage(
-      port, deviceId,
-      BMC_GLOBALF_UTILITY, flag,
-      BMC_UTILF_GLOBAL_POTS
-    );
-    buff.appendToSysEx7Bits(length);
-    for(uint8_t i = 0; i < length; i++){
-      buff.appendToSysEx7Bits(values[i]);
-    }
-    sendToEditor(buff,true,false); // don't show midi activity
-  }
-#endif
-}
 void BMCEditor::utilitySendEncoderActivity(uint8_t index, bool increased,
                                            bool onlyIfConnected){
 #if BMC_MAX_ENCODERS > 0

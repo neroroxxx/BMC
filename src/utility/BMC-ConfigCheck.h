@@ -67,9 +67,9 @@
   #if BMC_MAX_EVENTS_LIBRARY < 8
     #under BMC_MAX_EVENTS_LIBRARY
     #define BMC_MAX_EVENTS_LIBRARY 8
-  #elif BMC_MAX_EVENTS_LIBRARY > 1020
+  #elif BMC_MAX_EVENTS_LIBRARY > 512
     #under BMC_MAX_EVENTS_LIBRARY
-    #define BMC_MAX_EVENTS_LIBRARY 1020
+    #define BMC_MAX_EVENTS_LIBRARY 512
   #endif
 
   // NAMES LIBRARY STR LENGTH
@@ -80,22 +80,22 @@
   #if BMC_MAX_NAMES_LIBRARY < 8
     #under BMC_MAX_NAMES_LIBRARY
     #define BMC_MAX_NAMES_LIBRARY 8
-  #elif BMC_MAX_NAMES_LIBRARY > 1020
+  #elif BMC_MAX_NAMES_LIBRARY > 512
     #under BMC_MAX_NAMES_LIBRARY
-    #define BMC_MAX_NAMES_LIBRARY 1020
+    #define BMC_MAX_NAMES_LIBRARY 512
   #endif
 
   // NAMES LIBRARY STR LENGTH
   #if !defined(BMC_MAX_NAMES_LENGTH)
-    #define BMC_MAX_NAMES_LENGTH 8
+    #define BMC_MAX_NAMES_LENGTH 89
   #endif
 
-  #if BMC_MAX_NAMES_LENGTH < 8
+  #if BMC_MAX_NAMES_LENGTH < 9
     #under BMC_MAX_NAMES_LENGTH
-    #define BMC_MAX_NAMES_LENGTH 8
-  #elif BMC_MAX_NAMES_LENGTH > 32
+    #define BMC_MAX_NAMES_LENGTH 9
+  #elif BMC_MAX_NAMES_LENGTH > 33
     #under BMC_MAX_NAMES_LENGTH
-    #define BMC_MAX_NAMES_LENGTH 32
+    #define BMC_MAX_NAMES_LENGTH 33
   #endif
 
   #if BMC_MAX_EVENTS_LIBRARY > 254
@@ -1109,13 +1109,13 @@
   // this is for both presets and library.
   // if there are more than 255 presets then we'll need a 16-bit type to hold
   // the value, same applies to the library
-  #if BMC_MAX_PRESETS > 255
+  #if BMC_MAX_PRESETS > 254
     typedef uint16_t bmcPreset_t;
   #else
     typedef uint8_t bmcPreset_t;
   #endif
 
-  #if BMC_MAX_LIBRARY > 255
+  #if BMC_MAX_LIBRARY > 254
     typedef uint16_t bmcLibrary_t;
   #else
     typedef uint8_t bmcLibrary_t;
