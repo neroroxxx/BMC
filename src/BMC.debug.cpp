@@ -242,7 +242,6 @@ void BMC::readDebug(){
     BMC_PRINTLN("");
     BMC_PRINTLN("");
     BMC_PRINTLN("*** GLOBAL ***");
-    BMC_PRINTLN("BMC_MAX_LIBRARY", BMC_MAX_LIBRARY);
     BMC_PRINTLN("BMC_MAX_PRESETS", BMC_MAX_PRESETS);
     BMC_PRINTLN("BMC_MAX_PRESET_ITEMS", BMC_MAX_PRESET_ITEMS);
     BMC_PRINTLN("BMC_MAX_CUSTOM_SYSEX", BMC_MAX_CUSTOM_SYSEX);
@@ -281,7 +280,7 @@ void BMC::readDebug(){
     #if BMC_MAX_BUTTONS > 0
     BMC_PRINTLN("Buttons:");
     for(uint8_t i = 0; i < BMC_MAX_BUTTONS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getButtonPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getButtonPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -289,7 +288,7 @@ void BMC::readDebug(){
     #if BMC_MAX_ENCODERS > 0
     BMC_PRINTLN("Encoders:");
     for(uint8_t i = 0; i < BMC_MAX_ENCODERS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getEncoderPinA(i),"| pinB:",BMCBuildData::getEncoderPinB(i));
+      //BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getEncoderPinA(i),"| pinB:",BMCBuildData::getEncoderPinB(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -297,7 +296,7 @@ void BMC::readDebug(){
     #if BMC_MAX_POTS > 0
     BMC_PRINTLN("Pots:");
     for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getPotPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getPotPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -305,7 +304,7 @@ void BMC::readDebug(){
     #if BMC_MAX_LEDS > 0
     BMC_PRINTLN("Leds:");
     for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getLedPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getLedPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -313,7 +312,7 @@ void BMC::readDebug(){
     #if BMC_MAX_PWM_LEDS > 0
     BMC_PRINTLN("Pwm Leds:");
     for(uint8_t i = 0; i < BMC_MAX_PWM_LEDS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getPwmLedPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getPwmLedPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -321,7 +320,7 @@ void BMC::readDebug(){
     #if BMC_MAX_GLOBAL_BUTTONS > 0
     BMC_PRINTLN("Global Buttons:");
     for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalButtonPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalButtonPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -329,7 +328,7 @@ void BMC::readDebug(){
     #if BMC_MAX_GLOBAL_ENCODERS > 0
     BMC_PRINTLN("Global Encoders:");
     for(uint8_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getGlobalEncoderPinA(i),"| pinB:",BMCBuildData::getGlobalEncoderPinB(i));
+      //BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getGlobalEncoderPinA(i),"| pinB:",BMCBuildData::getGlobalEncoderPinB(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -337,7 +336,7 @@ void BMC::readDebug(){
     #if BMC_MAX_GLOBAL_POTS > 0
     BMC_PRINTLN("Global Pots:");
     for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalPotPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalPotPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -345,7 +344,7 @@ void BMC::readDebug(){
     #if BMC_MAX_GLOBAL_LEDS > 0
     BMC_PRINTLN("Global Leds:");
     for(uint8_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalLedPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getGlobalLedPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -353,7 +352,7 @@ void BMC::readDebug(){
     #if BMC_MAX_NL_RELAYS > 0
     BMC_PRINTLN("NL Relays:");
     for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getRelayNLPin(i));
+      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getRelayNLPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -361,7 +360,7 @@ void BMC::readDebug(){
     #if BMC_MAX_L_RELAYS > 0
     BMC_PRINTLN("NL Relays:");
     for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
-      BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getRelayLPinA(i),"| pinB:",BMCBuildData::getRelayLPinB(i));
+      //BMC_PRINTLN("#",i+1,"connected to pinA:",BMCBuildData::getRelayLPinA(i),"| pinB:",BMCBuildData::getRelayLPinB(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -390,14 +389,10 @@ void BMC::readDebug(){
 
     BMC_PRINTLN("store.global.settings",sizeof(store.global.settings),"bytes");
 
-    #if BMC_MAX_LIBRARY > 0
-      BMC_PRINTLN("store.global.library",sizeof(store.global.library),"bytes");
-      BMC_PRINTLN("store.global.library[0]",sizeof(store.global.library[0]),"bytes");
-      #if BMC_MAX_PRESETS > 0
-        BMC_PRINTLN("store.global.presets",sizeof(store.global.presets),"bytes");
-        BMC_PRINTLN("store.global.presets[0]",sizeof(store.global.presets[0]),"bytes");
-        BMC_PRINTLN("store.global.startup",sizeof(store.global.startup),"bytes");
-      #endif
+    #if BMC_MAX_PRESETS > 0
+      BMC_PRINTLN("store.global.presets",sizeof(store.global.presets),"bytes");
+      BMC_PRINTLN("store.global.presets[0]",sizeof(store.global.presets[0]),"bytes");
+      BMC_PRINTLN("store.global.startup",sizeof(store.global.startup),"bytes");
     #endif
 
     #if BMC_MAX_SKETCH_BYTES > 0

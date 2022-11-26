@@ -657,7 +657,6 @@ private:
     if(n >= getRgbPixelIndex(0)){
       uint8_t color = currentColor[n]&0x0F;
       n -= getRgbPixelIndex(0);
-      BMC_PRINTLN("rgb pixel n", n, color);
       globals.rgbPixelStates[0].setBit(n, bitRead(color, 0));
       globals.rgbPixelStates[1].setBit(n, bitRead(color, 1));
       globals.rgbPixelStates[2].setBit(n, bitRead(color, 2));
@@ -675,8 +674,6 @@ private:
 
 #if BMC_MAX_PIXELS > 0
     if(n >= getPixelIndex(0)){
-      n -= getPixelIndex(0);
-      BMC_PRINTLN("pixel n", n, t_state);
       globals.pixelStates.setBit(n, t_state);
       return;
     }
@@ -718,24 +715,7 @@ private:
       // we do all these checks because we have to change the states of all
       // pixels everytime one changes, so if there's no need to do that, we don't
       if(bitRead(cColor, 7)){
-
         turnPixelOff(t_index);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // set bit 7 to 0
         // thats the bit that tells you if the led is on(1) or off(0)
         // we don't change the actual color just the on/off state

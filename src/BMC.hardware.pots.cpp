@@ -21,72 +21,16 @@ void BMC::setupPots(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_POT, i);
     globalPots[i].begin(ui.pins[0]);
   }
-  assignGlobalPots();
 #endif
 }
-/*
-void BMC::assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration){
-  pot.reassign();
-  pot.setCalibration(
-    calibration.min,
-    calibration.max
-  );
-  uint32_t event = data.event;
-  //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
-  switch(event & 0xF0){
-    case BMC_MIDI_CONTROL_CHANGE:
-    case BMC_MIDI_PROGRAM_CHANGE:
-    case BMC_MIDI_NOTE_ON:
-    case BMC_MIDI_NOTE_OFF:
-      pot.setRange(
-        BMC_GET_BYTE(2, event) & 0x7F,
-        BMC_GET_BYTE(3, event) & 0x7F
-      );
-      break;
-  }
-  //pot.assignToeSwitch(storeData.toeSwitch, data.toeSwitchFlags);
-}
-*/
 
-void BMC::potParseToeSwitch(BMCPot& pot){
-  if(!pot.toeSwitchAvailable()){
-    return;
-  }
-  BMC_PRINTLN("potParseToeSwitch", pot.toeSwitchGetEvent());
-  processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, 0, BMC_EVENT_IO_TYPE_INPUT, pot.toeSwitchGetEvent());
-  //pot.toeSwitchGetEvent();
-  //pot.toeSwitchGetState();
-  /*
-  uint8_t type = BMC_GET_BYTE(0, event);
-  switch(parseMidiEventType(type)){
-#if BMC_MAX_LIBRARY > 0
-    case BMC_POT_TOE_SWITCH_EVENT_TYPE_LIBRARY:
-      library.send(BMC_GET_BYTE(1, event));
-      break;
-#endif
-    case BMC_MIDI_CONTROL_CHANGE:
-    case BMC_MIDI_NOTE_ON:
-    case BMC_MIDI_NOTE_OFF:
-      midi.send(ports, (uint32_t)((event & 0xFFFF) | ((on?127:0) << 16)));
-      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event), (on?127:0));
-      break;
-    case BMC_MIDI_PROGRAM_CHANGE:
-      midi.sendProgramChange(ports, BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
-      streamMidi((type & 0xF0), BMC_TO_MIDI_CHANNEL(type), BMC_GET_BYTE(1, event));
-      break;
-  }
-  */
-}
-#endif
-
-#if BMC_MAX_POTS > 0
 void BMC::assignPots(){
+#if BMC_MAX_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
     bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     bmcEvent_t toeEngage = device.events[1];
     bmcEvent_t toeDisengage = device.events[2];
-    //assignPot(pots[i], data, globalData.potCalibration[i]);
     pots[i].reassign();
     pots[i].setCalibration(
       globalData.potCalibration[i].min,
@@ -95,141 +39,86 @@ void BMC::assignPots(){
     //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
     pots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
   }
+#endif
+#if BMC_MAX_GLOBAL_POTS > 0
+  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
+    bmcStoreDevice <1, 3>& device = store.global.pots[i];
+    bmcEvent_t toeEngage = device.events[1];
+    bmcEvent_t toeDisengage = device.events[2];
+    globalPots[i].reassign();
+    globalPots[i].setCalibration(
+      globalData.potCalibration[BMC_MAX_POTS+i].min,
+      globalData.potCalibration[BMC_MAX_POTS+i].max
+    );
+    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
+    globalPots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
+  }
+#endif
 }
-// READ
+
 void BMC::readPots(){
+#if BMC_MAX_POTS > 0
+  // handle Calibration
   if(potCalibration.active()){
-    potCalibration.setValue(getPotAnalogValue(potCalibration.getIndex()));
-    return;
+    if(potCalibration.getDeviceType()==BMC_DEVICE_ID_POT){
+      uint16_t n = potCalibration.getIndex();
+#if BMC_MAX_MUX_IN_ANALOG > 0
+      pots[n].setMuxValue(mux.readAnalog(pots[n].getMuxPin()));
+#endif
+      uint16_t value = pots[n].getAnalogValue();
+      potCalibration.setValue(value);
+      return;
+    }
   }
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-
-#if BMC_MAX_AUX_JACKS > 0
-    if(!auxJacks.readPot(i)){
-      continue;
-    }
-#endif
-
     bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
-
 #if BMC_MAX_MUX_IN_ANALOG > 0
     pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));
 #endif
 
-
-
-
-
-
-
     if(pots[i].toeSwitchActive()){
-      //potParseToeSwitch(pots[i].toeSwitchGetEvent(), pots[i].toeSwitchGetState(), data.ports);
       potParseToeSwitch(pots[i]);
-      /*
-      if(callback.potsToeSwitchState && BMC_GET_BYTE(0, pots[i].toeSwitchGetEvent())>0){
-        callback.potsToeSwitchState(i, pots[i].toeSwitchGetState());
-      }
-      */
     }
-
-
-
-
-
-
-
-
-
-
     bool sendData = false;
     if(pots[i].update()){
       sendData = true;
       uint8_t value = pots[i].getValue();
-#if defined(BMC_DEBUG)
-      if(globals.getPotsDebug()){
-        BMC_PRINTLN("Page Pot #",i," > value:",value,"raw:",getPotAnalogValue(i));
-      }
-#endif
-      //handlePot(store.pages[page].pots[i], value);
       processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
-
       // HANDLE CALLBACKS
-
+      /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.potCustomActivity){
         callback.potCustomActivity(i, value);
       } else if(callback.potActivity){
         callback.potActivity(i, value);
       }
+      */
     }
     if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
-      editor.utilitySendPotActivity(false, i, pots[i].getPosition());
+      editor.utilitySendPotActivity(BMC_DEVICE_ID_GLOBAL_POT, i, pots[i].getPosition());
     }
-
   }
-}
-// CALIBRATION
-void BMC::potCalibrationToggle(uint8_t n){
-  if(!potCalibration.active() && n < BMC_MAX_POTS){
-    potCalibration.toggle(n);
-  } else {
-    potCalibration.cancel();
-  }
-}
-uint16_t BMC::getPotAnalogValue(uint8_t n){
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  pots[n].setMuxValue(mux.readAnalog(pots[n].getMuxPin()));
 #endif
-  return pots[n].getAnalogValue();
-}
-#endif
-
 
 #if BMC_MAX_GLOBAL_POTS > 0
-// ASSIGN
-void BMC::assignGlobalPots(){
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
-    bmcStoreDevice <1, 3>& device = store.global.pots[i];
-    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    bmcEvent_t toeEngage = device.events[1];
-    bmcEvent_t toeDisengage = device.events[2];
-    //assignPot(globalPots[i], data, globalData.globalPotCalibration[i]);
-
-    globalPots[i].reassign();
-    globalPots[i].setCalibration(
-      globalData.globalPotCalibration[i].min,
-      globalData.globalPotCalibration[i].max
-    );
-    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
-    globalPots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
-  }
-}
-// READ
-void BMC::readGlobalPots(){
   if(potCalibration.active()){
-    potCalibration.setValue(getGlobalPotAnalogValue(potCalibration.getIndex()));
-
-#if defined(BMC_DEBUG)
-  if(globals.getPotsDebug()){
-    BMC_PRINTLN("potCalibration.getIndex() >> ",getGlobalPotAnalogValue(potCalibration.getIndex()));
+    if(potCalibration.getDeviceType()==BMC_DEVICE_ID_GLOBAL_POT){
+      uint16_t n = potCalibration.getIndex();
+  #if BMC_MAX_MUX_IN_ANALOG > 0
+      globalPots[n].setMuxValue(mux.readAnalog(globalPots[n].getMuxPin()));
+  #endif
+      uint16_t value = globalPots[n].getAnalogValue();
+      potCalibration.setValue(value);
+      return;
+    }
   }
-#endif
-
-    return;
-  }
-
-
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
-#if BMC_MAX_MUX_IN_ANALOG > 0
+  #if BMC_MAX_MUX_IN_ANALOG > 0
     globalPots[i].setMuxValue(mux.readAnalog(globalPots[i].getMuxPin()));
-#endif
-
+  #endif
     bmcStoreDevice <1, 3>& device = store.global.pots[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    //bmcStoreEvent toeData = globals.getDeviceEventType(device.events[1]);
     if(globalPots[i].toeSwitchActive()){
-      //potParseToeSwitch(globalPots[i].toeSwitchGetEvent(), globalPots[i].toeSwitchGetState(), globalData.pots[i].ports);
       potParseToeSwitch(globalPots[i]);
       /*
       if(callback.globalPotsToeSwitchState && BMC_GET_BYTE(0, globalPots[i].toeSwitchGetEvent())>0){
@@ -241,42 +130,30 @@ void BMC::readGlobalPots(){
     if(globalPots[i].update()){
       sendData = true;
       uint8_t value = globalPots[i].getValue();
-#if defined(BMC_DEBUG)
-      if(globals.getPotsDebug()){
-        BMC_PRINTLN("Global Pot #",i," > value:",value,"raw:",getGlobalPotAnalogValue(i));
-      }
-#endif
       processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_GLOBAL_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
       // HANDLE CALLBACKS
-
+      /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalPotCustomActivity){
         callback.globalPotCustomActivity(i, value);
       } else if(callback.globalPotActivity){
         callback.globalPotActivity(i, value);
       }
+      */
     }
     if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
-      editor.utilitySendPotActivity(true, i, globalPots[i].getPosition());
+      editor.utilitySendPotActivity(BMC_DEVICE_ID_GLOBAL_POT, i, globalPots[i].getPosition());
     }
   }
-}
-// CALIBRATION
-void BMC::globalPotCalibrationToggle(uint8_t n){
-  if(!potCalibration.active() && n < BMC_MAX_GLOBAL_POTS){
-    potCalibration.toggle(n);
-  } else {
-    potCalibration.cancel();
-  }
-}
-uint16_t BMC::getGlobalPotAnalogValue(uint8_t n){
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  globalPots[n].setMuxValue(mux.readAnalog(globalPots[n].getMuxPin()));
 #endif
-  return globalPots[n].getAnalogValue();
 }
-#endif
 
-#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
+void BMC::potParseToeSwitch(BMCPot& pot){
+  if(!pot.toeSwitchAvailable()){
+    return;
+  }
+  processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, 0, BMC_EVENT_IO_TYPE_INPUT, pot.toeSwitchGetEvent());
+}
+/*
 void BMC::handlePot(bmcStorePot& data, uint8_t value){
   uint8_t type = BMC_GET_BYTE(0, data.event);
   if(type == BMC_NONE){
@@ -390,4 +267,5 @@ void BMC::handlePot(bmcStorePot& data, uint8_t value){
       break;
   }
 }
+*/
 #endif

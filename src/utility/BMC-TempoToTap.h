@@ -11,14 +11,58 @@
 
 #include "utility/BMC-Def.h"
 
+#define BMC_FLAG_TEMPO_TO_TAP_AVAILABLE 0
+#define BMC_FLAG_TEMPO_TO_TAP_SEND_NOW 1
+
 class BMCTempoToTap {
 public:
   // constructor, pass the midi and store.global data objects from BMC.h
-  BMCTempoToTap(BMCMidi& t_midi,bmcStoreGlobal& t_global):
+  BMCTempoToTap(BMCMidi& t_midi, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
                 midi(t_midi),
+                globals(t_globals),
                 global(t_global)
   {
     reset();
+  }
+  void buildListeners(){
+    /*
+    flags.off(BMC_TRIGGERS_FLAG_AVAILABLE);
+    totalReadableTriggers = 0;
+    validTriggerList.zeroOut();
+    for(uint8_t i = 0 ; i < BMC_MAX_TRIGGERS ; i++){
+      bmcStoreDevice <1, 2>& device = global.triggers[i];
+      if(active(device.events[0]) && device.events[1] != 0){
+        flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
+        validTriggerList.setBit(i, true);
+        totalReadableTriggers = (i+1);
+      }
+    }
+    BMC_PRINTLN("BMCTriggers::buildListeners() ",totalReadableTriggers);
+    */
+    activeList.zeroOut();
+    flags.off(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE);
+    for(uint8_t i = 0 ; i < BMC_MAX_TEMPO_TO_TAP ; i++){
+      bmcStoreDevice <1, 1>& device = global.tempoToTap[i];
+      if(isValidEvent(device.events[0])){
+        flags.on(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE);
+        activeList.setBit(i, true);
+        totalActiveCount = (i + 1);
+        //midi.send(global.tempoToTap[i].event);
+        //BMC_PRINTLN("Sending Tap bpm:", bpm, "event:", global.tempoToTap[i].event);
+      }
+    }
+  }
+  bool isAllowed(){
+    return flags.read(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE) && flags.read(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
+  }
+  bool isReady(uint8_t n){
+    if(!isAllowed() || (n >= BMC_MAX_TEMPO_TO_TAP)){
+      return false;
+    }
+    return activeList.getBit(n);
+  }
+  uint8_t available(){
+    return totalActiveCount;
   }
   // check if the next tap should be sent
   // this must run within every loop so the timer can send each tap
@@ -34,7 +78,7 @@ public:
     }
   }
   // start sending the taps based on the specified Tempo
-  void send(uint16_t tempo){
+  void updateBpm(uint16_t tempo){
     if(lastBpm==tempo){
       return;
     }
@@ -54,12 +98,17 @@ public:
 private:
   // reference to midi object from BMC.h
   BMCMidi& midi;
+
+  BMCGlobals& globals;
   // reference to store.global from BMC.h
   bmcStoreGlobal& global;
   // timer used to send each midi message
   BMCTimer timer;
+  BMCFlags <uint8_t> flags;
+  BMCBitStates <BMC_MAX_TEMPO_TO_TAP> activeList;
   // number of taps that have been sent
   uint8_t count = 0;
+  uint8_t totalActiveCount = 0;
   // the bpm for the taps interval
   uint16_t bpm = 0;
   // the last bpm sent out
@@ -67,27 +116,43 @@ private:
   // set the current number of taps that were sent to 0
   void reset(){
     count = 0;
+    flags.reset();
   }
   // send the MIDI Message out for each trigger
   void sendTaps(){
     lastBpm = bpm;
+    if(!flags.read(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE)){
+      flags.off(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
+      return;
+    }
+    flags.on(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
+    /*
     for(uint8_t i=0;i<BMC_MAX_TEMPO_TO_TAP;i++){
-      if(isValid(global.tempoToTap[i].event)){
-      //if(BMC_GET_BYTE(0,global.tempoToTap[i].event)>0 && BMC_GET_BYTE(3,global.tempoToTap[i].event)>0){
-        midi.send(global.tempoToTap[i].event);
-        BMC_PRINTLN("Sending Tap bpm:", bpm, "event:", global.tempoToTap[i].event);
+      bmcStoreDevice <1, 1>& device = global.tempoToTap[i];
+      if(isValidEvent(device.events[0])){
+        //midi.send(global.tempoToTap[i].event);
+        //BMC_PRINTLN("Sending Tap bpm:", bpm, "event:", global.tempoToTap[i].event);
       }
     }
+    */
     timer.start(BMCBpmCalculator::bpmToMillis(bpm));
   }
-  bool isValid(uint32_t event){
-    return hasEvent(event) && hasPorts(event);
-  }
-  bool hasEvent(uint32_t event){
-    return BMC_GET_BYTE(0,event)>0;
-  }
-  bool hasPorts(uint32_t event){
-    return BMC_GET_BYTE(3,event)>0;
+  bool isValidEvent(bmcEvent_t event){
+    if(event == BMC_NONE){
+      return false;
+    }
+    bmcStoreEvent data = globals.getDeviceEventType(event);
+    if(data.ports == BMC_NONE){
+      return false;
+    }
+    switch(data.type){
+      case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_NOTE_ON:
+      case BMC_EVENT_TYPE_MIDI_NOTE_OFF:
+        return true;
+    }
+    return false;
   }
 };
 

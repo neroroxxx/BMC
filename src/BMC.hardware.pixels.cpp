@@ -180,23 +180,28 @@ void BMC::readPixels(){
   // rgb pixels can run in parallel with pixels, if there are rgb pixels
   // compiled then we only update here no in the pixels calls
   //pixels.update();
-  bool r = globals.rgbPixelStates[0].hasChanged();
-  bool g = globals.rgbPixelStates[1].hasChanged();
-  bool b = globals.rgbPixelStates[2].hasChanged();
-  if(r || g || b || editor.isTriggerStates()){
-    editor.utilitySendStateBits(BMC_DEVICE_ID_RGB_PIXEL);
+  {
+    bool r = globals.rgbPixelStates[0].hasChanged();
+    bool g = globals.rgbPixelStates[1].hasChanged();
+    bool b = globals.rgbPixelStates[2].hasChanged();
+    if(r || g || b || editor.isTriggerStates()){
+      editor.utilitySendStateBits(BMC_DEVICE_ID_RGB_PIXEL);
+    }
   }
+
 #endif
 
 #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
   // rgb pixels can run in parallel with pixels, if there are rgb pixels
   // compiled then we only update here no in the pixels calls
   //pixels.update();
-  bool r = globals.globalRgbPixelStates[0].hasChanged();
-  bool g = globals.globalRgbPixelStates[1].hasChanged();
-  bool b = globals.globalRgbPixelStates[2].hasChanged();
-  if(r || g || b || editor.isTriggerStates()){
-    editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_RGB_PIXEL);
+  {
+    bool r = globals.globalRgbPixelStates[0].hasChanged();
+    bool g = globals.globalRgbPixelStates[1].hasChanged();
+    bool b = globals.globalRgbPixelStates[2].hasChanged();
+    if(r || g || b || editor.isTriggerStates()){
+      editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_RGB_PIXEL);
+    }
   }
 #endif
 }

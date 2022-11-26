@@ -1,55 +1,23 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
-
-  Read Potentiometer values
-  Pots must be connected to Analog Capable pins
-  The output value of Pots is limited to 0 to 127 specifically for MIDI use
-
-  Calibration data can be set for the pot, normally analogRead() will get a
-  value from 0 to 1023, however some pots will never hit 1023 or 0
-  for this reason you can set the calibration value, BMC can initialize
-  potentiometer calibration and automatically do this with the Editor and
-  it's API.
-
-  Pots can also use a Range min/max, this will lower the resolution further
-  for example a pot could be set to have a range min of 1 and a max of 3
-  in this case the pots range is divided into 3 sections, as soon as each
-  section is reached the pot will trigger the value for that section.
-  NOTE: setting the range values uses the map() function to convert the range
-  So in other words the pot will not have preset values, for example if the pot
-  has the range above of 1 to 3 you may expect the pot to send a value of 1
-  when the actual pot value is 0, a value of 2 when actual pot value is 64 and
-  a value of 3 when the actual pot value is 127, however this is not the case,
-  the value 1 would be triggered when the actual value of the pot is within
-  0 and 42, value 2 is sent when the pot value is between 43 and 86 etc.
 */
-#ifndef BMC_POT_H
-#define BMC_POT_H
+#ifndef BMC_AUX_JACK_POT_H
+#define BMC_AUX_JACK_POT_H
 #include "utility/BMC-Def.h"
 
-#define BMC_FLAG_POT_REASSIGNED 0
-#define BMC_FLAG_POT_MUX 1
-#define BMC_FLAG_POT_LOG 2
-#define BMC_FLAG_POT_TOE_SWITCH_AVAILABLE 3
-#define BMC_FLAG_POT_TOE_SWITCH_STATE 4
-#define BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED 5
+#define BMC_FLAG_AUX_JACK_POT_REASSIGNED 0
+#define BMC_FLAG_AUX_JACK_POT_MUX 1
+#define BMC_FLAG_AUX_JACK_POT_LOG 2
+#define BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_AVAILABLE 3
+#define BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE 4
+#define BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE_CHANGED 5
 
-// position where logarithmic taper starts it's steep curve
-// this value should range from 10 to 100
-#define BMC_POT_LOG_POSITION_CUTOFF     60
-// before the position above is reached, we will cover this much range
-#define BMC_POT_LOG_PERCENTAGE_CUTOFF   20
-// the values above will be used for the the final values used
-#define BMC_POT_LOG_POS   ((uint16_t) ((10.23*BMC_POT_LOG_POSITION_CUTOFF)+0.5))
-#define BMC_POT_LOG_PERC  ((uint16_t) ((10.23*BMC_POT_LOG_PERCENTAGE_CUTOFF)+0.5))
-
-
-class BMCPot {
+class BMCAuxJackPot {
 public:
-  BMCPot(){
+  BMCAuxJackPot(){
     // initialize with the pin number as 255
     // if the pin is 255 it means the begin method has not been called
     pin = 255;
@@ -72,32 +40,11 @@ public:
     }
     reset();
     pin = t_pin;
-
-#if BMC_MAX_MUX_IN_ANALOG > 0
-    // all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
-    // BMC will group them in this order MUX_IN then MUX_IN_ANALOG
-    // so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
-    // then MUX_IN_ANALOG pins start at pin 74 and so on
-    // so we want to make sure this pot was set to a MUX_IN_ANALOG
-    if(t_pin>=64){
-      if(BMCBuildData::isMuxInAnalogPin(pin)){
-        flags.on(BMC_FLAG_POT_MUX);
-        return;
-      } else {
-        BMC_ERROR(
-          "Mux Pin:", t_pin,
-          "Can NOT be used with Pots as it is NOT a Analog Mux Pin"
-        );
-        BMC_HALT();
-      }
-    }
-#endif
-
     // check if the pin is Analog capable
-    if(!BMCBuildData::isAnalogPin(pin)){
+    if(!BMCBuildData::isAnalogPin(pin) || pin >= 64){
       BMC_ERROR(
         "PIN:", t_pin,
-        "Can NOT be used with Pots as it is NOT Analog Capable"
+        "Can NOT be used with Pots as it is NOT Analog Capable or is a MUX pin"
       );
       BMC_HALT();
     }
@@ -115,65 +62,32 @@ public:
     calMin = t_min;
     calMax = t_max;
   }
-  // set the range of the POT, this is used to lower the resolution
-  // in some cases you may want so send a MIDI CC ranging from say 0 to 10
-  // if that's the case then this function would see the Potentiometer
-  // to go from 0 at full counter-clockwise to 10 at full clockwise etc.
-  void setRange(uint8_t t_min, uint8_t t_max){
-    uint8_t limit = 127;
-    t_min = t_min >= limit ? 0 : t_min;
-    t_max = t_max > limit ? 1023 : t_max;
-    if(t_min>=t_max){
-      t_min = 0;
-      t_max = limit;
-    }
-    rangeMin = t_min;
-    rangeMax = t_max;
-  }
-  void setTaper(bool t_log){
-    flags.write(BMC_FLAG_POT_LOG, t_log);
-  }
   // reassign the POT behaviour, used when switching pages or the editor
   // has updated EEPROM
   void reassign(){
     reset();
-    flags.on(BMC_FLAG_POT_REASSIGNED);
+    flags.on(BMC_FLAG_AUX_JACK_POT_REASSIGNED);
   }
-
-
-
-
-
-
-
-
-
-
-
-  void assignToeSwitch(bmcEvent_t t_engage, bmcEvent_t t_disengage, uint8_t t_settings){
-    if(t_engage > 0 && t_disengage > 0){
-      toeOnEvent = t_engage;
-      toeOffEvent = t_disengage;
+  void assignToeSwitch(bool allow, uint8_t t_settings){
+    if(allow){
       toeSwitchSettings = t_settings;
-      flags.on(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE);
+      flags.on(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_AVAILABLE);
     } else {
-      toeOnEvent = 0;
-      toeOffEvent = 0;
       toeSwitchSettings = 0;
-      flags.off(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE);
+      flags.off(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_AVAILABLE);
     }
   }
   bool toeSwitchActive(){
     if(!toeSwitchAvailable()){
       return false;
     }
-    return flags.toggleIfTrue(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
+    return flags.toggleIfTrue(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE_CHANGED);
   }
   bool toeSwitchAvailable(){
-    return flags.read(BMC_FLAG_POT_TOE_SWITCH_AVAILABLE);
+    return flags.read(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_AVAILABLE);
   }
   bool toeSwitchGetState(){
-    return flags.read(BMC_FLAG_POT_TOE_SWITCH_STATE);
+    return flags.read(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
   }
   uint8_t toeSwitchGetOffValue(){
     // use 3 bits for off value (0-2)
@@ -188,12 +102,6 @@ public:
     // use 2 bits for Mode (6-7)
     return (toeSwitchSettings>>6) & 0x03;
   }
-  bmcEvent_t toeSwitchGetEvent(){
-    if(toeSwitchGetState()){
-      return toeOnEvent;
-    }
-    return toeOffEvent;
-  }
   void handleToeSwitch(uint8_t lastValue){
     // toe switch timing
     if(toeSwitchAvailable()){
@@ -207,6 +115,12 @@ public:
       }
     }
   }
+  uint8_t toeSwitchGetEvent(){
+    if(toeSwitchGetState()){
+      return 1;
+    }
+    return 2;
+  }
   // default mode is AUTO-ENGAGE
   // Engage message is sent as soon as the pot is rotated past the off value
   // then once it goes back to the off value or less a timer will start that
@@ -218,8 +132,8 @@ public:
     if(!toeSwitchGetState()){
       // engage
       if(value >= offValue){
-        flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE);
-        flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
+        flags.on(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
+        flags.on(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE_CHANGED);
         toeSwitch.stop();
       }
     } else {
@@ -230,8 +144,8 @@ public:
         toeSwitch.stop();
       }
       if(toeSwitch.complete()){
-        flags.off(BMC_FLAG_POT_TOE_SWITCH_STATE);
-        flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
+        flags.off(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
+        flags.on(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE_CHANGED);
       }
     }
   }
@@ -247,21 +161,12 @@ public:
       toeSwitch.stop();
     }
     if(toeSwitch.complete()){
-      flags.toggle(BMC_FLAG_POT_TOE_SWITCH_STATE);
-      flags.on(BMC_FLAG_POT_TOE_SWITCH_STATE_CHANGED);
+      flags.toggle(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
+      flags.on(BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE_CHANGED);
     }
   }
 
-
-
-
-
-
-
-
-
   bool update(){
-
     // last value read
     uint8_t lastValue = value;
     // read the value of the pot mapped to range min/max
@@ -272,7 +177,7 @@ public:
     // this is done to make sure that if the pot has a different event assigned
     // that event is trigger as soon as a page has been changed or if the pot
     // was updated
-    if(flags.toggleIfTrue(BMC_FLAG_POT_REASSIGNED)){
+    if(flags.toggleIfTrue(BMC_FLAG_AUX_JACK_POT_REASSIGNED)){
       return true;
     }
     handleToeSwitch(lastValue);
@@ -285,27 +190,8 @@ public:
   // get the actual analog reading of the pot without any mapping it to 127 max
   // used for Pot Calibration and debugging
   uint16_t getAnalogValue(){
-#if BMC_MAX_MUX_IN_ANALOG > 0
-    if(flags.read(BMC_FLAG_POT_MUX)){
-      return muxValue;
-    }
-#endif
     return analogRead(pin);
   }
-#if BMC_MAX_MUX_IN_ANALOG > 0
-    uint8_t getMuxPin(){
-      return flags.read(BMC_FLAG_POT_MUX) ? pin-64 : 0;
-    }
-    bool isMux(){
-      return flags.read(BMC_FLAG_POT_MUX);
-    }
-    void setMuxValue(uint16_t t_value){
-      if(flags.read(BMC_FLAG_POT_MUX)){
-        muxValue = t_value;
-      }
-    }
-#endif
-
   uint8_t getPin(){
     return pin;
   }
@@ -315,7 +201,7 @@ public:
   // the readPot() method will always store the value mapped down to the
   // specified range, here we map it back to 0-127
   uint8_t getPosition(){
-    return map(value, rangeMin, rangeMax, 0, 127);
+    return value;
   }
   // get the calibration min
   uint16_t getCalibrationMin(){
@@ -325,14 +211,6 @@ public:
   uint16_t getCalibrationMax(){
     return calMax;
   }
-  // get the range min
-  uint16_t getRangeMin(){
-    return rangeMin;
-  }
-  // get the range max
-  uint16_t getRangeMax(){
-    return rangeMax;
-  }
 private:
   BMCFlags <uint8_t> flags;
   // pot pin number, must be analog input
@@ -340,24 +218,14 @@ private:
   // the current value used by BMC
   uint8_t value = 0;
 
-#if BMC_MAX_MUX_IN_ANALOG > 0
-  uint16_t muxValue = 0;
-#endif
-  //
   uint8_t rawValue = 0;
   uint8_t stableSteps = 0;
-
-  // the range Smooth will be mapped to
-  uint8_t rangeMin = 0;
-  uint8_t rangeMax = 127;
   // the calibration minimum and maximum
   uint16_t calMin = 0;
   uint16_t calMax = 1023;
 
 
   BMCTimer toeSwitch;
-  bmcEvent_t toeOnEvent = 0;
-  bmcEvent_t toeOffEvent = 0;
   uint8_t toeSwitchSettings = 0;
 
 
@@ -381,31 +249,15 @@ private:
     if(stableSteps >= 255){
       stableSteps = 0;
     }
-    return map(value, 0, 127, rangeMin, rangeMax);
+    return value;
   }
   void reset(){
     value = readPot();
-    rangeMin = 0;
-    rangeMax = 127;
     // always leave the mux flag in whatever state it was
-    flags.reset(1<<BMC_FLAG_POT_MUX | 1<<BMC_FLAG_POT_TOE_SWITCH_STATE);
+    flags.reset(1<<BMC_FLAG_AUX_JACK_POT_MUX | 1<<BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
   }
   uint8_t readPin(){
-#if BMC_MAX_MUX_IN_ANALOG > 0
-    if(flags.read(BMC_FLAG_POT_MUX)){
-      return map(parseTaper(muxValue), calMin, calMax, 0, 128);
-    }
-#endif
-    return map(parseTaper(analogRead(pin)), calMin, calMax, 0, 128);
-  }
-  uint16_t parseTaper(uint16_t t_value){
-    if(flags.read(BMC_FLAG_POT_LOG)){
-      if(t_value<=BMC_POT_LOG_POS){
-        return map(t_value, 0, BMC_POT_LOG_POS, 0, BMC_POT_LOG_PERC);
-      }
-      return map(t_value, BMC_POT_LOG_POS+1, 1023, BMC_POT_LOG_PERC+1, 1023);
-    }
-    return t_value;
+    return map(analogRead(pin), calMin, calMax, 0, 128);
   }
 };
 #endif

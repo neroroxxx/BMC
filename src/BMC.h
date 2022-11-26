@@ -86,6 +86,9 @@
 
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   #include "hardware/BMC-Pot.h"
+#endif
+
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
   #include "hardware/BMC-PotCalibration.h"
 #endif
 
@@ -98,17 +101,13 @@
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
-  #include "hardware/BMC-AuxJacks.h"
+  #include "hardware/BMC-AuxJack.h"
 #endif
 
-
-#if BMC_MAX_LIBRARY > 0
-  #include "utility/BMC-Library.h"
-  #if BMC_MAX_PRESETS > 0
-    #include "utility/BMC-Presets.h"
-    #if BMC_MAX_SETLISTS > 0
-      #include "utility/BMC-SetLists.h"
-    #endif
+#if BMC_MAX_PRESETS > 0
+  #include "utility/BMC-Presets.h"
+  #if BMC_MAX_SETLISTS > 0
+    #include "utility/BMC-SetLists.h"
   #endif
 #endif
 
@@ -246,18 +245,16 @@ private:
     BMCCustomSysEx customSysEx;
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-  BMCLibrary library;
-  #if BMC_MAX_PRESETS > 0
-    BMCPresets presets;
-    #if BMC_MAX_SETLISTS > 0
-      BMCSetLists setLists;
-    #endif
+#if BMC_MAX_PRESETS > 0
+  BMCPresets presets;
+  #if BMC_MAX_SETLISTS > 0
+    BMCSetLists setLists;
   #endif
 #endif
 
 #if BMC_MAX_TEMPO_TO_TAP > 0
     BMCTempoToTap tempoToTap;
+    void runTempoToTap();
 #endif
 
 #if BMC_MAX_TRIGGERS > 0
@@ -306,9 +303,6 @@ private:
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
 
   void runPageChanged(){
-    #if BMC_MAX_AUX_JACKS > 0
-      auxJacks.reAssignPins();
-    #endif
     #if BMC_MAX_BUTTONS > 1
       dualPress.pageChanged();
     #endif
@@ -396,26 +390,9 @@ private:
       callback.setListSongPartChanged(setLists.getPart());
     }
   }
-  void runLibraryChanged(){
-#if BMC_MAX_LIBRARY > 0
-    #if BMC_MAX_PAGES > 1
-      if(library.pageChanged()){
-        setPage(library.getPageChange());
-      }
-    #endif
-    if(library.bpmChanged()){
-      midiClock.setBpm(library.getBpmChange());
-    }
-    #if BMC_MAX_PIXEL_PROGRAMS > 0
-      if(library.pixelProgramChanged()){
-        pixelPrograms.setProgram(library.getPixelProgramChange());
-      }
-    #endif
-#endif
-  }
   void runBpmChanged(){
 #if BMC_MAX_TEMPO_TO_TAP > 0
-    tempoToTap.send(midiClock.getBpm());
+    tempoToTap.updateBpm(midiClock.getBpm());
 #endif
     if(callback.midiClockBpmChange){
       callback.midiClockBpmChange(midiClock.getBpm());
@@ -460,7 +437,6 @@ private:
 // code @ BMC.triggers.cpp
 #if BMC_MAX_TRIGGERS > 0
   void readTrigger();
-  void processTrigger(uint8_t index);
 #endif
 
 #if BMC_MAX_TIMED_EVENTS > 0
@@ -519,108 +495,71 @@ private:
   // code @ BMC.hardware.leds.cpp
   #if BMC_MAX_LEDS > 0
     BMCLed leds[BMC_MAX_LEDS];
-    /*
-    #if BMC_MAX_LEDS <= 8
-      BMCFlags <uint8_t> ledCustomState;
-      uint8_t ledStates = 0;
-    #elif BMC_MAX_LEDS <= 16
-      BMCFlags <uint16_t> ledCustomState;
-      uint16_t ledStates = 0;
-    #else
-      BMCFlags <uint32_t> ledCustomState;
-      uint32_t ledStates = 0;
-    #endif
-    */
 
-    void assignLeds();
-    void readLeds();
   #endif //#if BMC_MAX_LEDS > 0
 
   #if BMC_MAX_GLOBAL_LEDS > 0
     BMCLed globalLeds[BMC_MAX_GLOBAL_LEDS];
-    /*
-    #if BMC_MAX_GLOBAL_LEDS <= 8
-      BMCFlags <uint8_t> globalLedCustomState;
-      uint8_t globalLedStates = 0;
-    #else
-      BMCFlags <uint16_t> globalLedCustomState;
-      uint16_t globalLedStates = 0;
-    #endif
-    */
-    void assignGlobalLeds();
-    void readGlobalLeds();
   #endif //if BMC_MAX_GLOBAL_LEDS > 0
 
+  // code @ BMC.hardware.leds.cpp
+  #if BMC_MAX_BI_LEDS > 0
+    BMCLed biLeds[BMC_MAX_BI_LEDS*2];
+  #endif //#if BMC_MAX_BI_LEDS > 0
 
-#if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    BMCLed globalBiLeds[BMC_MAX_GLOBAL_BI_LEDS*2];
+  #endif //if BMC_MAX_GLOBAL_BI_LEDS > 0
+
+  // code @ BMC.hardware.leds.cpp
+  #if BMC_MAX_TRI_LEDS > 0
+    BMCLed triLeds[BMC_MAX_TRI_LEDS*3];
+  #endif //#if BMC_MAX_TRI_LEDS > 0
+
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    BMCLed globalTriLeds[BMC_MAX_GLOBAL_TRI_LEDS*3];
+  #endif //if BMC_MAX_GLOBAL_TRI_LEDS > 0
+
+
+#if BMC_TOTAL_LEDS > 0
     void setupLeds();
+    void assignLeds();
+    void readLeds();
 #endif
-
-
-
-  #if BMC_MAX_PWM_LEDS > 0
-    // code @ BMC.hardware.pwmLeds.cpp
-    BMCPwmLed pwmLeds[BMC_MAX_PWM_LEDS];
-    #if BMC_MAX_PWM_LEDS <= 8
-      uint8_t pwmLedStates = 0;
-    #else
-      uint16_t pwmLedStates = 0;
-    #endif
-    uint8_t pwmLedCustomState[BMC_MAX_PWM_LEDS];
-    void setupPwmLeds();
-    void assignPwmLeds();
-    void readPwmLeds();
-    //void handlePwmLed(uint8_t index, uint32_t event, BMCPwmLed& item);
-  #endif //#if BMC_MAX_PWM_LEDS > 0
 
 #endif // #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 1
 
 #if BMC_MAX_BUTTONS > 0
   // code @ BMC.hardware.buttons.cpp
   BMCButton buttons[BMC_MAX_BUTTONS];
-
   #if BMC_MAX_BUTTONS > 1
     BMCButtonsDualHandler dualPress;
   #endif
-
-
-  void assignButtons();
-  void readButtons();
-  void handleButton(uint16_t index, uint8_t t_trigger=0);
 #endif
-
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   // code @ BMC.hardware.buttons.cpp
   BMCButton globalButtons[BMC_MAX_GLOBAL_BUTTONS];
-
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     BMCButtonsDualHandler dualPressGlobal;
   #endif
-
-  void setupGlobalButtons();
-  void assignGlobalButtons();
-  void readGlobalButtons();
-  void handleGlobalButton(uint16_t index=0, uint8_t t_trigger=0);
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   void setupButtons();
+  void assignButtons();
+  void readButtons();
   void assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& data);
-  void handleButtonEvent(uint8_t type, bmcStoreEvent data);
+
+  template <uint8_t sLen, uint8_t eLen>
+  void handleButton(bmcStoreDevice<sLen, eLen>& device,
+                    uint8_t deviceType, uint16_t index, uint8_t t_trigger);
+  //void handleButtonEvent(uint8_t type, bmcStoreEvent data);
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0
   BMCRelayNL relaysNL[BMC_MAX_NL_RELAYS];
-  BMCBitStates <BMC_MAX_NL_RELAYS> relaysNLHasEvent;
   BMCRelayMidiTrigger relaysNLTmp[BMC_MAX_NL_RELAYS];
-  #if BMC_MAX_NL_RELAYS > 16
-    uint32_t relayNLStates = 0;
-  #elif BMC_MAX_NL_RELAYS > 8
-    uint16_t relayNLStates = 0;
-  #elif BMC_MAX_NL_RELAYS > 0
-    uint8_t relayNLStates = 0;
-  #endif
   void setupRelaysNL();
   void assignRelaysNL();
   void checkRelaysNLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2);
@@ -630,15 +569,7 @@ private:
 
 #if BMC_MAX_L_RELAYS > 0
   BMCRelayL relaysL[BMC_MAX_L_RELAYS];
-  BMCBitStates <BMC_MAX_NL_RELAYS> relaysLHasEvent;
   BMCRelayMidiTrigger relaysLTmp[BMC_MAX_L_RELAYS];
-  #if BMC_MAX_L_RELAYS > 16
-    uint32_t relayLStates = 0;
-  #elif BMC_MAX_L_RELAYS > 8
-    uint16_t relayLStates = 0;
-  #elif BMC_MAX_L_RELAYS > 0
-    uint8_t relayLStates = 0;
-  #endif
   void setupRelaysL();
   void assignRelaysL();
   void checkRelaysLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2);
@@ -654,22 +585,44 @@ private:
   void checkRelaysMidiInput(BMCMidiMessage message);
 #endif
 
-#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
   BMCPotCalibration potCalibration;
+  bool analogInputCalibrationToggle(int16_t deviceType=-1, int16_t n=-1){
+    if(deviceType==-1 || n==-1){
+      potCalibration.cancel();
+      return false;
+    }
+    uint16_t len = BMC_MAX_POTS;
+    if(deviceType == BMC_DEVICE_ID_GLOBAL_POT){
+      len = BMC_MAX_GLOBAL_POTS;
+    } else if(deviceType == BMC_DEVICE_ID_AUX_JACK){
+      len = BMC_MAX_AUX_JACKS;
+      #if BMC_MAX_AUX_JACKS > 0
+      if(!auxJacks[n].isPotMode()){
+        potCalibration.cancel();
+        return false;
+      }
+      #endif
+    }
+    if(!potCalibration.active() && n < len){
+      return potCalibration.toggle(deviceType, n);
+    } else {
+      potCalibration.cancel();
+    }
+    return false;
+  }
+#endif
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   void setupPots();
-  //void assignPot(BMCPot& pot, bmcStoreEvent& data, bmcStoreGlobalPotCalibration& calibration);
-  void handlePot(bmcStorePot& data, uint8_t value=0);
-  //void potParseToeSwitch(uint16_t event, bool on, uint8_t ports);
+  void assignPots();
+  void readPots();
   void potParseToeSwitch(BMCPot& pot);
 #endif
 
 #if BMC_MAX_POTS > 0
   // code @ BMC.hardware.pots.cpp
   BMCPot pots[BMC_MAX_POTS];
-  void assignPots();
-  void readPots();
-  uint16_t getPotAnalogValue(uint8_t n=255);
-  void potCalibrationToggle(uint8_t n=255);
+
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0
@@ -677,46 +630,30 @@ private:
   BMCPot globalPots[BMC_MAX_GLOBAL_POTS];
   void assignGlobalPots();
   void readGlobalPots();
-  uint16_t getGlobalPotAnalogValue(uint8_t n=255);
-  void globalPotCalibrationToggle(uint8_t n=255);
 #endif
 
-
-
-#if BMC_MAX_ENCODERS > 0
-  // code @ BMC.hardware.encoders.cpp
-  BMCEncoder encoders[BMC_MAX_ENCODERS];
-  void assignEncoders();
-  void readEncoders();
-
-#endif
-
-#if BMC_MAX_GLOBAL_ENCODERS > 0
-  // code @ BMC.hardware.encoders.cpp
-  BMCEncoder globalEncoders[BMC_MAX_GLOBAL_ENCODERS];
-  void assignGlobalEncoders();
-  void readGlobalEncoders();
-#endif
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
+  // code @ BMC.hardware.encoders.cpp
+  #if BMC_MAX_ENCODERS > 0
+    BMCEncoder encoders[BMC_MAX_ENCODERS];
+  #endif
+  #if BMC_MAX_GLOBAL_ENCODERS > 0
+    BMCEncoder globalEncoders[BMC_MAX_GLOBAL_ENCODERS];
+  #endif
   void setupEncoders();
-
-  //void assignEncoder(BMCEncoder& encoder, bmcStoreDevice <1, 1>& data);
-  //void handleEncoder(bmcStoreEncoder& data, bool increased=false, uint8_t ticks=0);
-  //void handleEncoder(uint8_t type, bmcStoreEvent data);
-
-
-/*
-  uint16_t getNewEncoderValue(uint8_t mode, uint16_t value,
-                              uint16_t lowest, uint16_t highest,
-                              uint16_t min, uint16_t max,
-                              bool increased, bool endless);
-  */
+  void assignEncoders();
+  void readEncoders();
 #endif
 
+
+
 #if BMC_MAX_AUX_JACKS > 0
-  BMCAuxJacks auxJacks;
-  uint8_t auxJacksStates = 0;
+  BMCAuxJack auxJacks[BMC_MAX_AUX_JACKS];
+  void setupAuxJacks();
+  void assignAuxJacks();
+  void readAuxJacks();
+  //uint8_t auxJacksStates = 0;
 #endif
 
   // code @ BMC.debug.cpp

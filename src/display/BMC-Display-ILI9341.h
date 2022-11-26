@@ -21,13 +21,14 @@ class BMC_ILI9341 {
   }
   bool begin(uint8_t rotation=0){
     display.begin();
+    display.setRotation(rotation);
     //display.setFont(&BMCDisplay_Font);
     //display.setFont(Arial_24);
     display.setTextWrap(false);
     //display.setTextSize(2);
     //display.setFont(Arial_16);
     display.setTextColor(BMC_ILI9341_WHITE);
-    display.setRotation(rotation);
+
     display.drawRect(0, 0, 320, 240, BMC_ILI9341_WHITE);
     return true;
   }

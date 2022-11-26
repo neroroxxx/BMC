@@ -155,28 +155,17 @@ public:
   void onAuxJackConnection(void (*fptr)(uint8_t n, bool state)){
     callback.auxJackConnection = fptr;
   }
-#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  // triggered when a pot toe switch is engaged of disengaged
-  void onPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state)){
-    callback.potsToeSwitchState = fptr;
-  }
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  // triggered when a pot toe switch is engaged of disengaged on a global pot
-  void onGlobalPotToeSwitchStateChange(void (*fptr)(uint8_t n, bool state)){
-    callback.globalPotsToeSwitchState = fptr;
-  }
-#endif
   // triggered when you change pages, also triggered when BMC runs it's first loop
   void onPageChange(void (*fptr)(uint8_t page)){
     callback.pageChanged = fptr;
   }
+  /*
   void onTriggerCustom(void (*fptr)(uint8_t id)){
 #if BMC_MAX_TRIGGERS > 0
     callback.triggerCustom = fptr;
 #endif
   }
+  */
   void onTimedEventCustom(void (*fptr)(uint8_t id, uint8_t a, uint8_t b, uint8_t c)){
 #if BMC_MAX_TIMED_EVENTS > 0
     callback.timedEventCustom = fptr;
@@ -599,56 +588,6 @@ public:
   }
 #endif
 
-
-// ******************************
-// *****      LIBRARY       *****
-// ******************************
-#if BMC_MAX_LIBRARY > 0
-  #if BMC_NAME_LEN_LIBRARY > 1
-    // retrieve a Library event name
-    // must pass a pointer to your string with length >= BMC_NAME_LEN_LIBRARY
-    void getLibraryEventName(bmcLibrary_t n, char* t_string){
-      if(n<BMC_MAX_LIBRARY){
-        library.getName(n, t_string);
-      }
-    }
-  #endif
-  // send/execute a library event
-  void sendLibraryEvent(bmcLibrary_t n){
-    library.send(n);
-  }
-  // send a library even but override the port(s)
-  // example to send library event 0 to USB and Serial A ports at the same time
-  // sendLibraryEventToPorts(0, BMC_USB | BMC_SERIAL_A);
-  void sendLibraryEventToPorts(bmcLibrary_t n, uint8_t ports){
-    library.sendWithDifferentPorts(n, ports);
-  }
-  // retrieve the a library event as a 32-bit unsigned integer
-  uint32_t getLibraryEvent(bmcLibrary_t n){
-    return library.getEvent(n);
-  }
-  // retrieve the status of a library event
-  uint8_t getLibraryEventStatus(bmcLibrary_t n){
-    return library.getStatus(n);
-  }
-  // retrieve the channel of a library event
-  uint8_t getLibraryEventChannel(bmcLibrary_t n){
-    return library.getChannel(n);
-  }
-  // retrieve the first MIDI word of a library event
-  uint8_t getLibraryEventData1(bmcLibrary_t n){
-    return library.getData1(n);
-  }
-  // retrieve the second MIDI word of a library event
-  uint8_t getLibraryEventData2(bmcLibrary_t n){
-    return library.getData2(n);
-  }
-  // retrieve the stored ports of a library event
-  uint8_t getLibraryEventPort(bmcLibrary_t n){
-    return library.getPort(n);
-  }
-#endif
-
 // ******************************
 // *****      PRESETS       *****
 // ******************************
@@ -671,11 +610,6 @@ public:
   /*
   uint8_t getPresetLength(uint16_t n){
     return presets.getLength(n);
-  }
-
-  // get a library message id
-  bmcLibrary_t getPresetItem(uint16_t n, bmcLibrary_t e){
-    return presets.getPresetItem(n, e);
   }
 
   // get the current preset number

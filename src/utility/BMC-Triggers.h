@@ -15,22 +15,24 @@
 
 class BMCTriggers {
 public:
-  BMCTriggers(BMCMidi& t_midi, bmcStoreGlobal& t_global):
+  BMCTriggers(BMCMidi& t_midi, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
     midi(t_midi),
     incoming(midi.message),
+    globals(t_globals),
     global(t_global)
   {
 
   }
   void buildListeners(){
-
     flags.off(BMC_TRIGGERS_FLAG_AVAILABLE);
     totalReadableTriggers = 0;
-    for(uint8_t i=0;i<BMC_MAX_TRIGGERS;i++){
-      bmcStoreGlobalTriggers& trigger = global.triggers[i];
-      if(active(trigger.source) != BMC_NONE){
+    activeList.zeroOut();
+    for(uint8_t i = 0 ; i < BMC_MAX_TRIGGERS ; i++){
+      bmcStoreDevice <1, 2>& device = global.triggers[i];
+      if(active(device.events[0]) && device.events[1] != 0){
         flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
-        totalReadableTriggers = i+1;
+        activeList.setBit(i, true);
+        totalReadableTriggers = (i+1);
       }
     }
     BMC_PRINTLN("BMCTriggers::buildListeners() ",totalReadableTriggers);
@@ -39,26 +41,21 @@ public:
     return totalReadableTriggers;
   }
   bool isValidTrigger(uint8_t index){
-    if(index>=BMC_MAX_TRIGGERS){
+    if(incoming.getStatus()==BMC_NONE || index>=totalReadableTriggers || !activeList.getBit(index)){
       return false;
     }
-    bmcStoreGlobalTriggers& trigger = global.triggers[index];
-    return (active(trigger.source) && match(trigger.source));
+    //bmcStoreGlobalTriggers& trigger = global.triggers[index];
+    bmcStoreDevice <1, 2>& device = global.triggers[index];
+    return active(device.events[0]) && match(device.events[0], device.settings[0]);
   }
   uint32_t getEvent(uint8_t index){
-    if(index>=BMC_MAX_TRIGGERS){
-      return 0;
-    }
-    return global.triggers[index].event;
+    return 0;
   }
   uint32_t getSource(uint8_t index){
-    if(index>=BMC_MAX_TRIGGERS){
-      return 0;
-    }
-    return global.triggers[index].source;
+    return 0;
   }
   bool isAllowed(){
-    if(totalReadableTriggers>0 && incoming.isVoiceStatus()){
+    if(totalReadableTriggers > 0 && incoming.isVoiceStatus()){
       switch(incoming.getStatus()){
         case BMC_MIDI_NOTE_OFF:
         case BMC_MIDI_NOTE_ON:
@@ -73,20 +70,49 @@ private:
   // reference to midi object from BMC
   BMCMidi& midi;
   BMCMidiMessage& incoming;
+  BMCGlobals& globals;
   bmcStoreGlobal& global;
   BMCFlags <uint8_t> flags;
+  BMCBitStates <BMC_MAX_TRIGGERS> activeList;
   uint8_t totalReadableTriggers = 0;
 
-  bool active(uint32_t source){
-    return BMC_GET_MIDI_STATUS(BMC_GET_BYTE(0,source)) != BMC_NONE;
+  bool active(bmcEvent_t type){
+    bmcStoreEvent data = globals.getDeviceEventType(type);
+    switch(data.type){
+      case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_NOTE_ON:
+      case BMC_EVENT_TYPE_MIDI_NOTE_OFF:
+        return true;
+    }
+    return false;
   }
-  bool match(uint32_t trigger){
+  bool match(bmcEvent_t trigger, uint8_t settings){
+    bmcStoreEvent data = globals.getDeviceEventType(trigger);
     if(incoming.getStatus()==BMC_NONE){
       return false;
     }
-    uint8_t data2 = (trigger>>15) & 0x7F;
-    uint8_t data2Operator = (trigger>>22) & 0x03;
-    if(matchEvent(incoming.getEvent(),trigger)){
+    uint8_t channel = BMC_GET_BYTE(0, data.event) & 0x0F;
+    uint8_t data1 = BMC_GET_BYTE(1, data.event) & 0x7F;
+    uint8_t data2 = BMC_GET_BYTE(2, data.event) & 0x7F;
+    uint8_t data2Operator = (settings) & 0x03;
+    uint8_t ignorePort = bitRead(settings, 2);
+    uint32_t target = 0;
+    switch(data.type){
+      case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
+        target = (BMC_MIDI_PROGRAM_CHANGE | channel) | (data1<<8) | (data.ports<<24);
+        break;
+      case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
+        target = (BMC_MIDI_CONTROL_CHANGE | channel) | (data1<<8) | (data2<<16) | (data.ports<<24);
+        break;
+      case BMC_EVENT_TYPE_MIDI_NOTE_ON:
+        target = (BMC_MIDI_NOTE_ON | channel) | (data1<<8) | (data2<<16) | (data.ports<<24);
+        break;
+      case BMC_EVENT_TYPE_MIDI_NOTE_OFF:
+        target = (BMC_MIDI_NOTE_OFF | channel) | (data1<<8) | (data2<<16) | (data.ports<<24);
+        break;
+    }
+    if(matchEvent(incoming.getEvent(), target, ignorePort)){
       if(incoming.isProgramChange()){
         return true;
       }
@@ -107,11 +133,15 @@ private:
     }
     return false;
   }
-  bool matchEvent(uint32_t source, uint32_t target){
-    return (matchStatusAndData1(source,target) && matchPort(source,target));
+  bool matchEvent(uint32_t source, uint32_t target, bool ignorePort){
+    bool statusMatch = matchStatusAndData1(source, target);
+    if(ignorePort){
+      return statusMatch;
+    }
+    return statusMatch && matchPort(source, target);
   }
   bool matchStatusAndData1(uint32_t source, uint32_t target){
-    return ((source & 0x7FFF) == (target & 0x7FFF));
+    return (source & 0x7FFF) == (target & 0x7FFF);
   }
   bool matchPort(uint32_t source, uint32_t target){
     return BMCTools::matchPort(BMC_GET_BYTE(3,source), BMC_GET_BYTE(3,target));

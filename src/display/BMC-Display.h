@@ -20,21 +20,9 @@ public:
     #ifdef BMC_USE_SYNC
       ,BMCSync& t_sync
     #endif
-    #if BMC_MAX_PRESETS > 0
-      ,BMCPresets& t_presets
-    #endif
-    #if BMC_MAX_SETLISTS > 0
-      ,BMCSetLists& t_setlists
-    #endif
   ):midi(t_midi),globals(t_globals), callback(cb)
     #ifdef BMC_USE_SYNC
       ,sync(t_sync)
-    #endif
-    #if BMC_MAX_PRESETS > 0
-      ,presets(t_presets)
-    #endif
-    #if BMC_MAX_SETLISTS > 0
-      ,setLists(t_setlists)
     #endif
   {
 
@@ -356,7 +344,11 @@ void renderNumber(uint8_t n, bool isOled, uint8_t type, uint16_t value, const ch
 
   renderText(n, isOled, type, str);
 }
-
+void renderChar(uint8_t n, bool isOled, uint8_t type, char str){
+  char c[2] = {str, 0};
+  //strncpy(c, str, 1);
+  renderText(n, isOled, type, c, 0, 0);
+}
 void renderText(uint8_t n, bool isOled, uint8_t type, const char * str, uint8_t xShift=0, uint8_t yShift=0){
   uint8_t len = strlen(str)+1;
   char c[len] = "";
@@ -399,12 +391,6 @@ private:
   BMCCallbacks& callback;
 #ifdef BMC_USE_SYNC
   BMCSync& sync;
-#endif
-#if BMC_MAX_PRESETS > 0
-  BMCPresets& presets;
-#endif
-#if BMC_MAX_SETLISTS > 0
-  BMCSetLists& setLists;
 #endif
   uint8_t last[BMC_MAX_OLED+BMC_MAX_ILI9341_BLOCKS];
 #if BMC_MAX_OLED > 0
@@ -553,17 +539,6 @@ private:
     #if BMC_MAX_L_RELAYS > 0 && BMC_NAME_LEN_RELAYS > 1
         renderText(index, isOled, type, globals.store.global.relaysL[value].name);
         blank = false;
-    #endif
-        break;
-      case BMC_DISPLAY_EVENT_TYPE_LIBRARY:
-    #if BMC_MAX_LIBRARY > 0 && BMC_MAX_PRESETS > 0 && BMC_NAME_LEN_LIBRARY > 1
-        {
-          char str[BMC_NAME_LEN_LIBRARY] = "";
-          presets.getPresetItemName(value, str);
-          renderText(index, isOled, type, str);
-          BMC_PRINTLN("BMC_DISPLAY_EVENT_TYPE_LIBRARY",value, str);
-          blank = false;
-        }
     #endif
         break;
       case BMC_DISPLAY_EVENT_TYPE_PRESET:

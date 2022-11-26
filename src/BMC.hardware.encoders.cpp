@@ -24,25 +24,22 @@ void BMC::setupEncoders(){
   assignGlobalEncoders();
 #endif
 }
-/*
-void BMC::assignEncoder(BMCEncoder& encoder, bmcStoreDevice <1, 1>& data){
-  encoder.reassign();
-}
-*/
-#endif
 
-
-
-
-#if BMC_MAX_ENCODERS > 0
 void BMC::assignEncoders(){
+#if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
     encoders[i].reassign();
   }
+#endif
+#if BMC_MAX_GLOBAL_ENCODERS > 0
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
+    globalEncoders[i].reassign();
+  }
+#endif
 }
-void BMC::readEncoders(){
-  //bmcStorePage& pageData = store.pages[page];
 
+void BMC::readEncoders(){
+#if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
     bmcStoreDevice <1, 1>& device = store.pages[page].encoders[i];
     // GET THE PIN STATE FROM MUX
@@ -61,35 +58,28 @@ void BMC::readEncoders(){
       processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_ENCODER,
                   i, BMC_EVENT_IO_TYPE_INPUT, device.events[0],  increased<<7 | ticks);
       //uint32_t event = pageData.encoders[i].event;
+      /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.encoderCustomActivity){
         callback.encoderCustomActivity(i, increased, ticks);
       } else if(callback.encoderActivity){
         callback.encoderActivity(i, increased, ticks);
       }
-      editor.utilitySendEncoderActivity(i, increased);
+      */
+      editor.utilitySendEncoderActivity(BMC_DEVICE_ID_ENCODER, i, increased);
     }
   }
-}
 #endif
 
 #if BMC_MAX_GLOBAL_ENCODERS > 0
-void BMC::assignGlobalEncoders(){
-  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
-    globalEncoders[i].reassign();
-    //assignEncoder(globalEncoders[i], globalData.encoders[i]);
-  }
-}
-// READ
-void BMC::readGlobalEncoders(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
     bmcStoreDevice <1, 1>& device = store.global.encoders[i];
     // GET THE PIN STATE FROM MUX
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+  #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
     if(globalEncoders[i].hasMux()){
       globalEncoders[i].setMuxValue(0, mux.readDigital(globalEncoders[i].getMuxPin(0)));
       globalEncoders[i].setMuxValue(1, mux.readDigital(globalEncoders[i].getMuxPin(1)));
     }
-#endif
+  #endif
 
     if(globalEncoders[i].update()){
       bool increased = globalEncoders[i].increased();
@@ -100,19 +90,24 @@ void BMC::readGlobalEncoders(){
                     i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], increased<<7 | ticks);
 
       //uint32_t event = globalData.encoders[i].event;
+      /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
         callback.globalEncoderCustomActivity(i, increased, ticks);
       } else if(callback.globalEncoderActivity){
         callback.globalEncoderActivity(i, increased, ticks);
       }
-      editor.utilitySendGlobalEncoderActivity(i, increased);
+      */
+      //editor.utilitySendGlobalEncoderActivity(i, increased);
+      editor.utilitySendEncoderActivity(BMC_DEVICE_ID_GLOBAL_ENCODER, i, increased);
     }
   }
+#endif
 }
 #endif
 
-#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
+
 /*
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
 void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
   uint32_t event  = data.event;
   uint8_t type    = BMC_GET_BYTE(0,event);
@@ -282,12 +277,6 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       break;
 #endif
 
-#if BMC_MAX_LIBRARY > 1
-    case BMC_ENCODER_EVENT_TYPE_LIBRARY:
-      library.send(BMC_EVENT_TO_LIBRARY_NUM(event >> (increased ? 18 : 8)));
-      break;
-#endif
-
 #if BMC_MAX_CUSTOM_SYSEX > 1
     case BMC_ENCODER_EVENT_TYPE_CUSTOM_SYSEX:
       customSysEx.send(ports, (increased) ? byteB : byteA);
@@ -397,5 +386,5 @@ uint16_t BMC::getNewEncoderValue(uint8_t mode, uint16_t value,
   scroller.set(value, min, max);
   return scroller.scroll(((mode>>1)&0x7F)+1, increased, endless);
 }
-*/
 #endif
+*/

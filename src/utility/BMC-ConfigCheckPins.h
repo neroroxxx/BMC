@@ -3629,6 +3629,1818 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 0
+#if defined(BMC_DEVICE_UI_BI_LED_1)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 1
+
+#if defined(BMC_DEVICE_UI_BI_LED_2)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 2
+
+#if defined(BMC_DEVICE_UI_BI_LED_3)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 3
+
+#if defined(BMC_DEVICE_UI_BI_LED_4)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 4
+
+#if defined(BMC_DEVICE_UI_BI_LED_5)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 5
+
+#if defined(BMC_DEVICE_UI_BI_LED_6)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 6
+
+#if defined(BMC_DEVICE_UI_BI_LED_7)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 7
+
+#if defined(BMC_DEVICE_UI_BI_LED_8)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 8
+
+#if defined(BMC_DEVICE_UI_BI_LED_9)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 9
+
+#if defined(BMC_DEVICE_UI_BI_LED_10)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 10
+
+#if defined(BMC_DEVICE_UI_BI_LED_11)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 11
+
+#if defined(BMC_DEVICE_UI_BI_LED_12)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 12
+
+#if defined(BMC_DEVICE_UI_BI_LED_13)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 13
+
+#if defined(BMC_DEVICE_UI_BI_LED_14)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 14
+
+#if defined(BMC_DEVICE_UI_BI_LED_15)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 15
+
+#if defined(BMC_DEVICE_UI_BI_LED_16)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 16
+
+#if defined(BMC_DEVICE_UI_BI_LED_17)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 17
+
+#if defined(BMC_DEVICE_UI_BI_LED_18)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 18
+
+#if defined(BMC_DEVICE_UI_BI_LED_19)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 19
+
+#if defined(BMC_DEVICE_UI_BI_LED_20)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 20
+
+#if defined(BMC_DEVICE_UI_BI_LED_21)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 21
+
+#if defined(BMC_DEVICE_UI_BI_LED_22)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 22
+
+#if defined(BMC_DEVICE_UI_BI_LED_23)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 23
+
+#if defined(BMC_DEVICE_UI_BI_LED_24)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 24
+
+#if defined(BMC_DEVICE_UI_BI_LED_25)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 25
+
+#if defined(BMC_DEVICE_UI_BI_LED_26)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 26
+
+#if defined(BMC_DEVICE_UI_BI_LED_27)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 27
+
+#if defined(BMC_DEVICE_UI_BI_LED_28)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 28
+
+#if defined(BMC_DEVICE_UI_BI_LED_29)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 29
+
+#if defined(BMC_DEVICE_UI_BI_LED_30)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 30
+
+#if defined(BMC_DEVICE_UI_BI_LED_31)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 31
+
+#if defined(BMC_DEVICE_UI_BI_LED_32)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 32
+
+#if defined(BMC_DEVICE_UI_BI_LED_33)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 33
+
+#if defined(BMC_DEVICE_UI_BI_LED_34)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 34
+
+#if defined(BMC_DEVICE_UI_BI_LED_35)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 35
+
+#if defined(BMC_DEVICE_UI_BI_LED_36)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 36
+
+#if defined(BMC_DEVICE_UI_BI_LED_37)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 37
+
+#if defined(BMC_DEVICE_UI_BI_LED_38)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 38
+
+#if defined(BMC_DEVICE_UI_BI_LED_39)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 39
+
+#if defined(BMC_DEVICE_UI_BI_LED_40)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 40
+
+#if defined(BMC_DEVICE_UI_BI_LED_41)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 41
+
+#if defined(BMC_DEVICE_UI_BI_LED_42)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 42
+
+#if defined(BMC_DEVICE_UI_BI_LED_43)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 43
+
+#if defined(BMC_DEVICE_UI_BI_LED_44)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 44
+
+#if defined(BMC_DEVICE_UI_BI_LED_45)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 45
+
+#if defined(BMC_DEVICE_UI_BI_LED_46)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 46
+
+#if defined(BMC_DEVICE_UI_BI_LED_47)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 47
+
+#if defined(BMC_DEVICE_UI_BI_LED_48)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 48
+
+#if defined(BMC_DEVICE_UI_BI_LED_49)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 49
+
+#if defined(BMC_DEVICE_UI_BI_LED_50)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 50
+
+#if defined(BMC_DEVICE_UI_BI_LED_51)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 51
+
+#if defined(BMC_DEVICE_UI_BI_LED_52)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 52
+
+#if defined(BMC_DEVICE_UI_BI_LED_53)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 53
+
+#if defined(BMC_DEVICE_UI_BI_LED_54)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 54
+
+#if defined(BMC_DEVICE_UI_BI_LED_55)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 55
+
+#if defined(BMC_DEVICE_UI_BI_LED_56)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 56
+
+#if defined(BMC_DEVICE_UI_BI_LED_57)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 57
+
+#if defined(BMC_DEVICE_UI_BI_LED_58)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 58
+
+#if defined(BMC_DEVICE_UI_BI_LED_59)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 59
+
+#if defined(BMC_DEVICE_UI_BI_LED_60)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 60
+
+#if defined(BMC_DEVICE_UI_BI_LED_61)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 61
+
+#if defined(BMC_DEVICE_UI_BI_LED_62)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 62
+
+#if defined(BMC_DEVICE_UI_BI_LED_63)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 63
+
+#if defined(BMC_DEVICE_UI_BI_LED_64)
+#ifdef BMC_MAX_BI_LEDS
+#undef BMC_MAX_BI_LEDS
+#endif
+#define BMC_MAX_BI_LEDS 64
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 0
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_1)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 1
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_2)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 2
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_3)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 3
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_4)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 4
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_5)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 5
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_6)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 6
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_7)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 7
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_8)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 8
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_9)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 9
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_10)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 10
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_11)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 11
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_12)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 12
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_13)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 13
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_14)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 14
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_15)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 15
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_16)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 16
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_17)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 17
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_18)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 18
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_19)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 19
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_20)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 20
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_21)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 21
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_22)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 22
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_23)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 23
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_24)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 24
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_25)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 25
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_26)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 26
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_27)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 27
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_28)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 28
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_29)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 29
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_30)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 30
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_31)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 31
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_32)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 32
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_33)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 33
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_34)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 34
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_35)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 35
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_36)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 36
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_37)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 37
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_38)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 38
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_39)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 39
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_40)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 40
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_41)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 41
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_42)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 42
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_43)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 43
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_44)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 44
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_45)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 45
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_46)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 46
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_47)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 47
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_48)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 48
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_49)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 49
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_50)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 50
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_51)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 51
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_52)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 52
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_53)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 53
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_54)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 54
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_55)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 55
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_56)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 56
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_57)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 57
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_58)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 58
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_59)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 59
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_60)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 60
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_61)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 61
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_62)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 62
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_63)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 63
+
+#if defined(BMC_DEVICE_UI_GLOBAL_BI_LED_64)
+#ifdef BMC_MAX_GLOBAL_BI_LEDS
+#undef BMC_MAX_GLOBAL_BI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_BI_LEDS 64
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 0
+#if defined(BMC_DEVICE_UI_TRI_LED_1)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 1
+
+#if defined(BMC_DEVICE_UI_TRI_LED_2)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 2
+
+#if defined(BMC_DEVICE_UI_TRI_LED_3)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 3
+
+#if defined(BMC_DEVICE_UI_TRI_LED_4)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 4
+
+#if defined(BMC_DEVICE_UI_TRI_LED_5)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 5
+
+#if defined(BMC_DEVICE_UI_TRI_LED_6)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 6
+
+#if defined(BMC_DEVICE_UI_TRI_LED_7)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 7
+
+#if defined(BMC_DEVICE_UI_TRI_LED_8)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 8
+
+#if defined(BMC_DEVICE_UI_TRI_LED_9)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 9
+
+#if defined(BMC_DEVICE_UI_TRI_LED_10)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 10
+
+#if defined(BMC_DEVICE_UI_TRI_LED_11)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 11
+
+#if defined(BMC_DEVICE_UI_TRI_LED_12)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 12
+
+#if defined(BMC_DEVICE_UI_TRI_LED_13)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 13
+
+#if defined(BMC_DEVICE_UI_TRI_LED_14)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 14
+
+#if defined(BMC_DEVICE_UI_TRI_LED_15)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 15
+
+#if defined(BMC_DEVICE_UI_TRI_LED_16)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 16
+
+#if defined(BMC_DEVICE_UI_TRI_LED_17)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 17
+
+#if defined(BMC_DEVICE_UI_TRI_LED_18)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 18
+
+#if defined(BMC_DEVICE_UI_TRI_LED_19)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 19
+
+#if defined(BMC_DEVICE_UI_TRI_LED_20)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 20
+
+#if defined(BMC_DEVICE_UI_TRI_LED_21)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 21
+
+#if defined(BMC_DEVICE_UI_TRI_LED_22)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 22
+
+#if defined(BMC_DEVICE_UI_TRI_LED_23)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 23
+
+#if defined(BMC_DEVICE_UI_TRI_LED_24)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 24
+
+#if defined(BMC_DEVICE_UI_TRI_LED_25)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 25
+
+#if defined(BMC_DEVICE_UI_TRI_LED_26)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 26
+
+#if defined(BMC_DEVICE_UI_TRI_LED_27)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 27
+
+#if defined(BMC_DEVICE_UI_TRI_LED_28)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 28
+
+#if defined(BMC_DEVICE_UI_TRI_LED_29)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 29
+
+#if defined(BMC_DEVICE_UI_TRI_LED_30)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 30
+
+#if defined(BMC_DEVICE_UI_TRI_LED_31)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 31
+
+#if defined(BMC_DEVICE_UI_TRI_LED_32)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 32
+
+#if defined(BMC_DEVICE_UI_TRI_LED_33)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 33
+
+#if defined(BMC_DEVICE_UI_TRI_LED_34)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 34
+
+#if defined(BMC_DEVICE_UI_TRI_LED_35)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 35
+
+#if defined(BMC_DEVICE_UI_TRI_LED_36)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 36
+
+#if defined(BMC_DEVICE_UI_TRI_LED_37)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 37
+
+#if defined(BMC_DEVICE_UI_TRI_LED_38)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 38
+
+#if defined(BMC_DEVICE_UI_TRI_LED_39)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 39
+
+#if defined(BMC_DEVICE_UI_TRI_LED_40)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 40
+
+#if defined(BMC_DEVICE_UI_TRI_LED_41)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 41
+
+#if defined(BMC_DEVICE_UI_TRI_LED_42)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 42
+
+#if defined(BMC_DEVICE_UI_TRI_LED_43)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 43
+
+#if defined(BMC_DEVICE_UI_TRI_LED_44)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 44
+
+#if defined(BMC_DEVICE_UI_TRI_LED_45)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 45
+
+#if defined(BMC_DEVICE_UI_TRI_LED_46)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 46
+
+#if defined(BMC_DEVICE_UI_TRI_LED_47)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 47
+
+#if defined(BMC_DEVICE_UI_TRI_LED_48)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 48
+
+#if defined(BMC_DEVICE_UI_TRI_LED_49)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 49
+
+#if defined(BMC_DEVICE_UI_TRI_LED_50)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 50
+
+#if defined(BMC_DEVICE_UI_TRI_LED_51)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 51
+
+#if defined(BMC_DEVICE_UI_TRI_LED_52)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 52
+
+#if defined(BMC_DEVICE_UI_TRI_LED_53)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 53
+
+#if defined(BMC_DEVICE_UI_TRI_LED_54)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 54
+
+#if defined(BMC_DEVICE_UI_TRI_LED_55)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 55
+
+#if defined(BMC_DEVICE_UI_TRI_LED_56)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 56
+
+#if defined(BMC_DEVICE_UI_TRI_LED_57)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 57
+
+#if defined(BMC_DEVICE_UI_TRI_LED_58)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 58
+
+#if defined(BMC_DEVICE_UI_TRI_LED_59)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 59
+
+#if defined(BMC_DEVICE_UI_TRI_LED_60)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 60
+
+#if defined(BMC_DEVICE_UI_TRI_LED_61)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 61
+
+#if defined(BMC_DEVICE_UI_TRI_LED_62)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 62
+
+#if defined(BMC_DEVICE_UI_TRI_LED_63)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 63
+
+#if defined(BMC_DEVICE_UI_TRI_LED_64)
+#ifdef BMC_MAX_TRI_LEDS
+#undef BMC_MAX_TRI_LEDS
+#endif
+#define BMC_MAX_TRI_LEDS 64
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 0
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_1)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 1
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_2)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 2
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_3)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 3
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_4)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 4
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_5)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 5
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_6)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 6
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_7)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 7
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_8)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 8
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_9)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 9
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_10)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 10
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_11)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 11
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_12)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 12
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_13)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 13
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_14)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 14
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_15)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 15
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_16)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 16
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_17)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 17
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_18)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 18
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_19)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 19
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_20)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 20
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_21)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 21
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_22)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 22
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_23)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 23
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_24)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 24
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_25)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 25
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_26)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 26
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_27)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 27
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_28)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 28
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_29)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 29
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_30)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 30
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_31)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 31
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_32)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 32
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_33)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 33
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_34)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 34
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_35)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 35
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_36)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 36
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_37)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 37
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_38)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 38
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_39)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 39
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_40)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 40
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_41)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 41
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_42)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 42
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_43)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 43
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_44)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 44
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_45)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 45
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_46)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 46
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_47)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 47
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_48)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 48
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_49)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 49
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_50)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 50
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_51)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 51
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_52)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 52
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_53)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 53
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_54)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 54
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_55)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 55
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_56)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 56
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_57)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 57
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_58)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 58
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_59)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 59
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_60)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 60
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_61)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 61
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_62)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 62
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_63)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 63
+
+#if defined(BMC_DEVICE_UI_GLOBAL_TRI_LED_64)
+#ifdef BMC_MAX_GLOBAL_TRI_LEDS
+#undef BMC_MAX_GLOBAL_TRI_LEDS
+#endif
+#define BMC_MAX_GLOBAL_TRI_LEDS 64
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
 #ifdef BMC_MAX_POTS
 #undef BMC_MAX_POTS
 #endif
@@ -11743,6 +13555,123 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 0
+#if defined(BMC_DEVICE_UI_AUX_JACK_1)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 1
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_2)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 2
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_3)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 3
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_4)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 4
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_5)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 5
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_6)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 6
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_7)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 7
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_8)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 8
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_9)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 9
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_10)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 10
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_11)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 11
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_12)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 12
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_13)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 13
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_14)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 14
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_15)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 15
+
+#if defined(BMC_DEVICE_UI_AUX_JACK_16)
+#ifdef BMC_MAX_AUX_JACKS
+#undef BMC_MAX_AUX_JACKS
+#endif
+#define BMC_MAX_AUX_JACKS 16
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
 #ifdef BMC_MAX_PWM_LEDS
 #undef BMC_MAX_PWM_LEDS
 #endif
@@ -13159,25 +15088,6 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 #endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#define BMC_MAX_AUX_JACKS 0
-#if BMC_MAX_POTS > 0 && BMC_MAX_BUTTONS > 1
-#if BMC_MAX_POTS > 0 && BMC_MAX_BUTTONS >= 2 && defined(BMC_AUX_JACK_1_POT) && defined(BMC_AUX_JACK_1_BTN) && defined(BMC_AUX_JACK_1_BTN_EN)
-#undef BMC_MAX_AUX_JACKS
-#define BMC_MAX_AUX_JACKS 1
-#if BMC_MAX_POTS > 1 && BMC_MAX_BUTTONS >= 4 && defined(BMC_AUX_JACK_2_POT) && defined(BMC_AUX_JACK_2_BTN) && defined(BMC_AUX_JACK_2_BTN_EN)
-#undef BMC_MAX_AUX_JACKS
-#define BMC_MAX_AUX_JACKS 2
-#if BMC_MAX_POTS > 2 && BMC_MAX_BUTTONS >= 6 && defined(BMC_AUX_JACK_3_POT) && defined(BMC_AUX_JACK_3_BTN) && defined(BMC_AUX_JACK_3_BTN_EN)
-#undef BMC_MAX_AUX_JACKS
-#define BMC_MAX_AUX_JACKS 3
-#if BMC_MAX_POTS > 3 && BMC_MAX_BUTTONS >= 8 && defined(BMC_AUX_JACK_4_POT) && defined(BMC_AUX_JACK_4_BTN) && defined(BMC_AUX_JACK_4_BTN_EN)
-#undef BMC_MAX_AUX_JACKS
-#define BMC_MAX_AUX_JACKS 4
 #endif
 #endif
 #endif

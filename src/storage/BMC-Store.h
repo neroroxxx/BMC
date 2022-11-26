@@ -30,99 +30,31 @@
     uint8_t settings[sLen];
     bmcEvent_t events[eLen];
   };
-
-
-
-
-
-  // Button Event Object
-  struct __attribute__ ((packed)) bmcStoreButtonEvent {
-    uint8_t mode = 0;
-    uint8_t ports = 0;
-    uint32_t event = 0;
-  };
-  // Button Object
-  struct __attribute__ ((packed)) bmcStoreButton {
-    bmcStoreButtonEvent events[BMC_MAX_BUTTON_EVENTS];
-    #if BMC_NAME_LEN_BUTTONS> 1
-      char name[BMC_NAME_LEN_BUTTONS] = "";
-    #endif
-  };
-  // Potentiometer object
-  struct __attribute__ ((packed)) bmcStorePot {
-    uint8_t ports = 0;
-    uint32_t event = 0;
-    #if defined(BMC_USE_POT_TOE_SWITCH)
-      uint32_t toeSwitch = 0;
-      uint16_t toeSwitchFlags = 0;
-    #endif
-    #if BMC_NAME_LEN_POTS> 1
-      char name[BMC_NAME_LEN_POTS] = "";
-    #endif
-  };
-  // Encoder object
-  struct __attribute__ ((packed)) bmcStoreEncoder {
-    uint8_t mode = 0;
-    uint8_t ports = 0;
-    uint32_t event = 0;
-    #if BMC_NAME_LEN_ENCODERS> 1
-      char name[BMC_NAME_LEN_ENCODERS] = "";
-    #endif
-  };
-  // Led object, used by page leds, pwm leds, global Leds & pixels
-  struct __attribute__ ((packed)) bmcStoreLed {
-    uint32_t event = 0;
-    #if BMC_NAME_LEN_LEDS > 1
-      char name[BMC_NAME_LEN_LEDS] = "";
-    #endif
-  };
-  // RGB Led object, used by RGB Pixel maybe in the future by others
-  struct __attribute__ ((packed)) bmcStoreRgbLed {
-    uint32_t red = 0;
-    uint32_t green = 0;
-    uint32_t blue = 0;
-    #if BMC_NAME_LEN_LEDS > 1
-      char name[BMC_NAME_LEN_LEDS] = "";
-    #endif
-  };
-  // OLED
-  struct __attribute__ ((packed)) bmcStoreOled {
-    uint8_t type = 0;
-    uint8_t value = 0;
-  };
-  // ILI
-  struct __attribute__ ((packed)) bmcStoreIliBlock {
-    uint8_t type = 0;
-    uint8_t value = 0;
-  };
   // Page Object
   struct __attribute__ ((packed)) bmcStorePage {
     bmcName_t name;
     #if BMC_MAX_BUTTONS > 0
-      //bmcStoreButton   buttons[BMC_MAX_BUTTONS];
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
     #endif
     #if BMC_MAX_LEDS > 0
-      //bmcStoreLed      leds[BMC_MAX_LEDS];
       bmcStoreDevice <1, 1> leds[BMC_MAX_LEDS];
     #endif
-    #if BMC_MAX_PWM_LEDS > 0
-      bmcStoreLed      pwmLeds[BMC_MAX_PWM_LEDS];
+    #if BMC_MAX_BI_LEDS > 0
+      bmcStoreDevice <1, 2> biLeds[BMC_MAX_BI_LEDS];
+    #endif
+    #if BMC_MAX_TRI_LEDS > 0
+      bmcStoreDevice <1, 3> triLeds[BMC_MAX_TRI_LEDS];
     #endif
     #if BMC_MAX_PIXELS > 0
-      //bmcStoreLed      pixels[BMC_MAX_PIXELS];
       bmcStoreDevice <1, 1> pixels[BMC_MAX_PIXELS];
     #endif
     #if BMC_MAX_RGB_PIXELS > 0
-      //bmcStoreRgbLed      rgbPixels[BMC_MAX_RGB_PIXELS];
       bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_RGB_PIXELS];
     #endif
     #if BMC_MAX_ENCODERS > 0
       bmcStoreDevice <1, 1> encoders[BMC_MAX_ENCODERS];
-      //bmcStoreEncoder  encoders[BMC_MAX_ENCODERS];
     #endif
     #if BMC_MAX_POTS > 0
-      //bmcStorePot      pots[BMC_MAX_POTS];
       bmcStoreDevice <1, 6> pots[BMC_MAX_POTS];
     #endif
     #if BMC_MAX_OLED > 0
@@ -130,65 +62,15 @@
     #endif
     #if BMC_MAX_ILI9341_BLOCKS > 0
       bmcStoreDevice <1, 1> ili[BMC_MAX_ILI9341_BLOCKS];
-      //bmcStoreIliBlock ili[BMC_MAX_ILI9341_BLOCKS];
     #endif
   };
 
-
-  // Non-Latching Relay object
-  struct __attribute__ ((packed)) bmcStoreGlobalRelay {
-    uint32_t event = 0;
-    #if BMC_NAME_LEN_RELAYS > 1
-      char name[BMC_NAME_LEN_RELAYS] = "";
-    #endif
-  };
 
   // String Library object BMC_MAX_STRING_LIBRARY
   struct __attribute__ ((packed)) bmcStoreGlobalStringLibrary {
 #if BMC_MAX_STRING_LIBRARY > 0
     char name[BMC_NAME_LEN_STRING_LIBRARY] = "";
 #endif
-  };
-  // Library object
-  struct __attribute__ ((packed)) bmcStoreGlobalLibrary {
-    uint32_t event = 0;
-    #if BMC_NAME_LEN_LIBRARY > 1
-      char name[BMC_NAME_LEN_LIBRARY] = "";
-    #endif
-  };
-  // Presets object
-  struct __attribute__ ((packed)) bmcStoreGlobalPresets {
-    uint8_t length = 0;
-    bmcLibrary_t events[BMC_MAX_PRESET_ITEMS];
-    #if BMC_NAME_LEN_PRESETS > 1
-      char name[BMC_NAME_LEN_PRESETS] = "";
-    #endif
-  };
-  // SetList Song object
-  struct __attribute__ ((packed)) bmcStoreGlobalSetListSongPart {
-    uint8_t length = 0;
-    bmcPreset_t preset = 0;
-    #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
-      char name[BMC_NAME_LEN_SETLIST_SONG_PART] = "";
-    #endif
-  };
-  // SetList Song object
-  //BMC_MAX_SETLISTS_SONGS_LIBRARY
-  struct __attribute__ ((packed)) bmcStoreGlobalSetListSong {
-    uint8_t settings = 0;
-    uint8_t length = 0;
-    bmcStoreGlobalSetListSongPart parts[BMC_MAX_SETLISTS_SONG_PARTS];
-    #if BMC_NAME_LEN_SETLIST_SONG > 1
-      char name[BMC_NAME_LEN_SETLIST_SONG] = "";
-    #endif
-  };
-  // SetList object
-  struct __attribute__ ((packed)) bmcStoreGlobalSetList {
-    uint8_t length = 0;
-    bmcPreset_t songs[BMC_MAX_SETLISTS_SONGS];
-    #if BMC_NAME_LEN_SETLISTS > 1
-      char name[BMC_NAME_LEN_SETLISTS] = "";
-    #endif
   };
   // Custom SysEx object
   struct __attribute__ ((packed)) bmcStoreGlobalCustomSysEx {
@@ -242,38 +124,34 @@
     #if BMC_MAX_STRING_LIBRARY > 0 && BMC_NAME_LEN_STRING_LIBRARY > 1
       bmcStoreGlobalStringLibrary stringLibrary[BMC_MAX_STRING_LIBRARY];
     #endif
-    #if BMC_MAX_LIBRARY > 0
-      bmcStoreGlobalLibrary library[BMC_MAX_LIBRARY];
-    #endif
     #if BMC_MAX_PRESETS > 0
       uint16_t startup = 0;
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS> presets[BMC_MAX_PRESETS];
       #if BMC_MAX_SETLISTS > 0
         bmcStoreDevice <1, BMC_MAX_SETLISTS_SONGS> setLists[BMC_MAX_SETLISTS];
         bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS> songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
-        //bmcStoreGlobalSetList setLists[BMC_MAX_SETLISTS];
-        //bmcStoreGlobalSetListSong songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
       #endif
     #endif
     #if BMC_MAX_GLOBAL_BUTTONS > 0
-      //bmcStoreButton   buttons[BMC_MAX_GLOBAL_BUTTONS];
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
     #endif
     #if BMC_MAX_GLOBAL_LEDS > 0
-      //bmcStoreLed leds[BMC_MAX_GLOBAL_LEDS];
       bmcStoreDevice <1, 1> leds[BMC_MAX_GLOBAL_LEDS];
+    #endif
+    #if BMC_MAX_GLOBAL_BI_LEDS > 0
+      bmcStoreDevice <1, 2> biLeds[BMC_MAX_GLOBAL_BI_LEDS];
+    #endif
+    #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+      bmcStoreDevice <1, 3> triLeds[BMC_MAX_GLOBAL_TRI_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_ENCODERS > 0
       bmcStoreDevice <1, 1> encoders[BMC_MAX_GLOBAL_ENCODERS];
-      //bmcStoreEncoder  encoders[BMC_MAX_GLOBAL_ENCODERS];
     #endif
     #if BMC_MAX_GLOBAL_POTS > 0
-      //bmcStorePot      pots[BMC_MAX_GLOBAL_POTS];
       bmcStoreDevice <1, 3> pots[BMC_MAX_GLOBAL_POTS];
-      bmcStoreGlobalPotCalibration globalPotCalibration[BMC_MAX_GLOBAL_POTS];
     #endif
-    #if BMC_MAX_POTS > 0
-      bmcStoreGlobalPotCalibration potCalibration[BMC_MAX_POTS];
+    #if BMC_TOTAL_POTS_AUX_JACKS > 0
+      bmcStoreGlobalPotCalibration potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
     #endif
     #if BMC_MAX_GLOBAL_PIXELS > 0
       bmcStoreDevice <1, 1> pixels[BMC_MAX_GLOBAL_PIXELS];
@@ -287,14 +165,19 @@
     #if BMC_MAX_L_RELAYS > 0
       bmcStoreDevice <1, 1> relaysL[BMC_MAX_L_RELAYS];
     #endif
+    #if BMC_MAX_AUX_JACKS > 0
+      bmcStoreDevice <2, 3> auxJacks[BMC_MAX_AUX_JACKS];
+    #endif
     #if BMC_MAX_CUSTOM_SYSEX > 0
       bmcStoreGlobalCustomSysEx customSysEx[BMC_MAX_CUSTOM_SYSEX];
     #endif
     #if BMC_MAX_TRIGGERS > 0
-      bmcStoreGlobalTriggers triggers[BMC_MAX_TRIGGERS];
+      //bmcStoreGlobalTriggers triggers[BMC_MAX_TRIGGERS];
+      bmcStoreDevice <1, 2> triggers[BMC_MAX_TRIGGERS];
     #endif
     #if BMC_MAX_TEMPO_TO_TAP > 0
-      bmcStoreGlobalTempoToTap tempoToTap[BMC_MAX_TEMPO_TO_TAP];
+      //bmcStoreGlobalTempoToTap tempoToTap[BMC_MAX_TEMPO_TO_TAP];
+      bmcStoreDevice <1, 1> tempoToTap[BMC_MAX_TEMPO_TO_TAP];
     #endif
     bmcStorePortPresets portPresets;
     #if BMC_MAX_PIXEL_PROGRAMS > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0)

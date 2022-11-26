@@ -186,22 +186,8 @@ uint32_t BMCEditor::getStringLibraryOffset(uint8_t index){
   return value;
 }
 
-uint32_t BMCEditor::getLibraryOffset(){
-  uint32_t value = getStringLibraryOffset();
-#if BMC_MAX_LIBRARY > 0
-  value += sizeof(store.global.library);
-#endif
-  return value;
-}
-uint32_t BMCEditor::getLibraryOffset(bmcLibrary_t index){
-  uint32_t value = getStringLibraryOffset();
-#if BMC_MAX_LIBRARY > 0
-  value += (sizeof(bmcStoreGlobalLibrary)*index);
-#endif
-  return value;
-}
 uint32_t BMCEditor::getPresetOffset(){
-  uint32_t value = getLibraryOffset();
+  uint32_t value = getStringLibraryOffset();
 #if BMC_MAX_PRESETS > 0
   value += sizeof(uint16_t);
   value += sizeof(store.global.presets);
@@ -209,7 +195,7 @@ uint32_t BMCEditor::getPresetOffset(){
   return value;
 }
 uint32_t BMCEditor::getPresetOffset(uint16_t index){
-  uint32_t value = getLibraryOffset();
+  uint32_t value = getStringLibraryOffset();
 #if BMC_MAX_PRESETS > 0
   value += sizeof(uint16_t);
   value += (sizeof(bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>)*index);
@@ -264,6 +250,9 @@ uint32_t BMCEditor::getGlobalButtonOffset(uint16_t index){
   #endif
   return value;
 }
+
+
+
 uint32_t BMCEditor::getGlobalLedOffset(){
   uint32_t value = getGlobalButtonOffset();
   #if BMC_MAX_GLOBAL_LEDS > 0
@@ -278,15 +267,43 @@ uint32_t BMCEditor::getGlobalLedOffset(uint16_t index){
   #endif
   return value;
 }
+uint32_t BMCEditor::getGlobalBiLedOffset(){
+  uint32_t value = getGlobalLedOffset();
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    value += sizeof(store.global.biLeds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalBiLedOffset(uint16_t index){
+  uint32_t value = getGlobalLedOffset();
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,2>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalTriLedOffset(){
+  uint32_t value = getGlobalBiLedOffset();
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    value += sizeof(store.global.triLeds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalTriLedOffset(uint16_t index){
+  uint32_t value = getGlobalBiLedOffset();
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,3>) * index);
+  #endif
+  return value;
+}
 uint32_t BMCEditor::getGlobalEncoderOffset(){
-  uint32_t value = getGlobalButtonOffset();
+  uint32_t value = getGlobalTriLedOffset();
   #if BMC_MAX_GLOBAL_ENCODERS > 0
     value += sizeof(store.global.encoders);
   #endif
   return value;
 }
 uint32_t BMCEditor::getGlobalEncoderOffset(uint16_t index){
-  uint32_t value = getGlobalButtonOffset();
+  uint32_t value = getGlobalTriLedOffset();
   #if BMC_MAX_GLOBAL_ENCODERS > 0
     value += (sizeof(bmcStoreEncoder) * index);
   #endif
@@ -307,37 +324,21 @@ uint32_t BMCEditor::getGlobalPotOffset(uint16_t index){
   #endif
   return value;
 }
-uint32_t BMCEditor::getGlobalPotCalibrationOffset(){
-  uint32_t value = getGlobalPotOffset();
-  #if BMC_MAX_GLOBAL_POTS > 0
-    value += sizeof(store.global.globalPotCalibration);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getGlobalPotCalibrationOffset(uint16_t index){
-  uint32_t value = getGlobalPotOffset();
-  #if BMC_MAX_GLOBAL_POTS > 0
-    value += (sizeof(bmcStoreGlobalPotCalibration) * index);
-  #endif
-  return value;
-}
 
 uint32_t BMCEditor::getPotCalibrationOffset(){
-  uint32_t value = getGlobalPotCalibrationOffset();
-  #if BMC_MAX_POTS > 0
+  uint32_t value = getGlobalPotOffset();
+  #if BMC_TOTAL_POTS_AUX_JACKS > 0
     value += sizeof(store.global.potCalibration);
   #endif
   return value;
 }
 uint32_t BMCEditor::getPotCalibrationOffset(uint16_t index){
-  uint32_t value = getGlobalPotCalibrationOffset();
-  #if BMC_MAX_POTS > 0
+  uint32_t value = getGlobalPotOffset();
+  #if BMC_TOTAL_POTS_AUX_JACKS > 0
     value += (sizeof(bmcStoreGlobalPotCalibration) * index);
   #endif
   return value;
 }
-
-
 uint32_t BMCEditor::getGlobalPixelOffset(){
   uint32_t value = getPotCalibrationOffset();
   #if BMC_MAX_GLOBAL_PIXELS > 0
@@ -398,15 +399,29 @@ uint32_t BMCEditor::getLRelayOffset(uint16_t index){
   #endif
   return value;
 }
-uint32_t BMCEditor::getCustomSysExOffset(){
+uint32_t BMCEditor::getAuxJackOffset(){
   uint32_t value = getLRelayOffset();
+  #if BMC_MAX_AUX_JACKS > 0
+    value += sizeof(store.global.auxJacks);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getAuxJackOffset(uint16_t index){
+  uint32_t value = getLRelayOffset();
+  #if BMC_MAX_AUX_JACKS > 0
+    value += (sizeof(bmcStoreDevice <2, 3>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getCustomSysExOffset(){
+  uint32_t value = getAuxJackOffset();
   #if BMC_MAX_CUSTOM_SYSEX > 0
     value += sizeof(store.global.customSysEx);
   #endif
   return value;
 }
 uint32_t BMCEditor::getCustomSysExOffset(uint8_t index){
-  uint32_t value = getLRelayOffset();
+  uint32_t value = getAuxJackOffset();
   #if BMC_MAX_CUSTOM_SYSEX > 0
     value += (sizeof(bmcStoreGlobalCustomSysEx) * index);
   #endif
@@ -423,7 +438,7 @@ uint32_t BMCEditor::getTriggerOffset(){
 uint32_t BMCEditor::getTriggerOffset(uint8_t index){
   uint32_t value = getCustomSysExOffset();
   #if BMC_MAX_TRIGGERS > 0
-    value += (sizeof(bmcStoreGlobalTriggers) * index);
+    value += (sizeof(bmcStoreDevice <1, 2>) * index);
   #endif
   return value;
 }
@@ -438,7 +453,7 @@ uint32_t BMCEditor::getTempoToTapOffset(){
 uint32_t BMCEditor::getTempoToTapOffset(uint8_t index){
   uint32_t value = getTriggerOffset();
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    value += (sizeof(bmcStoreGlobalTempoToTap) * index);
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif
   return value;
 }

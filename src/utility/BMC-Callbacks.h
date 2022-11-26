@@ -29,10 +29,6 @@ public:
     timedEventCustom = 0;
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-    libraryCustom = 0;
-#endif
-
     buttonDualPress = 0;
     buttonActivity = 0;
     encoderActivity = 0;
@@ -42,13 +38,6 @@ public:
     pixelsActivity = 0;
     rgbPixelsActivity = 0;
 
-#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-    potsToeSwitchState = 0;
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-    globalPotsToeSwitchState = 0;
-#endif
 
     globalButtonDualPress = 0;
     globalButtonActivity = 0;
@@ -158,11 +147,6 @@ public:
   void (*timedEventCustom)(uint8_t id, uint8_t a, uint8_t b, uint8_t c);
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-  void (*libraryCustom)(uint8_t id);
-#endif
-
-
   void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
   void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
   void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
@@ -177,13 +161,6 @@ public:
   void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
   void (*globalPotActivity)(uint16_t index, uint8_t value);
 
-#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*potsToeSwitchState)(uint16_t n, bool state);
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*globalPotsToeSwitchState)(uint16_t n, bool state);
-#endif
 
   void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
   void (*encoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);

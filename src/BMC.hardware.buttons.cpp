@@ -21,7 +21,20 @@ void BMC::setupButtons(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
     globalButtons[i].begin(ui.pins[0]);
   }
-  assignGlobalButtons();
+#endif
+}
+
+void BMC::assignButtons(){
+#if BMC_MAX_BUTTONS > 0
+  for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
+    assignButton(buttons[i], store.pages[page].buttons[i]);
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
+    assignButton(globalButtons[i], globalData.buttons[i]);
+  }
 #endif
 }
 
@@ -44,36 +57,22 @@ void BMC::assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,
     }
   }
 }
-#endif
-
-
-#if BMC_MAX_BUTTONS > 0
 // assign button hold threshold and flags.
 // this happens everytime a page changes since it can be different for each page
 // also we activate buttons, if a button doesn't have an event attached then
 // we don't bother parsing the event data, UNLESS all buttons are active thru settings
-void BMC::assignButtons(){
-  for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
-    assignButton(buttons[i], store.pages[page].buttons[i]);
-  }
-}
+
 // read the buttons
 void BMC::readButtons(){
+#if BMC_MAX_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
-
-    #if BMC_MAX_AUX_JACKS > 0
-      if(!auxJacks.readButton(i)){
-        continue;
-      }
-    #endif
-
+    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.pages[page].buttons[i];
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
     uint8_t buttonTrigger = buttons[i].read();
-
     // this feature is only available when more than 1 button are compiled
     #if BMC_MAX_BUTTONS == 1
       // if only one button is compiled don't use this feature
@@ -81,9 +80,8 @@ void BMC::readButtons(){
     #else
       bool dual = dualPress.read(i, buttonTrigger, buttons[i].isClosed());
     #endif
-
     if(buttonTrigger != BMC_NONE && !dual){
-      handleButton(i, buttonTrigger);
+      handleButton(device, BMC_DEVICE_ID_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
         printButtonTrigger(i, buttonTrigger, false);
       #endif
@@ -93,62 +91,15 @@ void BMC::readButtons(){
   if(globals.buttonStates.hasChanged()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_BUTTON);
   }
-
-#if BMC_MAX_BUTTONS > 1
-  // used for dual buttons to run the timeout
-  dualPress.update();
-#endif
-}
-
-void BMC::handleButton(uint16_t index, uint8_t t_trigger){
-  bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.pages[page].buttons[index];
-  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
-    uint8_t type = data.type;
-    uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
-
-#ifdef BMC_USE_DAW_LC
-    if(type==BMC_EVENT_TYPE_DAW_BUTTON &&
-      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
-      uint8_t cmd = BMC_GET_BYTE(0, data.event);
-      uint8_t ch = BMC_GET_BYTE(1, data.event);
-      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        sync.daw.sendButtonCommand(cmd, ch, false);
-      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        sync.daw.sendButtonCommand(cmd, ch, true);
-      }
-    }
-#endif
-
-    if(trigger == BMC_NONE || type == BMC_NONE){
-      continue;
-    }
-
-    processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, index, BMC_EVENT_IO_TYPE_INPUT, device.events[e]);
-
-    if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
-      callback.buttonsCustomActivity(index, e, data.ports);
-    } else if(callback.buttonActivity){
-      callback.buttonActivity(index, e, trigger);
-    }
-  }
-}
+  #if BMC_MAX_BUTTONS > 1
+    // used for dual buttons to run the timeout
+    dualPress.update();
+  #endif
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
-// assign button hold threshold and flags.
-// this happens everytime a page changes since it can be different for each page
-// also we activate buttons, if a button doesn't have an event attached then
-// we don't bother parsing the event data, UNLESS all buttons are active thru settings
-void BMC::assignGlobalButtons(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
-    assignButton(globalButtons[i], globalData.buttons[i]);
-  }
-}
-
-// read the buttons
-void BMC::readGlobalButtons(){
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
+    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.global.buttons[i];
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
@@ -164,7 +115,7 @@ void BMC::readGlobalButtons(){
     #endif
 
     if(buttonTrigger != BMC_NONE && !dual){
-      handleGlobalButton(i, buttonTrigger);
+      handleButton(device, BMC_DEVICE_ID_GLOBAL_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
         printButtonTrigger(i, buttonTrigger, true);
       #endif
@@ -179,7 +130,48 @@ void BMC::readGlobalButtons(){
     // used for dual buttons to run the timeout
     dualPressGlobal.update();
   #endif
+#endif
 }
+
+template <uint8_t sLen, uint8_t eLen>
+void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device,
+                  uint8_t deviceType, uint16_t index, uint8_t t_trigger){
+  //bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.pages[page].buttons[index];
+  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
+    uint8_t type = data.type;
+    uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
+/*
+#ifdef BMC_USE_DAW_LC
+    if(type==BMC_EVENT_TYPE_DAW_BUTTON &&
+      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
+      uint8_t cmd = BMC_GET_BYTE(0, data.event);
+      uint8_t ch = BMC_GET_BYTE(1, data.event);
+      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
+        sync.daw.sendButtonCommand(cmd, ch, false);
+      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
+        sync.daw.sendButtonCommand(cmd, ch, true);
+      }
+    }
+#endif
+*/
+    if(type == BMC_NONE || trigger == BMC_NONE){
+      continue;
+    }
+    processEvent(BMC_DEVICE_GROUP_BUTTON, deviceType, index, BMC_EVENT_IO_TYPE_INPUT, device.events[e]);
+    /*
+    if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
+      callback.buttonsCustomActivity(index, e, data.ports);
+    } else if(callback.buttonActivity){
+      callback.buttonActivity(index, e, trigger);
+    }
+    */
+  }
+}
+
+#endif
+/*
+#if BMC_MAX_GLOBAL_BUTTONS > 0
 void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
   bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = globalData.buttons[index];
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
@@ -203,20 +195,18 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
       continue;
     }
     processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_GLOBAL_BUTTON, index, BMC_EVENT_IO_TYPE_INPUT, device.events[e]);
-
-    if(type==BMC_EVENT_TYPE_CUSTOM && callback.globalButtonsCustomActivity){
-      callback.globalButtonsCustomActivity(index, e, data.ports);
-    } else if(callback.globalButtonActivity){
-      callback.globalButtonActivity(index, e, trigger);
-    }
   }
 }
 #endif
+*/
+
+
+
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
-
-  void BMC::handleButtonEvent(uint8_t type, bmcStoreEvent data){
 /*
+  void BMC::handleButtonEvent(uint8_t type, bmcStoreEvent data){
+
     #if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
       encoderFixTimer.start(BMC_ENCODER_BUTTON_DEBOUNCE_TIME);
     #endif
@@ -738,18 +728,7 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
 
 
 
-  #if BMC_MAX_LIBRARY > 0
-      case BMC_BUTTON_EVENT_TYPE_LIBRARY:
-        // byteA = index of the library item
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8));
-        break;
-      case BMC_BUTTON_EVENT_TYPE_LIBRARY2:
-        // byteA = index of the 1st library item to send
-        // byteB = index of the 2nd library item to send
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8), BMC_EVENT_TO_LIBRARY_NUM(event>>18));
-        break;
-
-    #if BMC_MAX_PRESETS > 0
+  #if BMC_MAX_PRESETS > 0
       case BMC_BUTTON_EVENT_TYPE_PRESET:
         // byteA = index of preset to send
         // byteB = if 0 use send each library item of the preset to it's ports
@@ -826,11 +805,7 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
         // byteC = maximum song for scrolling
         setLists.scrollPart(1, byteA, byteB, byteC);
         break;
-
-
-
-    #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
-  #endif // BMC_MAX_LIBRARY > 0
+  #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
 
   #ifdef BMC_USE_DAW_LC
       case BMC_EVENT_TYPE_DAW_BUTTON: break;// handled in the press type handler
@@ -849,7 +824,6 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
         }
         break;
     }
-*/
   }
-
+*/
 #endif

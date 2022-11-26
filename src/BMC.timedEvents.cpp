@@ -26,19 +26,6 @@
     switch(BMC_GET_BYTE(0, event)){
       case BMC_NONE:
         return;
-      case BMC_TIMED_EVENT_TYPE_LIBRARY:
-#if BMC_MAX_LIBRARY>0
-        // byteA = index of the library item
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8));
-#endif
-        break;
-      case BMC_TIMED_EVENT_TYPE_LIBRARY2:
-#if BMC_MAX_LIBRARY>1
-        // byteA = index of the 1st library item to send
-        // byteB = index of the 2nd library item to send
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8), BMC_EVENT_TO_LIBRARY_NUM(event>>18));
-#endif
-        break;
       case BMC_TIMED_EVENT_TYPE_RELAY_NL_CONTROL:
 #if BMC_MAX_NL_RELAYS>0
         if(BMC_GET_BYTE(1, event) < BMC_MAX_NL_RELAYS){
@@ -56,6 +43,7 @@
       case BMC_TIMED_EVENT_TYPE_BUTTON_EVENT:
 #if BMC_MAX_BUTTONS > 0
         {
+          /*
           uint8_t btnN = BMC_GET_BYTE(1, event);
           uint8_t btnEventN = BMC_GET_BYTE(2, event);
           bmcStoreButtonEvent &data = store.pages[page].buttons[btnN].events[btnEventN];
@@ -63,12 +51,14 @@
           if(type!=BMC_NONE){
             handleButtonEvent(type, data);
           }
+          */
         }
 #endif
         break;
       case BMC_TIMED_EVENT_TYPE_GLOBAL_BUTTON_EVENT:
 #if BMC_MAX_GLOBAL_BUTTONS > 0
         {
+          /*
           uint8_t btnN = BMC_GET_BYTE(1, event);
           uint8_t btnEventN = BMC_GET_BYTE(2, event);
           bmcStoreButtonEvent &data = globalData.buttons[btnN].events[btnEventN];
@@ -76,30 +66,35 @@
           if(type!=BMC_NONE){
             handleButtonEvent(type, data);
           }
+          */
         }
 #endif
         break;
       case BMC_TIMED_EVENT_TYPE_ENCODER:
 #if BMC_MAX_ENCODERS > 0
         {
+          /*
           uint8_t enc   = BMC_GET_BYTE(1, event);
           uint8_t inc   = BMC_GET_BYTE(2, event);
           uint8_t type  = BMC_GET_BYTE(0, store.pages[page].encoders[enc].event);
           if(type!=BMC_NONE){
             handleEncoder(store.pages[page].encoders[enc], inc);
           }
+          */
         }
 #endif
         break;
       case BMC_TIMED_EVENT_TYPE_GLOBAL_ENCODER:
 #if BMC_MAX_GLOBAL_ENCODERS > 0
         {
+          /*
           uint8_t enc   = BMC_GET_BYTE(1, event);
           uint8_t inc   = BMC_GET_BYTE(2, event);
           uint8_t type  = BMC_GET_BYTE(0, globalData.encoders[enc].event);
           if(type!=BMC_NONE){
             handleEncoder(globalData.encoders[enc], inc);
           }
+          */
         }
 #endif
         break;

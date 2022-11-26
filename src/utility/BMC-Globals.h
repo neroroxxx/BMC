@@ -273,6 +273,28 @@ public:
   BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedStates;
 #endif
 
+#if BMC_MAX_BI_LEDS > 0
+  BMCBitStates <BMC_MAX_BI_LEDS> biLedCustomState;
+  BMCBitStates <BMC_MAX_BI_LEDS> biLedStates[2];
+#endif
+
+#if BMC_MAX_GLOBAL_BI_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_BI_LEDS> globalBiLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_BI_LEDS> globalBiLedStates[2];
+#endif
+
+#if BMC_MAX_TRI_LEDS > 0
+  BMCBitStates <BMC_MAX_TRI_LEDS> triLedCustomState;
+  BMCBitStates <BMC_MAX_TRI_LEDS> triLedStates[3];
+#endif
+
+#if BMC_MAX_GLOBAL_TRI_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_TRI_LEDS> globalTriLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_TRI_LEDS> globalTriLedStates[3];
+#endif
+
+
+
 #if BMC_TOTAL_PIXELS > 0
   #if BMC_MAX_PIXELS > 0
     BMCBitStates <BMC_MAX_PIXELS> pixelStates;
@@ -294,6 +316,10 @@ public:
 
 #if BMC_MAX_L_RELAYS > 0
   BMCBitStates <BMC_MAX_L_RELAYS> relayLStates;
+#endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  BMCBitStates <BMC_MAX_AUX_JACKS> auxJackStates;
 #endif
 
 private:

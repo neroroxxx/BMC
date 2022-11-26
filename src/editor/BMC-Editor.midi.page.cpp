@@ -1118,28 +1118,6 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       */
 #endif
       break;
-    case BMC_DEVICE_ID_PWM_LED:
-#if BMC_MAX_PWM_LEDS > 0
-/*
-      if(mode==BMC_PAGEF_HARDWARE_COPY){
-        bmcStoreLed x = store.pages[sourcePage].pwmLeds[sourceItem];
-        store.pages[targetPage].pwmLeds[targetItem] = x;
-        if(!backupActive()){
-          savePagesAndReloadData(targetPage);
-          success = true;
-        }
-      } else {
-        bmcStoreLed source = store.pages[sourcePage].pwmLeds[sourceItem];
-        bmcStoreLed target = store.pages[targetPage].pwmLeds[targetItem];
-        store.pages[sourcePage].pwmLeds[sourceItem] = target;
-        store.pages[targetPage].pwmLeds[targetItem] = source;
-        savePagesAndReloadData(sourcePage);
-        savePagesAndReloadData(targetPage);
-        success = true;
-      }
-*/
-#endif
-      break;
     case BMC_DEVICE_ID_POT:
 #if BMC_MAX_POTS > 0
 /*
@@ -1289,24 +1267,6 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 #endif
     break;
     case BMC_DEVICE_ID_LIBRARY:
-#if BMC_MAX_LIBRARY > 0
-      if(mode==BMC_PAGEF_HARDWARE_COPY){
-        bmcStoreGlobalLibrary x = store.global.library[sourceItem];
-        store.global.library[targetItem] = x;
-        saveLibrary(targetItem);
-        reloadData();
-        success = true;
-      } else {
-        bmcStoreGlobalLibrary source = store.global.library[sourceItem];
-        bmcStoreGlobalLibrary target = store.global.library[targetItem];
-        store.global.library[sourceItem] = target;
-        store.global.library[targetItem] = source;
-        saveLibrary(sourceItem);
-        saveLibrary(targetItem);
-        reloadData();
-        success = true;
-      }
-#endif
       break;
     case BMC_DEVICE_ID_PRESET:
 #if BMC_MAX_PRESETS > 0
@@ -1396,6 +1356,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
       break;
     case BMC_DEVICE_ID_TRIGGER:
 #if BMC_MAX_TRIGGERS > 0
+/*
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTriggers x = store.global.triggers[sourceItem];
         store.global.triggers[targetItem] = x;
@@ -1412,6 +1373,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         reloadData();
         success = true;
       }
+      */
 #endif
       break;
     case BMC_DEVICE_ID_TIMED_EVENT:
@@ -1435,6 +1397,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 #endif
       break;
     case BMC_DEVICE_ID_TEMPO_TO_TAP:
+    /*
 #if BMC_MAX_TEMPO_TO_TAP > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTempoToTap x = store.global.tempoToTap[sourceItem];
@@ -1453,6 +1416,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+*/
       break;
     case BMC_DEVICE_ID_SKETCH_BYTES:
 #if BMC_MAX_SKETCH_BYTES > 0

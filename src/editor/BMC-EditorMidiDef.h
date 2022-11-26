@@ -97,32 +97,19 @@
 
 #define BMC_GLOBALF_UTILITY 126
     // UTILITY FUNCTIONS
-    #define BMC_UTILF_BUTTON 0
-    #define BMC_UTILF_LED 1
-    #define BMC_UTILF_POT 2
-    #define BMC_UTILF_ENCODER 3
-    #define BMC_UTILF_GLOBAL_LED 4
-    #define BMC_UTILF_POTS 5
-    #define BMC_UTILF_PRESET 6
-    #define BMC_UTILF_CLICK_TRACK 7
-    #define BMC_UTILF_POT_CALIBRATION 8
-    #define BMC_UTILF_POT_CALIBRATION_STATUS 9
-    #define BMC_UTILF_POT_CALIBRATION_CANCEL 10
-    #define BMC_UTILF_DISCONNECTED 11
-    #define BMC_UTILF_LED_TEST 12
-    #define BMC_UTILF_PWM_LED 13
-    #define BMC_UTILF_PWM_LED_TEST 14
-    #define BMC_UTILF_SKETCH_BYTES 15
-    #define BMC_UTILF_NL_RELAY 16
-    #define BMC_UTILF_L_RELAY 17
-    #define BMC_UTILF_STATE_BITS 18
-    #define BMC_UTILF_AUX_JACK 20
-    #define BMC_UTILF_RGB_PIXEL 21
-    #define BMC_UTILF_GLOBAL_ENCODER 23
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION 24
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_STATUS 25
-    #define BMC_UTILF_GLOBAL_POT_CALIBRATION_CANCEL 26
-    #define BMC_UTILF_FAS_STATE 27
+    #define BMC_UTILF_STATE_BITS               0
+    #define BMC_UTILF_POT                   	 1
+    #define BMC_UTILF_ENCODER               	 2
+    #define BMC_UTILF_PRESET                	 3
+    #define BMC_UTILF_CLICK_TRACK           	 4
+    #define BMC_UTILF_POT_CALIBRATION       	 5
+    #define BMC_UTILF_POT_CALIBRATION_STATUS	 6
+    #define BMC_UTILF_POT_CALIBRATION_CANCEL	 7
+    #define BMC_UTILF_DISCONNECTED          	 8
+    #define BMC_UTILF_LED_TEST              	 9
+    #define BMC_UTILF_SKETCH_BYTES          	 10
+    #define BMC_UTILF_AUX_JACK              	 11
+    #define BMC_UTILF_FAS_STATE             	 12
 
 
 // if read/write flag is 0 it's checking the connection status, if 1, it's trying to connect

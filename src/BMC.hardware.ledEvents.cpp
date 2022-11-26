@@ -246,14 +246,6 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
       break;
 #endif
 
-#if BMC_MAX_AUX_JACKS > 0
-    case BMC_LED_EVENT_TYPE_AUX_JACK_CONNECTED:
-      if(byteA < BMC_MAX_AUX_JACKS){
-        return auxJacks.isConnected(byteA);
-      }
-      break;
-#endif
-
 #if BMC_MAX_POTS > 0
     case BMC_LED_EVENT_TYPE_POT:
       // no actual brightness, just turn the led to ON if

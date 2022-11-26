@@ -17,6 +17,9 @@ private:
   BMCMidi& midi;
   bmcStoreGlobal& global;
   BMCCallbacks& callback;
+  int16_t delayCmd = -1;
+  int16_t delayCh = -1;
+  BMCTimer delayTimer;
   char lcd[2][57];
 public:
   BMCLogicControlData controller;
@@ -36,6 +39,12 @@ public:
   }
   void update(){
     controller.update();
+    if(delayTimer.complete()){
+      sendButtonCommand(delayCmd, delayCh, true);
+      delayTimer.stop();
+      delayCmd = -1;
+      delayCh = -1;
+    }
     for(uint8_t i=0;i<8;i++){
       if(controller.getMeterChanged(i)){
         uint8_t level = controller.getMeter(i);
@@ -373,10 +382,21 @@ public:
     }
     return false;
   }
-
+  void delayButtonRelease(uint8_t cmd, uint8_t ch){
+    if(delayTimer.active()){
+      sendButtonCommand(delayCmd, delayCh, true);
+      delayTimer.stop();
+    }
+    delayCmd = cmd;
+    delayCh = ch;
+    delayTimer.start(25);
+  }
   void sendButtonCommand(uint8_t cmd, uint8_t ch, bool release){
     if(ch>=8){
       ch = controller.getSelectedChannel();
+    }
+    if(release==false){
+      delayButtonRelease(cmd, ch);
     }
     switch(cmd){
       case BMC_DAW_BTN_CMD_REC:     sendNote(0x00+ch, release); break;
@@ -448,9 +468,6 @@ public:
       case BMC_DAW_BTN_CMD_SCRUB: sendNote(0x65, release); break;
       case BMC_DAW_BTN_CMD_FADER_TOUCH:           sendNote(0x68+ch, release); break;
       case BMC_DAW_BTN_CMD_FADER_TOUCH_MASTER:    sendNote(0x70, release); break;
-
-
-
     }
   }
 

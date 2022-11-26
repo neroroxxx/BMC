@@ -130,41 +130,20 @@
     #define BMC_MAX_PRESET_ITEMS 0
   #endif
 
-  #if BMC_MAX_PRESET_ITEMS < 0
-    #undef BMC_MAX_PRESET_ITEMS 0
-    #define BMC_MAX_PRESET_ITEMS 0
-  #endif
-
-  #if BMC_MAX_PRESET_ITEMS > 16
-    #undef BMC_MAX_PRESET_ITEMS 0
-    #define BMC_MAX_PRESET_ITEMS 16
+  #if BMC_MAX_PRESET_ITEMS < 0 || BMC_MAX_PRESET_ITEMS > 16
+    #error "BMC_MAX_PRESET_ITEMS not properly set"
   #endif
 
   #if BMC_MAX_PRESET_BANKS == 0 || BMC_MAX_PRESETS_PER_BANK == 0
-    #undef BMC_MAX_PRESET_BANKS
-    #undef BMC_MAX_PRESETS_PER_BANK
-    #undef BMC_MAX_PRESETS
-    #define BMC_MAX_PRESET_BANKS 0
-    #define BMC_MAX_PRESETS_PER_BANK 0
-    #define BMC_MAX_PRESETS 0
+    #error "BMC_MAX_PRESET_BANKS / BMC_MAX_PRESETS_PER_BANK not properly set"
   #endif
 
-  #if BMC_MAX_PRESET_BANKS < 0
-    #undef BMC_MAX_PRESET_BANKS
-    #define BMC_MAX_PRESET_BANKS 0
-  #endif
-  #if BMC_MAX_PRESET_BANKS > 32
-    #undef BMC_MAX_PRESET_BANKS
-    #define BMC_MAX_PRESET_BANKS 32
+  #if BMC_MAX_PRESET_BANKS < 0 || BMC_MAX_PRESET_BANKS > 32
+    #error "BMC_MAX_PRESET_BANKS not properly set"
   #endif
 
-  #if BMC_MAX_PRESETS_PER_BANK < 0
-    #undef BMC_MAX_PRESETS_PER_BANK
-    #define BMC_MAX_PRESETS_PER_BANK 0
-  #endif
-  #if BMC_MAX_PRESETS_PER_BANK > 32
-    #undef BMC_MAX_PRESETS_PER_BANK
-    #define BMC_MAX_PRESETS_PER_BANK 32
+  #if BMC_MAX_PRESETS_PER_BANK < 0 || BMC_MAX_PRESETS_PER_BANK > 32
+    #error "BMC_MAX_PRESETS_PER_BANK not properly set"
   #endif
 
 
@@ -184,79 +163,19 @@
   #endif
 
 
-  #if BMC_MAX_PRESET_BANKS > 0 && BMC_MAX_PRESETS_PER_BANK > 0 && BMC_MAX_PRESET_ITEMS > 0
+  #if (BMC_MAX_PRESET_BANKS > 0 && BMC_MAX_PRESETS_PER_BANK > 0 && BMC_MAX_PRESET_ITEMS > 0)
     #undef BMC_MAX_PRESETS
     #define BMC_MAX_PRESETS (BMC_MAX_PRESET_BANKS*BMC_MAX_PRESETS_PER_BANK)
-  #endif
-
-
-/*
-  // presets check
-  #if !defined(BMC_MAX_PRESETS)
-    #define BMC_MAX_PRESETS BMC_LIMIT_MIN_PRESETS
-    #define BMC_MAX_PRESETS_PER_BANK 0
-  #endif
-
-  #if BMC_MAX_PRESETS > BMC_LIMIT_MAX_PRESETS
-    #error "The maximum number of presets is 512"
-  #endif
-
-  #if !defined(BMC_MAX_PRESETS_PER_BANK)
-    #if BMC_MAX_PRESETS > 0
-      #define BMC_MAX_PRESETS_PER_BANK 8
-    #else
-      #define BMC_MAX_PRESETS_PER_BANK 0
-    #endif
   #else
-    #if BMC_MAX_PRESETS_PER_BANK > 128
-      #undef BMC_MAX_PRESETS_PER_BANK
-      #define BMC_MAX_PRESETS_PER_BANK 128
-    #endif
-  #endif
-*/
-
-
-
-
-  #if defined(BMC_USE_POT_TOE_SWITCH)
-    #if (BMC_MAX_POTS == 0 && BMC_MAX_GLOBAL_POTS == 0)
-      #undef BMC_USE_POT_TOE_SWITCH
-    #endif
-  #endif
-
-
-  // preset items check
-  #if !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS > 0
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
-  #elif !defined(BMC_MAX_PRESET_ITEMS) && BMC_MAX_PRESETS == 0
+    #undef BMC_MAX_PRESETS
+    #undef BMC_MAX_PRESET_BANKS
+    #undef BMC_MAX_PRESETS_PER_BANK
+    #undef BMC_MAX_PRESET_ITEMS
+    #define BMC_MAX_PRESETS 0
+    #define BMC_MAX_PRESET_BANKS 0
+    #define BMC_MAX_PRESETS_PER_BANK 0
     #define BMC_MAX_PRESET_ITEMS 0
   #endif
-  #if BMC_MAX_PRESET_ITEMS == 0 && BMC_MAX_PRESETS > 0
-    #undef BMC_MAX_PRESET_ITEMS
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MIN_PRESET_ITEMS
-  #endif
-  #if BMC_MAX_PRESET_ITEMS > BMC_LIMIT_MAX_PRESET_ITEMS
-    #undef BMC_MAX_PRESET_ITEMS
-    #define BMC_MAX_PRESET_ITEMS BMC_LIMIT_MAX_PRESET_ITEMS
-  #endif
-
-
-  #ifndef BMC_MAX_GLOBAL_PIXELS
-     #define BMC_MAX_GLOBAL_PIXELS 0
-  #endif
-
-  #ifndef BMC_MAX_GLOBAL_RGB_PIXELS
-     #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-  #endif
-
-
-
-
-
-
-
-
-
 
 
   #if defined(BMC_I2C_FREQ_100K)
@@ -321,7 +240,7 @@
     #define BMC_MAX_MUX_IN 0
   #endif
 
-  #if BMC_MAX_MUX_OUT > 0 && (BMC_MAX_LEDS==0 && BMC_MAX_GLOBAL_LEDS==0)
+  #if BMC_MAX_MUX_OUT > 0 && (BMC_MAX_LEDS==0 && BMC_MAX_GLOBAL_LEDS==0 && BMC_MAX_BI_LEDS==0 && BMC_MAX_GLOBAL_BI_LEDS==0 && BMC_MAX_TRI_LEDS==0 && BMC_MAX_GLOBAL_TRI_LEDS==0)
     #undef BMC_MAX_MUX_OUT
     #define BMC_MAX_MUX_OUT 0
   #endif
@@ -470,24 +389,6 @@
     #error "The maximum number of string library items is 255"
   #endif
 
-
-
-
-
-  // library check
-  #if !defined(BMC_MAX_LIBRARY)
-    #define BMC_MAX_LIBRARY BMC_LIMIT_MIN_LIBRARY
-  #endif
-  #if BMC_MAX_LIBRARY > BMC_LIMIT_MAX_LIBRARY
-    #error "The maximum number of library items is 512"
-  #endif
-
-
-
-
-
-
-
   #if !defined(BMC_MAX_SETLISTS)
     #define BMC_MAX_SETLISTS 0
   #endif
@@ -547,54 +448,6 @@
   #endif
 
 
-  // remove everything that requires library
-  /*
-  #if BMC_MAX_LIBRARY == 0
-    #undef BMC_MAX_PRESETS
-    #undef BMC_MAX_PRESET_ITEMS
-    #undef BMC_MAX_PRESETS_PER_BANK
-    #undef BMC_MAX_SETLISTS
-    #undef BMC_MAX_SETLISTS_SONGS
-    #undef BMC_MAX_SETLISTS_SONGS_LIBRARY
-    #undef BMC_MAX_SETLISTS_SONG_PARTS
-
-    #define BMC_MAX_PRESETS 0
-    #define BMC_MAX_PRESET_ITEMS 0
-    #define BMC_MAX_PRESETS_PER_BANK 0
-    #define BMC_MAX_SETLISTS 0
-    #define BMC_MAX_SETLISTS_SONGS 0
-    #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
-    #define BMC_MAX_SETLISTS_SONG_PARTS 0
-  #endif
-  */
-
-  /*
-
-  // remove everything that requires presets
-  #if BMC_MAX_PRESETS == 0
-    #undef BMC_MAX_PRESET_ITEMS
-    #undef BMC_MAX_PRESETS_PER_BANK
-    #undef BMC_MAX_SETLISTS
-    #undef BMC_MAX_SETLISTS_SONGS
-    #undef BMC_MAX_SETLISTS_SONGS_LIBRARY
-    #undef BMC_MAX_SETLISTS_SONG_PARTS
-
-    #define BMC_MAX_PRESET_ITEMS 0
-    #define BMC_MAX_PRESETS_PER_BANK 0
-    #define BMC_MAX_SETLISTS 0
-    #define BMC_MAX_SETLISTS_SONGS 0
-    #define BMC_MAX_SETLISTS_SONGS_LIBRARY 0
-    #define BMC_MAX_SETLISTS_SONG_PARTS 0
-  #endif
-
-  */
-
-
-
-
-
-
-
   // timed events check
   #if !defined(BMC_MAX_TIMED_EVENTS)
     #define BMC_MAX_TIMED_EVENTS BMC_LIMIT_MIN_TIMED_EVENTS
@@ -617,7 +470,7 @@
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MAX_BUTTON_EVENTS
   #endif
 
-  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0
+  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0 && BMC_MAX_BI_LEDS == 0 && BMC_MAX_GLOBAL_BI_LEDS == 0 && BMC_MAX_TRI_LEDS == 0 && BMC_MAX_GLOBAL_TRI_LEDS == 0
     #if BMC_MAX_PAGES != BMC_LIMIT_MIN_PAGES
       #undef BMC_MAX_PAGES
       #define BMC_MAX_PAGES BMC_LIMIT_MIN_PAGES
@@ -980,31 +833,6 @@
   #endif
 // STRING LIBRARY NAMES ****************************************************
 
-// LIBRARY NAMES ****************************************************
-  // if BMC_NAME_LEN_LIBRARY is not defined, define it with value of 0
-  #if !defined(BMC_NAME_LEN_LIBRARY)
-    #define BMC_NAME_LEN_LIBRARY 0
-  #endif
-  // just in case check if there are no presets compiled and reset
-  // this value
-  #if BMC_MAX_LIBRARY == 0
-    #undef BMC_NAME_LEN_LIBRARY
-    #define BMC_NAME_LEN_LIBRARY 0
-  #endif
-  // if the value of BMC_NAME_LEN_LIBRARY is 1 throw a compile error
-  // we do this to make sure the user can't recompile and have EEPROM erased
-  // becuase of this
-  #if BMC_NAME_LEN_LIBRARY == 1
-    #error "Library Names length can NOT be 1, it must be 0 or more than 1."
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_LIBRARY > 0 && BMC_NAME_LEN_LIBRARY > 1
-    #undef _____BMC_LIBRARYNAMES
-    #define _____BMC_LIBRARYNAMES (0x66BB*(BMC_NAME_LEN_LIBRARY+1))
-  #endif
-  // LIBRARY NAMES ****************************************************
-
-
   // PRESET NAMES ****************************************************
   // if BMC_NAME_LEN_PRESETS is not defined, define it with value of 0
   #if !defined(BMC_NAME_LEN_PRESETS)
@@ -1095,14 +923,9 @@
     #endif
   #endif
 
-  #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS)
+  #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS+BMC_MAX_BI_LEDS+BMC_MAX_GLOBAL_BI_LEDS+BMC_MAX_TRI_LEDS+BMC_MAX_GLOBAL_TRI_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS)
 
-#if defined(BMC_USE_POT_TOE_SWITCH)
-  #define _____BMC_POT_TOE_SWITCH 15
-#else
-  #define _____BMC_POT_TOE_SWITCH 0
-#endif
 
   // typedef for Presets and library
   // this is used in order to increase the maximum from 255 to up to 999
@@ -1115,13 +938,7 @@
     typedef uint8_t bmcPreset_t;
   #endif
 
-  #if BMC_MAX_LIBRARY > 254
-    typedef uint16_t bmcLibrary_t;
-  #else
-    typedef uint8_t bmcLibrary_t;
-  #endif
-
-
+  #define BMC_TOTAL_POTS_AUX_JACKS (BMC_MAX_POTS + BMC_MAX_GLOBAL_POTS + BMC_MAX_AUX_JACKS)
 
   #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
     #define BMC_HAS_ENCODERS
@@ -1176,12 +993,12 @@
 #else
   #define BMC_MAX_LED_TEST_DELAY 50
 #endif
-  #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44)+(_____BMC_POT_TOE_SWITCH*55))
+  #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BI_LEDS*12)+(BMC_MAX_GLOBAL_BI_LEDS*13)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44))
 
   // Create a CRC based on the current build
   #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_SETLISTSONGNAMES) + (_____BMC_SETLISTSONGPARTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
-  #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*22) + (BMC_MAX_LIBRARY*55)+ (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
+  #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_BI_LEDS*23)+(BMC_MAX_TRI_LEDS*24)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)) * BMC_MAX_PAGES))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_STRING_LIBRARY*55) + (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
   #define BMC_CRC (uint16_t)((((_____BMC_GLOBAL)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

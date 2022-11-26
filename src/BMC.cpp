@@ -38,19 +38,6 @@ BMC::BMC():
   #if BMC_MAX_CUSTOM_SYSEX > 0
     ,customSysEx(midi, store.global)
   #endif
-  #if BMC_MAX_LIBRARY > 0
-    ,library(
-      midi,
-      store.global,
-      callback
-    #if BMC_MAX_CUSTOM_SYSEX > 0
-      ,customSysEx
-    #endif
-    #if defined(BMC_USE_BEATBUDDY)
-      ,beatBuddy
-    #endif
-    )
-  #endif
   #if BMC_MAX_PRESETS > 0
     //,presets(globals, store.global)
     ,presets(globals)
@@ -60,10 +47,10 @@ BMC::BMC():
     #endif
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    ,tempoToTap(midi, store.global)
+    ,tempoToTap(midi, globals, store.global)
   #endif
   #if BMC_MAX_TRIGGERS > 0
-    ,triggers(midi, store.global)
+    ,triggers(midi, globals, store.global)
   #endif
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     ,pixelPrograms(store.global)
@@ -76,12 +63,6 @@ BMC::BMC():
     ,display(midi, globals, callback
     #ifdef BMC_USE_SYNC
       ,sync
-    #endif
-    #if BMC_MAX_PRESETS > 0
-      ,presets
-    #endif
-    #if BMC_MAX_SETLISTS > 0
-      ,setLists
     #endif
     )
   #endif
@@ -192,7 +173,7 @@ void BMC::update(){
     setPage(0, true);
 
     // Startup Preset
-    #if BMC_MAX_LIBRARY > 0 && BMC_MAX_PRESETS > 0
+    #if BMC_MAX_PRESETS > 0
       // send the startup Preset if any
       if(settings.getMidiStartup()){
         delay(1);
@@ -223,7 +204,8 @@ void BMC::update(){
   }
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    tempoToTap.update();
+
+    runTempoToTap();
   #endif
 
   #if BMC_MAX_TIMED_EVENTS > 0
@@ -292,12 +274,6 @@ void BMC::update(){
       }
     #endif
   #endif
-
-#if BMC_MAX_LIBRARY > 0
-  if(library.changeAvailable()){
-    runLibraryChanged();
-  }
-#endif
 
   //
   #ifdef BMC_USE_CLICK_TRACK

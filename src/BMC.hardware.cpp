@@ -12,28 +12,6 @@ void BMC::setupHardware(){
 
   BMC_PRINTLN("");
 
-#if BMC_MAX_AUX_JACKS > 0
-  BMC_PRINTLN("BMC_MAX_AUX_JACKS", BMC_MAX_AUX_JACKS);
-  for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
-
-    #if BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_IN_ANALOG > 0
-      if(
-        BMCBuildData::getPotPin(BMCBuildData::getPotMergeItem(i, 0))>=64 ||
-        BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 1))>=64 ||
-        BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 2))>=64
-      ){
-        BMC_ERROR("BMC can not be used with Mux Pins");
-        BMC_HALT();
-      }
-    #endif
-
-    auxJacks.begin(i,
-                    BMCBuildData::getPotMergeItem(i, 0),
-                    BMCBuildData::getPotMergeItem(i, 1),
-                    BMCBuildData::getPotMergeItem(i, 2));
-  }
-#endif
-
 #if defined(BMC_MUX_AVAILABLE)
   mux.begin();
 #endif
@@ -43,14 +21,9 @@ void BMC::setupHardware(){
   setupPixels();
 #endif
 
-#if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   setupLeds();
-#endif
-
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  setupPwmLeds();
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
@@ -78,6 +51,11 @@ void BMC::setupHardware(){
   setupRelaysL();
 #endif
 
+#if BMC_MAX_AUX_JACKS > 0
+  // BMC.hardware.auxJacks
+  setupAuxJacks();
+#endif
+
   BMC_PRINTLN("");
 }
 /*
@@ -85,17 +63,17 @@ void BMC::setupHardware(){
 */
 void BMC::assignHardware() {
 
-#if BMC_MAX_BUTTONS > 0
+#if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   // BMC.hardware.buttons
   assignButtons();
 #endif
 
-#if BMC_MAX_ENCODERS > 0
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   // BMC.hardware.encoders
   assignEncoders();
 #endif
 
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   assignPots();
 #endif
@@ -105,15 +83,21 @@ void BMC::assignHardware() {
   assignPixels();
 #endif
 
-
-#if BMC_MAX_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   assignLeds();
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  assignPwmLeds();
+#if BMC_MAX_NL_RELAYS > 0
+  assignRelaysNL();
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
+  assignRelaysL();
+#endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  assignAuxJacks();
 #endif
 
 
@@ -142,6 +126,7 @@ void BMC::readHardware(){
   mux.update();
 #endif
 
+/*
 #if BMC_MAX_AUX_JACKS > 0
   uint8_t _auxJacksStates = auxJacksStates;
   for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
@@ -158,7 +143,7 @@ void BMC::readHardware(){
     editor.utilitySendAuxJackActivity(auxJacksStates);
   }
 #endif
-
+*/
 
 #if BMC_MAX_OLED > 0
   for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
@@ -175,46 +160,26 @@ void BMC::readHardware(){
 #endif
 
 // read hardware that can "send" data first and LEDs/Pixels last
-#if BMC_MAX_BUTTONS > 0
+#if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   // BMC.hardware.buttons
   readButtons();
 #endif
 
-#if BMC_MAX_GLOBAL_BUTTONS > 0
-  // BMC.hardware.buttons
-  readGlobalButtons();
-#endif
-
-#if BMC_MAX_ENCODERS > 0
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   // BMC.hardware.encoders
   readEncoders();
 #endif
 
-#if BMC_MAX_GLOBAL_ENCODERS > 0
-  // BMC.hardware.encoders
-  readGlobalEncoders();
-#endif
-
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   readPots();
 #endif
 
-#if BMC_MAX_GLOBAL_POTS > 0
-  // BMC.hardware.pots
-  readGlobalPots();
-#endif
-
-
-#if BMC_MAX_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   readLeds();
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  readPwmLeds();
-#endif
 
 #if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
@@ -231,13 +196,12 @@ void BMC::readHardware(){
   readRelaysL();
 #endif
 
-
-#if BMC_MAX_GLOBAL_LEDS > 0
-  // BMC.hardware.leds
-  readGlobalLeds();
+#if BMC_MAX_AUX_JACKS > 0
+  // BMC.hardware.auxJacks
+  readAuxJacks();
 #endif
 
-  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 75){
+  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 100){
     flags.off(BMC_FLAGS_STATUS_LED);
     heartbeat = 0;
   }

@@ -11,7 +11,7 @@
 
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
-  int16_t pins[3] = {-1};
+  int16_t pins[3] = {-1, -1, -1};
   uint16_t x = 0;
   uint16_t y = 0;
   uint8_t style = 0;

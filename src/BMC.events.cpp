@@ -118,12 +118,26 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       return false;
     case BMC_EVENT_TYPE_MIDI_CONTROL_TOGGLE:
-      if(group==BMC_DEVICE_GROUP_BUTTON){
-        uint8_t currentValue = midi.getLocalControl(BMC_TO_MIDI_CHANNEL(byteA), byteB);
-        currentValue = currentValue > 0 ? 0 : 127;
-        midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
-        streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
+      {
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        uint8_t currentValue = midi.getLocalControl(channel, byteB);
+        if(byteC==byteD){
+          byteC = 0;
+          byteD = 127;
+        }
+        if(group==BMC_DEVICE_GROUP_BUTTON){
+          currentValue = (currentValue == byteC) ? byteD : byteC;
+          midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
+        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
+          uint8_t c = byteC;
+          if(byteD > byteC){
+            c = byteD;
+          }
+          return currentValue == (c & 0x7F);
+        }
       }
+
       break;
     case BMC_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
@@ -282,6 +296,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       break;
     // SKETCH BYTES
     case BMC_EVENT_TYPE_SKETCH_BYTE:
+#if BMC_MAX_SKETCH_BYTES > 0
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         if(group==BMC_DEVICE_GROUP_BUTTON){
           byteA = constrain(byteA, 0, BMC_MAX_SKETCH_BYTES);
@@ -313,6 +328,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else {
         return false;
       }
+#endif
       break;
 
     // PAGES
@@ -339,7 +355,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           #else
             display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+1), "%03u");
           #endif
-
           return false;
 #endif
         }
@@ -478,7 +493,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return byteA == presets.getBank();
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          //display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          char alphabet[32] = BMC_ALPHABET;
+          display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
+          //BMC_ALPHABET
 #endif
         }
       }
@@ -491,17 +509,14 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return false;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, presets.getBank()+1, "%02u");
+          //display.renderNumber(deviceIndex, isOled, e.type, presets.getBank()+1, "%02u");
+          char alphabet[32] = BMC_ALPHABET;
+          display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
 #endif
         }
       }
       break;
 #endif
-
-
-
-
-
 
 #if BMC_MAX_SETLISTS > 0
     // SETLISTS
@@ -670,12 +685,25 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
 #endif
+    // HARDWARE
+#if BMC_MAX_AUX_JACKS > 0
+    case BMC_EVENT_TYPE_AUX_JACK:
+      if(group == BMC_DEVICE_GROUP_LED && byteA < BMC_MAX_AUX_JACKS){
+        if(byteB == 0){
+          return auxJacks[byteA].isConnected();
+        } else if(byteB == 1){
+          return auxJacks[byteA].isPotMode();
+        } else if(byteB == 2){
+          return !auxJacks[byteA].isPotMode();
+        }
+      }
+      break;
+#endif
     // EXTERNAL SYNC
-
-
 #ifdef BMC_USE_DAW_LC
     case BMC_EVENT_TYPE_DAW_BUTTON:
       // handled by BMC::handleButton
+      sync.daw.sendButtonCommand(byteA, byteB, true);
       return false;
       break;
     case BMC_EVENT_TYPE_DAW_LED:

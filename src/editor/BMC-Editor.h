@@ -27,16 +27,17 @@
 #define BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR 4
 #define BMC_EDITOR_FLAG_EDITOR_FEEDBACK 5
 #define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED 6
-#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED 7
-#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 8
-#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 9
-#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 10
+#define BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED 7
+#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED 8
+#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 9
+#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 10
+#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 11
 
-#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 11
-#define BMC_EDITOR_FLAG_BACKUP_STARTED 12
-#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 13
-#define BMC_EDITOR_FLAG_BACKUP_CANCELED 14
-#define BMC_EDITOR_FLAG_SEND_STATES 15
+#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 12
+#define BMC_EDITOR_FLAG_BACKUP_STARTED 13
+#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 14
+#define BMC_EDITOR_FLAG_BACKUP_CANCELED 15
+#define BMC_EDITOR_FLAG_SEND_STATES 16
 
 
 class BMCEditor {
@@ -159,6 +160,13 @@ public:
       saveSketchBytes();
     #endif
   }
+  bool tempoToTapUpdated(){
+    #if BMC_MAX_TEMPO_TO_TAP > 0
+      return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+    #else
+      return false;
+    #endif
+  }
   bool triggersUpdated(){
     #if BMC_MAX_TRIGGERS > 0
       return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
@@ -222,9 +230,14 @@ public:
     return 0;
   }
 
-#if BMC_MAX_POTS > 0
-  void setPotCalibration(uint8_t index, uint16_t min, uint16_t max){
-    if(index<BMC_MAX_POTS){
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+  void setPotCalibration(uint8_t deviceType, uint16_t index, uint16_t min, uint16_t max){
+    if(deviceType == BMC_DEVICE_ID_GLOBAL_POT){
+      index += BMC_MAX_POTS;
+    } else if(deviceType == BMC_DEVICE_ID_AUX_JACK){
+      index += (BMC_MAX_POTS + BMC_MAX_GLOBAL_POTS);
+    }
+    if(index < BMC_TOTAL_POTS_AUX_JACKS){
       store.global.potCalibration[index].min = min;
       store.global.potCalibration[index].max = max;
       saveGlobalAndReloadData();
@@ -232,15 +245,6 @@ public:
   }
 #endif
 
-#if BMC_MAX_GLOBAL_POTS > 0
-  void setGlobalPotCalibration(uint8_t index, uint16_t min, uint16_t max){
-    if(index<BMC_MAX_GLOBAL_POTS){
-      store.global.globalPotCalibration[index].min = min;
-      store.global.globalPotCalibration[index].max = max;
-      saveGlobalAndReloadData();
-    }
-  }
-#endif
 
 private:
   // Reference to the store from BMC.h
@@ -262,7 +266,7 @@ private:
   // the current store address
   uint8_t storeAddress = 0;
   // flags
-  BMCFlags <uint16_t> flags;
+  BMCFlags <uint32_t> flags;
   BMCMidiControl dataForBMC;
   // reference to the BMCMidiMessage in the BMCMidi class
   BMCMidiMessage &incoming;
@@ -302,6 +306,9 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.on(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      #if BMC_MAX_TEMPO_TO_TAP > 0
+        flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+      #endif
       #if BMC_MAX_TRIGGERS > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
       #endif
@@ -358,7 +365,6 @@ private:
       case BMC_DEVICE_ID_OLED:                  return BMC_MAX_OLED;
       case BMC_DEVICE_ID_ILI:                   return BMC_MAX_ILI9341_BLOCKS;
 
-      case BMC_DEVICE_ID_LIBRARY:               return BMC_MAX_LIBRARY;
       case BMC_DEVICE_ID_STRING_LIBRARY:        return BMC_MAX_STRING_LIBRARY;
       case BMC_DEVICE_ID_PRESET:                return BMC_MAX_PRESETS;
       case BMC_DEVICE_ID_CUSTOM_SYSEX:          return BMC_MAX_CUSTOM_SYSEX;
@@ -370,9 +376,12 @@ private:
       case BMC_DEVICE_ID_SETLIST:               return BMC_MAX_SETLISTS;
       case BMC_DEVICE_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;
       case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return BMC_MAX_SETLISTS_SONGS_LIBRARY;
-      // to be removed
-      case BMC_DEVICE_ID_PWM_LED:               return BMC_MAX_PWM_LEDS;
 
+      case BMC_DEVICE_ID_BI_LED:                return BMC_MAX_BI_LEDS;
+      case BMC_DEVICE_ID_TRI_LED:               return BMC_MAX_TRI_LEDS;
+      case BMC_DEVICE_ID_GLOBAL_BI_LED:         return BMC_MAX_GLOBAL_BI_LEDS;
+      case BMC_DEVICE_ID_GLOBAL_TRI_LED:        return BMC_MAX_GLOBAL_TRI_LEDS;
+      case BMC_DEVICE_ID_AUX_JACK:              return BMC_MAX_AUX_JACKS;
     }
     return 0;
   }
@@ -397,14 +406,13 @@ private:
   uint32_t getNamesOffset(uint16_t index);
 
   uint32_t getSketchBytesOffset();
+
   uint32_t getStringLibraryOffset();
-
   uint32_t getStringLibraryOffset(uint8_t index);
-  uint32_t getLibraryOffset();
 
-  uint32_t getLibraryOffset(bmcLibrary_t index);
   uint32_t getPresetOffset();
   uint32_t getPresetOffset(uint16_t index);
+
   uint32_t getSetListOffset();
   uint32_t getSetListOffset(uint8_t index);
   uint32_t getSetListSongOffset();
@@ -417,14 +425,17 @@ private:
   uint32_t getGlobalLedOffset();
   uint32_t getGlobalLedOffset(uint16_t index);
 
+  uint32_t getGlobalBiLedOffset();
+  uint32_t getGlobalBiLedOffset(uint16_t index);
+
+  uint32_t getGlobalTriLedOffset();
+  uint32_t getGlobalTriLedOffset(uint16_t index);
+
   uint32_t getGlobalEncoderOffset();
   uint32_t getGlobalEncoderOffset(uint16_t index);
 
   uint32_t getGlobalPotOffset();
   uint32_t getGlobalPotOffset(uint16_t index);
-
-  uint32_t getGlobalPotCalibrationOffset();
-  uint32_t getGlobalPotCalibrationOffset(uint16_t index);
 
   uint32_t getPotCalibrationOffset();
   uint32_t getPotCalibrationOffset(uint16_t index);
@@ -440,6 +451,9 @@ private:
 
   uint32_t getLRelayOffset();
   uint32_t getLRelayOffset(uint16_t index);
+
+  uint32_t getAuxJackOffset();
+  uint32_t getAuxJackOffset(uint16_t index);
 
 
   uint32_t getCustomSysExOffset();
@@ -548,30 +562,14 @@ public:
   }
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-  // save a single "library" item to EEPROM
-  void saveLibrary(bmcLibrary_t index){
-    if(index>=BMC_MAX_LIBRARY){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getLibraryOffset(index);
-      storage.set(address, store.global.library[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_LIBRARY > 0 && BMC_MAX_PRESETS > 0
+#if BMC_MAX_PRESETS > 0
   // save the "startup" preset item to EEPROM
   void saveStartup(){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getLibraryOffset();
+      address += getStringLibraryOffset();
       storage.set(address, store.global.startup);
     #endif
   }
@@ -649,6 +647,40 @@ public:
   }
 #endif
 
+
+
+#if BMC_MAX_GLOBAL_BI_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalBiLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_BI_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalBiLedOffset(index);
+      storage.set(address, store.global.biLeds[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_TRI_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalTriLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_TRI_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalTriLedOffset(index);
+      storage.set(address, store.global.triLeds[index]);
+    #endif
+  }
+#endif
+
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   // save a single "global encoder" to EEPROM
   void saveGlobalEncoder(uint8_t index){
@@ -679,26 +711,11 @@ public:
       storage.set(address, store.global.pots[index]);
     #endif
   }
-  // save a single global pot calibrarion to EEPROM
-  void saveGlobalPotCalibration(uint8_t index){
-    if(index>=BMC_MAX_GLOBAL_POTS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getGlobalPotCalibrationOffset(index);
-      storage.set(address, store.global.globalPotCalibration[index]);
-    #endif
-  }
-
 #endif
 
-#if BMC_MAX_POTS > 0
-  // save a single "pot" to EEPROM
-  void savePotCalibration(uint8_t index){
-    if(index>=BMC_MAX_POTS){
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+  void savePotCalibration(uint16_t index){
+    if(index>=BMC_TOTAL_POTS_AUX_JACKS){
       return;
     }
     #if defined(BMC_SD_CARD_ENABLED)
@@ -776,6 +793,25 @@ public:
     #endif
   }
 #endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  // save a single "Tempo To Tap" to EEPROM
+  void saveAuxJack(uint8_t index){
+    if(index>=BMC_MAX_AUX_JACKS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getAuxJackOffset(index);
+      storage.set(address, store.global.auxJacks[index]);
+    #endif
+  }
+#endif
+
+
+
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
   // save a single "Custom SysEx" to EEPROM
@@ -1164,60 +1200,29 @@ private:
 
 public:
 
-  void utilitySendButtonActivity(bool t_isGlobal, bool onlyIfConnected=true);
-
   void utilitySendStateBits(uint8_t itemId, bool onlyIfConnected=true);
-  /*
-  void utilitySendRgbPixelActivity(bool t_isGlobal, bool onlyIfConnected=true);
-  */
 
-
-  void utilitySendLedActivity(uint32_t data,
-                              bool onlyIfConnected=true);
-  //
-  void utilitySendAuxJackActivity(uint8_t data,
-                              bool onlyIfConnected=true);
-  //
   void utilitySendFasState(uint8_t data,
                               bool onlyIfConnected=true);
-  //
-  void utilitySendNLRelayActivity(uint16_t data,
-                              bool onlyIfConnected=true);
-  void utilitySendLRelayActivity(uint16_t data,
+
+  void utilitySendPotActivity(uint8_t deviceType, uint16_t index, uint8_t value=0,
                               bool onlyIfConnected=true);
 
-  void utilitySendPwmLedActivity(uint32_t data,
-                              bool onlyIfConnected=true);
-
-  void utilitySendPotActivity(bool t_global, uint16_t index, uint8_t value=0,
-                              bool onlyIfConnected=true);
-
-  void utilitySendPotsActivity(bool t_global, uint8_t *values, uint16_t length,
-                               bool onlyIfConnected=true);
-
-  void utilitySendEncoderActivity(uint8_t index, bool increased,
+  void utilitySendEncoderActivity(uint8_t deviceType, uint8_t index, bool increased,
                                   bool onlyIfConnected=true);
 
-  void utilitySendGlobalLedActivity(uint16_t data,
-                                    bool onlyIfConnected=true);
   void utilitySendPreset(uint16_t presetNumber,
                         bool onlyIfConnected=true);
 
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,
                                  uint8_t state, bool onlyIfConnected=true);
 
-  void utilitySendPotCalibrationStatus(bool status, bool canceled=false,
+  void utilitySendAnalogInputCalibrationStatus(bool status, bool canceled=false,
                                        bool onlyIfConnected=true);
 
   void utilitySendSketchBytes(bool onlyIfConnected);
 
 
-
-  void utilitySendGlobalEncoderActivity(uint8_t index, bool increased,
-                                  bool onlyIfConnected=true);
-
-  void utilitySendGlobalPotCalibrationStatus(bool status, bool canceled=false,
-                                  bool onlyIfConnected=true);
 private:
 
   // GLOBAL

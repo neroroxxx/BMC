@@ -103,95 +103,10 @@ void BMCEditor::backupGlobalStringLibrary(uint16_t t_minLength){
 }
 
 void BMCEditor::backupGlobalLibrary(uint16_t t_minLength){
-#if BMC_MAX_LIBRARY > 0
-  bmcLibrary_t index = (bmcLibrary_t) getMessagePageNumber();
-  if(index >= BMC_MAX_LIBRARY){
-    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
-    return;
-  }
-  // backup must include length of the name as the byte before the CRC
-  if(incoming.size() >= (t_minLength+1)){
-    // get the name length byte
-    uint8_t nameLength = incoming.sysex[incoming.size()-3];
-    // check the length of the message, it must match this length
-    // for it to be used
-    if(incoming.size() == (nameLength + t_minLength + 1)){
-      bmcStoreGlobalLibrary& item = store.global.library[index];
-      //item.event = BMC_MIDI_ARRAY_TO_32BITS(9,incoming.sysex);
-      item.event = incoming.get32Bits(9);
-      #if BMC_NAME_LEN_LIBRARY > 1
-        // set all the name characters all to 0
-        memset(item.name, 0, BMC_NAME_LEN_LIBRARY);
-        // if the length we received is higher than the compiled length,
-        // set it to the compiled length
-        if(nameLength > BMC_NAME_LEN_LIBRARY){
-          nameLength = BMC_NAME_LEN_LIBRARY;
-        }
-        incoming.getStringFromSysEx(14, item.name, nameLength);
-      #endif
-    }
-  }
-#endif
-  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+
 }
 void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
-  /*
-#if BMC_MAX_PRESETS > 0
-  uint16_t index = (uint16_t) getMessagePageNumber();
-  if(index >= BMC_MAX_PRESETS){
-    sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
-    return;
-  }
-  // backup must include length of the name as the byte before the CRC
-  // and the number of preset items as the byte before the name length
-  if(incoming.size() >= (t_minLength+2)){
-    uint8_t nameLength = incoming.sysex[incoming.size()-3];
-    uint8_t itemsLength = incoming.sysex[incoming.size()-4];
 
-    // check that incoming message length matches the required length
-    if(incoming.size()==(nameLength+(itemsLength*2)+t_minLength+2)){
-
-      bmcStoreGlobalPresets& item = store.global.presets[index];
-      // add the number of preset items that will be used
-      // make sure it's not higher than the number of preset items compiled
-      item.length = incoming.sysex[9];
-      if(item.length > BMC_MAX_PRESET_ITEMS){
-        item.length = BMC_MAX_PRESET_ITEMS;
-      }
-      // set all bytes in the event array to 0
-      memset(item.events, 0, BMC_MAX_PRESET_ITEMS);
-      // e is the offset where we start in the sysex array
-      // it will be used to keep track of where we are and for the
-      // name if it's compiled
-      uint8_t e = 10;
-      for(uint8_t i = 0; i < itemsLength ; i++){
-        // only add the item if it's within the limir compiled
-        if(i < BMC_MAX_PRESET_ITEMS){
-          //item.events[i] = BMC_MIDI_ARRAY_TO_8BITS(e,incoming.sysex);
-          item.events[i] = (bmcLibrary_t) incoming.get14Bits(e);
-          // if the library item is higher than the compiled we set it
-          // to 0 and we lower the length of items that are part of the preset
-          if(item.events[i] >= BMC_MAX_LIBRARY){
-            item.events[i] = 0;
-            if(item.length > 0){
-              item.length--;
-            }
-          }
-        }
-        e+=2;
-      }
-      #if BMC_NAME_LEN_PRESETS > 1
-        // if the name length is higher than the compiled we set it to the max
-        if(nameLength > BMC_NAME_LEN_PRESETS){
-          nameLength = BMC_NAME_LEN_PRESETS;
-        }
-        incoming.getStringFromSysEx(e, item.name, nameLength);
-      #endif
-    }
-  }
-#endif
-  sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
-  */
 }
 void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
   /*
@@ -340,6 +255,7 @@ void BMCEditor::backupGlobalCustomSysEx(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalTempoToTap(uint16_t t_minLength){
+  /*
 #if BMC_MAX_TEMPO_TO_TAP > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_TEMPO_TO_TAP){
@@ -352,6 +268,7 @@ void BMCEditor::backupGlobalTempoToTap(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalSketchBytes(uint16_t t_minLength){
 #if BMC_MAX_SKETCH_BYTES > 0
@@ -413,6 +330,7 @@ void BMCEditor::backupPixelProgram(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
+  /*
 #if BMC_MAX_TRIGGERS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_TRIGGERS){
@@ -427,6 +345,7 @@ void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalTimedEvents(uint16_t t_minLength){
 #if BMC_MAX_TIMED_EVENTS > 0

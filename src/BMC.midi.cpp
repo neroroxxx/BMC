@@ -131,7 +131,7 @@ void BMC::incomingMidi(BMCMidiMessage message){
     }
   }
   // only used when debugging
-#ifdef BMC_DEBUG
+#if defined(BMC_DEBUG)
   midiInDebug(message);
 #endif
 }
@@ -149,7 +149,7 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
       runBpmChanged();
     }
   }
-#if BMC_MAX_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
     pixels.clockBeat(midiClock.getBpm());
 #endif
 }

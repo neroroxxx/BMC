@@ -14,7 +14,6 @@ void BMC::setupRelaysNL(){
 
     bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-
     bool initialState = bitRead(device.settings[0], 0);
     bool momentary = bitRead(device.settings[0], 1);
     bool reversed = bitRead(device.settings[0], 2);
@@ -27,7 +26,7 @@ void BMC::setupRelaysNL(){
 void BMC::assignRelaysNL(){
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 
     //bool initialState = bitRead(device.settings[0], 0);
     bool momentary = bitRead(device.settings[0], 1);
@@ -36,7 +35,8 @@ void BMC::assignRelaysNL(){
     relaysNL[i].setMomentary(momentary);
     relaysNL[i].setReverse(reversed);
 
-    relaysNLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
+    //relaysNLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
+    //relaysNLHasEvent.setBit(i, device.events[0] != 0);
 
     relaysNL[i].reassign();
 
@@ -59,24 +59,18 @@ void BMC::assignRelaysNL(){
   }
 }
 void BMC::readRelaysNL(){
-  //uint32_t _relaysNLStates = 0;
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
-    //bitWrite(_relaysNLStates,i, relaysNL[i].update());
-    if(relaysNLHasEvent.getBit(i)){
-      //handleRelaysNL(i);
+    if(device.events[0] != 0){
       uint8_t cmd = processEvent(BMC_DEVICE_GROUP_RELAY, BMC_DEVICE_ID_NL_RELAY,
                                  i, BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
       relaysNL[i].command(cmd);
     }
     globals.relayNLStates.setBit(i, relaysNL[i].update());
   }
-  /*
-  if(_relaysNLStates!=relayNLStates){
-    relayNLStates = _relaysNLStates;
-    editor.utilitySendNLRelayActivity(relayNLStates);
+  if(globals.relayNLStates.hasChanged() || editor.isTriggerStates()){
+    editor.utilitySendStateBits(BMC_DEVICE_ID_NL_RELAY);
   }
-  */
 }
 // triggered on incoming midi messages
 void BMC::checkRelaysNLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2){
@@ -158,7 +152,7 @@ void BMC::setupRelaysL(){
 void BMC::assignRelaysL(){
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 
     //bool initialState = bitRead(device.settings[0], 0);
     bool momentary = bitRead(device.settings[0], 1);
@@ -167,49 +161,24 @@ void BMC::assignRelaysL(){
     relaysL[i].setMomentary(momentary);
     relaysL[i].setReverse(reversed);
 
-    relaysLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
+    //relaysLHasEvent.setBit(i, BMCTools::isValidRelayEvent(data.type));
 
     relaysL[i].reassign();
-    /*
-    uint8_t m = BMC_GET_BYTE(3,globalData.relaysL[i].event>>1);
-    relaysL[i].setMomentary(bitRead(m,5));
-    relaysL[i].setReverse(bitRead(m,6));
-
-    relaysLTmp[i].type = 255;
-    relaysLTmp[i].data1 = 255;
-    uint32_t e = globalData.relaysL[i].event>>1;
-    switch(e & 0xF0){
-      case BMC_MIDI_PROGRAM_CHANGE:
-      case BMC_MIDI_CONTROL_CHANGE:
-        relaysLTmp[i].type = BMC_GET_BYTE(0, e);
-        relaysLTmp[i].data1 = BMC_GET_BYTE(1, e);
-        break;
-    }
-    relaysL[i].reassign();
-    */
   }
 }
 void BMC::readRelaysL(){
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
-    if(relaysLHasEvent.getBit(i)){
+    if(device.events[0] != 0){
       uint8_t cmd = processEvent(BMC_DEVICE_GROUP_RELAY, BMC_DEVICE_ID_L_RELAY,
                                  i, BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
       relaysL[i].command(cmd);
     }
     globals.relayLStates.setBit(i, relaysL[i].update());
   }
-  /*
-  uint32_t _relaysLStates = 0;
-  for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
-    bitWrite(_relaysLStates,i,relaysL[i].update());
-    handleRelaysL(i);
+  if(globals.relayLStates.hasChanged() || editor.isTriggerStates()){
+    editor.utilitySendStateBits(BMC_DEVICE_ID_L_RELAY);
   }
-  if(_relaysLStates!=relayLStates){
-    relayLStates = _relaysLStates;
-    editor.utilitySendLRelayActivity(relayLStates);
-  }
-  */
 }
 // triggered on incoming midi messages
 void BMC::checkRelaysLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2){
