@@ -47,7 +47,7 @@
     #define BMC_TEENSY_TOTAL_PWM_PINS 27
     #define BMC_TEENSY_TOTAL_ANALOG_PINS 18
 
-  #el#if defined(ARDUINO_TEENSY41)
+  #elif defined(ARDUINO_TEENSY41)
     // Teensy 4.1
     // __IMXRT1062__
     #define BMC_TEENSY_MODEL 41
