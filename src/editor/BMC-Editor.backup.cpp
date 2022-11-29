@@ -234,6 +234,7 @@ void BMCEditor::backupGlobalSetListSong(uint16_t t_minLength){
   */
 }
 void BMCEditor::backupGlobalCustomSysEx(uint16_t t_minLength){
+  /*
 #if BMC_MAX_CUSTOM_SYSEX > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_CUSTOM_SYSEX){
@@ -253,6 +254,7 @@ void BMCEditor::backupGlobalCustomSysEx(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalTempoToTap(uint16_t t_minLength){
   /*
@@ -294,6 +296,7 @@ void BMCEditor::backupGlobalSketchBytes(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupGlobalPortPresets(uint16_t t_minLength){
+  /*
   // no additional bytes
   if(incoming.size() == t_minLength){
     for(uint8_t i = 0, e = 9 ; i < 16 ; i++, e++){
@@ -301,11 +304,13 @@ void BMCEditor::backupGlobalPortPresets(uint16_t t_minLength){
     }
   }
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 
 
 
 void BMCEditor::backupPixelProgram(uint16_t t_minLength){
+/*
 #if BMC_MAX_PIXEL_PROGRAMS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_PIXEL_PROGRAMS){
@@ -328,6 +333,7 @@ void BMCEditor::backupPixelProgram(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+*/
 }
 void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
   /*
@@ -348,6 +354,7 @@ void BMCEditor::backupGlobalTriggers(uint16_t t_minLength){
   */
 }
 void BMCEditor::backupGlobalTimedEvents(uint16_t t_minLength){
+/*
 #if BMC_MAX_TIMED_EVENTS > 0
   uint8_t index = getMessagePageNumber();
   if(index >= BMC_MAX_TIMED_EVENTS){
@@ -362,6 +369,7 @@ void BMCEditor::backupGlobalTimedEvents(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalLed(uint16_t t_minLength){
   /*
@@ -799,6 +807,7 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
 }
 
 void BMCEditor::backupPageOled(uint16_t t_minLength){
+  /*
 #if BMC_MAX_OLED > 0
   if(incoming.size() == t_minLength){
     uint8_t page = getMessagePageNumber() & 0xFF;
@@ -808,6 +817,7 @@ void BMCEditor::backupPageOled(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupPageIli(uint16_t t_minLength){
   /*
@@ -819,6 +829,7 @@ void BMCEditor::backupPageIli(uint16_t t_minLength){
     store.pages[page].ili[index].value = incoming.get8Bits(12);
   }
 #endif
-  */
+  
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }

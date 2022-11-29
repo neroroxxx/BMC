@@ -127,7 +127,8 @@ public:
   }
   bool isEigthNote(){
     if(isMaster()){
-      return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_EIGTH);
+      //return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_EIGTH);
+      return ticks==12;
     }
     return bpmCalc.isEigthNote();
   }
@@ -255,10 +256,10 @@ private:
   BMCTimer timeout;
   void assignBpm(uint16_t tempo){
     if(isMaster() && BMCBpmCalculator::isValidBpm(tempo)){
-      if(bpm!=tempo){
+      if(bpm != tempo){
         flags.on(BMC_MIDI_CLOCK_FLAG_BPM_CHANGED);
       }
-      BMC_PRINTLN("BMCMidiClock::assignBpm",tempo);
+      BMC_PRINTLN("BMCMidiClock::assignBpm",tempo,"was",bpm);
       bpm = tempo;
       interval = BMCBpmCalculator::bpmToMicrosPPQN(tempo);
       masterTimer = 0;

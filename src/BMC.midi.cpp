@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -9,6 +9,11 @@
 void BMC::readMidi(){
   // this is mainly used to update the midi clocks timer
   handleMidiClock(false);
+
+  if(midiClock.tempoChanged()){
+    BMC_PRINTLN("tempoChanged()");
+    runBpmChanged();
+  }
 
   midiActiveSense.update();
 
@@ -38,9 +43,9 @@ void BMC::readMidi(){
     incomingMidi(midi.readSerial(3));// Read the Serial D MIDI Port
   #endif
 
-#ifdef BMC_USE_BEATBUDDY
-  sync.beatBuddy.update();
-#endif
+  #ifdef BMC_USE_BEATBUDDY
+    sync.beatBuddy.update();
+  #endif
 }
 void BMC::incomingMidi(BMCMidiMessage message){
   if(message.getStatus()==BMC_NONE){
@@ -141,12 +146,8 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
 #if (BMC_TOTAL_LEDS + BMC_TOTAL_PIXELS) > 0
     handleClockLeds();
 #endif
-
     if(callback.midiClockBeat){
       callback.midiClockBeat();
-    }
-    if(midiClock.tempoChanged()){
-      runBpmChanged();
     }
   }
 #if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0

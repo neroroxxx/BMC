@@ -377,6 +377,9 @@ private:
       case BMC_DEVICE_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;
       case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return BMC_MAX_SETLISTS_SONGS_LIBRARY;
 
+      case BMC_DEVICE_ID_PORT_PRESET:           return 16;
+      case BMC_DEVICE_ID_PIXEL_PROGRAM:         return BMC_MAX_PIXEL_PROGRAMS;
+
       case BMC_DEVICE_ID_BI_LED:                return BMC_MAX_BI_LEDS;
       case BMC_DEVICE_ID_TRI_LED:               return BMC_MAX_TRI_LEDS;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:         return BMC_MAX_GLOBAL_BI_LEDS;
@@ -463,6 +466,7 @@ private:
   uint32_t getTempoToTapOffset();
   uint32_t getTempoToTapOffset(uint8_t index);
   uint32_t getPortPresetsOffset();
+  uint32_t getPortPresetsOffset(uint16_t index);
   uint32_t getPixelProgramsOffset();
   uint32_t getPixelProgramsOffset(uint8_t index);
   uint32_t getTimedEventOffset();
@@ -860,27 +864,28 @@ public:
     #endif
   }
 #endif
-  // save a single "Tempo To Tap" to EEPROM
-  void saveDevicePorts(){
+  void saveDevicePorts(uint8_t index){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getPortPresetsOffset();
-      storage.set(address, store.global.portPresets);
+      address += getPortPresetsOffset(index);
+      storage.set(address, store.global.portPresets[index]);
     #endif
   }
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-  void savePixelProgram(uint8_t index){
-    if(index >= BMC_MAX_PIXEL_PROGRAMS){
+  void savePixelProgram(uint8_t n){
+    if(n >= BMC_MAX_PIXEL_PROGRAMS){
       return;
     }
+    BMC_PRINTLN("savePixelProgram", n);
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getPixelProgramsOffset(index);
-      storage.set(address, store.global.pixelPrograms);
+      address += getPixelProgramsOffset(n);
+      BMC_PRINTLN("savePixelProgram",address);
+      storage.set(address, store.global.pixelPrograms[n]);
     #endif
   }
 #endif
@@ -1154,11 +1159,11 @@ private:
   void incomingMessageName(bool write);
   void incomingMessageDevice(bool write);
 
-  template <uint8_t sLen, uint8_t eLen>
-  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen>& item, uint16_t index, int16_t page=-1);
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t page=-1);
 
-  template <uint8_t sLen, uint8_t eLen>
-  void deviceResponseData(bmcStoreDevice<sLen, eLen>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType);
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  void deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType);
 
 // BMC-Editor.midi.page.h
 private:

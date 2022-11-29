@@ -24,12 +24,13 @@
   };
 
   // BMC Device Object for BMC 2.0
-  template <uint8_t sLen=1, uint8_t eLen=1>
+  template <uint8_t sLen, uint8_t eLen, typename T=bmcEvent_t>
   struct __attribute__ ((packed)) bmcStoreDevice {
     bmcName_t name = 0;
     uint8_t settings[sLen];
     bmcEvent_t events[eLen];
   };
+  
   // Page Object
   struct __attribute__ ((packed)) bmcStorePage {
     bmcName_t name;
@@ -118,6 +119,7 @@
     bmcStoreGlobalSettings settings;
     bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
     bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
+    bmcStoreDevice <0, 1, uint8_t> portPresets[16];
     #if BMC_MAX_SKETCH_BYTES > 0
       uint8_t sketchBytes[BMC_MAX_SKETCH_BYTES];
     #endif
@@ -169,22 +171,20 @@
       bmcStoreDevice <2, 3> auxJacks[BMC_MAX_AUX_JACKS];
     #endif
     #if BMC_MAX_CUSTOM_SYSEX > 0
-      bmcStoreGlobalCustomSysEx customSysEx[BMC_MAX_CUSTOM_SYSEX];
+      bmcStoreDevice <1, 16, uint8_t> customSysEx[BMC_MAX_CUSTOM_SYSEX];
     #endif
     #if BMC_MAX_TRIGGERS > 0
-      //bmcStoreGlobalTriggers triggers[BMC_MAX_TRIGGERS];
       bmcStoreDevice <1, 2> triggers[BMC_MAX_TRIGGERS];
     #endif
     #if BMC_MAX_TEMPO_TO_TAP > 0
-      //bmcStoreGlobalTempoToTap tempoToTap[BMC_MAX_TEMPO_TO_TAP];
       bmcStoreDevice <1, 1> tempoToTap[BMC_MAX_TEMPO_TO_TAP];
     #endif
-    bmcStorePortPresets portPresets;
-    #if BMC_MAX_PIXEL_PROGRAMS > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0)
-      bmcStorePixelPrograms pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+      bmcStoreDevice <1, 8, uint8_t> pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
     #endif
     #if BMC_MAX_TIMED_EVENTS > 0
-      bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
+      //bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
+      bmcStoreDevice <2, 1> timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };
   struct __attribute__ ((packed)) bmcStore {

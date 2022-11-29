@@ -19,19 +19,19 @@
 
 class BMCTimedEvents {
 public:
-  BMCTimedEvents(bmcStoreGlobal& t_global):global(t_global){
+  BMCTimedEvents(BMCGlobals& t_globals, bmcStoreGlobal& t_global):globals(t_globals),global(t_global){
 
   }
   void buildListeners(){
     flags.off(BMC_TIMED_EVENTS_FLAG_AVAILABLE);
     totalReadyTimedEvents = 0;
     for(uint8_t i=0;i<BMC_MAX_TIMED_EVENTS;i++){
-      bmcStoreGlobalTimedEvents& timedEvent = global.timedEvents[i];
-      if(timedEvent.timeout>0 && timedEvent.event>0){
+      bmcStoreDevice <2, 1>& device = global.timedEvents[i];
+      if(device.events[0]>0){
         flags.on(BMC_TIMED_EVENTS_FLAG_AVAILABLE);
         totalReadyTimedEvents = i+1;
         // set the mode, single or loop
-        uint8_t mode = ((timedEvent.timeout & 0xFFF00000)>>22) & 0x03;
+        uint8_t mode = (device.settings[1]>>2) & 0x03;
         setMode(i, mode);
       } else {
         // if there's no event we stop the timer
@@ -45,17 +45,17 @@ public:
     if(n >= BMC_MAX_TIMED_EVENTS){
       return;
     }
-    bmcStoreGlobalTimedEvents& item = global.timedEvents[n];
+    bmcStoreDevice <2, 1>& device = global.timedEvents[n];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     // first check if the timed event has any event data
-    if(item.event==BMC_NONE){
+    if(data.type == BMC_NONE){
       return;
     }
-    uint32_t timeoutMs = item.timeout & 0xFFFFF;
+    uint16_t timeoutMs = (device.settings[0] + 1) * 10;
     // 0=restart, 1=stop, 2=ignore
-    uint8_t retrigger = ((item.timeout & 0xFFF00000)>>20) & 0x03;
+    uint8_t retrigger = device.settings[1] & 0x03;
     // 0=single, 1=loop
-    uint8_t mode = ((item.timeout & 0xFFF00000)>>22) & 0x03;
-    //item.event;
+    uint8_t mode = (device.settings[1]>>2) & 0x03;
     // check if timer is active
     if(timers[n].active()){
       // timer is active, check how to re-trigger it.
@@ -89,7 +89,7 @@ public:
     if(available() > 0 && n < BMC_MAX_TIMED_EVENTS){
       resp = timers[n].complete();
       if(resp && isLooped(n)){
-        timers[n].start((global.timedEvents[n].timeout & 0xFFFFF));
+        timers[n].start(getTimeout(n));
       }
       if(resp){
         BMC_PRINTLN("timed event",n,"is complete",isLooped(n)?"LOOP":"");
@@ -113,17 +113,17 @@ public:
     }
     return false;
   }
-  uint32_t getEvent(uint8_t n){
-    return global.timedEvents[n].event;
+  bmcEvent_t getEvent(uint8_t n){
+    return global.timedEvents[n].events[0];
   }
-  uint32_t getTimeout(uint8_t n){
-    return global.timedEvents[n].timeout & 0xFFFFF;
+  uint16_t getTimeout(uint8_t n){
+    return (global.timedEvents[n].settings[0]+1)*10;
   }
   uint8_t getReTrigger(uint8_t n){
-    return ((global.timedEvents[n].timeout & 0xFFF00000)>>20) & 0x03;
+    return global.timedEvents[n].settings[1] & 0x03;
   }
   uint8_t getMode(uint8_t n){
-    return ((global.timedEvents[n].timeout & 0xFFF00000)>>22) & 0x03;
+    return (global.timedEvents[n].settings[1]>>2) & 0x03;
   }
   uint8_t available(){
     return totalReadyTimedEvents;
@@ -131,6 +131,7 @@ public:
 
 private:
   // reference to midi object from BMC
+  BMCGlobals& globals;
   bmcStoreGlobal& global;
   BMCFlags <uint8_t> flags;
   uint8_t totalReadyTimedEvents = 0;

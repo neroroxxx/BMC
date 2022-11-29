@@ -468,9 +468,14 @@ void BMCEditor::incomingMessageDevice(bool write){
         #endif
         break;
       case BMC_DEVICE_ID_CUSTOM_SYSEX:
-        {
-          //
-        }
+        #if BMC_MAX_CUSTOM_SYSEX > 0
+          incomingMessageDeviceWrite<1, 16, uint8_t>
+          (store.global.customSysEx[index], index);
+          if(!backupActive()){
+            saveCustomSysEx(index);
+            reloadData();
+          }
+        #endif
         break;
       case BMC_DEVICE_ID_TRIGGER:
         #if BMC_MAX_TRIGGERS > 0
@@ -484,7 +489,7 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_TEMPO_TO_TAP:
         #if BMC_MAX_TEMPO_TO_TAP > 0
-          incomingMessageDeviceWrite<1,1>(store.global.tempoToTap[index], index);
+          incomingMessageDeviceWrite<1, 1>(store.global.tempoToTap[index], index);
           if(!backupActive()){
             flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
             saveTempoToTap(index);
@@ -492,6 +497,25 @@ void BMCEditor::incomingMessageDevice(bool write){
           }
         #endif
         break;
+      case BMC_DEVICE_ID_PORT_PRESET:
+        incomingMessageDeviceWrite<0, 1, uint8_t>
+        (store.global.portPresets[index], index);
+          if(!backupActive()){
+            saveDevicePorts(index);
+            reloadData();
+          }
+        break;
+      case BMC_DEVICE_ID_PIXEL_PROGRAM:
+        #if BMC_MAX_PIXEL_PROGRAMS > 0
+          incomingMessageDeviceWrite<1, 8, uint8_t>
+          (store.global.pixelPrograms[index], index);
+            if(!backupActive()){
+              savePixelProgram(index);
+              reloadData();
+            }
+        #endif
+        break;
+        
       case BMC_DEVICE_ID_SKETCH_BYTES:
         {
           //
@@ -526,9 +550,14 @@ void BMCEditor::incomingMessageDevice(bool write){
         #endif
         break;
       case BMC_DEVICE_ID_TIMED_EVENT:
-        {
-          //
-        }
+        #if BMC_MAX_TIMED_EVENTS > 0
+          incomingMessageDeviceWrite<2, 1>
+          (store.global.timedEvents[index], index);
+          if(!backupActive()){
+            saveTimedEvent(index);
+            reloadData();
+          }
+        #endif
         break;
     }
   }
@@ -743,9 +772,10 @@ void BMCEditor::incomingMessageDevice(bool write){
       #endif
       break;
     case BMC_DEVICE_ID_CUSTOM_SYSEX:
-      {
-        //
-      }
+      #if BMC_MAX_CUSTOM_SYSEX > 0
+        deviceResponseData <1, 16, uint8_t>
+        (store.global.customSysEx[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_TRIGGER:
       #if BMC_MAX_TRIGGERS > 0
@@ -757,6 +787,16 @@ void BMCEditor::incomingMessageDevice(bool write){
       #if BMC_MAX_TEMPO_TO_TAP > 0
         deviceResponseData <1, 1>
         (store.global.tempoToTap[index], buff, index, deviceType);
+      #endif
+      break;
+    case BMC_DEVICE_ID_PORT_PRESET:
+      deviceResponseData <0, 1, uint8_t>
+        (store.global.portPresets[index], buff, index, deviceType);
+      break;
+    case BMC_DEVICE_ID_PIXEL_PROGRAM:
+      #if BMC_MAX_PIXEL_PROGRAMS > 0
+        deviceResponseData <1, 8, uint8_t>
+          (store.global.pixelPrograms[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_SKETCH_BYTES:
@@ -785,35 +825,32 @@ void BMCEditor::incomingMessageDevice(bool write){
       #endif
       break;
     case BMC_DEVICE_ID_TIMED_EVENT:
-      {
-        //
-      }
+      #if BMC_MAX_TIMED_EVENTS > 0
+        deviceResponseData <2, 1>
+        (store.global.timedEvents[index], buff, index, deviceType);
+      #endif
       break;
   }
   sendToEditor(buff);
 }
-template <uint8_t sLen, uint8_t eLen>
-void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen>& item, uint16_t index, int16_t page){
+template <uint8_t sLen, uint8_t eLen, typename tname>
+void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t page){
   //BMC_PRINTLN("====================");
   uint16_t name = incoming.get14Bits(13);
   if(item.name!= name){
     item.name  = name;
   }
-  uint8_t lenEvents = incoming.get7Bits(15);
-  uint8_t lenSettings = incoming.get7Bits(16);
+  uint8_t lenSettings = incoming.get7Bits(15);
+  uint8_t lenEvents = incoming.get7Bits(16);
   uint8_t lenCount = 17;
-  for(uint8_t i = 0 ; i < lenEvents ; i++){
-    uint8_t value = incoming.get8Bits(lenCount);
-    if(item.settings[i] != value){
-      item.settings[i]  = value;
+  for(uint8_t i = 0 ; i < lenSettings ; i++){
+    if(sLen > 0){
+      item.settings[i] = incoming.get8Bits(lenCount);
     }
     lenCount += 2;
   }
-  for(uint8_t i = 0 ; i < lenSettings ; i++){
-    uint16_t value = incoming.get14Bits(lenCount);
-    if(item.events[i] != value){
-      item.events[i]  = value;
-    }
+  for(uint8_t i = 0 ; i < lenEvents ; i++){
+    item.events[i] = incoming.get14Bits(lenCount);
     lenCount += 2;
   }
   if(page >= 0){
@@ -823,8 +860,8 @@ void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen>& item, uin
   }
 }
 
-template <uint8_t slen, uint8_t elen>
-void BMCEditor::deviceResponseData(bmcStoreDevice<slen, elen>& item,
+template <uint8_t sLen, uint8_t eLen, typename tname>
+void BMCEditor::deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item,
                                     BMCMidiMessage& buff,
                                     uint16_t index, uint8_t deviceType){
   BMCUIData ui = BMCBuildData::getUIData(deviceType, index);
@@ -840,14 +877,14 @@ void BMCEditor::deviceResponseData(bmcStoreDevice<slen, elen>& item,
   // other1 is used for color, so only other1 is sent
   buff.appendToSysEx7Bits(ui.other1);
   buff.appendToSysEx14Bits(item.name);// name
-  buff.appendToSysEx7Bits(slen);// settings length
-  buff.appendToSysEx7Bits(elen);// events length
+  buff.appendToSysEx7Bits(sLen);// settings length
+  buff.appendToSysEx7Bits(eLen);// events length
   // settings bytes
-  for(uint8_t i=0;i<slen;i++){
+  for(uint8_t i=0;i<sLen;i++){
     buff.appendToSysEx8Bits(item.settings[i]);
   }
   // events bytes
-  for(uint8_t i=0;i<elen;i++){
+  for(uint8_t i=0;i<eLen;i++){
     buff.appendToSysEx14Bits(item.events[i]);
   }
 }
@@ -1863,6 +1900,7 @@ void BMCEditor::globalLeds(bool write){//BMC_GLOBALF_LEDS
   */
 }
 void BMCEditor::globalPixelProgram(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1900,6 +1938,7 @@ void BMCEditor::globalPixelProgram(bool write){
     }
   }
 #endif
+  BMC_PRINTLN("PIXEL PROGRAM", index);
   BMCEditorMidiFlags flag;
   flag.reset();
   BMCMidiMessage buff;
@@ -1918,6 +1957,7 @@ void BMCEditor::globalPixelProgram(bool write){
     }
   #endif
   sendToEditor(buff);
+*/
 }
 void BMCEditor::globalButton(bool write){
   /*
@@ -2225,6 +2265,7 @@ void BMCEditor::globalPotCalibration(){//BMC_GLOBALF_POT_CALIBRATION
 }
 
 void BMCEditor::globalCustomSysEx(bool write){//BMC_GLOBALF_CUSTOM_SYSEX
+/*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2274,6 +2315,7 @@ void BMCEditor::globalCustomSysEx(bool write){//BMC_GLOBALF_CUSTOM_SYSEX
     }
   #endif
   sendToEditor(buff);
+*/
 }
 void BMCEditor::globalTriggers(bool write){//BMC_GLOBALF_TRIGGERS
   /*
@@ -2329,6 +2371,7 @@ void BMCEditor::globalTriggers(bool write){//BMC_GLOBALF_TRIGGERS
 }
 
 void BMCEditor::globalTimedEvents(bool write){//BMC_GLOBALF_TIMED_EVENTS
+/*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2377,6 +2420,7 @@ void BMCEditor::globalTimedEvents(bool write){//BMC_GLOBALF_TIMED_EVENTS
     buff.appendToSysEx32Bits(item.timeout);
   #endif
   sendToEditor(buff);
+  */
 }
 
 
@@ -2668,6 +2712,7 @@ void BMCEditor::globalSetTime(bool write){
   sendToEditor(buff);
 }
 void BMCEditor::globalPortPresets(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2701,6 +2746,7 @@ void BMCEditor::globalPortPresets(bool write){
     buff.appendToSysEx7Bits(store.global.portPresets.preset[i]);
   }
   sendToEditor(buff);
+  */
 }
 void BMCEditor::globalEditorFeedback(bool write){
   if(!isValidGlobalMessage()){

@@ -39,10 +39,12 @@ public:
   BMCMidiMessage message;
   BMCCallbacks& callback;
   BMCGlobals& globals;
-  BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStorePortPresets& t_portPresets):
+  //BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStorePortPresets& t_portPresets):
+  BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
     callback(cb),
     globals(t_globals),
-    portPresets(t_portPresets)
+    //portPresets(t_portPresets)
+    global(t_global)
 #ifdef BMC_HAS_SERIAL_MIDI
       ,midiSerial(cb)
 #endif
@@ -364,13 +366,14 @@ public:
   }
   uint8_t getPortPreset(uint8_t port){
     if(port>127){
-      return portPresets.preset[(port & 0x0F)];
+      return global.portPresets[(port & 0x0F)].events[0];
     }
     return port;
   }
 private:
   // port presets
-  bmcStorePortPresets& portPresets;
+  //bmcStorePortPresets& portPresets;
+  bmcStoreGlobal& global;
   // flags
   BMCFlags <uint8_t> flags;
   // midiData = is a large struct that stores incoming and outgoing

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -25,38 +25,22 @@ public:
     reset();
   }
   void buildListeners(){
-    /*
-    flags.off(BMC_TRIGGERS_FLAG_AVAILABLE);
-    totalReadableTriggers = 0;
-    validTriggerList.zeroOut();
-    for(uint8_t i = 0 ; i < BMC_MAX_TRIGGERS ; i++){
-      bmcStoreDevice <1, 2>& device = global.triggers[i];
-      if(active(device.events[0]) && device.events[1] != 0){
-        flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
-        validTriggerList.setBit(i, true);
-        totalReadableTriggers = (i+1);
-      }
-    }
-    BMC_PRINTLN("BMCTriggers::buildListeners() ",totalReadableTriggers);
-    */
     activeList.zeroOut();
-    flags.off(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE);
+    flags.reset();
     for(uint8_t i = 0 ; i < BMC_MAX_TEMPO_TO_TAP ; i++){
       bmcStoreDevice <1, 1>& device = global.tempoToTap[i];
       if(isValidEvent(device.events[0])){
         flags.on(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE);
         activeList.setBit(i, true);
         totalActiveCount = (i + 1);
-        //midi.send(global.tempoToTap[i].event);
-        //BMC_PRINTLN("Sending Tap bpm:", bpm, "event:", global.tempoToTap[i].event);
       }
     }
   }
   bool isAllowed(){
-    return flags.read(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE) && flags.read(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
+    return flags.read(BMC_FLAG_TEMPO_TO_TAP_AVAILABLE) && flags.toggleIfTrue(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
   }
   bool isReady(uint8_t n){
-    if(!isAllowed() || (n >= BMC_MAX_TEMPO_TO_TAP)){
+    if((n >= BMC_MAX_TEMPO_TO_TAP)){
       return false;
     }
     return activeList.getBit(n);
@@ -79,7 +63,7 @@ public:
   }
   // start sending the taps based on the specified Tempo
   void updateBpm(uint16_t tempo){
-    if(lastBpm==tempo){
+    if(lastBpm == tempo){
       return;
     }
     if(BMCBpmCalculator::isValidBpm(tempo)){
@@ -116,7 +100,7 @@ private:
   // set the current number of taps that were sent to 0
   void reset(){
     count = 0;
-    flags.reset();
+    flags.off(BMC_FLAG_TEMPO_TO_TAP_SEND_NOW);
   }
   // send the MIDI Message out for each trigger
   void sendTaps(){

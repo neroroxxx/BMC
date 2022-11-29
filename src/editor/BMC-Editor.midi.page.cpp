@@ -1335,6 +1335,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 */
       break;
     case BMC_DEVICE_ID_CUSTOM_SYSEX:
+/*
 #if BMC_MAX_CUSTOM_SYSEX > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalCustomSysEx x = store.global.customSysEx[sourceItem];
@@ -1353,6 +1354,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+*/
       break;
     case BMC_DEVICE_ID_TRIGGER:
 #if BMC_MAX_TRIGGERS > 0
@@ -1377,6 +1379,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 #endif
       break;
     case BMC_DEVICE_ID_TIMED_EVENT:
+    /*
 #if BMC_MAX_TIMED_EVENTS > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         bmcStoreGlobalTimedEvents x = store.global.timedEvents[sourceItem];
@@ -1395,6 +1398,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+*/
       break;
     case BMC_DEVICE_ID_TEMPO_TO_TAP:
     /*

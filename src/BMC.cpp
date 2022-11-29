@@ -10,7 +10,8 @@ BMC::BMC():
   settings(store.global.settings),
   globals(store, settings),
   globalData(store.global),
-  midi(callback, globals, store.global.portPresets),
+  //midi(callback, globals, store.global.portPresets),
+  midi(callback, globals, store.global),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
@@ -18,23 +19,6 @@ BMC::BMC():
   #ifdef BMC_USE_SYNC
     ,sync(midi, midiClock, store.global, callback)
   #endif
-  /*
-  #ifdef BMC_USE_DAW_LC
-    ,daw(midi, store.global, callback)
-  #endif
-  #ifdef BMC_USE_BEATBUDDY
-    ,beatBuddy(midi, midiClock)
-  #endif
-  #ifdef BMC_USE_HELIX
-    ,helix(midi)
-  #endif
-  #ifdef BMC_USE_FAS
-    ,fas(midi)
-  #endif
-  #ifdef BMC_USE_KEMPER
-    ,kemper(midi)
-  #endif
-  */
   #if BMC_MAX_CUSTOM_SYSEX > 0
     ,customSysEx(midi, store.global)
   #endif
@@ -56,7 +40,7 @@ BMC::BMC():
     ,pixelPrograms(store.global)
   #endif
   #if BMC_MAX_TIMED_EVENTS > 0
-    ,timedEvents(store.global)
+    ,timedEvents(globals, store.global)
   #endif
 
   #ifdef BMC_HAS_DISPLAY
@@ -114,7 +98,6 @@ void BMC::begin(){
   // here we handle pin assignments during the initial setup
   setupHardware();
 
-
   #ifdef BMC_USE_CLICK_TRACK
     // the click track object is tied to the MIDI Clock since they work hand in hand.
     // here we setup all the initial data from settings.
@@ -136,7 +119,7 @@ void BMC::begin(){
   midi.setRealTimeBlockOutput(settings.getMidiRealTimeBlockOutput());
 
   BMC_INFO("BMC Initial Setup Complete!");
-
+  
   delay(100);
 
   #ifdef BMC_USE_FAS
@@ -204,7 +187,6 @@ void BMC::update(){
   }
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
-
     runTempoToTap();
   #endif
 

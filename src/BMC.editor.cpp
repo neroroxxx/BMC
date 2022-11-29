@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2022 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -114,7 +114,6 @@ void BMC::assignSettings(){
       triggers.buildListeners();
     }
   #endif
-
   #if BMC_MAX_TIMED_EVENTS > 0
     if(editor.timedEventsUpdated()){
       timedEvents.buildListeners();

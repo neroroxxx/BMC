@@ -672,17 +672,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #endif
       }
       break;
+#endif
+
+#if BMC_MAX_PIXEL_PROGRAMS > 0
     // PIXELS
     case BMC_EVENT_TYPE_PIXEL_PROGRAM:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return false;
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
+          //uint8_t val = midi.scrollPC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), scroll.direction, scroll.endless,0,127);
+          //streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), val);
+          pixelPrograms.scroll(scroll.direction, scroll.endless);
+          BMC_PRINTLN("scroll Pixel Program");
+          //scroll(bool up, bool endless, uint8_t min, uint8_t max){
         } else {
-
+          pixelPrograms.setProgram(byteA);
+          BMC_PRINTLN("Set Pixel Program", byteA);
         }
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        pixelPrograms.scroll(scroll.direction, scroll.endless);
+      } else if(deviceId==BMC_DEVICE_ID_PIXEL || deviceId==BMC_DEVICE_ID_GLOBAL_PIXEL){
+        // nothing happens here
+        // event is handled withint BMC.hardware.pixels.cpp
       }
+      break;
+    case BMC_EVENT_TYPE_PIXEL_PROGRAM_BLACKOUT:
+      if(group == BMC_DEVICE_GROUP_BUTTON || group == BMC_DEVICE_GROUP_ENCODER){
+        pixelPrograms.toggleBlackout();
+      } 
       break;
 #endif
     // HARDWARE
@@ -835,6 +851,16 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         //
       } else if(group != BMC_DEVICE_GROUP_DISPLAY){
         return sync.helix.isSnapshot(byteA);
+      }
+      break;
+#endif
+#if BMC_MAX_CUSTOM_SYSEX > 0
+    case BMC_EVENT_TYPE_CUSTOM_SYSEX:
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        // byteA = send mode, 0, 1 or 2
+        // byteB = index of the 1st custom sysex item to send
+        // byteC = index of the 2nd custom sysex item to send
+        customSysEx.send((byteA & 0x03), e.ports, byteB, byteC);
       }
       break;
 #endif

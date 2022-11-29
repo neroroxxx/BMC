@@ -259,10 +259,16 @@ private:
 
 #if BMC_MAX_TRIGGERS > 0
     BMCTriggers triggers;
+    void readTrigger();
+#endif
+
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+    BMCPixelPrograms pixelPrograms;
 #endif
 
 #if BMC_MAX_TIMED_EVENTS > 0
     BMCTimedEvents timedEvents;
+    void readTimedEvent();
 #endif
 
 #if defined(BMC_HAS_DISPLAY)
@@ -433,16 +439,6 @@ private:
   void midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t min, uint8_t max);
   void midiProgramBankTrigger(uint8_t amount, uint8_t channel, uint8_t ports);
 
-// TRIGGERS
-// code @ BMC.triggers.cpp
-#if BMC_MAX_TRIGGERS > 0
-  void readTrigger();
-#endif
-
-#if BMC_MAX_TIMED_EVENTS > 0
-  void readTimedEvent();
-  void processTimedEvent(uint8_t n);
-#endif
 
 // ** HARDWARE **
 // code @ BMC.hardware.cpp
@@ -472,9 +468,6 @@ private:
     void setupPixels();
     void assignPixels();
     void readPixels();
-    #if BMC_MAX_PIXEL_PROGRAMS > 0
-      BMCPixelPrograms pixelPrograms;
-    #endif
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
 
 

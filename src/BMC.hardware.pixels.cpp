@@ -78,9 +78,9 @@ void BMC::readPixels(){
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){
       //pixels.setBrightness(i, map(((state>>4)&0x0F), 0, 15, 0, 127), (state&0x0F));
-    } else if(type==BMC_LED_EVENT_TYPE_PIXEL_PROGRAM){
+    } else if(type==BMC_EVENT_TYPE_PIXEL_PROGRAM){
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-      //pixels.setState(i, pixelPrograms.getColor());
+      pixels.setState(i, pixelPrograms.getColor());
 #endif
     } else {
       if(state<=1){
@@ -106,9 +106,9 @@ void BMC::readPixels(){
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){
       //pixels.setBrightness(i, map(((state>>4)&0x0F), 0, 15, 0, 127), (state&0x0F));
-    } else if(type==BMC_LED_EVENT_TYPE_PIXEL_PROGRAM){
+    } else if(type==BMC_EVENT_TYPE_PIXEL_PROGRAM){
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-      //pixels.setState(i, pixelPrograms.getColor());
+      pixels.setStateGlobal(i, pixelPrograms.getColor());
 #endif
     } else {
       if(state<=1){

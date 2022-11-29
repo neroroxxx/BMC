@@ -30,8 +30,7 @@ public:
     }
   }
   bool isEigthNote(){
-    return flags.toggleIfTrue(BMC_BPM_CALC_EIGHT_NOTE);;
-
+    return flags.toggleIfTrue(BMC_BPM_CALC_EIGHT_NOTE);
   }
   void setBpm(uint16_t tempo){
     if(isValidBpm(tempo)){

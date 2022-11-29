@@ -165,12 +165,13 @@ public:
     callback.triggerCustom = fptr;
 #endif
   }
-  */
+  
   void onTimedEventCustom(void (*fptr)(uint8_t id, uint8_t a, uint8_t b, uint8_t c)){
 #if BMC_MAX_TIMED_EVENTS > 0
     callback.timedEventCustom = fptr;
 #endif
   }
+  */
   //DEPRECATED, USE onStoreUpdate INSTEAD
   void onEditorUpdate(void (*fptr)()){
     onStoreUpdate(fptr);
@@ -1081,6 +1082,7 @@ public:
     return pixelStates;
   }
   */
+ /*
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     // change the current pixel program
     void setPixelProgram(uint8_t t_program){
@@ -1091,6 +1093,7 @@ public:
       return pixelPrograms.getProgram();
     }
   #endif
+  */
 #endif
 
 #if BMC_MAX_RGB_PIXELS > 0
@@ -1283,6 +1286,7 @@ public:
 
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
+/*
   // send the specified Custom SysEx Message to the specified Ports
   // @n the index of the custom sysex
   // @ports midi ports mask
@@ -1297,6 +1301,7 @@ public:
   void sendMergedCustomSysEx(uint8_t a, uint8_t b, uint8_t ports){
     customSysEx.send(BMC_CUSTOM_SYSEX_SEND_MERGE, ports, a, b);
   }
+*/
 #endif
 
 #if BMC_MAX_SKETCH_BYTES > 0

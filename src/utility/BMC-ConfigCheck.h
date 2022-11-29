@@ -745,7 +745,7 @@
     #endif
   #endif
 
-  #if BMC_MAX_PIXELS == 0 || BMC_MAX_GLOBAL_PIXELS == 0
+  #if BMC_MAX_PIXELS == 0 && BMC_MAX_GLOBAL_PIXELS == 0
     #undef BMC_MAX_PIXEL_PROGRAMS
     #define BMC_MAX_PIXEL_PROGRAMS 0
   #endif

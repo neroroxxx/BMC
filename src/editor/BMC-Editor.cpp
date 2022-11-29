@@ -81,7 +81,9 @@ void BMCEditor::begin(){
   BMC_PRINTLN("****************************************");
 
   deviceId = settings.getDeviceId();
-
+  #if BMC_MAX_TEMPO_TO_TAP > 0
+    flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+  #endif
   #if BMC_MAX_TRIGGERS > 0
     flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
   #endif
@@ -161,10 +163,18 @@ uint32_t BMCEditor::getNamesOffset(uint16_t index){
   uint32_t value = getEventsOffset();
   return value + (sizeof(bmcStoreName)*index);
 }
+uint32_t BMCEditor::getPortPresetsOffset(){
+  uint32_t value = getNamesOffset();
+  return value + sizeof(store.global.portPresets);
+}
+uint32_t BMCEditor::getPortPresetsOffset(uint16_t index){
+  uint32_t value = getNamesOffset();
+  return value + (sizeof(bmcStoreDevice <0, 1, uint8_t>)*index);
+}
 
 
 uint32_t BMCEditor::getSketchBytesOffset(){
-  uint32_t value = getNamesOffset();
+  uint32_t value = getPortPresetsOffset();
   #if BMC_MAX_SKETCH_BYTES > 0
     value += sizeof(store.global.sketchBytes);
   #endif
@@ -368,9 +378,6 @@ uint32_t BMCEditor::getGlobalRgbPixelOffset(uint16_t index){
   #endif
   return value;
 }
-
-
-
 uint32_t BMCEditor::getNLRelayOffset(){
   uint32_t value = getGlobalRgbPixelOffset();
   #if BMC_MAX_NL_RELAYS > 0
@@ -423,11 +430,10 @@ uint32_t BMCEditor::getCustomSysExOffset(){
 uint32_t BMCEditor::getCustomSysExOffset(uint8_t index){
   uint32_t value = getAuxJackOffset();
   #if BMC_MAX_CUSTOM_SYSEX > 0
-    value += (sizeof(bmcStoreGlobalCustomSysEx) * index);
+    value += (sizeof(bmcStoreDevice <1, 16, uint8_t>) * index);
   #endif
   return value;
 }
-
 uint32_t BMCEditor::getTriggerOffset(){
   uint32_t value = getCustomSysExOffset();
   #if BMC_MAX_TRIGGERS > 0
@@ -442,7 +448,6 @@ uint32_t BMCEditor::getTriggerOffset(uint8_t index){
   #endif
   return value;
 }
-
 uint32_t BMCEditor::getTempoToTapOffset(){
   uint32_t value = getTriggerOffset();
   #if BMC_MAX_TEMPO_TO_TAP > 0
@@ -457,25 +462,17 @@ uint32_t BMCEditor::getTempoToTapOffset(uint8_t index){
   #endif
   return value;
 }
-
-
-
-uint32_t BMCEditor::getPortPresetsOffset(){
-  return getLRelayOffset();
-}
 uint32_t BMCEditor::getPixelProgramsOffset(){
-  uint32_t value = getPortPresetsOffset();
-  value += sizeof(store.global.portPresets);
+  uint32_t value = getTempoToTapOffset();
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     value += sizeof(store.global.pixelPrograms);
   #endif
   return value;
 }
 uint32_t BMCEditor::getPixelProgramsOffset(uint8_t index){
-  uint32_t value = getPortPresetsOffset();
-  value += sizeof(store.global.portPresets);
+  uint32_t value = getTempoToTapOffset();
   #if BMC_MAX_PIXEL_PROGRAMS > 0
-    value += (sizeof(bmcStorePixelPrograms) * index);
+    value += (sizeof(bmcStoreDevice <1, 8, uint8_t>) * index);
   #endif
   return value;
 }
@@ -489,7 +486,7 @@ uint32_t BMCEditor::getTimedEventOffset(){
 uint32_t BMCEditor::getTimedEventOffset(uint8_t index){
   uint32_t value = getPixelProgramsOffset();
   #if BMC_MAX_TIMED_EVENTS > 0
-    value += (sizeof(bmcStoreGlobalTimedEvents) * index);
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif
   return value;
 }
