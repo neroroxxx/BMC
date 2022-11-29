@@ -1423,6 +1423,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
 */
       break;
     case BMC_DEVICE_ID_SKETCH_BYTES:
+    /*
 #if BMC_MAX_SKETCH_BYTES > 0
       if(mode==BMC_PAGEF_HARDWARE_COPY){
         uint8_t x = store.global.sketchBytes[sourceItem];
@@ -1440,6 +1441,7 @@ void BMCEditor::pageHardwareCopySwapMessage(bool write){
         success = true;
       }
 #endif
+      */
       break;
   }
   if(success){

@@ -503,7 +503,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DEVICE_ID_TRIGGER             	 23
 #define BMC_DEVICE_ID_TEMPO_TO_TAP        	 24
 #define BMC_DEVICE_ID_PIXEL_PROGRAM       	 25
-#define BMC_DEVICE_ID_SKETCH_BYTES        	 26
+#define BMC_DEVICE_ID_SKETCH_BYTE        	   26
 #define BMC_DEVICE_ID_STRING_LIBRARY      	 27
 #define BMC_DEVICE_ID_SETLIST             	 28
 #define BMC_DEVICE_ID_SETLIST_SONG        	 29

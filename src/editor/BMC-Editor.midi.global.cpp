@@ -516,10 +516,15 @@ void BMCEditor::incomingMessageDevice(bool write){
         #endif
         break;
         
-      case BMC_DEVICE_ID_SKETCH_BYTES:
-        {
-          //
-        }
+      case BMC_DEVICE_ID_SKETCH_BYTE:
+        #if BMC_MAX_SKETCH_BYTES > 0
+          incomingMessageDeviceWrite<0, 1, uint8_t>
+          (store.global.sketchBytes[index], index);
+            if(!backupActive()){
+              saveSketchBytes();
+              reloadData();
+            }
+        #endif
         break;
       case BMC_DEVICE_ID_STRING_LIBRARY:
         {
@@ -799,10 +804,11 @@ void BMCEditor::incomingMessageDevice(bool write){
           (store.global.pixelPrograms[index], buff, index, deviceType);
       #endif
       break;
-    case BMC_DEVICE_ID_SKETCH_BYTES:
-      {
-        //
-      }
+    case BMC_DEVICE_ID_SKETCH_BYTE:
+      #if BMC_MAX_SKETCH_BYTES > 0
+        deviceResponseData <0, 1, uint8_t>
+          (store.global.sketchBytes[index], buff, index, deviceType);
+      #endif
       break;
     case BMC_DEVICE_ID_STRING_LIBRARY:
       {
@@ -2488,6 +2494,7 @@ void BMCEditor::globalTempoToTap(bool write){//BMC_GLOBALF_TEMPO_TO_TAP
   */
 }
 void BMCEditor::globalSketchBytes(bool write){
+  /*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -2532,6 +2539,7 @@ void BMCEditor::globalSketchBytes(bool write){
     }
   #endif
   sendToEditor(buff);
+  */
 }
 void BMCEditor::globalSketchBytesData(){
   if(!isValidGlobalMessage()){

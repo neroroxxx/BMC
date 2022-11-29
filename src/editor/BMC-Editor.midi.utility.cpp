@@ -357,6 +357,7 @@ void BMCEditor::utilitySendAnalogInputCalibrationStatus(bool status, bool cancel
 // send a message to the editor with the sketchbytes
 // used when sketch bytes are updated by the Sketch API
 void BMCEditor::utilitySendSketchBytes(bool onlyIfConnected){
+  /*
 #if BMC_MAX_SKETCH_BYTES > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
@@ -381,4 +382,5 @@ void BMCEditor::utilitySendSketchBytes(bool onlyIfConnected){
   // don't show midi activity
   sendToEditor(buff,true,false);
 #endif
+  */
 }

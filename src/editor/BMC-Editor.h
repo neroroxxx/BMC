@@ -371,7 +371,7 @@ private:
       case BMC_DEVICE_ID_TRIGGER:               return BMC_MAX_TRIGGERS;
       case BMC_DEVICE_ID_TIMED_EVENT:           return BMC_MAX_TIMED_EVENTS;
       case BMC_DEVICE_ID_TEMPO_TO_TAP:          return BMC_MAX_TEMPO_TO_TAP;
-      case BMC_DEVICE_ID_SKETCH_BYTES:          return BMC_MAX_SKETCH_BYTES;
+      case BMC_DEVICE_ID_SKETCH_BYTE:           return BMC_MAX_SKETCH_BYTES;
 
       case BMC_DEVICE_ID_SETLIST:               return BMC_MAX_SETLISTS;
       case BMC_DEVICE_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;

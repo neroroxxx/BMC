@@ -273,6 +273,7 @@ void BMCEditor::backupGlobalTempoToTap(uint16_t t_minLength){
   */
 }
 void BMCEditor::backupGlobalSketchBytes(uint16_t t_minLength){
+  /*
 #if BMC_MAX_SKETCH_BYTES > 0
   // backup must include length of sketch bytes as the byte before the CRC
   if(incoming.size() >= (t_minLength+1)){
@@ -294,6 +295,7 @@ void BMCEditor::backupGlobalSketchBytes(uint16_t t_minLength){
   }
 #endif
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
+  */
 }
 void BMCEditor::backupGlobalPortPresets(uint16_t t_minLength){
   /*
