@@ -63,6 +63,14 @@ void BMC::assignPixels(){
   }
 #endif
 
+#if BMC_MAX_PIXEL_STRIP > 0
+  {
+    globals.pixelStripStates.clear();
+    bmcStoreDevice <1, 1>& device = store.pages[page].pixelStrip[0];
+    pixels.setDimColor(pixels.getPixelStripIndex(0), device.settings[0]);
+  }
+#endif
+
   pixels.reassign();
   pixels.setPwmOffValue(settings.getPwmDimWhenOff());
 }
@@ -88,7 +96,7 @@ void BMC::readPixels(){
       } else if(state==2){
         pixels.pulse(i, color);
       } else if(state==3){
-        pixels.setState(i, 3 ? BMC_PIXEL_RAINBOW : color);
+        pixels.setState(i, BMC_PIXEL_RAINBOW);
       } else if(state!=255){
         pixels.setState(i, bitRead(state, 2) ? BMC_PIXEL_RAINBOW : color);
       }
@@ -116,7 +124,7 @@ void BMC::readPixels(){
       } else if(state==2){
         pixels.pulseGlobal(i, color);
       } else if(state==3){
-        pixels.setStateGlobal(i, 3 ? BMC_PIXEL_RAINBOW : color);
+        pixels.setStateGlobal(i, BMC_PIXEL_RAINBOW);
       } else if(state!=255){
         pixels.setStateGlobal(i, bitRead(state, 2) ? BMC_PIXEL_RAINBOW : color);
       }
@@ -162,6 +170,34 @@ void BMC::readPixels(){
   }
 #endif
 
+#if BMC_MAX_PIXEL_STRIP > 0
+  for(uint16_t i = 0; i < 1; i++){
+    bmcStoreDevice <1, 1>& device = store.pages[page].pixelStrip[i];
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL_STRIP, i,
+                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t color = device.settings[0];
+    uint8_t type = data.type;
+    if(type==BMC_EVENT_TYPE_CUSTOM){
+      //pixels.setBrightness(i, map(((state>>4)&0x0F), 0, 15, 0, 127), (state&0x0F));
+    } else if(type==BMC_EVENT_TYPE_PIXEL_PROGRAM){
+#if BMC_MAX_PIXEL_PROGRAMS > 0
+      pixels.setStateStrip(i, pixelPrograms.getColor());
+#endif
+    } else {
+      if(state<=1){
+        pixels.setStateStrip((state==1) ? color : 0);
+      } else if(state==2){
+        pixels.pulseStrip(color);
+      } else if(state==3){
+        pixels.setStateStrip(BMC_PIXEL_RAINBOW);
+      } else if(state!=255){
+        pixels.setStateStrip(bitRead(state, 2) ? BMC_PIXEL_RAINBOW : color);
+      }
+    }
+  }
+#endif
+
   pixels.update();
 
 #if BMC_MAX_PIXELS > 0
@@ -202,6 +238,12 @@ void BMC::readPixels(){
     if(r || g || b || editor.isTriggerStates()){
       editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_RGB_PIXEL);
     }
+  }
+#endif
+
+#if BMC_MAX_PIXEL_STRIP > 0
+  if(globals.pixelStripStates.hasChanged() || editor.isTriggerStates()){
+    editor.utilitySendStateBits(BMC_DEVICE_ID_PIXEL_STRIP);
   }
 #endif
 }

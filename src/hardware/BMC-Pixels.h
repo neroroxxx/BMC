@@ -99,22 +99,22 @@ public:
     BMC_PRINTLN("    BMC_PIXEL_MAX_BRIGHTNESS:", BMC_PIXEL_MAX_BRIGHTNESS);
     BMC_PRINTLN("    BMC_PIXEL_DIM_BRIGHTNESS:", BMC_PIXEL_DIM_BRIGHTNESS);
 
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
     rainbowCurrentColor = BMC_COLOR_RED;
+#endif
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
     for(uint8_t i=0; i<BMC_MAX_PIXELS; i++){
       BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, i);
       setDimColor(i, ui.style);
-      //setDimColor(i, BMCBuildData::getPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        test(getPixelIndex(i));
+        test(BMC_DEVICE_ID_PIXEL, i);
       #endif
     }
     for(uint8_t i=0,n=getGlobalPixelIndex(0); i<BMC_MAX_GLOBAL_PIXELS; i++, n++){
       BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_PIXEL, i);
-      setDimColor(i, ui.style);
-      //setDimColor(i, BMCBuildData::getPixelDefaultColor(i));
+      setDimColor(n, ui.style);
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        test(getGlobalPixelIndex(i));
+        test(BMC_DEVICE_ID_GLOBAL_PIXEL, i);
       #endif
     }
 #endif
@@ -125,7 +125,8 @@ public:
       setDimColor(n, ui.style);
       //setDimColor(n, BMCBuildData::getRgbPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        test(getRgbPixelIndex(i));
+        //test(getRgbPixelIndex(i));
+        test(BMC_DEVICE_ID_RGB_PIXEL, i);
       #endif
     }
     for(uint8_t i=0,n=getGlobalRgbPixelIndex(0); i<BMC_MAX_GLOBAL_RGB_PIXELS; i++, n++){
@@ -133,15 +134,27 @@ public:
       setDimColor(n, ui.style);
       //setDimColor(n, BMCBuildData::getRgbPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        test(getGlobalRgbPixelIndex(i));
+        //test(getGlobalRgbPixelIndex(i));
+        test(BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, i);
       #endif
     }
 #endif
+
+#if BMC_MAX_PIXEL_STRIP > 0
+    for(uint8_t i=0,n=getPixelStripIndex(0); i < 1; i++, n++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL_STRIP, i);
+      setDimColor(n, ui.style);
+      #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
+        test(BMC_DEVICE_ID_PIXEL_STRIP, i);
+      #endif
+    }
+#endif
+
     BMC_PRINTLN("");
   }
 
   void clockBeat(uint16_t speed){
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
     updateRainbowColor(60000/speed);
     updateRainbowFadeColor(15000/speed);
 #else
@@ -173,6 +186,11 @@ public:
       off(getGlobalRgbPixelIndex(i));
     }
 #endif
+
+#if BMC_MAX_PIXEL_STRIP > 0
+    off(getPixelStripIndex(0));
+#endif
+
     reset();
   }
   uint16_t getPixelIndex(uint16_t n){
@@ -187,17 +205,72 @@ public:
   uint16_t getGlobalRgbPixelIndex(uint16_t n){
     return (BMC_MAX_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_RGB_PIXELS) + n;
   }
-  void test(uint16_t n){
+  uint16_t getPixelStripIndex(uint16_t n){
+    return (BMC_MAX_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS) + n;
+  }
+  
+  void test(uint8_t deviceType, uint16_t n){
+    if(deviceType == BMC_DEVICE_ID_PIXEL){
+      #if BMC_MAX_PIXELS > 0
+        _test(getPixelIndex(n));
+      #endif
+    } else if(deviceType == BMC_DEVICE_ID_GLOBAL_PIXEL){
+      #if BMC_MAX_GLOBAL_PIXELS > 0
+        _test(getGlobalPixelIndex(n));
+      #endif
+    } else if(deviceType == BMC_DEVICE_ID_RGB_PIXEL){
+      #if BMC_MAX_RGB_PIXELS > 0
+        _test(getRgbPixelIndex(n));
+      #endif
+    } else if(deviceType == BMC_DEVICE_ID_GLOBAL_RGB_PIXEL){
+      #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+        _test(getGlobalRgbPixelIndex(n));
+      #endif
+    } else if(deviceType == BMC_DEVICE_ID_PIXEL_STRIP){
+      #if BMC_MAX_PIXEL_STRIP > 0
+        _test(getPixelStripIndex(0), true);
+      #endif
+    }
+  }
+  void _test(uint16_t n, bool strip=false){
     if(n >= BMC_TOTAL_PIXELS){
       return;
     }
     // turn pixel on and off
-    setPixelValue(n, BMCPixelColors::getRgbColor(random(1,13)));
-    pixels.show();
-    delay(BMC_MAX_LED_TEST_DELAY);
-    setPixelValue(n, 0);
-    pixels.show();
-    delay(BMC_MAX_LED_TEST_DELAY);
+    //setPixelValue(n, BMCPixelColors::getRgbColor(random(1,13)));
+    
+    for(uint16_t i = 0 ; i < 3 ; i++){
+      if(strip){
+        setPixelValue(n, BMCPixelColors::getRgbColor(i+1));
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+        setPixelValue(n, 0);
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+        /*
+        uint8_t c = 1;
+        for(uint16_t e = n; e < BMC_TOTAL_PIXELS ; e++){
+          setPixelValue(e, BMCPixelColors::getRgbColor(c++));
+          c = (c > 6) ? 1 : c;
+        }
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+        for(uint16_t e = n ; e < BMC_TOTAL_PIXELS ; e++){
+          setPixelValue(e, 0);
+        }
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+        */
+      } else {
+        setPixelValue(n, BMCPixelColors::getRgbColor(i+1));
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+        setPixelValue(n, 0);
+        pixels.show();
+        delay(BMC_MAX_LED_TEST_DELAY);
+      }
+    }
+    
 
     // return pixel to original state
     uint8_t prev = currentColor[n];
@@ -220,7 +293,7 @@ public:
       // if the dimmed color is 0/black use default color
       color = getDefaultColor(n);
 
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
     } else if(color==BMC_COLOR_RAINBOW || color==BMC_COLOR_RAINBOW_FADE){
       // only Pixels (not RGB) use rainbow
       color = rainbowCurrentColor;
@@ -248,10 +321,9 @@ public:
         off(getPixelIndex(i));
       }
     }
-
 #endif
 #if BMC_MAX_GLOBAL_PIXELS > 0
-    for(uint8_t i = 0, n = getGlobalPixelIndex(0); i < BMC_MAX_GLOBAL_PIXELS; i++){
+    for(uint8_t i = 0, n = getGlobalPixelIndex(0); i < BMC_MAX_GLOBAL_PIXELS; i++, n++){
       if(pulseTimer[n].complete()){
         off(getGlobalPixelIndex(i));
       }
@@ -285,6 +357,11 @@ public:
         // reset pulse the color
         globalRgbPulseReset[i] = 0;
       }
+    }
+#endif
+#if BMC_MAX_PIXEL_STRIP > 0
+    if(pulseTimer[getPixelStripIndex(0)].complete()){
+      off(getPixelStripIndex(0));
     }
 #endif
 
@@ -454,9 +531,6 @@ public:
     write(t_index, t_color);
     pulseTimer[t_index].start(BMC_LED_PULSE_TIMEOUT);
   }
-
-
-
   // @t_input   = the value we're comparing to
   // @t_default = the value that will turn the led on either way
   // @compare   = the flags with the operator and operation value
@@ -480,6 +554,17 @@ public:
     return false;
   }
 #endif
+
+#if BMC_MAX_PIXEL_STRIP > 0
+  void setStateStrip(uint8_t t_color=255){
+    write(getPixelStripIndex(0), t_color);
+  }
+  void pulseStrip(uint8_t t_color=255){
+    write(getPixelStripIndex(0), t_color);
+    pulseTimer[getPixelStripIndex(0)].start(BMC_LED_PULSE_TIMEOUT);
+  }
+#endif
+
 
   void setState(uint16_t n, uint8_t t_color=255){
     write(n, t_color);
@@ -546,11 +631,17 @@ private:
     if(n>=BMC_TOTAL_PIXELS){
       return;
     }
+    if(n>=getPixelStripIndex(0)){
+      for(uint16_t i = n ; i < BMC_TOTAL_PIXELS ; i++){
+        pixels.setPixel(i, color);
+      }
+    } else {
 #if defined(BMC_PIXELS_REARRANGE)
     pixels.setPixel(pixelsSort[n], color);
 #else
     pixels.setPixel(n, color);
 #endif
+    }
   }
 
   // flags
@@ -642,6 +733,13 @@ private:
     if(n >= BMC_TOTAL_PIXELS){
       return;
     }
+#if BMC_MAX_PIXEL_STRIP > 0
+    if(n >= getPixelStripIndex(0)){
+      globals.pixelStripStates.setBit(0, t_state);
+      return;
+    }
+#endif
+
 #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
     if(n >= getGlobalRgbPixelIndex(0)){
       uint8_t color = currentColor[n]&0x0F;
@@ -697,13 +795,13 @@ private:
       t_color = getDefaultColor(t_index);
 
     } else if(t_color==BMC_COLOR_RAINBOW){
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
        // if the target color BMC_COLOR_RAINBOW then we will go thru all colors
        t_color = rainbowCurrentColor;
        setDimColor(t_index, t_color);
 #endif
     } else if(t_color==BMC_COLOR_RAINBOW_FADE){
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
       t_color = rainbowFadeCurrentColor;
       setDimColor(t_index, rainbowCurrentColor);
 #endif
@@ -720,19 +818,12 @@ private:
         // thats the bit that tells you if the led is on(1) or off(0)
         // we don't change the actual color just the on/off state
 
-        /*
-#if BMC_MAX_PIXELS > 0 && BMC_MAX_RGB_PIXELS > 0
-        if(t_index>=BMC_MAX_PIXELS){
-          currentColor[t_index] = 0;
-        } else {
-          bitWrite(currentColor[t_index], 7, 0);
-        }
-#elif BMC_MAX_PIXELS > 0
-        bitWrite(currentColor[t_index], 7, 0);
-#else
-        currentColor[t_index] = 0;
-#endif
-        */
+        #if BMC_MAX_PIXEL_STRIP > 0
+          if(t_index >= getPixelStripIndex(0)){
+            //currentColor[t_index] = 0;
+            bitWrite(currentColor[t_index], 7, 0);
+          }
+        #endif
 
         #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
           if(t_index >= getGlobalRgbPixelIndex(0)){
@@ -844,6 +935,17 @@ private:
       currentColor[n] = 0;
     }
     memset(globalRgbPulseReset, 0, BMC_MAX_RGB_PIXELS);
+#endif
+
+#if BMC_MAX_PIXEL_STRIP > 0
+    globals.pixelStripStates.zeroOut();
+    // the default color to each LED
+    for(uint8_t i = 0, n = getPixelStripIndex(0); i < 1; i++, n++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL_STRIP, i);
+      currentColor[n] = ui.style;
+      pulseTimer[n].stop();
+      currentBrightness[n] = 0;
+    }
 #endif
 
     if(showPixels){

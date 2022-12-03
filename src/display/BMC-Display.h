@@ -697,15 +697,6 @@ private:
         }
     #endif
         break;
-      case BMC_DISPLAY_EVENT_TYPE_STRING_LIBRARY:
-    #if BMC_MAX_STRING_LIBRARY > 0 && BMC_NAME_LEN_STRING_LIBRARY > 1
-        if(value < BMC_MAX_STRING_LIBRARY){
-          renderText(index, isOled, type, globals.store.global.stringLibrary[value].name);
-          blank = false;
-        }
-
-    #endif
-        break;
       case BMC_DISPLAY_EVENT_TYPE_PAGE:
     #if BMC_MAX_PAGES > 1
         {

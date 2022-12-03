@@ -264,7 +264,6 @@ void BMC::readDebug(){
     BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
     BMC_PRINTLN("BMC_MAX_POTS", BMC_MAX_POTS);
     BMC_PRINTLN("BMC_MAX_LEDS", BMC_MAX_LEDS);
-    BMC_PRINTLN("BMC_MAX_PWM_LEDS", BMC_MAX_PWM_LEDS);
     BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
     BMC_PRINTLN("BMC_MAX_POTS", BMC_MAX_POTS);
     BMC_PRINTLN("BMC_MAX_PIXELS", BMC_MAX_PIXELS);
@@ -305,14 +304,6 @@ void BMC::readDebug(){
     BMC_PRINTLN("Leds:");
     for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
       //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getLedPin(i));
-    }
-    BMC_PRINTLN("");
-    #endif
-
-    #if BMC_MAX_PWM_LEDS > 0
-    BMC_PRINTLN("Pwm Leds:");
-    for(uint8_t i = 0; i < BMC_MAX_PWM_LEDS; i++){
-      //BMC_PRINTLN("#",i+1,"connected to pin:",BMCBuildData::getPwmLedPin(i));
     }
     BMC_PRINTLN("");
     #endif
@@ -392,7 +383,7 @@ void BMC::readDebug(){
     #if BMC_MAX_PRESETS > 0
       BMC_PRINTLN("store.global.presets",sizeof(store.global.presets),"bytes");
       BMC_PRINTLN("store.global.presets[0]",sizeof(store.global.presets[0]),"bytes");
-      BMC_PRINTLN("store.global.startup",sizeof(store.global.startup),"bytes");
+      //BMC_PRINTLN("store.global.startup",sizeof(store.global.startup),"bytes");
     #endif
 
     #if BMC_MAX_SKETCH_BYTES > 0
@@ -463,10 +454,6 @@ void BMC::readDebug(){
         BMC_PRINTLN("store.pages[0].leds",sizeof(store.pages[0].leds),"bytes");
         BMC_PRINTLN("store.pages[0].leds[0]",sizeof(store.pages[0].leds[0]),"bytes");
       #endif
-      #if BMC_MAX_PWM_LEDS > 0
-        BMC_PRINTLN("store.pages[0].pwmLeds",sizeof(store.pages[0].pwmLeds),"bytes");
-        BMC_PRINTLN("store.pages[0].pwmLeds[0]",sizeof(store.pages[0].pwmLeds[0]),"bytes");
-      #endif
     #endif
     printDebugHeader(debugInput);
 
@@ -512,11 +499,7 @@ void BMC::readDebug(){
     #if BMC_MAX_LEDS > 0
       BMC_PRINTLN("sizeof BMCLed",sizeof(BMCLed),"bytes,",sizeof(leds),"bytes total");
     #endif
-
-    #if BMC_MAX_PWM_LEDS > 0
-      BMC_PRINTLN("sizeof BMCLed (pwm)",sizeof(BMCPwmLed),"bytes,",sizeof(pwmLeds),"bytes total");
-    #endif
-
+    
     #if BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0
       BMC_PRINTLN("sizeof BMCPixels",sizeof(BMCPixels),"bytes");
     #endif

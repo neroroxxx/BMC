@@ -24,12 +24,14 @@ public:
   BMCSetLists(BMCPresets& t_presets):
             globals(t_presets.globals),
             global(t_presets.global),
-            presets(t_presets),
+            presets(t_presets)
+            /*
             setList(globals.setList),
             song(globals.song),
             songPart(globals.songPart),
             songInLibrary(globals.songInLibrary),
             songFlags(globals.setListFlags)
+            */
 
   {
   }
@@ -274,11 +276,11 @@ private:
   bmcStoreGlobal& global;
   BMCPresets& presets;
   BMCFlags <uint8_t> flags;
-  uint8_t & setList;
-  uint16_t & song;
-  uint8_t & songPart;
-  uint16_t & songInLibrary;
-  uint8_t & songFlags;
+  uint8_t setList = 0;
+  uint16_t song = 0;
+  uint8_t songPart = 0;
+  uint16_t songInLibrary;
+  uint8_t songFlags = 0;
 };
 
 #endif

@@ -19,16 +19,16 @@ BMC::BMC():
   #ifdef BMC_USE_SYNC
     ,sync(midi, midiClock, store.global, callback)
   #endif
-  #if BMC_MAX_CUSTOM_SYSEX > 0
-    ,customSysEx(midi, store.global)
-  #endif
   #if BMC_MAX_PRESETS > 0
     //,presets(globals, store.global)
     ,presets(globals)
-    #if BMC_MAX_SETLISTS > 0
-      //,setLists(globals, store.global, presets)
-      ,setLists(presets)
-    #endif
+  #endif
+  #if BMC_MAX_SETLISTS > 0
+    //,setLists(globals, store.global, presets)
+    ,setLists(presets)
+  #endif
+  #if BMC_MAX_CUSTOM_SYSEX > 0
+    ,customSysEx(midi, store.global)
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
     ,tempoToTap(midi, globals, store.global)
@@ -158,9 +158,9 @@ void BMC::update(){
     // Startup Preset
     #if BMC_MAX_PRESETS > 0
       // send the startup Preset if any
-      if(settings.getMidiStartup()){
+      if(settings.getStartupPreset() > 0){
         delay(1);
-        presets.set(globalData.startup);
+        presets.set(settings.getStartupPreset()-1);
       }
       #if BMC_MAX_SETLISTS > 0
         // set the first setlist and trigger it's first song and part
@@ -300,6 +300,25 @@ void BMC::update(){
 
   // update globals clearing some flags that may need to be used only once
   globals.update();
+
+  #if BMC_MAX_LFO > 0
+    for(uint8_t i=0;i<BMC_MAX_LFO;i++){
+      uint8_t lfoValue = lfo[i].getWave(micros());
+      if(lfo[i].isEnabled()){
+        if(lfo[i].send()){
+          if(lastLfo[i] != lfoValue){
+            lastLfo[i] = lfoValue;
+            uint8_t channel = store.global.lfo[i].events[0]+0;
+            uint8_t cc = store.global.lfo[i].events[1]+0;
+            uint8_t ports = store.global.lfo[i].events[2]+0;
+            midi.sendControlChange(ports, BMC_TO_MIDI_CHANNEL(channel), cc, lfoValue);
+            //BMC_PRINTLN(lfoValue);
+          }
+          
+        }
+      }
+    }
+  #endif
 
   if(oneMillisecondPassed()){
     oneMilliSecondtimer = 0;

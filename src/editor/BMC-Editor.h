@@ -20,24 +20,24 @@
 #include <TimeLib.h>
 #endif
 
-#define BMC_EDITOR_FLAG_CONNECTED 0
-#define BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED 1
-#define BMC_EDITOR_FLAG_READY_TO_RELOAD 2
-#define BMC_EDITOR_FLAG_DATA_FOR_BMC_AVAILABLE 3
-#define BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR 4
-#define BMC_EDITOR_FLAG_EDITOR_FEEDBACK 5
-#define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED 6
-#define BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED 7
-#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED 8
-#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 9
-#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 10
-#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 11
-
-#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 12
-#define BMC_EDITOR_FLAG_BACKUP_STARTED 13
-#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 14
-#define BMC_EDITOR_FLAG_BACKUP_CANCELED 15
-#define BMC_EDITOR_FLAG_SEND_STATES 16
+#define BMC_EDITOR_FLAG_CONNECTED                      0
+#define BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED      	 1
+#define BMC_EDITOR_FLAG_READY_TO_RELOAD             	 2
+#define BMC_EDITOR_FLAG_DATA_FOR_BMC_AVAILABLE      	 3
+#define BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR        	 4
+#define BMC_EDITOR_FLAG_EDITOR_FEEDBACK             	 5
+#define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED         	 6
+#define BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED          	 7
+#define BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED 	 8
+#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED     	 9
+#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 	 10
+#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED       	 11
+#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP        	 12
+#define BMC_EDITOR_FLAG_BACKUP_ACTIVE               	 13
+#define BMC_EDITOR_FLAG_BACKUP_STARTED              	 14
+#define BMC_EDITOR_FLAG_BACKUP_COMPLETE             	 15
+#define BMC_EDITOR_FLAG_BACKUP_CANCELED             	 16
+#define BMC_EDITOR_FLAG_SEND_STATES                 	 17
 
 
 class BMCEditor {
@@ -154,10 +154,16 @@ public:
   void getPageData(uint8_t index, bmcStorePage& p){
     p = store.pages[index];
   }
-
   void saveSketchBytesToEEPROM(){
     #if BMC_MAX_SKETCH_BYTES > 0
       saveSketchBytes();
+    #endif
+  }
+  bool lfoUpdated(){
+    #if BMC_MAX_LFO > 0
+      return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED);
+    #else
+      return false;
     #endif
   }
   bool tempoToTapUpdated(){
@@ -306,6 +312,9 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.on(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      #if BMC_MAX_LFO > 0
+        flags.on(BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED);
+      #endif
       #if BMC_MAX_TEMPO_TO_TAP > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
       #endif
@@ -364,29 +373,68 @@ private:
       case BMC_DEVICE_ID_L_RELAY:               return BMC_MAX_L_RELAYS;
       case BMC_DEVICE_ID_OLED:                  return BMC_MAX_OLED;
       case BMC_DEVICE_ID_ILI:                   return BMC_MAX_ILI9341_BLOCKS;
-
-      case BMC_DEVICE_ID_STRING_LIBRARY:        return BMC_MAX_STRING_LIBRARY;
       case BMC_DEVICE_ID_PRESET:                return BMC_MAX_PRESETS;
       case BMC_DEVICE_ID_CUSTOM_SYSEX:          return BMC_MAX_CUSTOM_SYSEX;
       case BMC_DEVICE_ID_TRIGGER:               return BMC_MAX_TRIGGERS;
       case BMC_DEVICE_ID_TIMED_EVENT:           return BMC_MAX_TIMED_EVENTS;
       case BMC_DEVICE_ID_TEMPO_TO_TAP:          return BMC_MAX_TEMPO_TO_TAP;
       case BMC_DEVICE_ID_SKETCH_BYTE:           return BMC_MAX_SKETCH_BYTES;
-
       case BMC_DEVICE_ID_SETLIST:               return BMC_MAX_SETLISTS;
       case BMC_DEVICE_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;
       case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return BMC_MAX_SETLISTS_SONGS_LIBRARY;
-
       case BMC_DEVICE_ID_PORT_PRESET:           return 16;
       case BMC_DEVICE_ID_PIXEL_PROGRAM:         return BMC_MAX_PIXEL_PROGRAMS;
-
       case BMC_DEVICE_ID_BI_LED:                return BMC_MAX_BI_LEDS;
       case BMC_DEVICE_ID_TRI_LED:               return BMC_MAX_TRI_LEDS;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:         return BMC_MAX_GLOBAL_BI_LEDS;
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:        return BMC_MAX_GLOBAL_TRI_LEDS;
       case BMC_DEVICE_ID_AUX_JACK:              return BMC_MAX_AUX_JACKS;
+      case BMC_DEVICE_ID_LFO:                   return BMC_MAX_LFO;
+      case BMC_DEVICE_ID_SHORTCUTS:             return 1;
+      case BMC_DEVICE_ID_PIXEL_STRIP:           return (BMC_MAX_PIXEL_STRIP>0)?1:0;
     }
     return 0;
+  }
+  String getDeviceName(uint8_t t_type){
+    switch(t_type){
+      case BMC_DEVICE_ID_PAGE:                  return "Page Name";
+      case BMC_DEVICE_ID_BUTTON:                return "Button";
+      case BMC_DEVICE_ID_LED:                   return "Led";
+      case BMC_DEVICE_ID_PIXEL:                 return "Pixel";
+      case BMC_DEVICE_ID_RGB_PIXEL:             return "RGB Pixle";
+      case BMC_DEVICE_ID_POT:                   return "Pot";
+      case BMC_DEVICE_ID_ENCODER:               return "Encoder";
+      case BMC_DEVICE_ID_GLOBAL_BUTTON:         return "Global Button";
+      case BMC_DEVICE_ID_GLOBAL_ENCODER:        return "Global Encoder";
+      case BMC_DEVICE_ID_GLOBAL_POT:            return "Global Pot";
+      case BMC_DEVICE_ID_GLOBAL_LED:            return "Global Led";
+      case BMC_DEVICE_ID_GLOBAL_PIXEL:          return "Global Pixel";
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:      return "Global RGB Pixel";
+      case BMC_DEVICE_ID_NL_RELAY:              return "NL Relay";
+      case BMC_DEVICE_ID_L_RELAY:               return "L Relay";
+      case BMC_DEVICE_ID_OLED:                  return "OLED";
+      case BMC_DEVICE_ID_ILI:                   return "ILI9341 Block";
+      case BMC_DEVICE_ID_PRESET:                return "Preset";
+      case BMC_DEVICE_ID_CUSTOM_SYSEX:          return "Custom SysEx";
+      case BMC_DEVICE_ID_TRIGGER:               return "Trigger";
+      case BMC_DEVICE_ID_TIMED_EVENT:           return "Timed Event";
+      case BMC_DEVICE_ID_TEMPO_TO_TAP:          return "Tempo To Tap";
+      case BMC_DEVICE_ID_SKETCH_BYTE:           return "Sketch Byte";
+      case BMC_DEVICE_ID_SETLIST:               return "SetList";
+      case BMC_DEVICE_ID_SETLIST_SONG:          return "Song";
+      case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return "Song Library";
+      case BMC_DEVICE_ID_PORT_PRESET:           return "Port Preset";
+      case BMC_DEVICE_ID_PIXEL_PROGRAM:         return "Pixel Program";
+      case BMC_DEVICE_ID_BI_LED:                return "Bi Led";
+      case BMC_DEVICE_ID_TRI_LED:               return "Tri Led";
+      case BMC_DEVICE_ID_GLOBAL_BI_LED:         return "Global Bi Led";
+      case BMC_DEVICE_ID_GLOBAL_TRI_LED:        return "Global Tri Led";
+      case BMC_DEVICE_ID_AUX_JACK:              return "Aux Jack";
+      case BMC_DEVICE_ID_LFO:                   return "LFO";
+      case BMC_DEVICE_ID_SHORTCUTS:             return "Shortcuts";
+      case BMC_DEVICE_ID_PIXEL_STRIP:           return "Pixel Strip";
+    }
+    return "";
   }
 
   void reloadData(){
@@ -408,10 +456,14 @@ private:
   uint32_t getNamesOffset();
   uint32_t getNamesOffset(uint16_t index);
 
-  uint32_t getSketchBytesOffset();
+  uint32_t getShortcutsOffset();
+  uint32_t getShortcutsOffset(uint8_t index);
 
-  uint32_t getStringLibraryOffset();
-  uint32_t getStringLibraryOffset(uint8_t index);
+  uint32_t getLfoOffset();
+  uint32_t getLfoOffset(uint8_t index);
+
+  uint32_t getSketchBytesOffset();
+  uint32_t getSketchBytesOffset(uint8_t index);
 
   uint32_t getPresetOffset();
   uint32_t getPresetOffset(uint16_t index);
@@ -539,7 +591,35 @@ public:
       storage.set(address, store.global.names[index]);
     #endif
   }
-
+  void saveDevicePorts(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getPortPresetsOffset(index);
+      storage.set(address, store.global.portPresets[index]);
+    #endif
+  }
+  void saveShortCuts(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getShortcutsOffset(index);
+      storage.set(address, store.global.shortcuts[index]);
+    #endif
+  }
+#if BMC_MAX_LFO > 0
+  void saveLFO(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getLfoOffset(index);
+      storage.set(address, store.global.lfo[index]);
+    #endif
+  }
+#endif
 #if BMC_MAX_SKETCH_BYTES > 0
   // save Sketch Bytes to EEPROM
   void saveSketchBytes(){
@@ -547,36 +627,25 @@ public:
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getSettingsOffset();
+      address += getSketchBytesOffset(0);
       storage.set(address, store.global.sketchBytes);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_STRING_LIBRARY > 0
-  // save a single "string library" item to EEPROM
-  void saveStringLibrary(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getStringLibraryOffset(index);
-      storage.set(address, store.global.stringLibrary[index]);
     #endif
   }
 #endif
 
 #if BMC_MAX_PRESETS > 0
   // save the "startup" preset item to EEPROM
+  /*
   void saveStartup(){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getStringLibraryOffset();
+      address += getSketchBytesOffset();
       storage.set(address, store.global.startup);
     #endif
   }
+  */
   // save a single "preset" to EEPROM
   void savePreset(uint16_t index){
     if(index>=BMC_MAX_PRESETS){
@@ -864,15 +933,7 @@ public:
     #endif
   }
 #endif
-  void saveDevicePorts(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getPortPresetsOffset(index);
-      storage.set(address, store.global.portPresets[index]);
-    #endif
-  }
+  
 #if BMC_MAX_PIXEL_PROGRAMS > 0
   void savePixelProgram(uint8_t n){
     if(n >= BMC_MAX_PIXEL_PROGRAMS){
@@ -994,9 +1055,13 @@ private:
       for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
         BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
         //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
-        store.global.sketchBytes[i] = data.getInitialValue();
+        store.global.sketchBytes[0].events[i] = data.getInitialValue();
       }
 #endif
+      store.global.shortcuts[0].events[0] = BMC_DEVICE_ID_EVENT;
+      store.global.shortcuts[0].events[1] = BMC_DEVICE_ID_NAME;
+      store.global.shortcuts[0].events[2] = BMC_DEVICE_ID_LFO;
+      store.global.shortcuts[0].events[3] = BMC_DEVICE_ID_PORT_PRESET;
       // update the device id on this new store to match the one we already have
       settings.setDeviceId(deviceId);
       saveStore();
@@ -1122,38 +1187,16 @@ private:
   void globalSettingsMessage(bool write);
   void globalBackupMessage(bool write);
   void globalSendBackupStatus();
-  void globalStringLibrary(bool write);
-  void globalLibrary(bool write);
-  void globalPreset(bool write);
   void globalStartup(bool write);
   void globalStoreAddress(bool write);
-  void globalLeds(bool write);
-  void globalPixelProgram(bool write);
-
-  void globalButton(bool write);
-  void globalEncoder(bool write);
-  void globalPot(bool write);
-  void globalGlobalPotCalibration();
-
   void globalPotCalibration();
-  void globalCustomSysEx(bool write);
-  void globalTriggers(bool write);
-  void globalTimedEvents(bool write);
-  void globalTempoToTap(bool write);
-  void globalSketchBytes(bool write);
   void globalSketchBytesData();
-  void globalNLRelay(bool write);
-  void globalLRelay(bool write);
   void globalSetTime(bool write);
-  void globalPortPresets(bool write);
   void globalGetFasState();
   void globalEditorFeedback(bool write);
   void globalEditorMetrics();
   void globalEditorMessenger(bool write);
   void globalEditorPerformMode(bool write);
-  void globalSetList(bool write);
-  void globalSetListSong(bool write);
-  void globalSetListSongPartShiftPosition(bool write);
 
   void incomingMessageEvent(bool write);
   void incomingMessageName(bool write);
@@ -1171,18 +1214,6 @@ private:
   void pageProcessMessage();
   void pageMessage(bool write);
   void pageNameMessage(bool write);
-  void pageButtonMessage(bool write);
-  void pageLedMessage(bool write);
-  void pagePwmLedMessage(bool write);
-  void pagePixelMessage(bool write);
-  void pageRgbPixelMessage(bool write);
-  void pagePotMessage(bool write);
-  void pageEncoderMessage(bool write);
-  void pageOledDisplay(bool write);
-  void pageIliDisplay(bool write);
-  void pageHardwareCopySwapMessage(bool write);
-  void pageButtonEventShiftPositionMessage(bool write);
-  void globalButtonEventShiftPositionMessage(bool write);
 
 public:
   void pageSendChangeMessage(bool onlyIfConnected=true);
@@ -1216,7 +1247,7 @@ public:
   void utilitySendEncoderActivity(uint8_t deviceType, uint8_t index, bool increased,
                                   bool onlyIfConnected=true);
 
-  void utilitySendPreset(uint16_t presetNumber,
+  void utilitySendPreset(uint8_t t_bank, uint8_t t_preset,
                         bool onlyIfConnected=true);
 
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,
@@ -1234,12 +1265,12 @@ private:
   void backupGlobalSettings(uint16_t t_minLength);
   void backupEventMessage(uint16_t t_minLength);
   void backupNameMessage(uint16_t t_minLength);
-  void backupGlobalStringLibrary(uint16_t t_minLength);
+  void backupGlobalStartup(uint16_t t_minLength);
+
   void backupGlobalLibrary(uint16_t t_minLength);
   void backupGlobalPreset(uint16_t t_minLength);
   void backupGlobalSetList(uint16_t t_minLength);
   void backupGlobalSetListSong(uint16_t t_minLength);
-  void backupGlobalStartup(uint16_t t_minLength);
   void backupGlobalLed(uint16_t t_minLength);
   void backupGlobalCustomSysEx(uint16_t t_minLength);
   void backupGlobalTriggers(uint16_t t_minLength);

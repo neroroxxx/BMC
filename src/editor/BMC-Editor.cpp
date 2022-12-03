@@ -172,42 +172,57 @@ uint32_t BMCEditor::getPortPresetsOffset(uint16_t index){
   return value + (sizeof(bmcStoreDevice <0, 1, uint8_t>)*index);
 }
 
+uint32_t BMCEditor::getShortcutsOffset(){
+  uint32_t value = getPortPresetsOffset();
+  return (value + sizeof(store.global.shortcuts));
+}
+uint32_t BMCEditor::getShortcutsOffset(uint8_t index){
+  uint32_t value = getPortPresetsOffset();
+  return (value + (sizeof(bmcStoreDevice <0, 6, uint8_t>)*index));
+}
+
+uint32_t BMCEditor::getLfoOffset(){
+  uint32_t value = getShortcutsOffset();
+  #if BMC_MAX_LFO > 0
+    value += sizeof(store.global.lfo);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getLfoOffset(uint8_t index){
+  uint32_t value = getShortcutsOffset();
+  #if BMC_MAX_LFO > 0
+    value += (sizeof(bmcStoreDevice <3, 5, uint8_t>)*index);
+  #endif
+  return value;
+}
 
 uint32_t BMCEditor::getSketchBytesOffset(){
-  uint32_t value = getPortPresetsOffset();
+  uint32_t value = getLfoOffset();
   #if BMC_MAX_SKETCH_BYTES > 0
     value += sizeof(store.global.sketchBytes);
   #endif
   return value;
 }
-
-uint32_t BMCEditor::getStringLibraryOffset(){
-  uint32_t value = getSketchBytesOffset();
-#if BMC_MAX_STRING_LIBRARY > 0
-  value += sizeof(store.global.stringLibrary);
-#endif
-  return value;
-}
-uint32_t BMCEditor::getStringLibraryOffset(uint8_t index){
-  uint32_t value = getSketchBytesOffset();
-#if BMC_MAX_STRING_LIBRARY > 0
-  value += (sizeof(bmcStoreGlobalStringLibrary)*index);
-#endif
+uint32_t BMCEditor::getSketchBytesOffset(uint8_t index){
+  uint32_t value = getLfoOffset();
+  #if BMC_MAX_SKETCH_BYTES > 0
+    value += (sizeof(bmcStoreDevice <0, BMC_MAX_SKETCH_BYTES, uint8_t>)*index);
+  #endif
   return value;
 }
 
 uint32_t BMCEditor::getPresetOffset(){
-  uint32_t value = getStringLibraryOffset();
+  uint32_t value = getSketchBytesOffset();
 #if BMC_MAX_PRESETS > 0
-  value += sizeof(uint16_t);
+  //value += sizeof(uint16_t);
   value += sizeof(store.global.presets);
 #endif
   return value;
 }
 uint32_t BMCEditor::getPresetOffset(uint16_t index){
-  uint32_t value = getStringLibraryOffset();
+  uint32_t value = getSketchBytesOffset();
 #if BMC_MAX_PRESETS > 0
-  value += sizeof(uint16_t);
+  //value += sizeof(uint16_t);
   value += (sizeof(bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>)*index);
 #endif
   return value;

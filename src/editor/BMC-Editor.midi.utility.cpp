@@ -158,7 +158,6 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
           }
         #endif
         break;
-
       case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
           buff.appendToSysEx7Bits(midi.globals.rgbPixelStates[0].getLength());
@@ -176,6 +175,14 @@ void BMCEditor::utilitySendStateBits(uint8_t itemId, bool onlyIfConnected){
             buff.appendToSysEx16Bits(midi.globals.globalRgbPixelStates[0].get(i));
             buff.appendToSysEx16Bits(midi.globals.globalRgbPixelStates[1].get(i));
             buff.appendToSysEx16Bits(midi.globals.globalRgbPixelStates[2].get(i));
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_PIXEL_STRIP:
+        #if BMC_MAX_PIXEL_STRIP > 0
+          buff.appendToSysEx7Bits(midi.globals.pixelStripStates.getLength());
+          for(uint8_t i = 0, n = midi.globals.pixelStripStates.getLength(); i < n ; i++){
+            buff.appendToSysEx16Bits(midi.globals.pixelStripStates.get(i));
           }
         #endif
         break;
@@ -269,16 +276,13 @@ void BMCEditor::utilitySendEncoderActivity(uint8_t deviceType, uint8_t index,
 #endif
 }
 
-void BMCEditor::utilitySendPreset(uint16_t presetNumber,
+void BMCEditor::utilitySendPreset(uint8_t t_bank, uint8_t t_preset,
                                   bool onlyIfConnected){
 #if BMC_MAX_PRESETS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
     return;
   }
   if(onlyIfConnected && !midi.globals.editorConnected()){
-    return;
-  }
-  if(presetNumber >= BMC_MAX_PRESETS){
     return;
   }
   // if editor feedback is disabled...
@@ -294,14 +298,8 @@ void BMCEditor::utilitySendPreset(uint16_t presetNumber,
     BMC_GLOBALF_UTILITY, flag,
     BMC_UTILF_PRESET
   );
-  buff.appendToSysEx8Bits(presetNumber);
-/*
-  #if BMC_NAME_LEN_PRESETS > 1
-    bmcStoreGlobalPresets& item = store.global.presets[presetNumber];
-    buff.appendToSysEx7Bits(BMC_NAME_LEN_PRESETS);
-    buff.appendCharArrayToSysEx(item.name, BMC_NAME_LEN_PRESETS);
-  #endif
-*/
+  buff.appendToSysEx8Bits(t_bank);
+  buff.appendToSysEx8Bits(t_preset);
   sendToEditor(buff,true,false); // don't show midi activity
 #endif
 }

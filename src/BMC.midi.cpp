@@ -72,10 +72,6 @@ void BMC::incomingMidi(BMCMidiMessage message){
   readTrigger();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
-  checkRelaysMidiInput(message);
-#endif
-
 #ifdef BMC_USE_DAW_LC
   sync.daw.incoming(message);
 #endif
@@ -163,9 +159,12 @@ void BMC::midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t m
   }
   BMC_PRINTLN("programBank", programBank);
 }
-void BMC::midiProgramBankTrigger(uint8_t amount, uint8_t channel, uint8_t ports){
-  uint8_t nextProgram = programBank+amount;
-  if(nextProgram>127 || channel==0 || channel>16 || ports==BMC_NONE){
+void BMC::midiProgramBankTrigger(uint8_t channel, uint8_t ports){
+  uint8_t nextProgram = programBank;
+  if(nextProgram>127){
+    nextProgram = 0;
+  }
+  if(channel==0 || channel>16 || ports==BMC_NONE){
     return;
   }
   midi.sendProgramChange(ports, channel, nextProgram);

@@ -13,6 +13,10 @@ See LICENSE file in the project root for full license information.
   #define BMC_MAX_PAGES 1
 #endif
 
+#ifndef BMC_MAX_PIXEL_STRIP
+  #define BMC_MAX_PIXEL_STRIP 0
+#endif
+
 #ifndef BMC_MAX_MUX_IN
   #define BMC_MAX_MUX_IN 0
 #endif

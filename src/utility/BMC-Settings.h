@@ -22,7 +22,7 @@
     uint32_t flags = 0;
       bit 0
       bit 1 getMasterClock
-      bit 2 getMidiStartup
+      bit 2 available
       bit 3 getIncomingListenerEnabled
       bit 4 Beatbuddy Sync Enabled
       bit 5 getActiveSenseAtStartup - Active Sensing Master Enabled
@@ -67,6 +67,8 @@
       [6]: *Reserved for future updates*
       [7]: *Reserved for future updates*
 
+    uint16_t startup; startup preset data
+
     uint16_t routing[7]; routing data for each port
     offsets
     0 BMC_USB
@@ -90,8 +92,20 @@ private:
   }
 public:
   BMCSettings(bmcStoreGlobalSettings &t_settings):settings(t_settings){}
+  // Send the startup MIDI preset at startup
+  uint16_t getStartupPreset(){
+    #if BMC_MAX_PRESETS == 0
+      return 0;
+    #else
+      return settings.startup;
+    #endif
+  }
+  void setStartupPreset(uint16_t value=0){
+    if(value < BMC_MAX_PRESETS){
+      settings.startup = value;
+    }
+  }
   // SETTINGS FLAGS
-
   // Sets BMC as a master midi clock
   bool getFirstEditorConnection(){
     return readFlag(0);
@@ -105,13 +119,6 @@ public:
   }
   void setMasterClock(bool value){
     writeFlag(1,value);
-  }
-  // Send the startup MIDI preset at startup
-  bool getMidiStartup(){
-    return readFlag(2);
-  }
-  void setMidiStartup(bool value){
-    writeFlag(2,value);
   }
   // Enable incoming MIDI messages to activate certain events
   bool getIncomingListenerEnabled(){
@@ -225,17 +232,6 @@ public:
     BMC_WRITE_BITS(settings.data[0], modes, 0x0F, 28);
   }
 
-
-
-
-
-
-
-
-
-
-
-
   //data[1] used
 
   // Incoming midi programs
@@ -248,11 +244,6 @@ public:
   void setIncomingProgramType(bool value){
     BMC_WRITE_BITS(settings.data[1],value,0x03,0);
   }
-
-
-
-
-
   // Helix Id
   // @value: 0 to 15
   uint8_t getHelixId(){
@@ -277,12 +268,6 @@ public:
   void setHelixPort(uint8_t value){
     BMC_WRITE_BITS(settings.data[1],value,0x0F,10);
   }
-
-
-
-
-
-
   // BeatBuddy Channel
   // @value: 0 to 15
   uint8_t getBeatBuddyChannel(){

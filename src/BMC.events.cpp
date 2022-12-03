@@ -99,10 +99,44 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
     case BMC_EVENT_TYPE_MIDI_PITCH_BEND:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_POT){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteB);
+        if(byteA==0){
+          int8_t pitch = midi.getLocalPitch(channel);
+          if(value<59){
+            // pitch down
+            uint16_t newPitch = map(value, 0, 58, -8192, -1);
+            midi.sendPitchBend(e.ports, channel, newPitch);
+          } else if(value>68){
+            // pitch up
+            uint16_t newPitch = map(value, 69, 127, 1, 8191);
+            midi.sendPitchBend(e.ports, channel, newPitch);
+          } else if(pitch!=0){
+            // center
+            midi.sendPitchBend(e.ports, channel, 0);
+            midi.setLocalPitch(channel, 0);
+          }
+        } else if(byteA==1){
+          // leave the first 10 values of the pot as a buffer for a flat pitch
+          if(value>9){
+            // move pitch up
+            uint16_t newPitch = map(value, 10, 127, 1, 8191);
+            midi.sendPitchBend(e.ports, channel, newPitch);
+          } else if(midi.getLocalPitch(channel)!=0){
+            midi.sendPitchBend(e.ports, channel, 0);
+            midi.setLocalPitch(channel, 0);
+          }
+        } else {
+          // leave the first 10 values of the pot as a buffer for a flat pitch
+          if(value>9){
+            // move pitch up
+            int16_t newPitch = map(value, 10, 127, -1, -8192);
+            midi.sendPitchBend(e.ports, channel, newPitch);
+          } else if(midi.getLocalPitch(channel)!=0){
+            midi.sendPitchBend(e.ports, channel, 0);
+            midi.setLocalPitch(channel, 0);
+          }
+        } 
       }
       break;
     case BMC_EVENT_TYPE_MIDI_AFTER_TOUCH_POLY:
@@ -140,17 +174,13 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 
       break;
     case BMC_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
+        midiProgramBankScroll(scroll.direction, scroll.endless, scroll.amount, byteB, byteC);
       }
       break;
     case BMC_EVENT_TYPE_PROGRAM_BANKING_TRIGGER:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        midiProgramBankTrigger(BMC_TO_MIDI_CHANNEL(byteA), e.ports);
       }
       break;
     case BMC_EVENT_TYPE_MIDI_REAL_TIME_BLOCK:
@@ -180,24 +210,32 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
     case BMC_EVENT_TYPE_BANK_LSB_PROGRAM:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
+        midi.sendProgramChange(e.ports, channel, byteC & 0x7F);
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_PROGRAM:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        midi.sendControlChange(e.ports, channel, 32, byteB & 0x7F);
+        midi.sendProgramChange(e.ports, channel, byteC & 0x7F);
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_LSB:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
+        midi.sendControlChange(e.ports, channel, 32, byteC & 0x7F);
+      }
+      break;
+    case BMC_EVENT_TYPE_BANK_MSB_LSB_PROGRAM:
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
+        midi.sendControlChange(e.ports, channel, 32, byteC & 0x7F);
+        midi.sendProgramChange(e.ports, channel, byteD & 0x7F);
       }
       break;
     // SYSTEM
@@ -264,10 +302,51 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       break;
 #endif
     case BMC_EVENT_TYPE_SYSTEM_TYPER:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        return false;
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        uint8_t cmd = valueTyper.cmd(byteA, byteB);
+        if(cmd > 10){// cmd 10 is Clear
+          if(cmd==12){// page
+            setPage(valueTyper.getRawOutput());
+          } else if(cmd==13){// preset
+#if BMC_MAX_PRESETS > 0
+            presets.set(valueTyper.getRawOutput());
+#endif
+          } else if(cmd==14){// fas preset
+#if defined(BMC_USE_FAS)
+            sync.fas.setPreset(valueTyper.getRawOutput());
+#endif
+          } else if(cmd==15){// fas scene
+#if defined(BMC_USE_FAS)
+            sync.fas.setSceneNumber(valueTyper.getRawOutput(), false);
+#endif
+          } else if(cmd==16){// fas scene revert
+#if defined(BMC_USE_FAS)
+            sync.fas.setSceneNumber(valueTyper.getRawOutput(), true);
+#endif
+          } else if(cmd==17){// set typer channel for midi modes
+              // channel
+            uint8_t ch = valueTyper.getRawOutput();
+            if(ch>=0 && ch<=15){
+              typerChannel = ch+1;
+            }
+          } else if(cmd==18){
+            // program
+            uint8_t pc = valueTyper.getRawOutput();
+            midi.sendProgramChange(e.ports, typerChannel, pc);
+            streamMidiProgram(typerChannel, pc);
+          } else if(cmd==19){
+            // control 0 value
+            uint8_t val = valueTyper.getRawOutput();
+            midi.sendControlChange(e.ports, typerChannel, 0, val);
+            streamMidiControl(typerChannel, 0, val);
+          } else if(cmd==20){
+            // control toggle
+            uint8_t cc = valueTyper.getRawOutput();
+            uint8_t val = midi.toggleCC(e.ports, typerChannel, cc);
+            midi.sendControlChange(e.ports, typerChannel, cc, val);
+            streamMidiControl(typerChannel, cc, val);
+          }
+        }
       }
       break;
 #ifdef BMC_MIDI_BLE_ENABLED
@@ -290,7 +369,22 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         if(group != BMC_DEVICE_GROUP_DISPLAY){
           return (stopwatch.getState() == 1);
         } else {
-          // display the stopwatch
+#if defined(BMC_HAS_DISPLAY)
+          char str[6] = "";
+          sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
+          display.renderText(deviceIndex, isOled, e.type, str);
+#endif
+        }
+      }
+      break;
+    case BMC_EVENT_TYPE_SYSTEM_LFO:
+      if(group == BMC_DEVICE_GROUP_BUTTON && byteA < BMC_MAX_LFO){
+        if(byteB==0){
+          lfo[byteA].toggle();
+        } else if(byteB==1){
+          lfo[byteA].start();
+        } else if(byteB==2){
+          lfo[byteA].stop();
         }
       }
       break;
@@ -308,7 +402,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           } else {
             tmp = constrain(byteB, data.min, data.max);
           }
-          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, tmp, data.name);
+          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
           setSketchByte(byteA, tmp);
           if(callback.storeUpdated){
             callback.storeUpdated();
@@ -319,7 +413,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           uint8_t tmp = getSketchByte(byteA);
           BMCScroller <uint8_t> scroller(data.min, data.max);
           tmp = scroller.scroll(data.step, scroll.direction, scroll.endless, tmp, data.min, data.max);
-          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, tmp, data.name);
+          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
           setSketchByte(byteA, tmp);
           if(callback.storeUpdated){
             callback.storeUpdated();
@@ -415,19 +509,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         }
       }
       break;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // PRESETS
 #if BMC_MAX_PRESETS > 0
@@ -753,6 +834,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
 #endif
+
+
+
+
 #ifdef BMC_USE_BEATBUDDY
     case BMC_EVENT_TYPE_BEATBUDDY:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){

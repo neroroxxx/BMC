@@ -543,52 +543,6 @@ public:
   }
 #endif
 
-
-// ******************************
-// *****   STRING LIBRARY   *****
-// ******************************
-#if BMC_MAX_STRING_LIBRARY > 0
-  // get a String Library item
-  // must pass a pointer to your string with length >= BMC_NAME_LEN_STRING_LIBRARY
-  void getStringLibrary(uint8_t n, char* t_string){
-    if(n < BMC_MAX_STRING_LIBRARY || strlen(store.global.stringLibrary[n].name)>=BMC_NAME_LEN_STRING_LIBRARY){
-      strcpy(t_string, store.global.stringLibrary[n].name);
-    }
-  }
-  // update the value of a String Library item
-  // must pass a pointer to your string with length <= BMC_NAME_LEN_STRING_LIBRARY
-  // only works when not connected to editor app
-  bool setStringLibrary(uint8_t n, char* t_string, bool t_save=false){
-    if(globals.editorConnected()){
-      return false;
-    }
-    if(n < BMC_MAX_STRING_LIBRARY || strlen(t_string)<=BMC_NAME_LEN_STRING_LIBRARY){
-      strcpy(store.global.stringLibrary[n].name, t_string);
-      if(t_save){
-        editor.saveStringLibrary(n);
-      }
-      return true;
-    }
-    return false;
-  }
-  // update the value of a String Library item
-  // must pass a pointer to your string with length <= BMC_NAME_LEN_STRING_LIBRARY
-  // only works when not connected to editor app
-  bool setStringLibrary(uint8_t n, const char* t_string, bool t_save=false){
-    if(globals.editorConnected()){
-      return false;
-    }
-    if(n < BMC_MAX_STRING_LIBRARY || strlen(t_string)<=BMC_NAME_LEN_STRING_LIBRARY){
-      strcpy(store.global.stringLibrary[n].name, t_string);
-      if(t_save){
-        editor.saveStringLibrary(n);
-      }
-      return true;
-    }
-    return false;
-  }
-#endif
-
 // ******************************
 // *****      PRESETS       *****
 // ******************************
@@ -1372,7 +1326,7 @@ public:
       case 5: strcpy(append,"cm"); break;
       case 6: strcpy(append,"m"); break;
       case 7: strcpy(append,"%"); break;
-      case 8: strcpy(append,"bpm"); break;
+      case 8: strcpy(append,"degrees"); break;
       case 9: strcpy(append,"bpm"); break;
       case 10: strcpy(append,"hours"); break;
       case 11: strcpy(append,"minutes"); break;

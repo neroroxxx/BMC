@@ -43,6 +43,8 @@
 // Includes
 // main definitions for BMC
 #include "utility/BMC-Def.h"
+// the LFO object
+#include "utility/BMC-LFO.h"
 // the MIDI I/O object
 #include "midi/BMC-Midi.h"
 // the MIDI clock master/slave handler
@@ -218,6 +220,10 @@ private:
   bmcStoreGlobal& globalData;
   // it holds a reference to store.global.settings
   BMCFlags <uint8_t> flags;
+  #if BMC_MAX_LFO > 0
+    BMCLFO lfo[BMC_MAX_LFO];
+    uint8_t lastLfo[BMC_MAX_LFO];
+  #endif
   // the global midi object
   BMCMidi midi;
   // value typer object
@@ -241,15 +247,16 @@ private:
   BMCSync sync;
 #endif
 
-#if BMC_MAX_CUSTOM_SYSEX > 0
-    BMCCustomSysEx customSysEx;
-#endif
-
 #if BMC_MAX_PRESETS > 0
   BMCPresets presets;
-  #if BMC_MAX_SETLISTS > 0
-    BMCSetLists setLists;
-  #endif
+#endif
+
+#if BMC_MAX_SETLISTS > 0
+  BMCSetLists setLists;
+#endif
+
+#if BMC_MAX_CUSTOM_SYSEX > 0
+    BMCCustomSysEx customSysEx;
 #endif
 
 #if BMC_MAX_TEMPO_TO_TAP > 0
@@ -316,6 +323,9 @@ private:
   void runPresetChanged(){
 #if BMC_MAX_PRESETS > 0
     triggerPreset(presets.getIndex(), presets.getLength());
+
+
+    
     /*
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
@@ -342,13 +352,12 @@ private:
 #if BMC_MAX_PRESETS > 0
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
-      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
       for(uint8_t i = 0 ; i < len ; i++){
         processEvent(BMC_DEVICE_GROUP_PRESET, BMC_DEVICE_ID_PRESET,
                      t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
       }
     }
-    editor.utilitySendPreset(t_preset);
+    editor.utilitySendPreset(presets.getBank(), presets.get());
 #endif
   }
   void runBankChanged(){
@@ -371,7 +380,7 @@ private:
 #endif
   }
   void runSongChanged(){
-#if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+#if BMC_MAX_SETLISTS > 0
 
 /*
     char songName[30] = "";
@@ -384,22 +393,29 @@ private:
 #endif
   }
   void runSongPartChanged(){
+#if BMC_MAX_SETLISTS > 0
     uint16_t songInLibrary = setLists.getSongInLibrary();
     uint8_t part = setLists.getPart();
     uint8_t len = store.global.songLibrary[songInLibrary].settings[0];
     uint16_t p = store.global.songLibrary[songInLibrary].events[part];
-    if(len > 0){
-      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& preset = store.global.presets[p];
-      triggerPreset(preset.events[part], preset.settings[0]);
+    if(len > 0 && p < BMC_MAX_PRESETS){
+      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[p];
+      triggerPreset(device.events[part], device.settings[0]);
     }
     if(callback.setListSongPartChanged){
       callback.setListSongPartChanged(setLists.getPart());
     }
+#endif
   }
+
   void runBpmChanged(){
 #if BMC_MAX_TEMPO_TO_TAP > 0
     tempoToTap.updateBpm(midiClock.getBpm());
 #endif
+    for(uint8_t i=0;i<BMC_MAX_LFO;i++){
+      lfo[i].setBpm(midiClock.getBpm());
+      lfo[i].sync();
+    }
     if(callback.midiClockBpmChange){
       callback.midiClockBpmChange(midiClock.getBpm());
     }
@@ -437,7 +453,7 @@ private:
   void incomingMidi(BMCMidiMessage midiMessage);
   void handleMidiClock(bool isClock=false, bool isStartOrContinue=false);
   void midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t min, uint8_t max);
-  void midiProgramBankTrigger(uint8_t amount, uint8_t channel, uint8_t ports);
+  void midiProgramBankTrigger(uint8_t channel, uint8_t ports);
 
 
 // ** HARDWARE **
@@ -469,12 +485,6 @@ private:
     void assignPixels();
     void readPixels();
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
-
-
-
-
-
-
 
 
   uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);
@@ -552,30 +562,21 @@ private:
 
 #if BMC_MAX_NL_RELAYS > 0
   BMCRelayNL relaysNL[BMC_MAX_NL_RELAYS];
-  BMCRelayMidiTrigger relaysNLTmp[BMC_MAX_NL_RELAYS];
   void setupRelaysNL();
   void assignRelaysNL();
-  void checkRelaysNLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2);
   void readRelaysNL();
-  void handleRelaysNL(uint8_t index=0);
 #endif
 
 #if BMC_MAX_L_RELAYS > 0
   BMCRelayL relaysL[BMC_MAX_L_RELAYS];
-  BMCRelayMidiTrigger relaysLTmp[BMC_MAX_L_RELAYS];
   void setupRelaysL();
   void assignRelaysL();
-  void checkRelaysLMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2);
   void readRelaysL();
-  void handleRelaysL(uint8_t index=0);
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
-  void handleRelay(uint8_t index, bool latching, uint32_t event);
   void setRelay(uint8_t index, bool latching, uint8_t cmd);
   bool getRelayState(uint8_t index, bool latching);
-  void checkRelaysMidiInput(uint8_t type, uint8_t channel, uint8_t data1, uint8_t data2);
-  void checkRelaysMidiInput(BMCMidiMessage message);
 #endif
 
 #if BMC_TOTAL_POTS_AUX_JACKS > 0

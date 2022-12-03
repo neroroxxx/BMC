@@ -52,6 +52,9 @@
     #if BMC_MAX_RGB_PIXELS > 0
       bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_RGB_PIXELS];
     #endif
+    #if BMC_MAX_PIXEL_STRIP > 0
+      bmcStoreDevice <1, 1> pixelStrip[1];
+    #endif
     #if BMC_MAX_ENCODERS > 0
       bmcStoreDevice <1, 1> encoders[BMC_MAX_ENCODERS];
     #endif
@@ -65,52 +68,17 @@
       bmcStoreDevice <1, 1> ili[BMC_MAX_ILI9341_BLOCKS];
     #endif
   };
-
-
-  // String Library object BMC_MAX_STRING_LIBRARY
-  struct __attribute__ ((packed)) bmcStoreGlobalStringLibrary {
-#if BMC_MAX_STRING_LIBRARY > 0
-    char name[BMC_NAME_LEN_STRING_LIBRARY] = "";
-#endif
-  };
-  // Custom SysEx object
-  struct __attribute__ ((packed)) bmcStoreGlobalCustomSysEx {
-    uint8_t length = 0;
-    uint8_t event[16];
-  };
-  // Triggers, part of the global object
-  struct __attribute__ ((packed)) bmcStoreGlobalTriggers {
-    uint32_t event = 0;
-    uint32_t source = 0;
+ // Settings object
+  struct __attribute__ ((packed)) bmcStoreGlobalSettings {
+    uint32_t flags = 0;
+    uint32_t data[8];
+    uint16_t routing[7];
+    uint16_t startup;
   };
   // Pot Calibration, part of the global object
   struct __attribute__ ((packed)) bmcStoreGlobalPotCalibration {
     uint16_t min = 0;
     uint16_t max = 1023;
-  };
-  // Tempo To Tap object
-  struct __attribute__ ((packed)) bmcStoreGlobalTempoToTap {
-    uint32_t event = 0;
-  };
-  // Port Presets
-  struct __attribute__ ((packed)) bmcStorePortPresets {
-    uint8_t preset[16];
-  };
-  // Pixel Programs
-  struct __attribute__ ((packed)) bmcStorePixelPrograms {
-    uint8_t length = 0;
-    uint8_t events[8];
-  };
-  // Timed Events
-  struct __attribute__ ((packed)) bmcStoreGlobalTimedEvents {
-    uint32_t event = 0;
-    uint32_t timeout = 0;
-  };
-  // Settings object
-  struct __attribute__ ((packed)) bmcStoreGlobalSettings {
-    uint32_t flags = 0;
-    uint32_t data[8];
-    uint16_t routing[7];
   };
   // DO NOT CHANGE THIS ORDER!!!!!!!!!
   // This order is used to read/write from EEPROM to speed up the process
@@ -120,19 +88,20 @@
     bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
     bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
     bmcStoreDevice <0, 1, uint8_t> portPresets[16];
-    #if BMC_MAX_SKETCH_BYTES > 0
-      uint8_t sketchBytes[BMC_MAX_SKETCH_BYTES];
+    bmcStoreDevice <0, 6, uint8_t> shortcuts[1];
+    #if BMC_MAX_LFO > 0
+      bmcStoreDevice <3, 5, uint8_t> lfo[BMC_MAX_LFO];
     #endif
-    #if BMC_MAX_STRING_LIBRARY > 0 && BMC_NAME_LEN_STRING_LIBRARY > 1
-      bmcStoreGlobalStringLibrary stringLibrary[BMC_MAX_STRING_LIBRARY];
+    #if BMC_MAX_SKETCH_BYTES > 0
+      bmcStoreDevice <0, BMC_MAX_SKETCH_BYTES, uint8_t> sketchBytes[1];
     #endif
     #if BMC_MAX_PRESETS > 0
-      uint16_t startup = 0;
+      //uint16_t startup = 0;
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS> presets[BMC_MAX_PRESETS];
-      #if BMC_MAX_SETLISTS > 0
-        bmcStoreDevice <1, BMC_MAX_SETLISTS_SONGS> setLists[BMC_MAX_SETLISTS];
-        bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS> songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
-      #endif
+    #endif
+    #if BMC_MAX_SETLISTS > 0
+      bmcStoreDevice <1, BMC_MAX_SETLISTS_SONGS> setLists[BMC_MAX_SETLISTS];
+      bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS> songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
     #endif
     #if BMC_MAX_GLOBAL_BUTTONS > 0
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
@@ -183,7 +152,6 @@
       bmcStoreDevice <1, 8, uint8_t> pixelPrograms[BMC_MAX_PIXEL_PROGRAMS];
     #endif
     #if BMC_MAX_TIMED_EVENTS > 0
-      //bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
       bmcStoreDevice <2, 1> timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };

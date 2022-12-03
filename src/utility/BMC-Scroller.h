@@ -73,6 +73,16 @@ public:
   T scroll(T t_amount, uint8_t t_flags){
     return scroll(t_amount, bitRead(t_flags,0), bitRead(t_flags,1));
   }
+
+  T up(T t_amount, bool t_endless, T t_value, T t_min, T t_max){
+    setValue(t_value, t_min, t_max);
+    return scroll(t_amount, BMC_SCROLL_UP, t_endless);
+  }
+  T down(T t_amount, bool t_endless, T t_value, T t_min, T t_max){
+    setValue(t_value, t_min, t_max);
+    return scroll(t_amount, BMC_SCROLL_DOWN, t_endless);
+  }
+
   T scroll(T t_amount, bool direction, bool endless){
     if(usePercentage){
       t_amount = getPercentage(max, t_amount);
@@ -83,17 +93,6 @@ public:
       value = (endless) ? downEndless(t_amount) : downLimited(t_amount);
     }
     return value;
-  }
-
-
-
-  T up(T t_amount, bool t_endless, T t_value, T t_min, T t_max){
-    setValue(t_value, t_min, t_max);
-    return scroll(t_amount, BMC_SCROLL_UP, t_endless);
-  }
-  T down(T t_amount, bool t_endless, T t_value, T t_min, T t_max){
-    setValue(t_value, t_min, t_max);
-    return scroll(t_amount, BMC_SCROLL_DOWN, t_endless);
   }
   T scroll(T t_amount, uint8_t t_flags, T t_value, T t_min, T t_max){
     setValue(t_value, t_min, t_max);

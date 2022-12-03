@@ -242,18 +242,6 @@ public:
   BMCSettings& settings;
   uint8_t page = 0;
   uint16_t bpm = 120;
-#if BMC_MAX_PRESETS > 0
-  uint16_t presetIndex = 0;
-  uint8_t bank = 0;
-  uint8_t preset = 0;
-  #if BMC_MAX_SETLISTS > 0
-    uint8_t setList = 0;
-    uint16_t song = 0;
-    uint8_t songPart = 0;
-    uint16_t songInLibrary;
-    uint8_t setListFlags = 0;
-  #endif
-#endif
 
 #if BMC_MAX_BUTTONS > 0
   BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
@@ -307,6 +295,9 @@ public:
   #endif
   #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
     BMCBitStates <BMC_MAX_GLOBAL_RGB_PIXELS> globalRgbPixelStates[3];
+  #endif
+  #if BMC_MAX_PIXEL_STRIP > 0
+    BMCBitStates <1> pixelStripStates;
   #endif
 #endif
 
