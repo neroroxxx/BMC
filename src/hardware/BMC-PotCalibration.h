@@ -28,7 +28,7 @@ public:
     return false;
   }
   bool active(){
-    return (potIndex!=255);
+    return (potIndex!=0xFFFF);
   }
   void cancel(){
     reset();
@@ -57,12 +57,12 @@ public:
   }
 private:
   uint8_t deviceType = 0;
-  uint16_t potIndex = 255;
+  uint16_t potIndex = 0xFFFF;
   uint16_t min = 1023;
   uint16_t max = 0;
   void reset(){
     deviceType = 0;
-    potIndex = 255;
+    potIndex = 0xFFFF;
     min = 1023;
     max = 0;
   }

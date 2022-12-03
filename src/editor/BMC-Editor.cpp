@@ -360,7 +360,7 @@ uint32_t BMCEditor::getPotCalibrationOffset(){
 uint32_t BMCEditor::getPotCalibrationOffset(uint16_t index){
   uint32_t value = getGlobalPotOffset();
   #if BMC_TOTAL_POTS_AUX_JACKS > 0
-    value += (sizeof(bmcStoreGlobalPotCalibration) * index);
+    value += (sizeof(bmcStoreDevice <0, 2, uint16_t>) * index);
   #endif
   return value;
 }

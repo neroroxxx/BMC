@@ -244,8 +244,8 @@ public:
       index += (BMC_MAX_POTS + BMC_MAX_GLOBAL_POTS);
     }
     if(index < BMC_TOTAL_POTS_AUX_JACKS){
-      store.global.potCalibration[index].min = min;
-      store.global.potCalibration[index].max = max;
+      store.global.potCalibration[index].events[0] = min;
+      store.global.potCalibration[index].events[1] = max;
       saveGlobalAndReloadData();
     }
   }

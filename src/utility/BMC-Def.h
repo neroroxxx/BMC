@@ -525,6 +525,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DEVICE_ID_LFO                 	 38
 #define BMC_DEVICE_ID_SHORTCUTS              39
 #define BMC_DEVICE_ID_PIXEL_STRIP            40
+#define BMC_DEVICE_ID_POT_CALIBRATION        41
 
 
 

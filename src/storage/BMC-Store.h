@@ -122,7 +122,8 @@
       bmcStoreDevice <1, 3> pots[BMC_MAX_GLOBAL_POTS];
     #endif
     #if BMC_TOTAL_POTS_AUX_JACKS > 0
-      bmcStoreGlobalPotCalibration potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
+      //bmcStoreGlobalPotCalibration potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
+      bmcStoreDevice <0, 2, uint16_t> potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
     #endif
     #if BMC_MAX_GLOBAL_PIXELS > 0
       bmcStoreDevice <1, 1> pixels[BMC_MAX_GLOBAL_PIXELS];

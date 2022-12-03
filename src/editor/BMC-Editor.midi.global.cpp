@@ -330,6 +330,15 @@ void BMCEditor::incomingMessageDevice(bool write){
           }
         #endif
         break;
+      case BMC_DEVICE_ID_POT_CALIBRATION:
+        #if BMC_TOTAL_POTS_AUX_JACKS > 0
+          incomingMessageDeviceWrite<0,2,uint16_t>(store.global.potCalibration[index], index);
+          if(!backupActive()){
+            saveGlobalPot(index);
+            reloadData();
+          }
+        #endif
+        break;
       case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
           for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
@@ -623,6 +632,12 @@ void BMCEditor::incomingMessageDevice(bool write){
       #if BMC_MAX_GLOBAL_POTS > 0
         deviceResponseData <1, 3>
         (store.global.pots[index], buff, index, deviceType);
+      #endif
+      break;
+    case BMC_DEVICE_ID_POT_CALIBRATION:
+      #if BMC_TOTAL_POTS_AUX_JACKS > 0
+        deviceResponseData <0,2,uint16_t>
+        (store.global.potCalibration[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_PIXEL:
@@ -1254,6 +1269,7 @@ void BMCEditor::globalStartup(bool write){
 }
 */
 void BMCEditor::globalPotCalibration(){//BMC_GLOBALF_POT_CALIBRATION
+/*
   if(!isValidGlobalMessage()){
     return;
   }
@@ -1275,6 +1291,7 @@ void BMCEditor::globalPotCalibration(){//BMC_GLOBALF_POT_CALIBRATION
     buff.appendToSysEx16Bits(store.global.potCalibration[index].max);
   #endif
   sendToEditor(buff);
+  */
 }
 
 void BMCEditor::globalSketchBytesData(){
