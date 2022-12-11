@@ -23,6 +23,9 @@
 #define BMC_GLOBALS_FLAG_HOST_CONNECTED 3
 #define BMC_GLOBALS_FLAG_BLE_CONNECTED 4
 #define BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE 5
+#define BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE 6
+#define BMC_GLOBALS_FLAG_RELOAD_PAGE 7
+#define BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA 8
 
 #define BMC_GLOBALS_DEBUG_FLAG_STORAGE 0
 #define BMC_GLOBALS_DEBUG_FLAG_METRICS 1
@@ -127,6 +130,29 @@ public:
   bool midiLocalUpdate(){
     return flags.read(BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE);
   }
+  void setOnBoardEditorActive(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE, t_state);
+  }
+  bool toggleOnBoardEditor(){
+    return flags.toggle(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
+  }
+  bool onBoardEditorActive(){
+    return flags.read(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
+  }
+  void setReloadPage(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_RELOAD_PAGE, t_state);
+  }
+  bool reloadPage(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_RELOAD_PAGE);
+  }
+  void setAssignStoreData(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA, t_state);
+  }
+  bool assignStoreData(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA);
+  }
+
+  
 
 #ifdef BMC_DEBUG
   bool toggleMetricsDebug(){
@@ -314,7 +340,7 @@ public:
 #endif
 
 private:
-  BMCFlags <uint8_t> flags;
+  BMCFlags <uint16_t> flags;
 #ifdef BMC_DEBUG
   BMCFlags <uint16_t> debugFlags;
 #endif

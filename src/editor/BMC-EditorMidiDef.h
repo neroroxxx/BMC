@@ -41,19 +41,21 @@
 
 #define BMC_GLOBALF_UTILITY 126
     // UTILITY FUNCTIONS
-    #define BMC_UTILF_STATE_BITS               0
-    #define BMC_UTILF_POT                   	 1
-    #define BMC_UTILF_ENCODER               	 2
-    #define BMC_UTILF_PRESET                	 3
-    #define BMC_UTILF_CLICK_TRACK           	 4
-    #define BMC_UTILF_POT_CALIBRATION       	 5
-    #define BMC_UTILF_POT_CALIBRATION_STATUS	 6
-    #define BMC_UTILF_POT_CALIBRATION_CANCEL	 7
-    #define BMC_UTILF_DISCONNECTED          	 8
-    #define BMC_UTILF_LED_TEST              	 9
-    #define BMC_UTILF_SKETCH_BYTES          	 10
-    #define BMC_UTILF_AUX_JACK              	 11
-    #define BMC_UTILF_FAS_STATE             	 12
+    #define BMC_UTILF_STATE_BITS                 0
+    #define BMC_UTILF_POT                      	 1
+    #define BMC_UTILF_ENCODER                  	 2
+    #define BMC_UTILF_PRESET                   	 3
+    #define BMC_UTILF_CLICK_TRACK              	 4
+    #define BMC_UTILF_POT_CALIBRATION          	 5
+    #define BMC_UTILF_POT_CALIBRATION_STATUS   	 6
+    #define BMC_UTILF_POT_CALIBRATION_ACTIVITY 	 7
+    #define BMC_UTILF_POT_CALIBRATION_CANCEL   	 8
+    #define BMC_UTILF_DISCONNECTED             	 9
+    #define BMC_UTILF_LED_TEST                 	 10
+    #define BMC_UTILF_SKETCH_BYTES             	 11
+    #define BMC_UTILF_AUX_JACK                 	 12
+    #define BMC_UTILF_FAS_STATE                	 13
+    #define BMC_UTILF_MAGIC_ENCODER              14
 
 
 // if read/write flag is 0 it's checking the connection status, if 1, it's trying to connect

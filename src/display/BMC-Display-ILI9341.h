@@ -17,7 +17,7 @@ class BMC_ILI9341 {
  public:
   ILI9341_t3 display;
   BMC_ILI9341():display(10, 9){
-
+    
   }
   bool begin(uint8_t rotation=0){
     display.begin();
@@ -29,11 +29,12 @@ class BMC_ILI9341 {
     //display.setFont(Arial_16);
     display.setTextColor(BMC_ILI9341_WHITE);
 
+    display.fillScreen(BMC_ILI9341_BLACK);
     display.drawRect(0, 0, 320, 240, BMC_ILI9341_WHITE);
     return true;
   }
   void clear(){
-    display.fillScreen(ILI9341_BLACK);
+    display.fillScreen(BMC_ILI9341_BLACK);
   }
 };
 

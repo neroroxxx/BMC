@@ -411,7 +411,11 @@ public:
       return false;
     }
     if(activityDetected() && flags.read(BMC_BTN_FLAG_CONTINUOUS)){
-      continuousTimer.start(250);
+      continuousTimer.start(250-continuousCount);
+      continuousCount += 10;
+      if(continuousCount >= 100){
+        continuousCount = 100;
+      }
       flags.off(BMC_BTN_FLAG_CONTINUOUS);
       return true;
     }
@@ -460,6 +464,7 @@ private:
   void reset(bool hard=false){
     holdTimer.stop();
     continuousTimer.stop();
+    continuousCount = 0;
     // reset all flags except for the debouncing flag and the current state
     flags.reset((1<<BMC_BTN_FLAG_DEBOUNCING)|(1<<BMC_BTN_FLAG_STATE));
     if(hard){
@@ -582,6 +587,7 @@ private:
   uint8_t pin = 255;
   uint8_t threshold = 0;
   uint8_t releaseType = 0;
+  uint8_t continuousCount = 0;
   unsigned long debounceTime = 0;
   BMCFlags <uint8_t> assignedFlags;
   BMCFlags <uint8_t> buttonFlags;

@@ -61,6 +61,23 @@ public:
   uint8_t getVPotLedState(uint8_t channel, uint8_t ledN){
     return controller.getVPotValue(channel, ledN);
   }
+  uint8_t getVPotMode(uint8_t channel){
+    return controller.getVPotMode(channel);
+  }
+  // encoder as fader not yet implemented
+  int getFaderValue(uint8_t ch){
+    ch = (ch >= 8) ? controller.getSelectedChannel() : ch;
+    return controller.getVolume(ch);
+    //sendFaderPitch(ch+1, volume, clockwise, extraTicks);
+  }
+  uint8_t getFaderValue8Bit(uint8_t ch){
+    ch = (ch >= 8) ? controller.getSelectedChannel() : ch;
+    return map(controller.getVolume(ch), -8192, 6651, 0, 127);
+  }
+  uint8_t getFaderValuePercentage(uint8_t ch){
+    ch = (ch >= 8) ? controller.getSelectedChannel() : ch;
+    return map(controller.getVolume(ch), -8192, 6651, 0, 100);
+  }
   bool incoming(BMCMidiMessage d){
     if(!d.matchSource(BMC_USB)){
       return false;
@@ -174,9 +191,12 @@ public:
     } else if(d.isPitchBend()){
       uint8_t ch = d.getChannel()-1;
       int value = d.getPitchValue() & 0x3FFC;
-      value = map(value, 0, 14843, (-8192), 6651);
-      // 6651
-      //-8192
+      // Logic sends a pitch value from 0 to 14840 which we then
+      // map to a value from -8192 to 6651
+      // the 0dB value after mapping is 4251
+      value = map(value, 0, 14840, (-8192), 6651);
+      
+      
 
       // in logic pro
       // fader at max/+6db = 14843
@@ -313,6 +333,20 @@ public:
       t.name[i] = (char) lcd[1][e];
     }
     return t;
+  }
+  uint8_t getVPotValue(uint8_t ch){
+    return controller.getVPot(ch) & 0x0F;
+  }
+  uint8_t getVPotValuePercentage(uint8_t ch){
+    uint8_t value = controller.getVPot(ch) & 0x0F;
+    value = constrain(value, 1, 11);
+    return map(value, 1, 11, 0, 100);
+  }
+  uint8_t getMeterValue(uint8_t ch){
+    return controller.getMeterValue(ch);
+  }
+  uint8_t getMeterValuePercentage(uint8_t ch){
+    return map(controller.getMeterValue(ch), 0, 12, 0,  100);
   }
   bool getLedState(uint8_t cmd, uint8_t ch){
     switch(cmd){
@@ -488,7 +522,7 @@ public:
   }
   // encoder as fader not yet implemented
   void sendEncoderFader(uint8_t ch, bool clockwise, uint8_t extraTicks){
-    ch = (ch>=8) ? controller.getSelectedChannel() : ch;
+    ch = (ch >= 8) ? controller.getSelectedChannel() : ch;
     int volume = controller.getVolume(ch);
     sendFaderPitch(ch+1, volume, clockwise, extraTicks);
   }

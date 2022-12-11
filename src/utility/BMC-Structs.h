@@ -9,6 +9,17 @@
 #define BMC_STRUCT_H
 #include <Arduino.h>
 
+struct __attribute__ ((packed)) BMCDeviceData {
+  uint8_t id = 0;
+  char idtxt[40] = "";
+  char label[19] = "";
+  int16_t group = 0;
+  uint16_t length = 0;
+  bool global = 0;
+  uint8_t settings = 0;
+  uint8_t events = 0;
+};
+
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
   int16_t pins[3] = {-1, -1, -1};
@@ -576,6 +587,9 @@ struct BMCLogicControlChannelVU {
     }
     return meter;
   }
+  uint8_t getMeterValue(){
+    return meter;
+  }
   void setMeter(uint8_t value){
     if(assignMeterValue(value)){
       meterDecayTimer.restart();
@@ -610,13 +624,13 @@ struct BMCLogicControlChannelVU {
 struct BMCLogicControlChannel {
   // state bits: 0=rec, 1=solo, 2=mute, 3=select, 4=signal
   uint8_t states = 0;
-  int fader = 0;
+  int fader = -8192;
   uint8_t vPot = 0;
   BMCLogicControlChannelVU vu;
   void reset(){
     vu.reset();
     states = 0;
-    fader = 0;
+    fader = -8192;
     vPot = 0;
   }
   // get the state
@@ -850,6 +864,10 @@ struct BMCLogicControlData {
   uint8_t getMeter(uint8_t n, uint8_t max=0){
     return chAllowed(n) ? channel[chCheck(n)].vu.getMeter(max) : 0;
   }
+  uint8_t getMeterValue(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].vu.getMeterValue() : 0;
+  }
+  
   uint8_t getMeterPeak(uint8_t n){
     return chAllowed(n) ? channel[chCheck(n)].vu.getPeak() : 0;
   }

@@ -215,9 +215,6 @@ void BMCEditor::incomingMessageDevice(bool write){
         return;
       }
     }
-    if(backupActive()){
-      //BMC_PRINTLN("write", "backup", getDeviceName(deviceType));
-    }
     switch(deviceType){
       case BMC_DEVICE_ID_PAGE:
         // write new data and save, starts at byte 13
@@ -334,7 +331,23 @@ void BMCEditor::incomingMessageDevice(bool write){
         #if BMC_TOTAL_POTS_AUX_JACKS > 0
           incomingMessageDeviceWrite<0,2,uint16_t>(store.global.potCalibration[index], index);
           if(!backupActive()){
-            saveGlobalPot(index);
+            savePotCalibration(index);
+            reloadData();
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_MAGIC_ENCODER:
+        #if BMC_MAX_MAGIC_ENCODERS > 0
+        for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
+            incomingMessageDeviceWrite<3, 3>(store.pages[p].magicEncoders[index], index, p);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
+        #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+          incomingMessageDeviceWrite<3,3>(store.global.magicEncoders[index], index);
+          if(!backupActive()){
+            saveGlobalMagicEncoder(index);
             reloadData();
           }
         #endif
@@ -640,6 +653,18 @@ void BMCEditor::incomingMessageDevice(bool write){
         (store.global.potCalibration[index], buff, index, deviceType);
       #endif
       break;
+    case BMC_DEVICE_ID_MAGIC_ENCODER:
+      #if BMC_MAX_MAGIC_ENCODERS > 0
+        deviceResponseData <3, 3>
+        (store.pages[page].magicEncoders[index], buff, index, deviceType);
+      #endif
+      break;
+    case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
+      #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+        deviceResponseData <3, 3>
+        (store.global.magicEncoders[index], buff, index, deviceType);
+      #endif
+      break;
     case BMC_DEVICE_ID_PIXEL:
       #if BMC_MAX_PIXELS > 0
         deviceResponseData <1, 1>
@@ -878,7 +903,15 @@ void BMCEditor::connectEditor(){
       // send a notification that editor is already connected
       BMC_WARNING(
         "Already Connected to Editor",
-        BMCTools::getPortName(port)
+        BMCTools::getPortName(incoming.getPort())
+      );
+      sendNotification(BMC_NOTIFY_CONNECTION, 2, true, true);
+      return;
+    } else if(midi.globals.onBoardEditorActive()){
+      sendNotification(BMC_NOTIFY_CONNECTION, 3, true, true);
+      BMC_WARNING(
+        "On Board Editor is Active",
+        BMCTools::getPortName(incoming.getPort())
       );
       return;
     }
@@ -1082,7 +1115,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_ILI9341_BLOCKS);
     buff.appendToSysEx7Bits(BMC_MAX_LFO);
     buff.appendToSysEx7Bits(BMC_MAX_PIXEL_STRIP);
-    
+    buff.appendToSysEx7Bits(BMC_MAX_MAGIC_ENCODERS);
+    buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_MAGIC_ENCODERS);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_DEVICE_NAME){
     String name = BMC_DEVICE_NAME;

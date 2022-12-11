@@ -28,7 +28,7 @@
   struct __attribute__ ((packed)) bmcStoreDevice {
     bmcName_t name = 0;
     uint8_t settings[sLen];
-    bmcEvent_t events[eLen];
+    T events[eLen];
   };
   
   // Page Object
@@ -52,6 +52,9 @@
     #if BMC_MAX_RGB_PIXELS > 0
       bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_RGB_PIXELS];
     #endif
+    #if BMC_MAX_MAGIC_ENCODERS > 0
+      bmcStoreDevice <3, 3> magicEncoders[BMC_MAX_MAGIC_ENCODERS];
+    #endif
     #if BMC_MAX_PIXEL_STRIP > 0
       bmcStoreDevice <1, 1> pixelStrip[1];
     #endif
@@ -59,7 +62,7 @@
       bmcStoreDevice <1, 1> encoders[BMC_MAX_ENCODERS];
     #endif
     #if BMC_MAX_POTS > 0
-      bmcStoreDevice <1, 6> pots[BMC_MAX_POTS];
+      bmcStoreDevice <1, 3> pots[BMC_MAX_POTS];
     #endif
     #if BMC_MAX_OLED > 0
       bmcStoreDevice <1, 1> oled[BMC_MAX_OLED];
@@ -122,7 +125,6 @@
       bmcStoreDevice <1, 3> pots[BMC_MAX_GLOBAL_POTS];
     #endif
     #if BMC_TOTAL_POTS_AUX_JACKS > 0
-      //bmcStoreGlobalPotCalibration potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
       bmcStoreDevice <0, 2, uint16_t> potCalibration[BMC_TOTAL_POTS_AUX_JACKS];
     #endif
     #if BMC_MAX_GLOBAL_PIXELS > 0
@@ -130,6 +132,9 @@
     #endif
     #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
       bmcStoreDevice <1, 3> rgbPixels[BMC_MAX_GLOBAL_RGB_PIXELS];
+    #endif
+    #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+      bmcStoreDevice <3, 3> magicEncoders[BMC_MAX_GLOBAL_MAGIC_ENCODERS];
     #endif
     #if BMC_MAX_NL_RELAYS > 0
       bmcStoreDevice <1, 1> relaysNL[BMC_MAX_NL_RELAYS];

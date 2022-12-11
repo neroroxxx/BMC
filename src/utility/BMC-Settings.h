@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -28,7 +28,7 @@
       bit 5 getActiveSenseAtStartup - Active Sensing Master Enabled
       bit 6 getMidiRealTimeBlockInput
       bit 7 getMidiRealTimeBlockOutput
-      bit 8 getTyperOffSet
+      bit 8 getDisplayOffset
       bit 9
 
 
@@ -156,10 +156,10 @@ public:
     writeFlag(7,value);
   }
   // typer offset to 0
-  uint8_t getTyperOffSet(){
+  uint8_t getDisplayOffset(){
     return readFlag(8);
   }
-  void setTyperOffSet(bool value){
+  void setDisplayOffset(bool value){
     writeFlag(8, value);
   }
 

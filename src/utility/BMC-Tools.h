@@ -155,6 +155,46 @@ public:
     }
     return "Unknown";
   }
+  static void getBankLetter(uint8_t n, char* buff){
+    if(n<32){
+      const char alph[32] = BMC_ALPHABET;
+      buff[0] = alph[n];
+    }
+  }
+  static uint16_t toPresetIndex(uint8_t t_bank, uint8_t t_preset){
+    uint16_t p = (t_bank << BMC_PRESET_BANK_MASK) | (t_preset & (BMC_MAX_PRESETS_PER_BANK-1));
+    if(p >= BMC_MAX_PRESETS){
+      return 0;
+    }
+    return p;
+  }
+  static void getPresetLabel(uint8_t t_bank, uint8_t t_preset, char * str, bmcStoreGlobal& t_store){
+    uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
+    if(t_presetAndBank < BMC_MAX_PRESETS){
+      bmcName_t n = t_store.presets[t_presetAndBank].name;
+      char name[BMC_MAX_NAMES_LENGTH] = "";
+      char bankStr[2] = "";
+      getBankLetter(t_bank, bankStr);
+      if(n!=0){
+        strcpy(name, t_store.names[n].name);
+      }
+      sprintf(str, "%s%u%s", bankStr, t_preset, name);
+    }
+  }
+  static void getPresetLabel(uint16_t t_presetAndBank, char * str, bmcStoreGlobal& t_store){
+    uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
+    uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
+    if(t_presetAndBank < BMC_MAX_PRESETS){
+      bmcName_t n = t_store.presets[t_presetAndBank].name;
+      char name[BMC_MAX_NAMES_LENGTH] = "";
+      char bankStr[2] = "";
+      getBankLetter(t_bank, bankStr);
+      if(n!=0){
+        strcpy(name, t_store.names[n].name);
+      }
+      sprintf(str, "%s%u%s", bankStr, t_preset, name);
+    }
+  }
   static bool isValidRelayEvent(uint8_t t_type){
     switch(t_type){
       case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
@@ -315,13 +355,6 @@ public:
     for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
       items[totalLeds++] = BMCBuildData::getLedPin(i);
       pinMode(BMCBuildData::getLedPin(i),OUTPUT);
-      break;
-    }
-    #endif
-    #if BMC_MAX_PWM_LEDS > 0
-    for(uint8_t i = 0; i < BMC_MAX_PWM_LEDS; i++){
-      items[totalLeds++] = BMCBuildData::getPwmLedPin(i);
-      pinMode(BMCBuildData::getPwmLedPin(i),OUTPUT);
       break;
     }
     #endif

@@ -78,9 +78,6 @@
   #endif
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  #include "hardware/BMC-PwmLed.h"
-#endif
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   #include "hardware/BMC-Encoder.h"
@@ -93,6 +90,11 @@
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
   #include "hardware/BMC-PotCalibration.h"
 #endif
+
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  #include "hardware/BMC-MagicEncoder.h"
+#endif
+
 
 #if BMC_MAX_NL_RELAYS > 0
   #include "hardware/BMC-RelayNL.h"
@@ -154,6 +156,9 @@
   #include "display/BMC-Display.h"
 #endif
 
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+  #include "editor/onBoard/BMC-OBEMain.h"
+#endif
 
 
 
@@ -175,7 +180,8 @@ public:
   uint8_t getPage();
   // go to a new page
   // @reassignSettings if true will reassign all global settings
-  void setPage(uint8_t page, bool reassignSettings=false);
+  void setPage(uint8_t page, bool reassignSettings=false, bool forced=false);
+  void reloadPage();
   void nextPage();
   void prevPage();
   // scroll to a different page, either the previous or next page
@@ -280,6 +286,10 @@ private:
 
 #if defined(BMC_HAS_DISPLAY)
     BMCDisplay display;
+#endif
+
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    BMCOBE obe;
 #endif
   unsigned long heartbeat = 0;
 
@@ -562,19 +572,22 @@ private:
 
 #if BMC_MAX_NL_RELAYS > 0
   BMCRelayNL relaysNL[BMC_MAX_NL_RELAYS];
-  void setupRelaysNL();
-  void assignRelaysNL();
-  void readRelaysNL();
+  //void setupRelaysNL();
+  //void assignRelaysNL();
+  //void readRelaysNL();
 #endif
 
 #if BMC_MAX_L_RELAYS > 0
   BMCRelayL relaysL[BMC_MAX_L_RELAYS];
-  void setupRelaysL();
-  void assignRelaysL();
-  void readRelaysL();
+  //void setupRelaysL();
+  //void assignRelaysL();
+  //void readRelaysL();
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
+  void setupRelays();
+  void assignRelays();
+  void readRelays();
   void setRelay(uint8_t index, bool latching, uint8_t cmd);
   bool getRelayState(uint8_t index, bool latching);
 #endif
@@ -607,24 +620,25 @@ private:
   }
 #endif
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
+  #if BMC_MAX_POTS > 0
+    // code @ BMC.hardware.pots.cpp
+    BMCPot pots[BMC_MAX_POTS];
+  #endif
+
+  #if BMC_MAX_GLOBAL_POTS > 0
+    // code @ BMC.hardware.pots.cpp
+    BMCPot globalPots[BMC_MAX_GLOBAL_POTS];
+    //void assignGlobalPots();
+    //void readGlobalPots();
+  #endif
+  
   void setupPots();
   void assignPots();
   void readPots();
   void potParseToeSwitch(BMCPot& pot);
 #endif
 
-#if BMC_MAX_POTS > 0
-  // code @ BMC.hardware.pots.cpp
-  BMCPot pots[BMC_MAX_POTS];
 
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0
-  // code @ BMC.hardware.pots.cpp
-  BMCPot globalPots[BMC_MAX_GLOBAL_POTS];
-  void assignGlobalPots();
-  void readGlobalPots();
-#endif
 
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
@@ -638,6 +652,18 @@ private:
   void setupEncoders();
   void assignEncoders();
   void readEncoders();
+#endif
+
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  #if BMC_MAX_MAGIC_ENCODERS > 0
+    BMCMagicEncoder magicEncoders[BMC_MAX_MAGIC_ENCODERS];
+  #endif
+  #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    BMCMagicEncoder globalMagicEncoders[BMC_MAX_GLOBAL_MAGIC_ENCODERS];
+  #endif
+  void setupMagicEncoders();
+  void assignMagicEncoders();
+  void readMagicEncoders();
 #endif
 
 

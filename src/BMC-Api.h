@@ -955,43 +955,6 @@ public:
   */
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  // get PWM_LED Data
-  /*
-  void getPwmLed(uint8_t n, bmcStoreLed& t_item){
-    getPwmLed(page, n, t_item);
-  }
-  void getPwmLed(uint8_t t_page, uint8_t n, bmcStoreLed& t_item){
-    if(t_page < BMC_MAX_PAGES && n < BMC_MAX_PWM_LEDS){
-      t_item = store.pages[t_page].pwmLeds[n];
-    }
-  }
-  */
-
-#if BMC_NAME_LEN_LEDS > 1
-  void getPwmLedName(uint8_t n, char* t_string){
-    getPwmLedName(page, n, t_string);
-  }
-  void getPwmLedName(uint8_t t_page, uint8_t n, char* t_string){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_PWM_LEDS){
-      strcpy(t_string, store.pages[t_page].pwmLeds[n].name);
-    }
-  }
-#endif
-  // used to control pwm leds only by the sketch, no matter what page
-  void setPwmLedCustomState(uint8_t n, uint8_t t_value){
-    if(n < BMC_MAX_PWM_LEDS){
-      pwmLedCustomState[n] = constrain(t_value, 0, 127);
-    }
-  }
-  uint8_t getPwmLedCustomState(uint8_t n){
-    return (n < BMC_MAX_PWM_LEDS) ? pwmLedCustomState[n] : 0;
-  }
-  uint32_t getPwmLedStates(){
-    return pwmLedStates;
-  }
-#endif
-
 #if BMC_MAX_PIXELS > 0
   // get Pixel Data
   /*
@@ -1169,13 +1132,13 @@ public:
       }
     }
   #endif
-  */
   // start/stop pot calibration, pot calibration data is global
   // so the calibration set is for that pot no matter what page you are in.
   bool calibratePot(uint8_t n){
     potCalibration.toggle(n);
     return potCalibration.active();
   }
+  */
 #endif
 
 #if BMC_MAX_GLOBAL_POTS > 0
@@ -1194,12 +1157,13 @@ public:
       }
     }
   #endif
-*/
+
   // start/stop global pot calibration, pot calibration data is global
   bool calibrateGlobalPot(uint8_t n){
     potCalibration.toggle(n);
     return potCalibration.active();
   }
+  */
 #endif
 
 #if BMC_MAX_NL_RELAYS > 0

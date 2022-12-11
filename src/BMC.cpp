@@ -51,6 +51,9 @@ BMC::BMC():
     )
   #endif
 
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    ,obe(globals, settings, editor, display)
+  #endif
 
     ,page(globals.page)
 
@@ -81,6 +84,10 @@ void BMC::begin(){
 
   #if defined(BMC_HAS_DISPLAY)
     display.begin();
+  #endif
+
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    obe.begin();
   #endif
 
   // setup all MIDI Ports being used
@@ -185,6 +192,15 @@ void BMC::update(){
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
   }
+  if(globals.reloadPage()){
+    reloadPage();
+  }
+  if(globals.assignStoreData()){
+    assignStoreData();
+  }
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    obe.update();
+  #endif
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
     runTempoToTap();
@@ -329,6 +345,17 @@ void BMC::update(){
     stopwatch.tick();
     runTime.tick();
 
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+    if(potCalibration.active() && globals.editorConnected()){
+      editor.utilitySendAnalogInputCalibrationActivity(
+        potCalibration.getDeviceType(),
+        potCalibration.getIndex(),
+        potCalibration.getMin(),
+        potCalibration.getMax()
+      );
+    }
+#endif
+
     if(callback.oneSecondPassed){
       callback.oneSecondPassed(stopwatch.getState());
     }
@@ -347,6 +374,10 @@ void BMC::update(){
     }
     //globals.resetCPU();
     oneSecondTimer = 0;
+  }
+  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 100){
+    flags.off(BMC_FLAGS_STATUS_LED);
+    heartbeat = 0;
   }
 }
 

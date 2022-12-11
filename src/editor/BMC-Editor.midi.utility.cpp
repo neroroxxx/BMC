@@ -228,7 +228,7 @@ void BMCEditor::utilitySendPotActivity(uint8_t deviceType, uint16_t index,
   if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
     return;
   }
-  uint16_t len = deviceType==BMC_DEVICE_ID_GLOBAL_POT ? BMC_MAX_GLOBAL_POTS : BMC_MAX_POTS;
+  uint16_t len = (deviceType==BMC_DEVICE_ID_GLOBAL_POT) ? BMC_MAX_GLOBAL_POTS : BMC_MAX_POTS;
   if(!connectionOngoing() && index < len){
     BMCEditorMidiFlags flag;
     flag.setWrite(true);
@@ -275,6 +275,47 @@ void BMCEditor::utilitySendEncoderActivity(uint8_t deviceType, uint8_t index,
   }
 #endif
 }
+void BMCEditor::utilitySendMagicEncoderActivity(uint8_t deviceType, uint8_t index, 
+                                  uint8_t trigger, uint8_t ticks, bool increased,
+                                  uint8_t ledValue,
+                                  bool onlyIfConnected){
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
+  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
+    return;
+  }
+  if(onlyIfConnected && !midi.globals.editorConnected()){
+    return;
+  }
+  // if editor feedback is disabled...
+  if(onlyIfConnected && !flags.read(BMC_EDITOR_FLAG_EDITOR_FEEDBACK)){
+    return;
+  }
+  uint16_t len = 0;
+  if(deviceType == BMC_DEVICE_ID_MAGIC_ENCODER){
+    len = BMC_MAX_MAGIC_ENCODERS;
+  } else {
+    len = BMC_MAX_GLOBAL_MAGIC_ENCODERS;
+  }
+  if(!connectionOngoing() && index < len){
+    BMCEditorMidiFlags flag;
+    flag.setWrite(true);
+    BMCMidiMessage buff;
+    buff.prepareEditorMessage(
+      port, deviceId,
+      BMC_GLOBALF_UTILITY, flag,
+      BMC_UTILF_MAGIC_ENCODER
+    );
+    buff.appendToSysEx7Bits(deviceType);
+    buff.appendToSysEx14Bits(index);
+    buff.appendToSysEx7Bits(trigger);
+    buff.appendToSysEx7Bits(ticks);
+    buff.appendToSysEx7Bits(increased);
+    buff.appendToSysEx7Bits(ledValue);
+    sendToEditor(buff, true, false); // don't show midi activity
+  }
+#endif
+}
+
 
 void BMCEditor::utilitySendPreset(uint8_t t_bank, uint8_t t_preset,
                                   bool onlyIfConnected){
@@ -348,6 +389,30 @@ void BMCEditor::utilitySendAnalogInputCalibrationStatus(bool status, bool cancel
   );
   buff.appendToSysEx7Bits(status?1:0);
   buff.appendToSysEx7Bits(canceled?1:0);
+  // don't show midi activity
+  sendToEditor(buff, true, false);
+#endif
+}
+void BMCEditor::utilitySendAnalogInputCalibrationActivity(uint8_t deviceType, uint16_t index,
+                                                uint16_t min, uint16_t max,
+                                                bool onlyIfConnected){
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+  if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
+    return;
+  }
+  if(onlyIfConnected && !midi.globals.editorConnected()){
+    return;
+  }
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_GLOBALF_UTILITY, 0,
+    BMC_UTILF_POT_CALIBRATION_ACTIVITY
+  );
+  buff.appendToSysEx7Bits(deviceType);
+  buff.appendToSysEx14Bits(index);
+  buff.appendToSysEx14Bits(min);
+  buff.appendToSysEx14Bits(max);
   // don't show midi activity
   sendToEditor(buff,true,false);
 #endif

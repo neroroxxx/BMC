@@ -257,11 +257,11 @@ public:
   // SCROLLING
   uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control,
                 uint8_t t_flags, uint8_t min=0, uint8_t max=127);
-  uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control,
+  uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control, uint8_t amount,
                 bool direction, bool endless, uint8_t min=0, uint8_t max=127);
   uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t t_flags,
                 uint8_t min=0, uint8_t max=127);
-  uint8_t scrollPC(uint8_t ports, uint8_t channel, bool direction,
+  uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t amount, bool direction,
                 bool endless, uint8_t min=0, uint8_t max=127);
 
   // Specific to USB & HOST

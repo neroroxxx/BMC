@@ -28,6 +28,8 @@ void BMCEditor::begin(){
   BMC_PRINTLN("+++++++++++++++++++++++++++++++++++++++++++");
   BMC_PRINTLN("BMCEditor::begin");
 
+  setDevicesData();
+
   storage.begin();
   #if defined(BMC_USE_TIME)
     setSyncProvider(getTeensy3Time);
@@ -378,7 +380,6 @@ uint32_t BMCEditor::getGlobalPixelOffset(uint16_t index){
   #endif
   return value;
 }
-
 uint32_t BMCEditor::getGlobalRgbPixelOffset(){
   uint32_t value = getGlobalPixelOffset();
   #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
@@ -393,15 +394,31 @@ uint32_t BMCEditor::getGlobalRgbPixelOffset(uint16_t index){
   #endif
   return value;
 }
-uint32_t BMCEditor::getNLRelayOffset(){
+
+uint32_t BMCEditor::getGlobalMagicEncoderOffset(){
   uint32_t value = getGlobalRgbPixelOffset();
+  #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    value += sizeof(store.global.magicEncoders);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalMagicEncoderOffset(uint16_t index){
+  uint32_t value = getGlobalRgbPixelOffset();
+  #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    value += (sizeof(bmcStoreDevice <3, 3>) * index);
+  #endif
+  return value;
+}
+
+uint32_t BMCEditor::getNLRelayOffset(){
+  uint32_t value = getGlobalMagicEncoderOffset();
   #if BMC_MAX_NL_RELAYS > 0
     value += sizeof(store.global.relaysNL);
   #endif
   return value;
 }
 uint32_t BMCEditor::getNLRelayOffset(uint16_t index){
-  uint32_t value = getGlobalRgbPixelOffset();
+  uint32_t value = getGlobalMagicEncoderOffset();
   #if BMC_MAX_NL_RELAYS > 0
     value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif

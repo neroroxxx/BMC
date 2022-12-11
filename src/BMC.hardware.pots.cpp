@@ -72,7 +72,7 @@ void BMC::readPots(){
   }
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
     bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 #if BMC_MAX_MUX_IN_ANALOG > 0
     pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));
 #endif
@@ -95,7 +95,7 @@ void BMC::readPots(){
       */
     }
     if(globals.editorConnected() && (sendData || editor.isTriggerStates())){
-      editor.utilitySendPotActivity(BMC_DEVICE_ID_GLOBAL_POT, i, pots[i].getPosition());
+      editor.utilitySendPotActivity(BMC_DEVICE_ID_POT, i, pots[i].getPosition());
     }
   }
 #endif
@@ -117,7 +117,7 @@ void BMC::readPots(){
     globalPots[i].setMuxValue(mux.readAnalog(globalPots[i].getMuxPin()));
   #endif
     bmcStoreDevice <1, 3>& device = store.global.pots[i];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     if(globalPots[i].toeSwitchActive()){
       potParseToeSwitch(globalPots[i]);
       /*

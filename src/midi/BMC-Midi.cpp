@@ -1340,12 +1340,13 @@ uint8_t BMCMidi::toggleCC(uint8_t ports, uint8_t channel, uint8_t control){
 uint8_t BMCMidi::scrollCC(uint8_t ports, uint8_t channel,
                         uint8_t control, uint8_t t_flags,
                         uint8_t min, uint8_t max){
-  return scrollCC(ports,channel,control,bitRead(t_flags,0),bitRead(t_flags,1),min,max);
+  return scrollCC(ports,channel,control, 1,bitRead(t_flags,0),bitRead(t_flags,1),min,max);
 }
 // channel MUST be 1 to 16 not 0 to 15
 uint8_t BMCMidi::scrollCC(uint8_t ports, uint8_t channel,
-                        uint8_t control, bool direction,
-                        bool endless, uint8_t min, uint8_t max){
+                        uint8_t control, uint8_t amount, 
+                        bool direction, bool endless, 
+                        uint8_t min, uint8_t max){
   if(channel == 0){
     return 0;
   }
@@ -1358,10 +1359,10 @@ uint8_t BMCMidi::scrollCC(uint8_t ports, uint8_t channel,
 // channel MUST be 1 to 16 not 0 to 15
 uint8_t BMCMidi::scrollPC(uint8_t ports, uint8_t channel,
                         uint8_t t_flags, uint8_t min, uint8_t max){
-  return scrollPC(ports,channel,bitRead(t_flags,0),bitRead(t_flags,1),min, max);
+  return scrollPC(ports,channel,1,bitRead(t_flags,0),bitRead(t_flags,1),min, max);
 }
 // channel MUST be 1 to 16 not 0 to 15
-uint8_t BMCMidi::scrollPC(uint8_t ports, uint8_t channel,
+uint8_t BMCMidi::scrollPC(uint8_t ports, uint8_t channel, uint8_t amount,
                         bool direction, bool endless,
                         uint8_t min, uint8_t max){
   if(channel == 0){

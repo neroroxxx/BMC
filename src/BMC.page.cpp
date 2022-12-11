@@ -5,12 +5,14 @@
   See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
-
-void BMC::setPage(uint8_t t_page, bool reassignSettings){
-  if(t_page >= BMC_MAX_PAGES){
+void BMC::reloadPage(){
+  setPage(page, true, true);
+}
+void BMC::setPage(uint8_t t_page, bool reassignSettings, bool forced){
+  if(t_page >= BMC_MAX_PAGES && !forced){
     return;
   }
-  if(page!=t_page){
+  if(page!=t_page && !forced){
     flags.write(BMC_FLAGS_PAGE_CHANGED, true);
     bmcStoreName e = globals.getDeviceName(store.pages[page].name);
     streamToSketch(BMC_DEVICE_ID_PAGE, t_page, e.name);
@@ -21,14 +23,6 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
 
   editor.setPage(page);
   editor.pageSendChangeMessage();
-
-  #if BMC_MAX_PWM_LEDS > 0
-    pwmLedStates = ~pwmLedStates;
-  #endif
-
-  #if BMC_MAX_POTS > 0
-
-  #endif
 
   if(reassignSettings){
     assignSettings();
@@ -48,6 +42,9 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings){
 
   if(callback.pageChanged){
     callback.pageChanged(page);
+  }
+  if(flags.read(BMC_FLAGS_PAGE_CHANGED) && editor.connected()){
+    editor.triggerStates();
   }
 };
 bool BMC::pageChanged(){

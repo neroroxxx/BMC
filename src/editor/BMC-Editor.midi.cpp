@@ -133,13 +133,18 @@ void BMCEditor::sendToEditor(BMCMidiMessage message, bool appendCRC,
     );
   }
 }
-void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError){
+void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError, bool forceResponse){
   //BMCF_NOTIFY, byte 9 = 1 for error
   BMCEditorMidiFlags flag;
   flag.setError(hasError);
 
   BMCMidiMessage buff;
-  buff.prepareEditorMessage(port, deviceId, BMCF_NOTIFY, flag.get(), 0);
+  uint8_t outPort = port;
+  if(!forceResponse){
+    outPort = incoming.getPort();
+  }
+  buff.prepareEditorMessage(outPort, deviceId, BMCF_NOTIFY, flag.get(), 0);
+  
   // the source of the notification
   buff.appendSysExByte(getMessageRequestId());
   // notification code
@@ -149,7 +154,21 @@ void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError)
   // add the flags of the source message
   buff.appendSysExByte(getMessageFlags());
   // send
-  sendToEditor(buff);
+  if(!forceResponse){
+    sendToEditor(buff);
+  } else {
+    buff.createChecksum(true);
+    // send the sysex message
+    midi.sendSysEx(
+      buff.getPort(), // target port(s)
+      buff.getSysEx(), // the sysex array
+      buff.size(), // the sysex array length
+      false, // does it have the 0xF0 & 0xF7 bytes
+      0, // cable, used for USB
+      false // should it trigger MIDI Out activity
+    );
+  }
+  
 }
 void BMCEditor::sendInvalidIndexReceivedMessage(){
   sendNotification(BMC_NOTIFY_INVALID_INDEX, 0, true);

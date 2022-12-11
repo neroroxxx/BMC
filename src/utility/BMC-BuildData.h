@@ -6206,6 +6206,116 @@ class BMCBuildData {
             }
           #endif
           break;
+      case BMC_DEVICE_ID_MAGIC_ENCODER:
+          #if BMC_MAX_MAGIC_ENCODERS > 0 
+            switch(n){
+              #if BMC_MAX_MAGIC_ENCODERS > 0 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_1)
+              case 0: return BMC_DEVICE_UI_MAGIC_ENCODER_1;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 1 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_2)
+              case 1: return BMC_DEVICE_UI_MAGIC_ENCODER_2;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 2 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_3)
+              case 2: return BMC_DEVICE_UI_MAGIC_ENCODER_3;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 3 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_4)
+              case 3: return BMC_DEVICE_UI_MAGIC_ENCODER_4;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 4 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_5)
+              case 4: return BMC_DEVICE_UI_MAGIC_ENCODER_5;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 5 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_6)
+              case 5: return BMC_DEVICE_UI_MAGIC_ENCODER_6;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 6 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_7)
+              case 6: return BMC_DEVICE_UI_MAGIC_ENCODER_7;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 7 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_8)
+              case 7: return BMC_DEVICE_UI_MAGIC_ENCODER_8;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 8 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_9)
+              case 8: return BMC_DEVICE_UI_MAGIC_ENCODER_9;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 9 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_10)
+              case 9: return BMC_DEVICE_UI_MAGIC_ENCODER_10;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 10 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_11)
+              case 10: return BMC_DEVICE_UI_MAGIC_ENCODER_11;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 11 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_12)
+              case 11: return BMC_DEVICE_UI_MAGIC_ENCODER_12;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 12 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_13)
+              case 12: return BMC_DEVICE_UI_MAGIC_ENCODER_13;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 13 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_14)
+              case 13: return BMC_DEVICE_UI_MAGIC_ENCODER_14;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 14 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_15)
+              case 14: return BMC_DEVICE_UI_MAGIC_ENCODER_15;
+            #endif
+            #if BMC_MAX_MAGIC_ENCODERS > 15 && defined(BMC_DEVICE_UI_MAGIC_ENCODER_16)
+              case 15: return BMC_DEVICE_UI_MAGIC_ENCODER_16;
+            #endif
+    
+            }
+          #endif
+          break;
+      case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
+          #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0 
+            switch(n){
+              #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_1)
+              case 0: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_1;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 1 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_2)
+              case 1: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_2;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 2 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_3)
+              case 2: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_3;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 3 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_4)
+              case 3: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_4;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 4 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_5)
+              case 4: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_5;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 5 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_6)
+              case 5: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_6;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 6 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_7)
+              case 6: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_7;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 7 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_8)
+              case 7: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_8;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 8 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_9)
+              case 8: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_9;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 9 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_10)
+              case 9: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_10;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 10 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_11)
+              case 10: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_11;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 11 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_12)
+              case 11: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_12;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 12 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_13)
+              case 12: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_13;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 13 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_14)
+              case 13: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_14;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 14 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_15)
+              case 14: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_15;
+            #endif
+            #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 15 && defined(BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_16)
+              case 15: return BMC_DEVICE_UI_GLOBAL_MAGIC_ENCODER_16;
+            #endif
+    
+            }
+          #endif
+          break;
 }
     BMCUIData e;
     return e;

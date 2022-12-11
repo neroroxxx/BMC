@@ -95,7 +95,7 @@
 
   // NAMES LIBRARY STR LENGTH
   #if !defined(BMC_MAX_NAMES_LENGTH)
-    #define BMC_MAX_NAMES_LENGTH 89
+    #define BMC_MAX_NAMES_LENGTH 9
   #endif
 
   #if BMC_MAX_NAMES_LENGTH < 9
@@ -542,7 +542,6 @@
         #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_MAX_PIXEL_STRIP
         #undef BMC_PIXELS_PORT
-        #error "*****************"
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
         #define BMC_MAX_GLOBAL_PIXELS 0
@@ -779,145 +778,6 @@
   #endif
 
 
-
-  // names check
-  #if !defined(BMC_NAME_LEN_BUTTONS)
-    #define BMC_NAME_LEN_BUTTONS 0
-  #endif
-  #if BMC_NAME_LEN_BUTTONS == 1
-    #undef BMC_NAME_LEN_BUTTONS
-    #define BMC_NAME_LEN_BUTTONS 0
-  #endif
-
-  #if !defined(BMC_NAME_LEN_RELAYS)
-    #define BMC_NAME_LEN_RELAYS 0
-  #endif
-  #if BMC_NAME_LEN_RELAYS == 1
-    #undef BMC_NAME_LEN_RELAYS
-    #define BMC_NAME_LEN_RELAYS 0
-  #endif
-
-  #if !defined(BMC_NAME_LEN_LEDS)
-    #define BMC_NAME_LEN_LEDS 0
-  #endif
-  #if BMC_NAME_LEN_LEDS == 1
-    #undef BMC_NAME_LEN_LEDS
-    #define BMC_NAME_LEN_LEDS 0
-  #endif
-
-  #if !defined(BMC_NAME_LEN_POTS)
-    #define BMC_NAME_LEN_POTS 0
-  #endif
-  #if BMC_NAME_LEN_POTS == 1
-    #undef BMC_NAME_LEN_POTS
-    #define BMC_NAME_LEN_POTS 0
-  #endif
-
-  #if !defined(BMC_NAME_LEN_ENCODERS)
-    #define BMC_NAME_LEN_ENCODERS 0
-  #endif
-  #if BMC_NAME_LEN_ENCODERS == 1
-    #undef BMC_NAME_LEN_ENCODERS
-    #define BMC_NAME_LEN_ENCODERS 0
-  #endif
-
-  #define _____BMC_HARDWARENAMES ((uint16_t)(0x00AA * ((BMC_NAME_LEN_BUTTONS+1)*(BMC_NAME_LEN_LEDS+2)*(BMC_NAME_LEN_POTS+3)*(BMC_NAME_LEN_ENCODERS+4)*(BMC_NAME_LEN_RELAYS+5))))
-  #define _____BMC_STRINGLIBRARYNAMES     0
-  #define _____BMC_LIBRARYNAMES           0
-  #define _____BMC_PRESETNAMES            0
-  #define _____BMC_SETLISTNAMES           0
-  #define _____BMC_SETLISTSONGPARTNAMES   0
-  #define _____BMC_SETLISTSONGNAMES       0
-  #define _____BMC_TIMEDEVENTSNAMES       0
-
-  // TIMED EVENTS NAMES ****************************************************
-  #if !defined(BMC_NAME_LEN_TIMED_EVENTS)
-    #define BMC_NAME_LEN_TIMED_EVENTS 0
-  #endif
-  #if BMC_NAME_LEN_TIMED_EVENTS == 1
-    #undef BMC_NAME_LEN_TIMED_EVENTS
-    #define BMC_NAME_LEN_TIMED_EVENTS 0
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_TIMED_EVENTS > 0 && BMC_NAME_LEN_TIMED_EVENTS > 1
-    #undef _____BMC_TIMEDEVENTSNAMES
-    #define _____BMC_TIMEDEVENTSNAMES (0x22AA*(BMC_NAME_LEN_TIMED_EVENTS+1))
-  #endif
-
-
-  // PRESET NAMES ****************************************************
-  // if BMC_NAME_LEN_PRESETS is not defined, define it with value of 0
-  #if !defined(BMC_NAME_LEN_PRESETS)
-    #define BMC_NAME_LEN_PRESETS 0
-  #endif
-  // just in case check if there are no presets compiled and reset
-  // this value
-  #if BMC_MAX_PRESETS == 0
-    #undef BMC_NAME_LEN_PRESETS
-    #define BMC_NAME_LEN_PRESETS 0
-  #endif
-  // if the value of BMC_NAME_LEN_PRESETS is 1 throw a compile error
-  // we do this to make sure the user can't recompile and have EEPROM erased
-  // becuase of this
-  #if BMC_NAME_LEN_PRESETS == 1
-    #error "Preset Names length can NOT be 1, it must be 0 or more than 1."
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_PRESETS > 0 && BMC_NAME_LEN_PRESETS > 1
-    #undef _____BMC_PRESETNAMES
-    #define _____BMC_PRESETNAMES (0x77CC*(BMC_NAME_LEN_PRESETS+1))
-  #endif
-  // PRESET NAMES ****************************************************
-
-
-  // SETLIST NAMES ****************************************************
-  // if BMC_NAME_LEN_SETLISTS is not defined, define it with value of 0
-  #if !defined(BMC_NAME_LEN_SETLISTS)
-    #define BMC_NAME_LEN_SETLISTS 0
-  #endif
-  #if !defined(BMC_NAME_LEN_SETLIST_SONG)
-    #define BMC_NAME_LEN_SETLIST_SONG 0
-  #endif
-  #if !defined(BMC_NAME_LEN_SETLIST_SONG_PART)
-    #define BMC_NAME_LEN_SETLIST_SONG_PART 0
-  #endif
-
-  // just in case check if there are no presets compiled and reset
-  // this value
-  #if BMC_MAX_SETLISTS == 0
-    #undef BMC_NAME_LEN_SETLISTS
-    #undef BMC_NAME_LEN_SETLIST_SONG
-    #undef BMC_NAME_LEN_SETLIST_SONG_PART
-    #define BMC_NAME_LEN_SETLISTS 0
-    #define BMC_NAME_LEN_SETLIST_SONG 0
-    #define BMC_NAME_LEN_SETLIST_SONG_PART 0
-  #endif
-  // if the value of BMC_NAME_LEN_SETLISTS is 1 throw a compile error
-  // we do this to make sure the user can't recompile and have EEPROM erased
-  // becuase of this
-  #if BMC_NAME_LEN_SETLISTS == 1
-    #error "Preset Names length can NOT be 1, it must be 0 or more than 1."
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_SETLISTS > 0 && BMC_NAME_LEN_SETLISTS > 1
-    #undef _____BMC_SETLISTNAMES
-    #define _____BMC_SETLISTNAMES (0x77CC*(BMC_NAME_LEN_SETLISTS+1))
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_SETLISTS > 0 && BMC_NAME_LEN_SETLIST_SONG > 1
-    #undef _____BMC_SETLISTSONGNAMES
-    #define _____BMC_SETLISTSONGNAMES (0x67CD*(BMC_NAME_LEN_SETLIST_SONG+1))
-  #endif
-  // create the value to use within the CRC
-  #if BMC_MAX_SETLISTS > 0 && BMC_NAME_LEN_SETLIST_SONG_PART > 1
-    #undef _____BMC_SETLISTSONGPARTNAMES
-    #define _____BMC_SETLISTSONGPARTNAMES (0x77DD*(BMC_NAME_LEN_SETLIST_SONG_PART+1))
-  #endif
-
-
-
-  // SETLIST NAMES ****************************************************
-
   #if !defined(BMC_DEFAUL_DEVICE_ID)
     #define BMC_DEFAUL_DEVICE_ID 0
   #else
@@ -934,6 +794,8 @@
       #undef BMC_USE_CLICK_TRACK
     #endif
   #endif
+
+  
 
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS+BMC_MAX_BI_LEDS+BMC_MAX_GLOBAL_BI_LEDS+BMC_MAX_TRI_LEDS+BMC_MAX_GLOBAL_TRI_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS+BMC_MAX_PIXEL_STRIP)
@@ -992,6 +854,11 @@
   #define BMC_USE_SYNC
 #endif
 
+
+#if BMC_MAX_ILI9341_BLOCKS > 0 || defined(BMC_HAS_BUTTONS)
+  #define BMC_USE_ON_BOARD_EDITOR
+#endif
+
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch
   // the test of alls LED and PIXELS should not exceed more than 4 seconds.
@@ -1002,11 +869,10 @@
 
   #define BMC_MAX_LED_TEST_DELAY 25
 
-  #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BI_LEDS*12)+(BMC_MAX_GLOBAL_BI_LEDS*13)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44))
+  #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BI_LEDS*12)+(BMC_MAX_GLOBAL_BI_LEDS*13)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44) +(BMC_MAX_GLOBAL_MAGIC_ENCODERS*55))
 
   // Create a CRC based on the current build
-  #define _____BMC_NAMES (uint16_t)((_____BMC_HARDWARENAMES) + (_____BMC_PRESETNAMES) + (_____BMC_SETLISTNAMES) + (_____BMC_SETLISTSONGNAMES) + (_____BMC_SETLISTSONGPARTNAMES) + (_____BMC_TIMEDEVENTSNAMES) + (_____BMC_LIBRARYNAMES) + (_____BMC_STRINGLIBRARYNAMES))
-  #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_BI_LEDS*23)+(BMC_MAX_TRI_LEDS*24)+(BMC_MAX_PWM_LEDS*33)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)+(BMC_MAX_PIXEL_STRIP*49)) * BMC_MAX_PAGES))
+  #define _____BMC_PAGES (uint16_t)((((BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_BI_LEDS*23)+(BMC_MAX_TRI_LEDS*24)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)+(BMC_MAX_PIXEL_STRIP*49)+(BMC_MAX_GLOBAL_MAGIC_ENCODERS*37)) * BMC_MAX_PAGES))
   #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_LFO*87) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
   #define BMC_CRC (uint16_t)((((_____BMC_GLOBAL)+(sizeof(bmcStore))) & 0xFFFF))
 

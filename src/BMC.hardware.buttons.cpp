@@ -477,13 +477,6 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
       }
       break;
   #endif
-  #if BMC_MAX_PWM_LEDS > 0
-    case BMC_BUTTON_EVENT_TYPE_PWM_LED_TEMP_BLINK:
-      if(byteA<BMC_MAX_PWM_LEDS){
-        pwmLeds[byteA].quickBlink(byteB);
-      }
-      break;
-  #endif
       case BMC_BUTTON_EVENT_TYPE_SAVE_EEPROM:
         editor.saveEEPROM();
         if(callback.storeUpdated){

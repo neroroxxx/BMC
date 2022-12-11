@@ -107,8 +107,19 @@ public:
   void setCalibration(uint16_t t_min, uint16_t t_max){
     uint16_t limit = 1023;
     t_min = (t_min >= limit) ? 0 : t_min;
-    t_max = (t_max > limit) ? 1023 : t_max;
+    t_max = (t_max > limit) ? limit : t_max;
     if(t_min>=t_max){
+      t_min = 0;
+      t_max = limit;
+    }
+    if(t_min > 511){
+      t_min = 0;  
+    }
+    if(t_max < 512){
+      t_max = limit;  
+    }
+    // prevent too short a range which may brick the teensy
+    if(t_max-t_min < 500){
       t_min = 0;
       t_max = limit;
     }

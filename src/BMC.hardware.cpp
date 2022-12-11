@@ -36,19 +36,18 @@ void BMC::setupHardware(){
   setupEncoders();
 #endif
 
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  setupMagicEncoders();
+#endif
+
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   setupPots();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
   // BMC.hardware.relays
-  setupRelaysNL();
-#endif
-
-#if BMC_MAX_L_RELAYS > 0
-  // BMC.hardware.relays
-  setupRelaysL();
+  setupRelays();
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
@@ -73,6 +72,10 @@ void BMC::assignHardware() {
   assignEncoders();
 #endif
 
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  assignMagicEncoders();
+#endif
+
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   assignPots();
@@ -88,12 +91,8 @@ void BMC::assignHardware() {
   assignLeds();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0
-  assignRelaysNL();
-#endif
-
-#if BMC_MAX_L_RELAYS > 0
-  assignRelaysL();
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
+  assignRelays();
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
@@ -170,6 +169,12 @@ void BMC::readHardware(){
   readEncoders();
 #endif
 
+
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  // BMC.hardware.encoders
+  readMagicEncoders();
+#endif
+
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   readPots();
@@ -186,14 +191,9 @@ void BMC::readHardware(){
   readPixels();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
   // BMC.hardware.relays
-  readRelaysNL();
-#endif
-
-#if BMC_MAX_L_RELAYS > 0
-  // BMC.hardware.relays
-  readRelaysL();
+  readRelays();
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
@@ -201,10 +201,6 @@ void BMC::readHardware(){
   readAuxJacks();
 #endif
 
-  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 100){
-    flags.off(BMC_FLAGS_STATUS_LED);
-    heartbeat = 0;
-  }
 }
 uint8_t BMC::parseMidiEventType(uint8_t t_type){
   // this code will take an event type from buttons, encoders, leds, pots

@@ -52,7 +52,7 @@ void BMC::assignSettings(){
   midi.setClockListenerPort(settings.getClockInputPortBit());
   editor.setChainingPort(settings.getChainingPort());
 
-  valueTyper.setOffset(settings.getTyperOffSet());
+  valueTyper.setOffset(settings.getDisplayOffset());
 
   midi.setRouting(BMC_USB, settings.getUsbRouting());
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
@@ -242,6 +242,7 @@ void BMC::ctrlHardware(){
       break;
 #endif
     case BMC_CTRL_LED_TEST:
+#if BMC_TOTAL_LEDS > 0
     {
       uint8_t deviceId = (editor.getCtrlValue()>>16) & 0xFF;
       uint16_t deviceIndex = editor.getCtrlValue() & 0xFF;
@@ -318,6 +319,7 @@ void BMC::ctrlHardware(){
         #endif
       }
     }
+#endif
       break;
 
 #if BMC_MAX_NL_RELAYS > 0
@@ -364,24 +366,23 @@ void BMC::ctrlHardware(){
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
     case BMC_CTRL_POT_CALIBRATION:
       {
-        BMC_PRINTLN("BMCCtrl::hardware::PotCalibration", editor.getCtrlValue());
+        uint32_t e = editor.getCtrlValue();
+        uint8_t deviceType = (e >> 16) & 0xFF;
+        uint16_t index = e & 0xFFFF;
+        BMC_PRINTLN("BMCCtrl::hardware::PotCalibration", deviceType, index);
         bool canceled = false;
         if(potCalibration.active()){
           if(potCalibration.getMin() < potCalibration.getMax()){
             editor.setPotCalibration(
-                potCalibration.getDeviceType(),
-                potCalibration.getIndex(),
-                potCalibration.getMin(),
-                potCalibration.getMax()
-              );
-            BMC_PRINTLN("Pot Calibration Set", potCalibration.getDeviceType(), potCalibration.getIndex(),  potCalibration.getMin(), potCalibration.getMax());
+              potCalibration.getDeviceType(),
+              potCalibration.getIndex(),
+              potCalibration.getMin(),
+              potCalibration.getMax()
+            );
           } else {
             canceled = true;
           }
         }
-        uint32_t e = editor.getCtrlValue();
-        uint8_t deviceType = (e >> 16) & 0xFF;
-        uint16_t index = e & 0xFFFF;
         analogInputCalibrationToggle(deviceType, index);
         editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(), canceled);
       }
@@ -391,6 +392,7 @@ void BMC::ctrlHardware(){
       if(potCalibration.active()){
         analogInputCalibrationToggle();
       }
+      BMC_PRINTLN("Pot Calibration Cancelled");
       editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(),true);
       break;
 #endif

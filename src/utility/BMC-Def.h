@@ -362,8 +362,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MENU_BACK  	 3
 #define BMC_MENU_UP    	 4
 #define BMC_MENU_DOWN  	 5
-#define BMC_MENU_INC   	 6
-#define BMC_MENU_DEC   	 7
+#define BMC_MENU_SHIFT   6
+#define BMC_MENU_INC   	 7
+#define BMC_MENU_DEC   	 8
 
 
 
@@ -435,35 +436,36 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_DAW_LED                     	 58
 #define BMC_EVENT_TYPE_DAW_ENCODER                 	 59
 #define BMC_EVENT_TYPE_DAW_DISPLAY                 	 60
-#define BMC_EVENT_TYPE_BEATBUDDY                   	 61
-#define BMC_EVENT_TYPE_BEATBUDDY_BPM               	 62
-#define BMC_EVENT_TYPE_BEATBUDDY_FOLDER            	 63
-#define BMC_EVENT_TYPE_FAS                         	 64
-#define BMC_EVENT_TYPE_FAS_PRESET                  	 65
-#define BMC_EVENT_TYPE_FAS_SCENE                   	 66
-#define BMC_EVENT_TYPE_FAS_BLOCK                   	 67
-#define BMC_EVENT_TYPE_FAS_BLOCK_PARAM             	 68
-#define BMC_EVENT_TYPE_HELIX                       	 69
+#define BMC_EVENT_TYPE_DAW_MAGIC_ENCODER           	 61
+#define BMC_EVENT_TYPE_BEATBUDDY                   	 62
+#define BMC_EVENT_TYPE_BEATBUDDY_BPM               	 63
+#define BMC_EVENT_TYPE_BEATBUDDY_FOLDER            	 64
+#define BMC_EVENT_TYPE_FAS                         	 65
+#define BMC_EVENT_TYPE_FAS_PRESET                  	 66
+#define BMC_EVENT_TYPE_FAS_SCENE                   	 67
+#define BMC_EVENT_TYPE_FAS_BLOCK                   	 68
+#define BMC_EVENT_TYPE_FAS_BLOCK_PARAM             	 69
+#define BMC_EVENT_TYPE_HELIX                       	 70
 // HARDWARE
-#define BMC_EVENT_TYPE_BUTTON                      	 70
-#define BMC_EVENT_TYPE_GLOBAL_BUTTON               	 71
-#define BMC_EVENT_TYPE_LED                         	 72
-#define BMC_EVENT_TYPE_GLOBAL_LED                  	 73
-#define BMC_EVENT_TYPE_BI_LED                      	 74
-#define BMC_EVENT_TYPE_GLOBAL_BI_LED               	 75
-#define BMC_EVENT_TYPE_TRI_LED                     	 76
-#define BMC_EVENT_TYPE_GLOBAL_TRI_LED              	 77
-#define BMC_EVENT_TYPE_POT                         	 78
-#define BMC_EVENT_TYPE_GLOBAL_POT                  	 79
-#define BMC_EVENT_TYPE_ENCODER                     	 80
-#define BMC_EVENT_TYPE_GLOBAL_ENCODER              	 81
-#define BMC_EVENT_TYPE_PIXEL                       	 82
-#define BMC_EVENT_TYPE_GLOBAL_PIXEL                	 83
-#define BMC_EVENT_TYPE_RGB_PIXEL                   	 84
-#define BMC_EVENT_TYPE_GLOBAL_RGB_PIXEL            	 85
-#define BMC_EVENT_TYPE_NL_RELAY                    	 86
-#define BMC_EVENT_TYPE_L_RELAY                     	 87
-#define BMC_EVENT_TYPE_AUX_JACK                    	 88
+#define BMC_EVENT_TYPE_BUTTON                      	 71
+#define BMC_EVENT_TYPE_GLOBAL_BUTTON               	 72
+#define BMC_EVENT_TYPE_LED                         	 73
+#define BMC_EVENT_TYPE_GLOBAL_LED                  	 74
+#define BMC_EVENT_TYPE_BI_LED                      	 75
+#define BMC_EVENT_TYPE_GLOBAL_BI_LED               	 76
+#define BMC_EVENT_TYPE_TRI_LED                     	 77
+#define BMC_EVENT_TYPE_GLOBAL_TRI_LED              	 78
+#define BMC_EVENT_TYPE_POT                         	 79
+#define BMC_EVENT_TYPE_GLOBAL_POT                  	 80
+#define BMC_EVENT_TYPE_ENCODER                     	 81
+#define BMC_EVENT_TYPE_GLOBAL_ENCODER              	 82
+#define BMC_EVENT_TYPE_PIXEL                       	 83
+#define BMC_EVENT_TYPE_GLOBAL_PIXEL                	 84
+#define BMC_EVENT_TYPE_RGB_PIXEL                   	 85
+#define BMC_EVENT_TYPE_GLOBAL_RGB_PIXEL            	 86
+#define BMC_EVENT_TYPE_NL_RELAY                    	 87
+#define BMC_EVENT_TYPE_L_RELAY                     	 88
+#define BMC_EVENT_TYPE_AUX_JACK                    	 89
 
 
 
@@ -473,22 +475,80 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_IO_TYPE_INPUT   1
 #define BMC_EVENT_IO_TYPE_OUTPUT  2
 
-#define BMC_DEVICE_GROUP_BUTTON 	 1
-#define BMC_DEVICE_GROUP_LED    	 2
-#define BMC_DEVICE_GROUP_ENCODER	 3
-#define BMC_DEVICE_GROUP_POT    	 4
-#define BMC_DEVICE_GROUP_RELAY  	 5
-#define BMC_DEVICE_GROUP_AUX_JACK  6
-#define BMC_DEVICE_GROUP_DISPLAY	 7
-#define BMC_DEVICE_GROUP_PRESET 	 8
-#define BMC_DEVICE_GROUP_TRIGGER 	 9
+#define BMC_DEVICE_GROUP_BUTTON       	 1
+#define BMC_DEVICE_GROUP_LED          	 2
+#define BMC_DEVICE_GROUP_ENCODER      	 3
+#define BMC_DEVICE_GROUP_POT          	 4
+#define BMC_DEVICE_GROUP_MAGIC_ENCODER	 5
+#define BMC_DEVICE_GROUP_RELAY        	 6
+#define BMC_DEVICE_GROUP_AUX_JACK     	 7
+#define BMC_DEVICE_GROUP_DISPLAY      	 8
+#define BMC_DEVICE_GROUP_PRESET       	 9
+#define BMC_DEVICE_GROUP_TRIGGER      	 10
 
 
+// ID for BMC Elements
+// HARDWARE TYPES
+#define BMC_DEVICE_ID_PAGE                 	 1
+#define BMC_DEVICE_ID_EVENT                	 2
+#define BMC_DEVICE_ID_NAME                 	 3
+// hardware
+#define BMC_DEVICE_ID_BUTTON               	 4
+#define BMC_DEVICE_ID_GLOBAL_BUTTON        	 5
+#define BMC_DEVICE_ID_LED                  	 6
+#define BMC_DEVICE_ID_GLOBAL_LED           	 7
+#define BMC_DEVICE_ID_ENCODER              	 8
+#define BMC_DEVICE_ID_GLOBAL_ENCODER       	 9
+#define BMC_DEVICE_ID_POT                  	 10
+#define BMC_DEVICE_ID_GLOBAL_POT           	 11
+#define BMC_DEVICE_ID_PIXEL                	 12
+#define BMC_DEVICE_ID_GLOBAL_PIXEL         	 13
+#define BMC_DEVICE_ID_RGB_PIXEL            	 14
+#define BMC_DEVICE_ID_GLOBAL_RGB_PIXEL     	 15
+#define BMC_DEVICE_ID_BI_LED               	 16
+#define BMC_DEVICE_ID_GLOBAL_BI_LED        	 17
+#define BMC_DEVICE_ID_TRI_LED              	 18
+#define BMC_DEVICE_ID_GLOBAL_TRI_LED       	 19
+#define BMC_DEVICE_ID_MAGIC_ENCODER        	 20
+#define BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER 	 21
+// only page
+#define BMC_DEVICE_ID_OLED                 	 22
+#define BMC_DEVICE_ID_ILI                  	 23
+#define BMC_DEVICE_ID_PIXEL_STRIP          	 24
+// only global
+#define BMC_DEVICE_ID_NL_RELAY             	 25
+#define BMC_DEVICE_ID_L_RELAY              	 26
+#define BMC_DEVICE_ID_AUX_JACK             	 27
+// pot calibration
+#define BMC_DEVICE_ID_POT_CALIBRATION      	 28
+// presets and setlist
+#define BMC_DEVICE_ID_PRESET               	 29
+#define BMC_DEVICE_ID_SETLIST              	 30
+#define BMC_DEVICE_ID_SETLIST_SONG         	 31
+#define BMC_DEVICE_ID_SETLIST_SONG_LIBRARY 	 32
+// special evvents
+#define BMC_DEVICE_ID_CUSTOM_SYSEX         	 33
+#define BMC_DEVICE_ID_TRIGGER              	 34
+#define BMC_DEVICE_ID_TEMPO_TO_TAP         	 35
+#define BMC_DEVICE_ID_PIXEL_PROGRAM        	 36
+#define BMC_DEVICE_ID_TIMED_EVENT          	 37
+#define BMC_DEVICE_ID_LFO                  	 38
+//others
+#define BMC_DEVICE_ID_SKETCH_BYTE          	 39
+#define BMC_DEVICE_ID_PORT_PRESET          	 40
+#define BMC_DEVICE_ID_SHORTCUTS            	 41
+
+
+
+
+/*
+// original values
 // ID for BMC Elements
 // HARDWARE TYPES
 #define BMC_DEVICE_ID_PAGE                	 1
 #define BMC_DEVICE_ID_EVENT               	 2
 #define BMC_DEVICE_ID_NAME                	 3
+
 #define BMC_DEVICE_ID_BUTTON              	 4
 #define BMC_DEVICE_ID_LED                 	 5
 #define BMC_DEVICE_ID_ENCODER             	 6
@@ -526,6 +586,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DEVICE_ID_SHORTCUTS              39
 #define BMC_DEVICE_ID_PIXEL_STRIP            40
 #define BMC_DEVICE_ID_POT_CALIBRATION        41
+#define BMC_DEVICE_ID_MAGIC_ENCODER          42
+#define BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER   43
+*/
 
 
 
@@ -1413,6 +1476,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // bit 0 = red
 // bit 1 = green
 // bit 2 = blue
+#define BMC_COLOR_DEFAULT 0
 #define BMC_COLOR_BLACK 0
 #define BMC_COLOR_RED B0001 // 1
 #define BMC_COLOR_GREEN B0010 // 2

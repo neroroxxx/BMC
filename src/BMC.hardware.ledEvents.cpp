@@ -80,13 +80,6 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
       }
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-      if(ledType==BMC_LED_TYPE_PWM){
-        if(byteA<BMC_MAX_PWM_LEDS){
-          return pwmLedCustomState[byteA];
-        }
-      }
-#endif
 
 #if BMC_MAX_PIXELS > 0
       if(ledType==BMC_LED_TYPE_PIXEL){
@@ -368,14 +361,6 @@ void BMC::handleClockLeds(){
   }
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_PWM_LEDS; index++){
-    bmcStoreLed& item = store.pages[page].pwmLeds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      pwmLeds[index].pulse(((BMC_GET_BYTE(3, item.event)) & 0x7F));
-    }
-  }
-#endif
 
 #if BMC_MAX_PIXELS > 0
   for(uint8_t index = 0; index < BMC_MAX_PIXELS; index++){
@@ -417,16 +402,20 @@ void BMC::controlFirstLed(bool t_value){
     globalLeds[0].overrideState(t_value);
   #endif
 
-  #if BMC_MAX_PWM_LEDS > 0
-    pwmLeds[0].overrideState(t_value?127:0);
-  #endif
-
   #if BMC_MAX_PIXELS > 0
     pixels.setState(0, t_value?255:0);
   #endif
 
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    globalPixels.setGlobalState(0, t_value?255:0);
+  #endif
+
   #if BMC_MAX_RGB_PIXELS > 0
     pixels.setStateRgb(0, 0, t_value);
+  #endif
+
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    pixels.setStateGlobalRgb(0, 0, t_value);
   #endif
 }
 #endif
