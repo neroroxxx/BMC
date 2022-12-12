@@ -49,10 +49,10 @@ public:
       renderConfirmSave();
     } else if(settingsEditor.switchToPage()){
       resetIndex();
-      renderEditorLevel(settingsEditor.getTargetPage());
+      render(settingsEditor.getTargetPage());
     } else if(settingsEditor.renderLevel()){
       resetIndex();
-      renderEditorLevel(level);
+      render(level);
     }
     namesEditor.update();
     if(namesEditor.confirmSave()){
@@ -60,20 +60,20 @@ public:
       renderConfirmSave();
     } else if(namesEditor.switchToPage()){
       resetIndex();
-      renderEditorLevel(namesEditor.getTargetPage());
+      render(namesEditor.getTargetPage());
     }
   }
   void resetIndex(){
     listIndex = 0;
     listIndexPage = 0;
   }
-  void renderEditorLevel(uint16_t t_level){
+  void render(uint16_t t_level){
     level = t_level;
     char title[20] = "";
 
     switch(level){
       case BMC_OBE_LEVEL_MAIN:
-        strcpy(title, "BMC EDITOR");
+        strcpy(title, "BMC Editor");
         listLength = 5;
         listTotalPages = 1;
         break;
@@ -82,19 +82,19 @@ public:
         listLength = settingsEditor.getListLength();
         break;
       case BMC_OBE_LEVEL_EVENTS:
-        strcpy(title, "EVENTS");
+        strcpy(title, "Events");
         listLength = namesEditor.getListLength();
         break;
       case BMC_OBE_LEVEL_NAMES:
-        strcpy(title, "NAMES");
+        strcpy(title, "Names");
         listLength = BMC_MAX_NAMES_LIBRARY;
         break;
       case BMC_OBE_LEVEL_DEVICES:
-        strcpy(title, "DEVICES");
+        strcpy(title, "Devices");
         listLength = editor.devicesDataLength;
         break;
       case BMC_OBE_LEVEL_PAGES:
-        strcpy(title, "CHANGE PAGE");
+        strcpy(title, "Change Pages");
         listLength = BMC_MAX_PAGES;
         break;
       case BMC_OBE_LEVEL_NAMES_EDITOR:
@@ -107,7 +107,7 @@ public:
         return;
         break;
     }
-    listTotalPages = ceil(listLength/8.0);
+    listTotalPages = ceil(listLength/BMC_OBE_LIST_LENGTH);
     if(listTotalPages==0){
       listTotalPages = 1;
     }
@@ -115,29 +115,29 @@ public:
     // set color for menu options
     tft.display.setTextColor(BMC_COLOR_EDITOR_TXT);
     tft.display.setTextSize(BMC_OBE_LIST_TXT_SIZE);    
-    uint16_t y = BMC_OBE_LIST_HEAD_H;
+    uint16_t y = BMC_OBE_LIST_HEAD_H+8;
     
     uint8_t valueOffset = settings.getDisplayOffset()?0:1;
     bool highlight = false;
-    for(uint16_t i = (listIndexPage*8), e = 0 ; e < 8 ; i++, e++){
-      if(e>0){
-        y += BMC_OBE_LIST_H;
-      }
+    for(uint16_t i = (listIndexPage*BMC_OBE_LIST_LENGTH), e = 0 ; e < BMC_OBE_LIST_LENGTH ; i++, e++){
+      
       if(highlight){
         highlight = false;
         tft.display.setTextColor(BMC_COLOR_EDITOR_TXT);
       }
       // black out the entire row
       tft.display.fillRect(0, y, 320, BMC_OBE_LIST_H, BMC_ILI9341_BLACK);
-      //add a little block to note which row has been selected
-      if(listIndex == i){
-        drawSelChar(y+BMC_OBE_LIST_TXT_Y, true);
-      }
       if(i >= listLength){
+        y += BMC_OBE_LIST_H;
         continue;
       }
-      tft.display.drawFastHLine(0, y, 320, BMC_COLOR_EDITOR_GRAY);
-      tft.display.setCursor(16, y+BMC_OBE_LIST_TXT_Y);
+      //add a little block to note which row has been selected
+      if(listIndex == i){
+        //drawSelChar(y+BMC_OBE_LIST_TXT_Y, true);
+        drawSelChar(y, true);
+      }
+      //tft.display.drawFastHLine(0, y, 320, BMC_COLOR_EDITOR_GRAY);
+      tft.display.setCursor(8, y+BMC_OBE_LIST_TXT_Y);
 
       char strBuffer[33] = "";
       if(listLength > 99){
@@ -159,6 +159,7 @@ public:
         tft.display.setTextColor(BMC_ILI9341_YELLOW);
       }
       tft.display.print(strBuffer);
+      y += BMC_OBE_LIST_H;
     }
   }
   void renderConfirmSave(){
@@ -169,41 +170,53 @@ public:
     // set color for menu options
     tft.display.setTextColor(BMC_COLOR_EDITOR_TXT);
     tft.display.setTextSize(BMC_OBE_LIST_TXT_SIZE);    
-    uint16_t y = BMC_OBE_LIST_HEAD_H;
-    for(uint16_t i = (listIndexPage*8), e = 0 ; e < 8 ; i++, e++){
-      //BMC_PRINTLN("listIndexPage", listIndexPage, e, i);
-      if(e>0){
-        y += BMC_OBE_LIST_H;
-      }
+    uint16_t y = BMC_OBE_LIST_HEAD_H+8;
+    for(uint16_t i = (listIndexPage*BMC_OBE_LIST_LENGTH), e = 0 ; e < BMC_OBE_LIST_LENGTH ; i++, e++){
       // black out the entire row
       tft.display.fillRect(0, y, 320, BMC_OBE_LIST_H, BMC_ILI9341_BLACK);
-      //add a little block to note which row has been selected
-      if(listIndex == i){
-        //tft.display.setTextColor(BMC_ILI9341_ORANGE);
-        //tft.display.setCursor(1, y+BMC_OBE_LIST_TXT_Y);
-        //tft.display.print(">");
-        //tft.display.setTextColor(BMC_COLOR_EDITOR_TXT);
-        drawSelChar(y+BMC_OBE_LIST_TXT_Y, true);
-      }
       if(i >= listLength){
+        y += BMC_OBE_LIST_H;
         continue;
       }
-      tft.display.drawFastHLine(0, y, 320, BMC_COLOR_EDITOR_GRAY);
-      tft.display.setCursor(16, y+BMC_OBE_LIST_TXT_Y);
-      if(e==0){
-        tft.display.print("No");
-      } else {
-        tft.display.print("Yes");
+      //add a little block to note which row has been selected
+      if(listIndex == i){
+        drawSelChar(y, true);
       }
+      //tft.display.drawFastHLine(0, y, 320, BMC_COLOR_EDITOR_GRAY);
+      tft.display.setCursor(8, y+BMC_OBE_LIST_TXT_Y);
+      if(e<2){
+        //yesNoLabels
+        tft.display.print(yesNoLabels[e]);
+      }
+      //tft.display.print((e==0) ? "No" : "Yes");
+      y += BMC_OBE_LIST_H;
     }
   }
+  void updateListIndex(){
+    uint16_t y = BMC_OBE_LIST_HEAD_H+8;
+    for(uint16_t i=(listIndexPage*BMC_OBE_LIST_LENGTH), e=0;i<listLength;i++, e++){
+      drawSelChar(y, (listIndex == i));
+      y += BMC_OBE_LIST_H;
+      //drawSelChar(y+BMC_OBE_LIST_TXT_Y, (listIndex == i));
+    }
+  }
+  void drawSelChar(uint16_t y, bool on){
+    uint16_t color = on ? BMC_ILI9341_ORANGE : BMC_ILI9341_BLACK;
+    tft.display.fillRect(0, y, 4, BMC_OBE_LIST_H, color);
+    //tft.display.drawChar(1, y, BMC_OBE_SEL_CHAR, color, 0, BMC_OBE_LIST_TXT_SIZE);
+  }
   void renderHeader(const char* title){
-    tft.display.fillRect(0, 0, 320, BMC_OBE_LIST_HEAD_H, BMC_ILI9341_ORANGE);
+    //tft.display.setFontAdafruit();
+    tft.display.setFont(BMC_OBE_HEAD_FONT);
+    tft.display.fillRect(0, 0, 320, BMC_OBE_LIST_HEAD_H, BMC_OBE_HEAD_COLOR);
     tft.display.setTextSize(BMC_OBE_LIST_HEAD_TXT_SIZE);
     uint16_t x = (320-((strlen(title)*BMC_OBE_LIST_HEAD_CHAR_WIDTH)-BMC_OBE_LIST_HEAD_TXT_SIZE))/2;
     tft.display.setCursor(x, BMC_OBE_LIST_HEAD_TXT_Y);
-    tft.display.setTextColor(BMC_ILI9341_BLACK);
+    tft.display.setTextColor(BMC_ILI9341_WHITE);
     tft.display.print(title);
+    
+    //tft.display.setFontAdafruit();
+    tft.display.setFont(BMC_OBE_LIST_FONT);
     tft.display.setTextSize(BMC_OBE_LIST_TXT_SIZE);
   }
   bool getLabel(uint16_t index, char * str){
@@ -239,19 +252,6 @@ public:
     }
     return false;
   }
-  void updateListIndex(){
-    uint16_t y = BMC_OBE_LIST_HEAD_H;
-    for(uint16_t i=(listIndexPage*8), e=0;i<listLength;i++, e++){
-      if(e > 0){
-        y += BMC_OBE_LIST_H;
-      }
-      drawSelChar(y+BMC_OBE_LIST_TXT_Y, listIndex == i);
-    }
-  }
-  void drawSelChar(uint16_t y, bool on){
-    uint16_t color = on ? BMC_ILI9341_ORANGE : BMC_ILI9341_BLACK;
-    tft.display.drawChar(1, y, BMC_OBE_SEL_CHAR, color, 0, BMC_OBE_LIST_TXT_SIZE);
-  }
   void menuCommandToggle(){
     if(globals.editorConnected() || waitingForSaveConfirmation){
       return;
@@ -275,7 +275,7 @@ public:
     if(level == BMC_OBE_LEVEL_MAIN){
       level = listIndex+1;
       resetIndex();
-      renderEditorLevel(level);
+      render(level);
 
     } else if(level==BMC_OBE_LEVEL_PAGES){
       if(listIndex < BMC_MAX_PAGES && BMC_MAX_PAGES>1){
@@ -287,7 +287,7 @@ public:
       }
     } else if(level == BMC_OBE_LEVEL_NAMES){
 
-      renderEditorLevel(BMC_OBE_LEVEL_NAMES_EDITOR);
+      render(BMC_OBE_LEVEL_NAMES_EDITOR);
 
     } else if(level == BMC_OBE_LEVEL_NAMES_EDITOR){
 
@@ -317,7 +317,7 @@ public:
 
     } else {
       resetIndex();
-      renderEditorLevel(BMC_OBE_LEVEL_MAIN);
+      render(BMC_OBE_LEVEL_MAIN);
     }
   }
   void menuCommandUp(){
@@ -387,13 +387,13 @@ public:
   }
   void cursorUp(){
     if(inShift()){
-      if(listTotalPages>1){
+      if(listTotalPages > 1){
         listIndexPage--;
         if(listIndexPage < 0){
           listIndexPage = listTotalPages-1;
         }
-        listIndex = (listIndexPage*8);
-        renderEditorLevel(level);
+        listIndex = (listIndexPage*BMC_OBE_LIST_LENGTH);
+        render(level);
         return;
       }
     }
@@ -402,15 +402,15 @@ public:
       listIndex = listLength-1;
       if(listTotalPages>1){
         listIndexPage = listTotalPages-1;
-        renderEditorLevel(level);
+        render(level);
       } else {
         updateListIndex();
       }
     } else {
-      if(listIndex < (listIndexPage*8)){
+      if(listIndex < (listIndexPage*BMC_OBE_LIST_LENGTH)){
         if(listIndexPage>0){
           listIndexPage--;
-          renderEditorLevel(level);
+          render(level);
           return;
         }
       }
@@ -424,8 +424,8 @@ public:
         if(listIndexPage >= listTotalPages){
           listIndexPage = 0;
         }
-        listIndex = (listIndexPage*8);
-        renderEditorLevel(level);
+        listIndex = (listIndexPage*BMC_OBE_LIST_LENGTH);
+        render(level);
         return;
       }
     }
@@ -433,15 +433,15 @@ public:
     if(listIndex >= listLength){
       resetIndex();
       if(listTotalPages>1){
-        renderEditorLevel(level);
+        render(level);
       } else {
         updateListIndex();
       }
     } else {
-      if(listIndex >= ((listIndexPage+1)*8)){
+      if(listIndex >= ((listIndexPage+1)*BMC_OBE_LIST_LENGTH)){
         if(listIndexPage < listTotalPages){
           listIndexPage++;
-          renderEditorLevel(level);
+          render(level);
           return;
         }
       }
@@ -476,8 +476,16 @@ private:
     "Settings",
     "Events",
     "Names",
-    "Devices",
+    "pgDevices",
     "Change Page"
+  };
+  const char onOffLabels[2][4] = {
+    "Off",
+    "On"
+  };
+  const char yesNoLabels[2][4] = {
+    "No",
+    "Yes"
   };
   void reset(){
     flags.reset();
@@ -491,14 +499,16 @@ private:
     waitingForSaveConfirmation = false;
   }
   void enterEditor(){
+    tft.display.setFont(BMC_OBE_LIST_FONT);
     tft.display.fillRect(0, 0, 320, 240, BMC_ILI9341_BLACK);
-    renderEditorLevel(0);
+    render(0);
   }
   void exitEditor(){
     settingsEditor.shutDown();
     namesEditor.shutDown();
     globals.setOnBoardEditorActive(false);
     reset();
+    tft.display.setFontAdafruit();
     tft.display.fillRect(0, 0, 320, 240, BMC_ILI9341_BLACK);
     display.reassign(globals.page);
   }

@@ -2741,7 +2741,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #endif
   #if BMC_MAX_ILI9341_BLOCKS > 0
     #include <ILI9341_t3.h>
-    #include "font_Arial.h"
+    #include "editor/onBoard/BMC-OBEFont.h"
+    #include "editor/onBoard/BMC-OBEFontBold.h"
     #include "display/BMC-Display-ILI9341.h"
     #include "display/BMC-Display-ILI9341Block.h"
   #endif

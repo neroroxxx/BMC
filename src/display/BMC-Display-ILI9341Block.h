@@ -171,26 +171,26 @@ class BMC_ILI9341_BLOCK {
       if(totalLines==1){
         if(len==1){
           if(hBound==40){
-            tft.setFont(Arial_20);
+            //tft.setFont(Arial_20);
             fontH = 25;
           } else {
-            tft.setFont(Arial_40);
+            //tft.setFont(Arial_40);
             fontH = 50; // 40 + (40/4)
           }
         } else if(len==2){
           if(hBound==40){
-            tft.setFont(Arial_20);
+            //tft.setFont(Arial_20);
             fontH = 25;
           } else {
-            tft.setFont(Arial_32);
+            //tft.setFont(Arial_32);
             fontH = 40; // 32 + (32/4)
           }
         } else {
-          tft.setFont(Arial_18);
+          //tft.setFont(Arial_18);
           fontH = 22; // 18 + (18/4)
         }
       } else {
-        tft.setFont(Arial_18);
+        //tft.setFont(Arial_18);
         fontH = 27; // 18 + (18/4)
       }
 

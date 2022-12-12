@@ -18,7 +18,7 @@
 #include "display/BMC-Display.h"
 #include "editor/onBoard/BMC-OBEDef.h"
 #include "editor/onBoard/BMC-OBEMain.h"
-
+/*
 class BMCOBESettingsItem {
 public:
   uint8_t id = 0;
@@ -46,7 +46,7 @@ public:
     
   }
 };
-
+*/
 
 /*
 case BMC_OBE_SETTINGS_TYPE_LENGTH:

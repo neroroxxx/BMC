@@ -26,14 +26,19 @@
 
 #define BMC_OBE_SEL_CHAR BMC_OBE_SEL_CHAR_ARROW
 
+#define BMC_OBE_LIST_LENGTH 6.0
 
 #define BMC_OBE_LIST_HEAD_H 32
 #define BMC_OBE_LIST_HEAD_TXT_SIZE 2
 #define BMC_OBE_LIST_HEAD_CHAR_WIDTH (6*BMC_OBE_LIST_HEAD_TXT_SIZE)
-#define BMC_OBE_LIST_HEAD_TXT_Y 8 // 6 for 3 pixel font
+#define BMC_OBE_LIST_HEAD_TXT_Y 8 // 6
 
-#define BMC_OBE_LIST_H 26
-#define BMC_OBE_LIST_TXT_Y 7
+#define BMC_OBE_HEAD_COLOR 0x2806
+#define BMC_OBE_HEAD_FONT BMCLiberationSansNarrow_18_Bold
+#define BMC_OBE_LIST_FONT BMCLiberationSansNarrow_18
+
+#define BMC_OBE_LIST_H 32
+#define BMC_OBE_LIST_TXT_Y 5
 #define BMC_OBE_LIST_TXT_SIZE 2
 
 #define BMC_OBE_LEVEL_MAIN 0
