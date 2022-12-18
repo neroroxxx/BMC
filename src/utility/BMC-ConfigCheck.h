@@ -283,25 +283,63 @@
     #define BMC_DEVICE_NAME "BMC"
   #endif
 
-  #if defined(BMC_USE_USB_HOST) && BMC_TEENSY_HAS_USB_HOST == true
-    #define BMC_USB_HOST_ENABLED
-  #endif
+  
+  /*
+  availablePortsData[availablePorts++] = BMC_MIDI_PORT_USB_BIT;
+		#if defined(BMC_MIDI_SERIAL_A_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_A_BIT;
+    #endif
+    #if defined(BMC_MIDI_SERIAL_B_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_B_BIT;
+    #endif
+    #if defined(BMC_MIDI_SERIAL_C_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_C_BIT;
+    #endif
+    #if defined(BMC_MIDI_SERIAL_D_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_D_BIT;
+    #endif
+		#if defined(BMC_USB_HOST_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_HOST_BIT;
+    #endif
+		#if defined(BMC_MIDI_BLE_ENABLED)
+      availablePortsData[availablePorts++] = BMC_MIDI_PORT_BLE_BIT;
+    #endif
+  */
 
   #if defined(BMC_USE_MIDI_SERIAL_A) && defined(BMC_MIDI_SERIAL_IO_A)
     #define BMC_MIDI_SERIAL_A_ENABLED
+    #define _BMC_MIDISERIAL_A_ 1
+  #else
+    #define _BMC_MIDISERIAL_A_ 0
   #endif
   #if defined(BMC_USE_MIDI_SERIAL_B) && defined(BMC_MIDI_SERIAL_IO_B)
     #define BMC_MIDI_SERIAL_B_ENABLED
+    #define _BMC_MIDISERIAL_B_ 1
+  #else
+    #define _BMC_MIDISERIAL_B_ 0
   #endif
   #if defined(BMC_USE_MIDI_SERIAL_C) && defined(BMC_MIDI_SERIAL_IO_C)
     #define BMC_MIDI_SERIAL_C_ENABLED
+    #define _BMC_MIDISERIAL_C_ 1
+  #else
+    #define _BMC_MIDISERIAL_C_ 0
   #endif
   #if defined(BMC_USE_MIDI_SERIAL_D) && defined(BMC_MIDI_SERIAL_IO_D) && BMC_TEENSY_TOTAL_SERIAL_PORTS > 3
     #define BMC_MIDI_SERIAL_D_ENABLED
+    #define _BMC_MIDISERIAL_D_ 1
+  #else
+    #define _BMC_MIDISERIAL_D_ 0
   #endif
 
   #if defined(BMC_MIDI_SERIAL_A_ENABLED) || defined(BMC_MIDI_SERIAL_B_ENABLED) || defined(BMC_MIDI_SERIAL_C_ENABLED) || defined(BMC_MIDI_SERIAL_D_ENABLED)
     #define BMC_HAS_SERIAL_MIDI
+  #endif
+
+  #if defined(BMC_USE_USB_HOST) && BMC_TEENSY_HAS_USB_HOST == true
+    #define BMC_USB_HOST_ENABLED
+    #define _BMC_MIDIHOST_ 1
+  #else
+    #define _BMC_MIDIHOST_ 0
   #endif
 
   #if defined(BMC_USE_MIDI_BLE)
@@ -315,7 +353,12 @@
       #define BMC_MIDI_BLE_BOARD 0 // nRF8001
       // set BMC_MIDI_BLE_BOARD  to 1 for adafruit SPI Friend
     #endif
+    #define _BMC_MIDIBLE_ 1
+  #else
+    #define _BMC_MIDIBLE_ 0
   #endif
+
+  #define BMC_TOTAL_AVAILABLE_PORTS (1+_BMC_MIDISERIAL_A_+_BMC_MIDISERIAL_B_+_BMC_MIDISERIAL_C_+_BMC_MIDISERIAL_D_+_BMC_MIDIHOST_+_BMC_MIDIBLE_)
 
   #ifndef BMC_MAX_SKETCH_BYTES
     #define BMC_MAX_SKETCH_BYTES 0

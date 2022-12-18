@@ -360,8 +360,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MENU_TOGGLE	 1
 #define BMC_MENU_SELECT	 2
 #define BMC_MENU_BACK  	 3
-#define BMC_MENU_UP    	 4
-#define BMC_MENU_DOWN  	 5
+#define BMC_MENU_PREV    4
+#define BMC_MENU_NEXT  	 5
 #define BMC_MENU_SHIFT   6
 #define BMC_MENU_INC   	 7
 #define BMC_MENU_DEC   	 8
@@ -1541,6 +1541,51 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ILI9341_ORANGE 0xFD20
 #define BMC_ILI9341_GREENYELLOW 0xAFE5
 #define BMC_ILI9341_PINK 0xFC18
+
+
+#define BMC_ILI9341_GRAY_1 0x0841
+#define BMC_ILI9341_GRAY_2 0x1082
+#define BMC_ILI9341_GRAY_3 0x18C3
+#define BMC_ILI9341_GRAY_4 0x2104
+#define BMC_ILI9341_GRAY_5 0x2945
+#define BMC_ILI9341_GRAY_6 0x3186
+#define BMC_ILI9341_GRAY_7 0x39C7
+#define BMC_ILI9341_GRAY_8 0x4208
+#define BMC_ILI9341_GRAY_9 0x4A49
+#define BMC_ILI9341_GRAY_10 0x528A
+#define BMC_ILI9341_GRAY_11 0x5ACB
+#define BMC_ILI9341_GRAY_12 0x630C
+#define BMC_ILI9341_GRAY_13 0x6B4D
+#define BMC_ILI9341_GRAY_14 0x738E
+#define BMC_ILI9341_GRAY_15 0x7BCF
+#define BMC_ILI9341_GRAY_16 0x8C51
+#define BMC_ILI9341_GRAY_17 0x9492
+#define BMC_ILI9341_GRAY_18 0x9CD3
+
+#define BMC_ILI9341_GRAY_19 0xA514
+#define BMC_ILI9341_GRAY_20 0xAD55
+#define BMC_ILI9341_GRAY_21 0xB596
+#define BMC_ILI9341_GRAY_22 0xBDD7
+#define BMC_ILI9341_GRAY_23 0xC618
+#define BMC_ILI9341_GRAY_24 0xCE59
+#define BMC_ILI9341_GRAY_25 0xD69A
+
+#define BMC_ILI9341_GRAY_26 0xDEDB
+#define BMC_ILI9341_GRAY_27 0xE71C
+#define BMC_ILI9341_GRAY_28 0xEF5D
+#define BMC_ILI9341_GRAY_29 0xF79E
+
+
+#define BMC_LFO_SINE    	 1
+#define BMC_LFO_SAW     	 2
+#define BMC_LFO_TRIANGLE	 3
+#define BMC_LFO_SQUARE  	 4
+
+#define BMC_LFO_NOTE_DIV_WHOLE     	 0
+#define BMC_LFO_NOTE_DIV_HALF      	 1
+#define BMC_LFO_NOTE_DIV_QUARTER   	 2
+#define BMC_LFO_NOTE_DIV_EIGHTH    	 3
+#define BMC_LFO_NOTE_DIV_SIXTEENTH 	 4
 
 
 
@@ -2741,6 +2786,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #endif
   #if BMC_MAX_ILI9341_BLOCKS > 0
     #include <ILI9341_t3.h>
+    #include "font_Arial.h"
+    #include "font_ArialBold.h"
     #include "editor/onBoard/BMC-OBEFont.h"
     #include "editor/onBoard/BMC-OBEFontBold.h"
     #include "display/BMC-Display-ILI9341.h"

@@ -21,7 +21,7 @@ void BMC::setupEncoders(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
     globalEncoders[i].begin(ui.pins[0], ui.pins[1]);
   }
-  assignGlobalEncoders();
+  //assignGlobalEncoders();
 #endif
 }
 
@@ -182,8 +182,8 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
 
     case BMC_ENCODER_EVENT_TYPE_MENU:
       if(callback.menuCommand){
-        if(byteA==BMC_MENU_UP || byteA==BMC_MENU_DOWN){
-          callback.menuCommand(increased?BMC_MENU_UP:BMC_MENU_DOWN);
+        if(byteA==BMC_MENU_PREV || byteA==BMC_MENU_NEXT){
+          callback.menuCommand(increased?BMC_MENU_PREV:BMC_MENU_NEXT);
         } else if(byteA==BMC_MENU_LEFT || byteA==BMC_MENU_RIGHT){
           callback.menuCommand(increased?BMC_MENU_RIGHT:BMC_MENU_LEFT);
         } else if(byteA==BMC_MENU_INC || byteA==BMC_MENU_DEC){

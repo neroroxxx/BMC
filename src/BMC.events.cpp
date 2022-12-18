@@ -294,13 +294,12 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
             callback.menuCommand(byteA);
           }
         } else if(group == BMC_DEVICE_GROUP_ENCODER){
-          uint8_t menCmd = 0;
-          if(byteA == BMC_MENU_UP || byteA == BMC_MENU_DOWN){
-            menCmd = scroll.direction ? BMC_MENU_UP : BMC_MENU_DOWN;
-          } else if(byteA == BMC_MENU_INC || byteA == BMC_MENU_DEC){
-            menCmd = scroll.direction ? BMC_MENU_INC : BMC_MENU_DEC;
-          }
-          obe.menuCommand(menCmd);
+          //uint8_t menCmd = 0;
+          //if(byteA == BMC_MENU_PREV || byteA == BMC_MENU_NEXT){
+            //menCmd = scroll.direction ? BMC_MENU_PREV : BMC_MENU_NEXT;
+          //}
+          uint8_t menCmd = scroll.direction ? BMC_MENU_NEXT : BMC_MENU_PREV;
+          obe.menuCommand(menCmd, true);
           if(callback.menuCommand){
             callback.menuCommand(menCmd);
           }

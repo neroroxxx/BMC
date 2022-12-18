@@ -155,6 +155,130 @@ public:
     }
     return "Unknown";
   }
+  static void getButtonTriggerName(uint8_t value, char* str){
+    switch(value){
+      case BMC_NONE:
+        strcpy(str, "Inactive");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_PRESS:
+        strcpy(str, "Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE:
+        strcpy(str, "Release -> Always");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_HOLD:
+        strcpy(str, "Hold");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS:
+        strcpy(str, "Double Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_CONTINUOUS:
+        strcpy(str, "Continuous");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
+        strcpy(str, "2nd Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
+        strcpy(str, "Release -> Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
+        strcpy(str, "Release -> Hold");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
+        strcpy(str, "Release -> Dbl Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
+        strcpy(str, "Release -> Continuous");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
+        strcpy(str, "Release -> 2nd Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
+        strcpy(str, "State Change");
+        break;
+      default:
+        sprintf(str, "%u Inactive", value);
+        break;
+    }
+  }
+  static void getPixelColorName(uint8_t value, char* str){
+    switch(value){
+      case BMC_NONE:
+      case BMC_PIXEL_RED:           strcpy(str, "Red"); break;
+      case BMC_PIXEL_GREEN:         strcpy(str, "Green"); break;
+      case BMC_PIXEL_BLUE:          strcpy(str, "Blue"); break;
+      case BMC_PIXEL_YELLOW:        strcpy(str, "Yellow"); break;
+      case BMC_PIXEL_MAGENTA:       strcpy(str, "Magenta"); break;
+      case BMC_PIXEL_CYAN:          strcpy(str, "Cyan"); break;
+      case BMC_PIXEL_ORANGE:        strcpy(str, "Orange"); break;
+      case BMC_PIXEL_WHITE:         strcpy(str, "White"); break;
+      case BMC_PIXEL_RAINBOW:       strcpy(str, "Rainbow"); break;
+      case BMC_PIXEL_RAINBOW_FADE:  strcpy(str, "Rainbow (Fade)"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderColorName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Red"); break;
+      case 1:     strcpy(str, "Green"); break;
+      case 2:     strcpy(str, "Blue"); break;
+      case 3:     strcpy(str, "Magenta"); break;
+      case 4:     strcpy(str, "Cyan"); break;
+      case 5:     strcpy(str, "Yellow"); break;
+      case 6:     strcpy(str, "Rainbow"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderModeName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Dot"); break;
+      case 1:     strcpy(str, "Boost/Cut"); break;
+      case 2:     strcpy(str, "Wrap"); break;
+      case 3:     strcpy(str, "Spread"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderTriggerName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Inactive"); break;
+      case 1:     strcpy(str, "Release"); break;
+      case 2:     strcpy(str, "Press"); break;
+      case 3:     strcpy(str, "Hold"); break;
+      case 4:     strcpy(str, "Double Press"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getLfoWaveformName(uint8_t value, char* str){
+    switch(value){
+      case BMC_LFO_SINE:       strcpy(str, "Sine"); break;
+      case BMC_LFO_SAW:        strcpy(str, "Saw"); break;
+      case BMC_LFO_TRIANGLE:   strcpy(str, "Triangle"); break;
+      case BMC_LFO_SQUARE:     strcpy(str, "Square"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getLfoNoteDivisionName(uint8_t value, char* str){
+    switch(value){
+      case BMC_LFO_NOTE_DIV_WHOLE:        strcpy(str, "Whole"); break;
+      case BMC_LFO_NOTE_DIV_HALF:         strcpy(str, "Half (1/2)"); break;
+      case BMC_LFO_NOTE_DIV_QUARTER:      strcpy(str, "Quarter (1/4)"); break;
+      case BMC_LFO_NOTE_DIV_EIGHTH:       strcpy(str, "Eighth (1/8)"); break;
+      case BMC_LFO_NOTE_DIV_SIXTEENTH:    strcpy(str, "Sixteenth (1/16)"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
   static void getBankLetter(uint8_t n, char* buff){
     if(n<32){
       const char alph[32] = BMC_ALPHABET;

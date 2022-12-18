@@ -253,6 +253,10 @@ private:
   BMCSync sync;
 #endif
 
+#if defined(BMC_HAS_DISPLAY)
+    BMCDisplay display;
+#endif
+
 #if BMC_MAX_PRESETS > 0
   BMCPresets presets;
 #endif
@@ -282,10 +286,6 @@ private:
 #if BMC_MAX_TIMED_EVENTS > 0
     BMCTimedEvents timedEvents;
     void readTimedEvent();
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-    BMCDisplay display;
 #endif
 
 #if defined(BMC_USE_ON_BOARD_EDITOR)

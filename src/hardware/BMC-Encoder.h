@@ -103,8 +103,6 @@ public:
     setupPin(pinA);
     setupPin(pinB);
 #endif
-
-
   }
   void reassign(){
     flags.reset();

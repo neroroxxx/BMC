@@ -33,7 +33,7 @@ public:
       ,sync(t_sync)
     #endif
   {
-
+    begin();
   }
   void begin(){
     BMC_PRINTLN("BMCDisplay::begin()");
@@ -66,27 +66,13 @@ public:
   void initILI9341(){
     BMC_PRINTLN("BMCDisplay::initILI9341()");
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, -1);
-    //tft.begin(BMCBuildData::getIliDisplayPosition(2));
     tft.begin(ui.rotation);
+  }
+  void initILI9341Blocks(){
     tft.clear();
-    /*
-    uint8_t textSize = 3;
-    tft.display.setTextSize(textSize);
-    while(1){
-      tft.clear();
-      for(uint8_t i=1;i<32;i++){
-        tft.display.setCursor(10, 10);
-        tft.display.print(i);
-        tft.display.setTextColor(0xFFFF, 0);
-        tft.display.drawChar(10, (textSize*8)+20, (char) i, 0xFFFF, 0, textSize);
-        delay(1000);
-      }
-    }
-    */
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
       block[i].begin(i);
     }
-     //7 16 26
   }
 #endif
 
@@ -129,14 +115,14 @@ public:
       }
 #endif
 
+    clearAll();
+
+#if BMC_MAX_ILI9341_BLOCKS > 0
 #if defined(BMC_USE_ON_BOARD_EDITOR)
     if(globals.onBoardEditorActive()){
       return;
     }
 #endif
-    clearAll();
-
-#if BMC_MAX_ILI9341_BLOCKS > 0
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
 #if defined(BMC_USE_DAW_LC)
       bmcStoreEvent e = globals.getDeviceEventType(globals.store.pages[page].ili[i].events[0]);
@@ -163,6 +149,11 @@ public:
 #if defined(BMC_USE_DAW_LC)
   #if BMC_MAX_ILI9341_BLOCKS > 0
   void initDawMeters(){
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    if(globals.onBoardEditorActive()){
+      return;
+    }
+#endif
     if(dawMetersBlock==-1){
       return;
     }
@@ -269,6 +260,11 @@ public:
   }
 
   void initDawChannels(){
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    if(globals.onBoardEditorActive()){
+      return;
+    }
+#endif
     if(dawChannelsBlock==-1){
       return;
     }
@@ -407,6 +403,11 @@ public:
 #endif
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    if(globals.onBoardEditorActive()){
+      return;
+    }
+#endif
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
       block[i].clear(tft.display);
     }
@@ -450,8 +451,8 @@ public:
     #define BMC_MENU_TOGGLE	 1
     #define BMC_MENU_SELECT	 2
     #define BMC_MENU_BACK  	 3
-    #define BMC_MENU_UP    	 4
-    #define BMC_MENU_DOWN  	 5
+    #define BMC_MENU_PREV    	 4
+    #define BMC_MENU_NEXT  	 5
     #define BMC_MENU_INC   	 6
     #define BMC_MENU_DEC   	 7
     */
@@ -506,6 +507,11 @@ void renderText(uint8_t n, bool isOled, uint8_t type, char * t_str, uint8_t xShi
 #endif
 #if BMC_MAX_ILI9341_BLOCKS > 0
     if(!isOled){
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    if(globals.onBoardEditorActive()){
+      return;
+    }
+#endif
       block[n].print(tft.display, str, xShift, yShift);
     }
 #endif

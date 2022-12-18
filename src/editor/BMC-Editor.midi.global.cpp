@@ -897,6 +897,7 @@ void BMCEditor::deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item,
   }
 }
 void BMCEditor::connectEditor(){
+  
   if(isWriteMessage()){
     // editor trying to connect
     if(midi.globals.editorConnected()){

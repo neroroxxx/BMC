@@ -332,7 +332,7 @@ uint32_t BMCEditor::getGlobalEncoderOffset(){
 uint32_t BMCEditor::getGlobalEncoderOffset(uint16_t index){
   uint32_t value = getGlobalTriLedOffset();
   #if BMC_MAX_GLOBAL_ENCODERS > 0
-    value += (sizeof(bmcStoreEncoder) * index);
+    value += (sizeof(bmcStoreDevice<1, 1>) * index);
   #endif
   return value;
 }

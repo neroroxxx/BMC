@@ -156,7 +156,7 @@ public:
   }
   bool getLabel(uint16_t index, char * str){
     if(index < BMC_MAX_NAMES_LIBRARY){
-      sprintf(str, "%s-%s", str, store.global.names[index].name);
+      sprintf(str, "%s %s", str, store.global.names[index].name);
     }
     return false;
   }

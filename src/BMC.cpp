@@ -19,6 +19,15 @@ BMC::BMC():
   #ifdef BMC_USE_SYNC
     ,sync(midi, midiClock, store.global, callback)
   #endif
+
+  #ifdef BMC_HAS_DISPLAY
+    ,display(midi, globals, callback
+    #ifdef BMC_USE_SYNC
+      ,sync
+    #endif
+    )
+  #endif
+
   #if BMC_MAX_PRESETS > 0
     //,presets(globals, store.global)
     ,presets(globals)
@@ -41,14 +50,6 @@ BMC::BMC():
   #endif
   #if BMC_MAX_TIMED_EVENTS > 0
     ,timedEvents(globals, store.global)
-  #endif
-
-  #ifdef BMC_HAS_DISPLAY
-    ,display(midi, globals, callback
-    #ifdef BMC_USE_SYNC
-      ,sync
-    #endif
-    )
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
@@ -75,15 +76,11 @@ BMC::BMC():
 }
 
 void BMC::begin(){
-
+  BMC_PRINTLN("BMC::begin");
   // keep this order
+  
   #ifdef BMC_DEBUG
     setupDebug();
-    BMC_PRINTLN("BMC::begin");
-  #endif
-
-  #if defined(BMC_HAS_DISPLAY)
-    display.begin();
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
@@ -152,6 +149,9 @@ void BMC::update(){
     BMC_PRINTLN("");
 
     #if defined(BMC_HAS_DISPLAY)
+      #if BMC_MAX_ILI9341_BLOCKS > 0
+        display.initILI9341Blocks();
+      #endif
       display.clearAll();
     #endif
     // set the current page to page 1 (0)
@@ -191,6 +191,7 @@ void BMC::update(){
     }
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
+
   }
   if(globals.reloadPage()){
     reloadPage();
