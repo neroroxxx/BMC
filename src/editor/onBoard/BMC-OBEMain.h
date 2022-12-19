@@ -28,7 +28,7 @@
 #define BMC_OBE_FLAGS_DYNAMIC_EDIT_LIST  	 6
 #define BMC_OBE_FLAGS_NO_SCROLL_BAR      	 7
 
-#define BMC_OBE_DISPLAY_ROW_ID
+// #define BMC_OBE_DISPLAY_ROW_ID
 
 class BMCOBE {
 public:
@@ -49,6 +49,7 @@ public:
     if(!globals.onBoardEditorActive()){
       return;
     }
+    devicesEditor.update();
     uint8_t queued = data.update();
     switch(queued){
       case 1:
@@ -59,6 +60,9 @@ public:
         // next
         cursorNext();
         break;
+    }
+    if(data.renderHead()){
+      renderHeader(data.headerTitle);
     }
   }
   void render(){
@@ -72,13 +76,7 @@ public:
     for(uint16_t i = 0 ; i < totalMenuItems ; i++){
       bool allowed = true;
       for(uint8_t e = 0 ; e < (data.level[0]+1) ; e++){
-        if(data.level[0] >= 3 && (items[i].id == 23 || items[i].id == 27)){
-          //BMC_PRINTLN(">>>",e, items[i].id, items[i].label, items[i].level[e], data.level[e]);
-        }
         if(items[i].id == 0 || items[i].level[e] != data.level[e]){
-          if(data.level[0] >= 3 && (items[i].id == 23 || items[i].id == 27)){
-            //BMC_PRINTLN("not allowed");
-          }
           allowed = false;
           break;
         }
@@ -111,7 +109,6 @@ public:
       }
       data.totalRows++;
     }
-    //BMC_PRINTLN("data.totalRows", data.totalRows);
     
     if(data.totalRows > 0){
       data.maxRowPages = ceil(data.totalRows / (BMC_OBE_ROWS_PER_PAGE+0.0)); // int16_t
@@ -122,8 +119,6 @@ public:
         data.rowPage = 0;
       }
     }
-
-    // BMC_PRINTLN("-----------");
 
     if(isDynamicList()){
       uint8_t startingPage = (data.rowPage*BMC_OBE_ROWS_PER_PAGE);
@@ -147,7 +142,6 @@ public:
               if(editor.devicesData[id].global == useGlobalItems){
                 if(o >= startingPage){
                   data.addToVisibleList(editor.devicesData[id].id);
-                  // BMC_PRINTLN("add to visible list", id, editor.devicesData[id].id, editor.devicesData[id].label, data.visibleRowIdLength, data.totalRows);
                   e++;
                 }
                 o++;
@@ -161,7 +155,6 @@ public:
               break;
             }
             if(o >= startingPage){
-              // BMC_PRINTLN("add to visible list", data.activeDevice.label, o);
               data.addToVisibleList(o+1);
               e++;
             }
@@ -177,7 +170,6 @@ public:
       uint8_t startingPage = (data.rowPage * BMC_OBE_ROWS_PER_PAGE);
       uint16_t length = items[data.dynamicListIndex].max;
       for(uint16_t i = 0, e = 0 ; i < length ; i++){
-        //uint16_t id = i;
         if(e >= BMC_OBE_ROWS_PER_PAGE){
           break;
         }
@@ -189,19 +181,6 @@ public:
             if(devicesEditor.isCompatible()){
               breakLoop = devicesEditor.addRows(startingPage);
             }
-            // if(data.activeDevice.length == 0){
-            //   breakLoop = true;
-            //   break;
-            // }
-            // if(data.activeDevice.id == BMC_DEVICE_ID_BUTTON || data.activeDevice.id == BMC_DEVICE_ID_GLOBAL_BUTTON){
-            //   for(uint8_t i = startingPage ; i < 2+data.activeDevice.settings+data.activeDevice.events ; i++){
-            //     data.addToVisibleList(i+1);
-            //     e++;
-            //     if(e >= BMC_OBE_ROWS_PER_PAGE){
-            //       break;
-            //     }
-            //   }
-            // }
             break;
         }
         if(breakLoop){
@@ -312,11 +291,7 @@ public:
     }
     tft.display.fillRect(0, y, BMC_OBE_W-6, BMC_OBE_ROW_H, background);
     
-    //tft.display.fillRoundRect(0, y, BMC_OBE_W, BMC_OBE_ROW_H, BMC_OBE_BORDER_RADIUS, background);
-    //tft.display.drawRoundRect(0, y, BMC_OBE_W, BMC_OBE_ROW_H, BMC_OBE_BORDER_RADIUS, BMC_OBE_ROW_DIVIDER);
-    
     if(empty || data.visibleRowId[n] == 0){
-      // BMC_PRINTLN("renderRow() empty row");
       return;
     }
     uint16_t id = data.visibleRowId[n]-1;
@@ -340,8 +315,6 @@ public:
       tft.display.print(id+1);
       tft.display.print(" ");
     #endif
-
-
     if(isDynamicList()){
       uint16_t dID = items[data.dynamicListIndex].id;
       switch(dID){
@@ -368,6 +341,12 @@ public:
           tft.display.print(data.activeDevice.label);
           tft.display.print(" # ");
           tft.display.print(id + offset);
+
+          char nameStr[33] = "";
+          editor.getDeviceNameText(data.activeDevice.id, id, nameStr);
+          tft.display.print(" ");
+          tft.display.print(nameStr);
+          
           renderCaret(y, color, background);
           tft.display.setFont(BMC_OBE_ROW_FONT);
           break;
@@ -391,13 +370,6 @@ public:
       }
       return;
     }
-
-    
-
-
-
-
-
     tft.display.print(items[id].label);
     if(!rowIsEditable){
       renderCaret(y, color, background);
@@ -462,6 +434,8 @@ public:
     renderHeader(buff);
   }
   void renderHeader(char* title){
+    BMC_PRINTLN("renderHeader");
+    data.triggerHeaderRender = false;
     strcpy(data.headerTitle, title);
     char buff[strlen(title)+1];
     strcpy(buff, title);
@@ -469,11 +443,6 @@ public:
       strcpy(buff, (data.level[0] == 0) ? "< Exit Menu" : "< Back");
     }
     tft.display.setFont(BMC_OBE_HEAD_FONT);
-    // int16_t textWidth = tft.display.strPixelLen(buff);
-    // int16_t x = (BMC_OBE_W-textWidth) / 2;
-    // if(x < 0){
-    //   x = 0;
-    // }
     uint16_t x = getCenteredX(buff);
     uint16_t color = BMC_OBE_HEAD_COLOR;
     uint16_t background = BMC_OBE_HEAD_BACKGROUND;
@@ -560,9 +529,12 @@ public:
       flags.toggle(BMC_OBE_FLAGS_ROW_EDIT_ACTIVE);
       if(flags.read(BMC_OBE_FLAGS_DYNAMIC_EDIT_LIST)){
         if(devicesEditor.isCompatible()){
+          if(devicesEditor.hasCustomEditor(0)){
+            devicesEditor.setCustomEditorMode(isEditModeActive());
+            return;
+          }
           if(isEditModeActive()){
             data.rowEditValue = devicesEditor.getOptionValue(data.activeRow-1);
-            BMC_PRINTLN("select() data.rowEditValue", data.rowEditValue, data.activeRow-1);
           } else {
             setChangesMade(devicesEditor.setOptionValue());
             data.rowEditValue = 0;
@@ -605,6 +577,13 @@ public:
       exitEditor();
       return;
     }
+    if(flags.read(BMC_OBE_FLAGS_DYNAMIC_EDIT_LIST)){
+      if(devicesEditor.isCompatible()){
+        if(devicesEditor.hasCustomEditor(0)){
+          setChangesMade(devicesEditor.setOptionValue());
+        }
+      }
+    }
     data.setPreviousMenuLevel();
     flags.off(BMC_OBE_FLAGS_ROW_EDIT_ACTIVE);
     render();
@@ -625,10 +604,14 @@ public:
           min = devicesEditor.getMin();
           max = devicesEditor.getMax();
           steps = 1;
-          if(devicesEditor.handleCustomValueScroller(false)){
+          if(devicesEditor.handleCustomValueScroller(false, shiftActive())){
             updateRows();
             return;
           }
+        }
+      } else if(devicesEditor.isCompatible()){
+        if(devicesEditor.handleCustomRowScroller(false, shiftActive())){
+          return;
         }
       }
       if((int)(data.rowEditValue-steps) < min){
@@ -638,6 +621,11 @@ public:
       }
       updateRows();
       return;
+    }
+    if(devicesEditor.isCompatible()){
+      if(devicesEditor.handleCustomRowScroller(false, shiftActive())){
+        return;
+      }
     }
     if(shiftActive()){
       prevListPage();
@@ -675,10 +663,14 @@ public:
           min = devicesEditor.getMin();
           max = devicesEditor.getMax();
           steps = 1;
-          if(devicesEditor.handleCustomValueScroller(true)){
+          if(devicesEditor.handleCustomValueScroller(true, shiftActive())){
             updateRows();
             return;
           }
+        }
+      } else if(devicesEditor.isCompatible()){
+        if(devicesEditor.handleCustomRowScroller(true, shiftActive())){
+          return;
         }
       }
       if(data.rowEditValue+steps > max){
@@ -688,6 +680,11 @@ public:
       }
       updateRows();
       return;
+    }
+    if(devicesEditor.isCompatible()){
+      if(devicesEditor.handleCustomRowScroller(true, shiftActive())){
+        return;
+      }
     }
     if(shiftActive()){
       nextListPage();

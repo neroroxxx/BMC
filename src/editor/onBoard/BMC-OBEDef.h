@@ -136,7 +136,10 @@
 #define BMC_OBE_DEVICE_OPT_CHANGED       	 5
 #define BMC_OBE_DEVICE_CUSTOM_SCROLL_UP  	 6
 #define BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN	 7
-#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR   8
+#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP 8
+#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN 9
+#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR   10
+#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE 11
 
 
 
@@ -223,6 +226,7 @@ struct BMCOBEData {
   uint8_t availablePorts = 0;
   uint8_t availablePortsData[7];
   bool namesEditorActive = false;
+  bool triggerHeaderRender = false;
   const char onOffLabels[2][4] = {
     "Off",
     "On"
@@ -299,6 +303,9 @@ struct BMCOBEData {
   }
   uint8_t getCurrentLevel(){
     return level[0];
+  }
+  bool renderHead(){
+    return triggerHeaderRender;
   }
   void setCurrentLevelValue(uint8_t value){
     level[getCurrentLevel()] = value;
@@ -404,6 +411,8 @@ struct BMCOBEData {
     return activeRow;
   }
   void setPreviousMenuLevel(){
+    namesEditorActive = false;
+    triggerHeaderRender = false;
     if(level[0] == 0){
       return;
     }
@@ -413,7 +422,6 @@ struct BMCOBEData {
     activeRow = lastActiveRow[currentLevel];
     activeRowPrev = lastActiveRow[currentLevel];
     rowPage = lastRowPage[currentLevel];
-    namesEditorActive = false;
   }
   void toggleConfirmationValue(){
     saveConfirmationValue = !saveConfirmationValue;
@@ -438,6 +446,11 @@ struct BMCOBEData {
     maxRowPages = 0;
     dynamicListIndex = 0;
     saveConfirmationValue = false;
+    namesEditorActive = false;
+    triggerHeaderRender = false;
+
+    BMCDeviceData e;
+    activeDevice = e;
   }
 };
 

@@ -34,7 +34,12 @@ public:
 
   }
   void update(){
-    
+    if(data.namesEditorActive){
+      if(charBlinker.complete()){
+        updateNamesEditorCursor();
+      }
+    }
+    shiftActive = false;
   }
   bool isCompatible(uint8_t t_id=255){
     uint8_t id = (t_id==255) ? data.activeDevice.id : t_id;
@@ -128,14 +133,25 @@ public:
   uint16_t getOptionEditedValue(uint16_t index){
     return getOptionLabel(index, BMC_OBE_DEVICE_OPT_EDITED_VALUE);
   }
-  bool handleCustomValueScroller(bool direction){
+  bool handleCustomValueScroller(bool direction, bool t_shift){
+    shiftActive = t_shift;
     if(direction){
       return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_CUSTOM_SCROLL_UP);
     }
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN);
   }
+  bool handleCustomRowScroller(bool direction, bool t_shift){
+    shiftActive = t_shift;
+    if(direction){
+      return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP);
+    }
+    return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN);
+  }
   bool hasCustomEditor(uint16_t index){
     return getOptionLabel(index, BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR);
+  }
+  bool setCustomEditorMode(bool state){
+    return getOptionLabel(state, BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE);
   }
   uint16_t getMin(){
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_MIN);
@@ -144,7 +160,6 @@ public:
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_MAX);
   }
   uint16_t setOptionValue(){
-    // BMC_PRINTLN("setOptionValue");
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_CHANGED);
   }
   uint16_t getOptionLabel(uint16_t index, uint8_t valueType=BMC_OBE_DEVICE_OPT_LABEL){
@@ -238,17 +253,39 @@ public:
   
   uint16_t getNamesEditor(bmcStoreName& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
-    //uint16_t charIndex = data.visibleRowId[index]-1;
     switch(valueType){
       case BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR:
         // render
         if(!data.namesEditorActive){
+          charIndex = 0;
+          charValue = 0;
+          charIndexState = false;
+          charEditActive = false;
+          charPage = 0;
+          charPerPage = 0;
+          memset(nameBuff, ' ', BMC_MAX_NAMES_LENGTH-1);
+          strcpy(nameBuff, store.global.names[data.deviceIndex].name);
+          for(uint8_t i = 0 ; i < BMC_MAX_NAMES_LENGTH-1 ; i++){
+            if(nameBuff[i] == 0){
+              nameBuff[i] = ' ';
+            }
+          }
+          renderNamesEditor();
           data.namesEditorActive = true;
+          charBlinker.start(300);
         }
-        renderNamesEditor(index);
         return 1;
+      case BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE:
+        charEditActive = (index>0);
+        if(charEditActive){
+          charValue = (uint8_t) nameBuff[charIndex];
+          updateCharValue();
+        } else {
+          renderNamesEditor();
+        }
+        break;
       case BMC_OBE_DEVICE_OPT_LABEL:
-        strcpy(str, "Mode");
+        //strcpy(str, "");
         return 0;
       case BMC_OBE_DEVICE_OPT_VALUE:
       case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
@@ -256,23 +293,151 @@ public:
           // uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
           // strcpy(str, (value==0)?"Solid":"Blink");
           // return value;
+          //renderNamesEditor(true);
         }
         break;
       case BMC_OBE_DEVICE_OPT_MIN: return 0;
       case BMC_OBE_DEVICE_OPT_MAX: return 1;
       case BMC_OBE_DEVICE_OPT_CHANGED:
-        // if(item.settings[0] != data.rowEditValue){
-        //   item.settings[0] = data.rowEditValue;
-        //   return 1;
-        // }
+        {
+          BMC_PRINT("BMC_OBE_DEVICE_OPT_CHANGED ");
+          String buff = String(nameBuff);
+          buff.trim();
+          memset(nameBuff, 0, BMC_MAX_NAMES_LENGTH-1);
+          buff.toCharArray(nameBuff, BMC_MAX_NAMES_LENGTH-1);
+          bmcStoreName& nameObj = store.global.names[data.deviceIndex];
+          if(strlen(nameBuff) != strlen(nameObj.name) || !BMC_STR_MATCH(nameBuff, nameObj.name)){
+            strcpy(nameObj.name, nameBuff);
+            return 1;
+          }
+        }
+        BMC_PRINTLN("NO");
         return 0;
+      case BMC_OBE_DEVICE_CUSTOM_SCROLL_UP:
+        if(!data.namesEditorActive){
+          return 0;
+        } else {
+          charValue++;
+          if(charValue > 126){
+            charValue = 32;
+          }
+          if(shiftActive){
+            shiftActive = false;
+            if(charValue < 48){
+              charValue = 48;
+            } else if(charValue < 65){
+              charValue = 65;
+            } else if(charValue < 97){
+              charValue = 97;
+            } else {
+              charValue = 32;
+            }
+          }          
+          nameBuff[charIndex] = (char) charValue;
+          updateCharValue();
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN:
+        if(!data.namesEditorActive){
+          return 0;
+        } else {
+          charValue--;
+          if(charValue < 32){
+            charValue = 126;
+          }
+          if(shiftActive){
+            shiftActive = false;
+            if(charValue > 97){
+              charValue = 97;
+            } else if(charValue > 65){
+              charValue = 65;
+            } else if(charValue > 48){
+              charValue = 48;
+            } else if(charValue > 32){
+              charValue = 32;
+            } else {
+              charValue = 97;
+            }
+          }
+          nameBuff[charIndex] = (char) charValue;
+          updateCharValue();
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP:
+        if(!data.namesEditorActive){
+          return 0;
+        } else {
+          if(data.activeRow == 0){
+            data.triggerHeaderRender = true;
+            data.activeRow = 1;
+            charBlinker.start(300);
+          }
+          charIndex++;
+          charIndex = (charIndex >= (BMC_MAX_NAMES_LENGTH-1)) ? 0 : charIndex;
+          uint8_t p = floor((charIndex+0.0) / charPerPage);
+          if(p != charPage){
+            charPage = p;
+            renderNamesEditor();
+          } else {
+            renderNamesEditorCursor();
+          }
+          // BMC_PRINTLN("charIndex", charIndex, "charPage", charPage);
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN:
+        if(!data.namesEditorActive){
+          return 0;
+        } else {
+          charIndex--;
+          if(charIndex < 0){
+            charIndex = -1;
+            if(data.activeRow > 0){
+              data.triggerHeaderRender = true;
+              data.activeRow = 0;
+            }
+            charBlinker.stop();
+            return 1;
+          }
+          charIndex = (charIndex < 0) ? (BMC_MAX_NAMES_LENGTH-2) : charIndex;
+          uint8_t p = floor((charIndex+0.0) / charPerPage);
+          if(p != charPage){
+            charPage = p;
+            renderNamesEditor();
+          } else {
+            renderNamesEditorCursor();
+          }
+          // BMC_PRINTLN("charIndex", charIndex, "charPage", charPage);
+        }
+        return 1;
+      //case BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE:
+        //return 0;
       default:
         return 0;
     }
     return 0;
   }
-  void renderNamesEditor(uint16_t index){
-    if(index == 0){
+  void updateCharValue(){
+    uint8_t fontSize = 5;
+    uint8_t fontWidth = 6*fontSize;
+    uint8_t fontHeight = 8*fontSize;
+    uint16_t x = 10;
+    uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
+    uint16_t charX = charIndex - (charPage*charPerPage);
+    x += (charX*fontWidth);
+    tft.display.setFontAdafruit();
+    tft.display.setTextSize(fontSize);
+    tft.display.setCursor(x, y);
+    if(charEditActive){
+      tft.display.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
+    } else {
+      tft.display.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+    }
+    tft.display.print(nameBuff[charIndex]);
+    charIndexState = true;
+    updateNamesEditorCursor();
+  }
+  void renderNamesEditor(){
+    if(!data.namesEditorActive){
       tft.display.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
     }
     uint8_t fontSize = 5;
@@ -282,11 +447,74 @@ public:
     uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
     tft.display.setFontAdafruit();
     tft.display.setTextSize(fontSize);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
     tft.display.setCursor(x, y);
-    tft.display.print("gqjqweABCDEabcde");
-
-    tft.display.fillRect(x+(index*fontWidth), y+fontHeight+fontSize, fontWidth, 4, BMC_ILI9341_GRAY_10);
+    charPerPage = floor(BMC_OBE_W/(fontWidth+0.0));
+    for(uint8_t i = 0; i < charPerPage ; i++){
+      uint8_t c = i+(charPage*charPerPage);
+      if(c==charIndex && charEditActive){
+        tft.display.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
+      } else {
+        tft.display.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+      }
+      if(c >= BMC_MAX_NAMES_LENGTH){
+        tft.display.print(" ");
+      } else {
+        if(nameBuff[c] == 0){
+          tft.display.print(" ");
+        } else {
+          tft.display.print(nameBuff[c]);
+        }
+      }
+    }
+    charBlinker.start(300);
+    renderNamesEditorCursor();
+  }
+  void updateCharTitle(){
+    if(charIndex == -1){
+      return;
+    }
+    tft.display.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, 30, BMC_ILI9341_RED);
+    char buff[23] = "";
+    sprintf(buff, "Char %u of %u", charIndex+offset, BMC_MAX_NAMES_LENGTH-1);
+    tft.display.setTextColor(BMC_ILI9341_WHITE);
+    tft.display.setFont(BMCLiberationSansNarrow_18);
+    int16_t textWidth = tft.display.strPixelLen(buff);
+    int16_t x = (BMC_OBE_W-textWidth) / 2;
+    tft.display.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
+    tft.display.print(buff);
+    tft.display.setFontAdafruit();
+  }
+  void renderNamesEditorCursor(){
+    updateCharTitle();
+    charIndexState = true;
+    uint8_t fontSize = 5;
+    uint8_t fontWidth = 6*fontSize;
+    uint8_t fontHeight = 8*fontSize;
+    uint16_t x = 10;
+    uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
+    y += fontHeight+(fontSize*2);
+    uint16_t charX = charIndex - (charPage*charPerPage);
+    x += (charX*fontWidth);
+    tft.display.fillRect(0, y, BMC_OBE_W, 3, BMC_ILI9341_BLACK);
+    if(charIndex == -1){
+      return;
+    }
+    tft.display.fillRect(x, y, fontWidth, 3, BMC_ILI9341_WHITE);
+  }
+  void updateNamesEditorCursor(){
+    charIndexState = !charIndexState;
+    uint8_t fontSize = 5;
+    uint8_t fontWidth = 6*fontSize;
+    uint8_t fontHeight = 8*fontSize;
+    uint16_t x = 10;
+    uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
+    y += fontHeight+(fontSize*2);
+    uint16_t color = charEditActive ? BMC_ILI9341_YELLOW : BMC_ILI9341_WHITE;
+    color = !charIndexState ? color : BMC_ILI9341_BLACK;
+    uint16_t charX = charIndex - (charPage*charPerPage);
+    x += (charX*fontWidth);
+    tft.display.fillRect(x, y, fontWidth, 3, color);
+    charBlinker.start(300);
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getButtonOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
@@ -394,35 +622,6 @@ public:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
-        // switch(valueType){
-        //   case BMC_OBE_DEVICE_OPT_LABEL:
-        //     strcpy(str, "Event");
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_VALUE:
-        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        //     {
-        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[0] : data.rowEditValue;
-        //       if(value==0){
-        //         strcpy(str, "None");
-        //       } else {
-        //         sprintf(str, "Event # %u", (value-1)+offset);
-        //       }
-        //       return value;
-        //     }
-        //     break;
-        //   case BMC_OBE_DEVICE_OPT_MIN:
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_MAX:
-        //     return BMC_MAX_EVENTS_LIBRARY-1;
-        //   case BMC_OBE_DEVICE_OPT_CHANGED:
-        //     if(item.events[0] != data.rowEditValue){
-        //       item.events[0] = data.rowEditValue;
-        //       return 1;
-        //     }
-        //     return 0;
-        //   default:
-        //     return 0;
-        // }
         break;
       default:
         break;
@@ -433,7 +632,7 @@ public:
   uint16_t getLfoOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
-    BMC_PRINTLN("getLfoOption optionId:", optionId, "index:", index);
+    // BMC_PRINTLN("getLfoOption optionId:", optionId, "index:", index);
     switch(optionId){
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
@@ -665,86 +864,11 @@ public:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 0, "SET at Startup", valueType);
-        // switch(valueType){
-        //   case BMC_OBE_DEVICE_OPT_LABEL:
-        //     strcpy(str, "SET at Startup");
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_VALUE:
-        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        //     {
-        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 0) : data.rowEditValue;
-        //       strcpy(str, data.yesNoLabels[value]);
-        //       return value;
-        //     }
-        //     break;
-        //   case BMC_OBE_DEVICE_OPT_MIN:
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_MAX:
-        //     return 1;
-        //   case BMC_OBE_DEVICE_OPT_CHANGED:
-        //     if(bitRead(item.settings[0], 0) != data.rowEditValue){
-        //       bitWrite(item.settings[0], 0, data.rowEditValue);
-        //       return 1;
-        //     }
-        //     return 0;
-        //   default:
-        //     return 0;
-        // }
         break;
       case 2:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 1, "Momentary", valueType);
-        // switch(valueType){
-        //   case BMC_OBE_DEVICE_OPT_LABEL:
-        //     strcpy(str, "Momentary");
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_VALUE:
-        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        //     {
-        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 1) : data.rowEditValue;
-        //       strcpy(str, data.yesNoLabels[value]);
-        //       return value;
-        //     }
-        //     break;
-        //   case BMC_OBE_DEVICE_OPT_MIN:
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_MAX:
-        //     return 1;
-        //   case BMC_OBE_DEVICE_OPT_CHANGED:
-        //     if(bitRead(item.settings[0], 1) != data.rowEditValue){
-        //       bitWrite(item.settings[0], 1, data.rowEditValue);
-        //       return 1;
-        //     }
-        //     return 0;
-        //   default:
-        //     return 0;
-        // }
       case 3:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 2, "Reverse State", valueType);
-        // switch(valueType){
-        //   case BMC_OBE_DEVICE_OPT_LABEL:
-        //     strcpy(str, "Reverse State");
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_VALUE:
-        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        //     {
-        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 2) : data.rowEditValue;
-        //       strcpy(str, data.yesNoLabels[value]);
-        //       return value;
-        //     }
-        //     break;
-        //   case BMC_OBE_DEVICE_OPT_MIN:
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_MAX:
-        //     return 1;
-        //   case BMC_OBE_DEVICE_OPT_CHANGED:
-        //     if(bitRead(item.settings[0], 2) != data.rowEditValue){
-        //       bitWrite(item.settings[0], 2, data.rowEditValue);
-        //       return 1;
-        //     }
-        //     return 0;
-        //   default:
-        //     return 0;
-        // }
         break;
       case 4:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
@@ -808,9 +932,6 @@ public:
   
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getPortsField(bmcStoreDevice<sLen, eLen, tname>& item, const char* t_str, uint16_t eventIndex, uint8_t valueType){
-    if(valueType==BMC_OBE_DEVICE_OPT_VALUE){
-      BMC_PRINTLN("???????????????????????");
-    }
     switch(valueType){
       case BMC_OBE_DEVICE_OPT_LABEL:
         strcpy(str, t_str);
@@ -821,7 +942,6 @@ public:
           uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[eventIndex] : data.rowEditValue;
           value = constrain(value, 0, 143);
           getPortName(value);
-          BMC_PRINTLN("value", value, (valueType==BMC_OBE_DEVICE_OPT_VALUE));
           return value;
         }
         break;
@@ -839,7 +959,6 @@ public:
         //   data.rowEditValue = 0;
         // }
         setPortBit(true);
-        BMC_PRINTLN("data.rowEditValue", data.rowEditValue);
         getPortName(data.rowEditValue);
         return 1;
       case BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN:
@@ -848,7 +967,6 @@ public:
         //   data.rowEditValue = 143;
         // }
         setPortBit(false);
-        BMC_PRINTLN("data.rowEditValue", data.rowEditValue);
         getPortName(data.rowEditValue);
         return 1;
       default:
@@ -862,17 +980,13 @@ public:
     if(direction){
       data.rowEditValue++;
       if(data.rowEditValue > 143){
-        BMC_PRINTLN("increased port bit more than 143", data.rowEditValue);
         data.rowEditValue = 0;
       }
-      BMC_PRINTLN("increased port bit to", data.rowEditValue);
     } else {
       data.rowEditValue--;
       if(data.rowEditValue < 0 || data.rowEditValue > 143){
-        BMC_PRINTLN("decreased port bit less than 0", data.rowEditValue);
         data.rowEditValue = 143;
       }
-      BMC_PRINTLN("decreased port bit to", data.rowEditValue);
     }
     uint8_t value = data.rowEditValue;
     if(value > 1 && value < 128){
@@ -1190,8 +1304,17 @@ private:
   BMCDisplay& display;
   BMC_ILI9341& tft;
   BMCOBEData& data;
+  BMCTimer charBlinker;
+  char nameBuff[BMC_MAX_NAMES_LENGTH];
+  int8_t charIndex = 0;
+  uint8_t charValue = 0;
+  bool charIndexState = false;
+  bool charEditActive = false;
+  uint8_t charPage = 0;
+  uint8_t charPerPage = 0;
   uint8_t offset = 0;
   bool active = false;
+  bool shiftActive = false;
 };
 #endif
 #endif
