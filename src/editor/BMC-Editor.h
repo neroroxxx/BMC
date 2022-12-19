@@ -574,8 +574,8 @@ private:
 public:
 
   void getDeviceNameFromIndex(uint16_t value, char* str){
-    if(value>0){
-      if(strlen(store.global.names[value-1].name) > 0){
+    if(value < BMC_MAX_NAMES_LIBRARY){
+      if(value > 0 && strlen(store.global.names[value-1].name) > 0){
         strcpy(str, store.global.names[value-1].name);
         return;
       }
