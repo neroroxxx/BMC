@@ -14,7 +14,9 @@
 
 #include "utility/BMC-Def.h"
 
-
+// display dimensions
+#define BMC_OBE_W BMC_TFT_WIDTH
+#define BMC_OBE_H BMC_TFT_HEIGHT
 
 #define BMC_COLOR_EDITOR_GRAY 0x18C3
 #define BMC_COLOR_EDITOR_TXT 0xDEFB
@@ -36,18 +38,27 @@
 #define BMC_OBE_MENU_DYNAMIC_LIST     2
 #define BMC_OBE_MENU_DYNAMIC_EDIT     3
 
-// display dimensions
-#define BMC_OBE_W 320
-#define BMC_OBE_H 240
-
 // MENU HEADER
 // header height
-#define BMC_OBE_ROW_HEAD_H 32
-// header font
-//#define BMC_OBE_HEAD_FONT BMCLiberationSansNarrow_18_Bold
-#define BMC_OBE_HEAD_FONT Arial_18_Bold
-// y coordinate of header text
-#define BMC_OBE_HEAD_TXT_Y 7
+#if BMC_TFT_SIZE == 1
+  #define BMC_OBE_ROW_HEAD_H 32
+  // y coordinate of header text
+  #define BMC_OBE_HEAD_TXT_Y 7
+  // header font
+  #define BMC_OBE_HEAD_FONT Arial_20_Bold
+  // y coordinate of text inside each list item
+  #define BMC_OBE_ROW_TEXT_Y 16
+#else 
+  #define BMC_OBE_ROW_HEAD_H 60
+  // y coordinate of header text
+  #define BMC_OBE_HEAD_TXT_Y 20
+  // header font
+  #define BMC_OBE_HEAD_FONT Arial_20_Bold
+  // y coordinate of text inside each list item
+  #define BMC_OBE_ROW_TEXT_Y 16
+#endif
+
+
 // header background color
 #define BMC_OBE_HEAD_BACKGROUND 0xCC21
 // header text color
@@ -63,12 +74,12 @@
 //#define BMC_OBE_ROW_FONT BMCLiberationSansNarrow_18
 #define BMC_OBE_ROW_FONT Arial_16
 #define BMC_OBE_ROW_SEL_FONT Arial_16_Bold
-// y coordinate of text inside each list item
-#define BMC_OBE_ROW_TXT_Y 5
-// how many items will fit in the list, this must be a float
-#define BMC_OBE_ROWS_PER_PAGE 4
+
 // height of every list item
-#define BMC_OBE_ROW_H ((uint16_t)(BMC_OBE_ROW_AREA/BMC_OBE_ROWS_PER_PAGE))
+#define BMC_OBE_ROW_H 52
+// how many items will fit in the list, this must be a float
+#define BMC_OBE_ROWS_PER_PAGE ((uint16_t)(BMC_OBE_ROW_AREA/BMC_OBE_ROW_H))
+
 // header background color
 //#define BMC_OBE_ROW_BACKGROUND 0x0841
 #define BMC_OBE_ROW_BACKGROUND 0x0000
@@ -78,7 +89,7 @@
 // lines between rows
 #define BMC_OBE_ROW_DIVIDER BMC_ILI9341_BLACK
 
-//#define BMC_OBE_ROW_VALUE_FONT BMCLiberationSansNarrow_16_Bold
+// #define BMC_OBE_ROW_VALUE_FONT BMCLiberationSansNarrow_12_Bold
 #define BMC_OBE_ROW_VALUE_FONT Arial_14
 #define BMC_OBE_ROW_SEL_VALUE_FONT Arial_14_Bold
 
@@ -97,14 +108,15 @@
 #define BMC_OBE_ROW_EDITABLE_COLOR 0xDEFB
 //#define BMC_OBE_ROW_EDITABLE_COLOR 0x0194
 // header text color
-#define BMC_OBE_ROW_EDITING_COLOR 0xff40
+#define BMC_OBE_ROW_EDITING_COLOR 0xfe60
 
 
 // header background color
 //#define BMC_OBE_SEL_BACKGROUND 0xB801
 //#define BMC_OBE_SEL_BACKGROUND 0x3186
 //#define BMC_OBE_SEL_BACKGROUND 0x0841
-#define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_1
+// #define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_1
+#define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_2
 
 // header text color
 #define BMC_OBE_SEL_COLOR 0xFFFF
@@ -128,65 +140,75 @@
 #define BMC_OBE_LEVEL_NAMES_EDITOR 6
 
 
-#define BMC_OBE_DEVICE_OPT_LABEL         	 0
-#define BMC_OBE_DEVICE_OPT_VALUE         	 1
-#define BMC_OBE_DEVICE_OPT_EDITED_VALUE  	 2
-#define BMC_OBE_DEVICE_OPT_MIN           	 3
-#define BMC_OBE_DEVICE_OPT_MAX           	 4
-#define BMC_OBE_DEVICE_OPT_CHANGED       	 5
-#define BMC_OBE_DEVICE_CUSTOM_SCROLL_UP  	 6
-#define BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN	 7
-#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP 8
-#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN 9
-#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR   10
-#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE 11
+#define BMC_OBE_DEVICE_OPT_LABEL             	 0
+#define BMC_OBE_DEVICE_OPT_VALUE             	 1
+#define BMC_OBE_DEVICE_OPT_EDITED_VALUE      	 2
+#define BMC_OBE_DEVICE_OPT_MIN               	 3
+#define BMC_OBE_DEVICE_OPT_MAX               	 4
+#define BMC_OBE_DEVICE_OPT_CHANGED           	 5
+#define BMC_OBE_DEVICE_OPT_POST_SAVE         	 6
+#define BMC_OBE_DEVICE_CUSTOM_SCROLL_UP      	 7
+#define BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN    	 8
+#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP  	 9
+#define BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN	 10
+#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR     	 11
+#define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE	 12
+
 
 
 
 
 
 // main
-#define BMC_OBE_ID_SETTINGS        	 1
-// main > settings
-#define BMC_OBE_ID_SETTINGS_GENERAL	 2
-// main > settings > general
-#define BMC_OBE_ID_S_BTN_HOLD_TIME 	 3
-#define BMC_OBE_ID_S_STARTUP_PRESET	 4
-#define BMC_OBE_ID_S_DIM_LEDS      	 5
-#define BMC_OBE_ID_S_DISPLAY_OFFSET	 6
-#define BMC_OBE_ID_S_TRIG_1ST_SONG 	 7
-#define BMC_OBE_ID_S_TRIG_1ST_PART 	 8
-// main > settings
-#define BMC_OBE_ID_SETTINGS_MIDI   	 9
-// main > settings > general
-#define BMC_OBE_ID_S_IN_CTRL       	 10
-#define BMC_OBE_ID_S_IN_CTRL_CH    	 11
-#define BMC_OBE_ID_S_IN_CTRL_ACTION	 12
-#define BMC_OBE_ID_S_CLOCK_IN_PORT 	 13
-#define BMC_OBE_ID_S_MASTER_CLOCK  	 14
-#define BMC_OBE_ID_S_ACTIVE_SENSE  	 15
-#define BMC_OBE_ID_S_BLOCK_RT_IN   	 16
-#define BMC_OBE_ID_S_BLOCK_RT_OUT  	 17
-// main
-#define BMC_OBE_ID_CHANGE_PAGE     	 18
+#define BMC_OBE_ID_GO_TO             	 1
 // main > change page
-#define BMC_OBE_ID_CP_GO_TO_PAGE   	 19
+#define BMC_OBE_ID_CP_GO_TO_PAGE     	 2
+#define BMC_OBE_ID_CP_GO_TO_BANK     	 3
+#define BMC_OBE_ID_CP_GO_TO_PRESET   	 4
+#define BMC_OBE_ID_CP_GO_TO_SETLIST  	 5
+#define BMC_OBE_ID_CP_GO_TO_SONG     	 6
+#define BMC_OBE_ID_CP_GO_TO_PART     	 7
 // main
-#define BMC_OBE_ID_GLOBAL          	 20
+#define BMC_OBE_ID_SETTINGS          	 8
+// main > settings
+#define BMC_OBE_ID_SETTINGS_GENERAL  	 9
+// main > settings > general
+#define BMC_OBE_ID_S_BTN_HOLD_TIME   	 10
+#define BMC_OBE_ID_S_DISPLAY_OFFSET  	 11
+#define BMC_OBE_ID_S_DISPLAY_BANNERS 	 12
+#define BMC_OBE_ID_S_PREPEND_PRESET  	 13
+#define BMC_OBE_ID_S_PREPEND_BANK    	 14
+#define BMC_OBE_ID_S_DIM_LEDS        	 15
+#define BMC_OBE_ID_S_STARTUP_PRESET  	 16
+#define BMC_OBE_ID_S_TRIG_1ST_SONG   	 17
+#define BMC_OBE_ID_S_TRIG_1ST_PART   	 18
+// main > settings
+#define BMC_OBE_ID_SETTINGS_MIDI     	 19
+// main > settings > general
+#define BMC_OBE_ID_S_IN_CTRL         	 20
+#define BMC_OBE_ID_S_IN_CTRL_CH      	 21
+#define BMC_OBE_ID_S_IN_CTRL_ACTION  	 22
+#define BMC_OBE_ID_S_CLOCK_IN_PORT   	 23
+#define BMC_OBE_ID_S_MASTER_CLOCK    	 24
+#define BMC_OBE_ID_S_ACTIVE_SENSE    	 25
+#define BMC_OBE_ID_S_BLOCK_RT_IN     	 26
+#define BMC_OBE_ID_S_BLOCK_RT_OUT    	 27
+// main
+#define BMC_OBE_ID_GLOBAL            	 28
 // main > global
-#define BMC_OBE_ID_GLOBAL_ITEMS    	 21
+#define BMC_OBE_ID_GLOBAL_ITEMS      	 29
 // main > global > items
-#define BMC_OBE_ID_G_ITEM_LIST     	 22
+#define BMC_OBE_ID_G_ITEM_LIST       	 30
 // main > global > items > editor
-#define BMC_OBE_ID_G_ITEM_EDIT     	 23
+#define BMC_OBE_ID_G_ITEM_EDIT       	 31
 // main
-#define BMC_OBE_ID_PAGES           	 24
+#define BMC_OBE_ID_PAGES             	 32
 // main > pages
-#define BMC_OBE_ID_PAGES_ITEMS     	 25
+#define BMC_OBE_ID_PAGES_ITEMS       	 33
 // main > pages > items
-#define BMC_OBE_ID_P_ITEM_LIST     	 26
+#define BMC_OBE_ID_P_ITEM_LIST       	 34
 // main > pages > items > editor
-#define BMC_OBE_ID_P_ITEM_EDIT     	 27
+#define BMC_OBE_ID_P_ITEM_EDIT       	 35
 
 
 

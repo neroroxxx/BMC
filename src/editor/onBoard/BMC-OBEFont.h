@@ -1,7 +1,14 @@
 #ifndef BMC_ILI9341_t3_font_BMCLiberationSansNarrow_
 #define BMC_ILI9341_t3_font_BMCLiberationSansNarrow_
 
-#include "ILI9341_t3.h"
+// #include "ILI9341_t3.h"
+// #include "utility/BMC-Def.h"
+
+#if BMC_TFT_SIZE == 1
+  #include <ILI9341_t3.h>
+#else
+  #include <ILI9488_t3.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {

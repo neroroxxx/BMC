@@ -85,11 +85,11 @@ void BMC::readEncoders(){
       bool increased = globalEncoders[i].increased();
       uint8_t ticks = globalEncoders[i].getTicks();
       //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-      //handleEncoder(globalData.encoders[i], increased, ticks);
+      
       processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_GLOBAL_ENCODER,
                     i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], increased<<7 | ticks);
 
-      //uint32_t event = globalData.encoders[i].event;
+      
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
         callback.globalEncoderCustomActivity(i, increased, ticks);

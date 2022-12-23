@@ -24,8 +24,8 @@ void BMC::assignAuxJacks(){
     auxJacks[i].assignToeSwitch(device.events[1], device.events[2], device.settings[1]);
     uint16_t e = BMC_MAX_POTS+BMC_MAX_GLOBAL_POTS+i;
     auxJacks[i].setCalibration(
-      globalData.potCalibration[e].events[0],
-      globalData.potCalibration[e].events[1]
+      store.global.potCalibration[e].events[0],
+      store.global.potCalibration[e].events[1]
     );
   }
 }

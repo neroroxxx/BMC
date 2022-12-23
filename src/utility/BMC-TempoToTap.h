@@ -17,10 +17,10 @@
 class BMCTempoToTap {
 public:
   // constructor, pass the midi and store.global data objects from BMC.h
-  BMCTempoToTap(BMCMidi& t_midi, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
+  BMCTempoToTap(BMCMidi& t_midi):
                 midi(t_midi),
-                globals(t_globals),
-                global(t_global)
+                globals(midi.globals),
+                global(globals.store.global)
   {
     reset();
   }
@@ -125,7 +125,9 @@ private:
     if(event == BMC_NONE){
       return false;
     }
-    bmcStoreEvent data = globals.getDeviceEventType(event);
+    // bmcStoreEvent data = globals.getDeviceEventType(event);
+    bmcStoreEvent data = BMCTools::getDeviceEventType(midi.globals.store, event);
+    
     if(data.ports == BMC_NONE){
       return false;
     }

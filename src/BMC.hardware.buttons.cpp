@@ -33,7 +33,7 @@ void BMC::assignButtons(){
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
-    assignButton(globalButtons[i], globalData.buttons[i]);
+    assignButton(globalButtons[i], store.global.buttons[i]);
   }
 #endif
 }
@@ -173,7 +173,7 @@ void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device,
 /*
 #if BMC_MAX_GLOBAL_BUTTONS > 0
 void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
-  bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = globalData.buttons[index];
+  bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.global.buttons[index];
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
     uint8_t type = data.type;

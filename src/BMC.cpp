@@ -9,38 +9,27 @@
 BMC::BMC():
   settings(store.global.settings),
   globals(store, settings),
-  globalData(store.global),
-  //midi(callback, globals, store.global.portPresets),
   midi(callback, globals, store.global),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
-  #ifdef BMC_USE_SYNC
-    ,sync(midi, midiClock, store.global, callback)
-  #endif
-
-  #ifdef BMC_HAS_DISPLAY
-    ,display(midi, globals, callback
-    #ifdef BMC_USE_SYNC
-      ,sync
-    #endif
-    )
-  #endif
-
   #if BMC_MAX_PRESETS > 0
-    //,presets(globals, store.global)
     ,presets(globals)
   #endif
   #if BMC_MAX_SETLISTS > 0
-    //,setLists(globals, store.global, presets)
     ,setLists(presets)
   #endif
+
+  #if defined(BMC_USE_SYNC)
+    ,sync(midi, midiClock, callback)
+  #endif
+
   #if BMC_MAX_CUSTOM_SYSEX > 0
     ,customSysEx(midi, store.global)
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    ,tempoToTap(midi, globals, store.global)
+    ,tempoToTap(midi)
   #endif
   #if BMC_MAX_TRIGGERS > 0
     ,triggers(midi, globals, store.global)
@@ -52,8 +41,17 @@ BMC::BMC():
     ,timedEvents(globals, store.global)
   #endif
 
+  #if defined(BMC_HAS_DISPLAY)
+    ,display(store, globals
+    #if defined(BMC_USE_SYNC)
+      ,sync
+    #endif
+    )
+  #endif
+
   #if defined(BMC_USE_ON_BOARD_EDITOR)
     ,obe(globals, settings, editor, display)
+    // ,iliSelector(globals, settings, editor, display)
   #endif
 
     ,page(globals.page)
@@ -146,7 +144,6 @@ void BMC::update(){
   // and seen by your display.
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
     BMC_PRINTLN("FIRST loop()");
-    BMC_PRINTLN("");
 
     #if defined(BMC_HAS_DISPLAY)
       #if BMC_MAX_ILI9341_BLOCKS > 0
@@ -191,7 +188,7 @@ void BMC::update(){
     }
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
-
+    BMC_PRINTLN("FIRST loop() complete");
   }
   if(globals.reloadPage()){
     reloadPage();
@@ -201,6 +198,10 @@ void BMC::update(){
   }
   #if defined(BMC_USE_ON_BOARD_EDITOR)
     obe.update();
+  #endif
+
+  #if defined(BMC_HAS_DISPLAY)
+    display.update();
   #endif
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
@@ -255,6 +256,12 @@ void BMC::update(){
 
   // handle callbacks for presets and setlist
   #if BMC_MAX_PRESETS > 0
+    if(globals.triggerBankChange()){
+      presets.setBank(presets.getBank(), true);
+    } else if(globals.triggerPresetChange()){
+      BMC_PRINTLN("Trigger Preset Change")
+      presets.setPreset(presets.get(), true);
+    }
     if(presets.presetChanged()){
       runPresetChanged();
     }
@@ -262,6 +269,14 @@ void BMC::update(){
       runBankChanged();
     }
     #if BMC_MAX_SETLISTS > 0
+      // used to re-trigger current preset
+      if(globals.triggerSetListChange()){
+        setLists.set(setLists.get());
+      } else if(globals.triggerSongChange()){
+        setLists.setSong(setLists.getSong());
+      } else if(globals.triggerPartChange()){
+        setLists.setPart(setLists.getPart());
+      }
       if(setLists.setListChanged()){
         runSetListChanged();
       }

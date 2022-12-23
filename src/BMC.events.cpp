@@ -16,6 +16,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
   if(e.type==BMC_NONE){
     return false;
   }
+  globals.offset = settings.getDisplayOffset()?0:1;
   uint32_t event = e.event;
   uint8_t byteA = BMC_GET_BYTE(0, event);
   uint8_t byteB = BMC_GET_BYTE(1, event);
@@ -256,6 +257,12 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
     case BMC_EVENT_TYPE_SYSTEM_CLOCK:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         midiClock.setBpm(BMC_GET_BYTE_2(0, event));
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        char str[4] = "";
+        sprintf(str, "%u", midiClock.getBpm());
+        display.renderText(deviceIndex, isOled, e.type, str, "BPM");
+#endif
       } else {
         return BMC_IGNORE_LED_EVENT;
       }
@@ -290,19 +297,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         if(group == BMC_DEVICE_GROUP_BUTTON){
           obe.menuCommand(byteA);
-          if(callback.menuCommand){
-            callback.menuCommand(byteA);
-          }
         } else if(group == BMC_DEVICE_GROUP_ENCODER){
-          //uint8_t menCmd = 0;
-          //if(byteA == BMC_MENU_PREV || byteA == BMC_MENU_NEXT){
-            //menCmd = scroll.direction ? BMC_MENU_PREV : BMC_MENU_NEXT;
-          //}
           uint8_t menCmd = scroll.direction ? BMC_MENU_NEXT : BMC_MENU_PREV;
           obe.menuCommand(menCmd, true);
-          if(callback.menuCommand){
-            callback.menuCommand(menCmd);
-          }
         }
       }
       break;
@@ -378,7 +375,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #if defined(BMC_HAS_DISPLAY)
           char str[6] = "";
           sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
-          display.renderText(deviceIndex, isOled, e.type, str);
+          display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
 #endif
         }
       }
@@ -451,11 +448,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         } else {
 #if defined(BMC_HAS_DISPLAY)
           #if BMC_MAX_PAGES < 10
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+1), "%01u");
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%01u", "PAGE");
           #elif BMC_MAX_PAGES < 100
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+1), "%02u");
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%02u", "PAGE");
           #else
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+1), "%03u");
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%03u", "PAGE");
           #endif
           return false;
 #endif
@@ -475,7 +472,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           uint16_t pageN = (event & 0x3FFF);
           if(pageN < BMC_MAX_PAGES){
             bmcStoreName t = globals.getDeviceName(store.pages[pageN].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name);
+            display.renderText(deviceIndex, isOled, e.type, t.name, "PAGE");
           }
           return false;
 #endif
@@ -493,11 +490,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         } else {
 #if defined(BMC_HAS_DISPLAY)
           #if BMC_MAX_PAGES < 10
-            display.renderNumber(deviceIndex, isOled, e.type, page+1, "%01u");
+            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%01u", "PAGE");
           #elif BMC_MAX_PAGES < 100
-            display.renderNumber(deviceIndex, isOled, e.type, page+1, "%02u");
+            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%02u", "PAGE");
           #else
-            display.renderNumber(deviceIndex, isOled, e.type, page+1, "%02u");
+            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%02u", "PAGE");
           #endif
           return false;
 #endif
@@ -516,7 +513,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #if defined(BMC_HAS_DISPLAY)
           if(page < BMC_MAX_PAGES){
             bmcStoreName t = globals.getDeviceName(store.pages[page].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name);
+            display.renderText(deviceIndex, isOled, e.type, t.name, "PAGE");
           }
           return false;
 #endif
@@ -544,7 +541,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return byteA == presets.get();
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          bmcStoreName t = presets.getPresetStr(byteA);
+          display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
 #endif
         }
       }
@@ -555,7 +553,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, presets.get()+1, "%02u");
+        bmcStoreName t = presets.getPresetStr();
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
 #endif
       }
       break;
@@ -565,7 +564,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = presets.getName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
 
 #endif
       }
@@ -576,7 +575,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = presets.getName();
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
 #endif
       }
       break;
@@ -598,10 +597,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return byteA == presets.getBank();
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          //display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
-          char alphabet[32] = BMC_ALPHABET;
-          display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
-          //BMC_ALPHABET
+          bmcStoreName t = presets.getBankStr();
+          display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
 #endif
         }
       }
@@ -616,8 +613,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return false;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          char alphabet[32] = BMC_ALPHABET;
-          display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
+          // char alphabet[32] = BMC_ALPHABET;
+          // display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
+          bmcStoreName t = presets.getBankStr(byteA);
+          display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
 #endif
         }
       }
@@ -644,7 +643,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return (byteA == setLists.get());
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "SET");
 #endif
         }
       }
@@ -654,7 +653,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.get()+1, "%02u");
+        display.renderNumber(deviceIndex, isOled, e.type, setLists.get()+globals.offset, "%02u", "SET");
 #endif
       }
       break;
@@ -664,7 +663,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getSetName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "SET");
 #endif
       }
       break;
@@ -674,7 +673,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getSetName();
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "SET");
 #endif
       }
       break;
@@ -696,7 +695,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return (byteA == setLists.getSong());
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "SONG");
 #endif
         }
       }
@@ -706,7 +705,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.getSong()+1, "%02u");
+        display.renderNumber(deviceIndex, isOled, e.type, setLists.getSong()+globals.offset, "%02u", "SONG");
 #endif
       }
       break;
@@ -716,7 +715,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getSongName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "SONG");
 #endif
       }
       break;
@@ -728,7 +727,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getSongName();
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "SONG");
 #endif
       }
       break;
@@ -752,7 +751,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return (byteA == setLists.getPart());
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+1, "%02u");
+          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "PART");
 #endif
         }
       }
@@ -762,7 +761,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         return map(setLists.getPart(), 0, BMC_MAX_SETLISTS_SONG_PARTS-1, 0, 100);
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.getPart()+1, "%02u");
+        display.renderNumber(deviceIndex, isOled, e.type, setLists.getPart()+globals.offset, "%02u", "PART");
 #endif
       }
       break;
@@ -772,7 +771,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getPartName();
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PART");
 #endif
       }
       break;
@@ -782,7 +781,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         bmcStoreName t = setLists.getPartName();
-        display.renderText(deviceIndex, isOled, e.type, t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PART");
 #endif
       }
       break;

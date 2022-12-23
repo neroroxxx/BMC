@@ -17,7 +17,10 @@ class BMCPresets {
 public:
   BMCPresets(BMCGlobals& t_globals):
             globals(t_globals),
-            global(globals.store.global)
+            store(globals.store),
+            presetIndex(globals.presetIndex),
+            bank(globals.bank),
+            preset(globals.preset)
   {
   }
   void set(uint16_t t_presetAndBank, bool forced=false){
@@ -62,29 +65,44 @@ public:
     return getName(preset);
   }
   bmcStoreName getName(uint16_t t_preset){
+    bmcStoreName t;
+    if(globals.settings.getAppendPresetNumberToPresetName()){
+      char bankBuff[2] = "";
+      BMCTools::getBankLetter(bank, bankBuff);
+      sprintf(t.name, "%s%u ", bankBuff, t_preset+globals.offset);
+    }
     uint16_t p = toPresetIndex(bank, t_preset);
-    if(p < BMC_MAX_PRESETS && global.presets[p].name > 0){
-      bmcName_t n = global.presets[p].name;
-      // for some reason calling globals.getDeviceName causes a panic and reboot????
-      //return globals.getDeviceName(n);
+    if(p < BMC_MAX_PRESETS && store.global.presets[p].name > 0){
+      bmcName_t n = store.global.presets[p].name;
       if(n <= BMC_MAX_NAMES_LIBRARY){
-        return global.names[n-1];
+        strcat(t.name, store.global.names[n-1].name);
+        t.name[BMC_MAX_NAMES_LENGTH-1] = 0;
       }
     }
-    bmcStoreName t;
-    sprintf(t.name, "Preset # %02u", t_preset+1);
     return t;
   }
-
-  bmcStoreName getBankName(){
-    return getBankName(bank);
+  bmcStoreName getBankStr(){
+    return getBankStr(bank);
   }
-  bmcStoreName getBankName(uint8_t t_bank){
+  bmcStoreName getBankStr(uint16_t t_bank){
     bmcStoreName t;
-    sprintf(t.name, "Bank # %02u", t_bank+1);
+    BMCTools::getBankLetter(t_bank, t.name);
     return t;
   }
-
+  bmcStoreName getPresetStr(){
+    return getPresetStr(preset);
+  }
+  bmcStoreName getPresetStr(uint16_t t_preset){
+    bmcStoreName t;
+    if(globals.settings.getDisplayBankWithPreset()){
+      char bankBuff[3] = "";
+      BMCTools::getBankLetter(bank, bankBuff);
+      sprintf(t.name, "%s%u", bankBuff, t_preset+globals.offset);
+    } else {
+      sprintf(t.name, "%u", t_preset+globals.offset);
+    }
+    return t;
+  }
 
   bool presetChanged(){
     return flags.toggleIfTrue(BMC_FLAG_PRESETS_CHANGED);
@@ -113,7 +131,7 @@ public:
   uint8_t getLength(uint8_t t_bank, uint8_t t_preset){
     uint16_t n = toPresetIndex(t_bank, t_preset);
     if(n < BMC_MAX_PRESETS){
-      return global.presets[n].settings[0];
+      return store.global.presets[n].settings[0];
     }
     return 0;
   }
@@ -129,13 +147,13 @@ public:
   }
 public:
   BMCGlobals& globals;
-  bmcStoreGlobal& global;
+  bmcStore& store;
 
 private:
   BMCFlags <uint8_t> flags;
-  uint16_t presetIndex = 0;
-  uint8_t bank = 0;
-  uint8_t preset = 0;
+  uint16_t& presetIndex;
+  uint8_t& bank;
+  uint8_t& preset;
 };
 
 #endif

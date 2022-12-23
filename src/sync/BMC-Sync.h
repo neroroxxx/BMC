@@ -62,13 +62,12 @@ public:
   BMCSync(
     BMCMidi& t_midi,
     BMCMidiClock& t_midiClock,
-    bmcStoreGlobal& t_global,
     BMCCallbacks& t_callback
   )
   :
   midi(t_midi),
   midiClock(t_midiClock),
-  global(t_global),
+  global(midi.globals.store.global),
   callback(t_callback)
   #ifdef BMC_USE_DAW_LC
     ,daw(midi, global, callback)

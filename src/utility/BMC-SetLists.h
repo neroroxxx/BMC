@@ -22,16 +22,15 @@
 class BMCSetLists {
 public:
   BMCSetLists(BMCPresets& t_presets):
-            globals(t_presets.globals),
-            global(t_presets.global),
-            presets(t_presets)
-            /*
+            presets(t_presets),
+            globals(presets.globals),
+            store(presets.store),
+            // part of globals
             setList(globals.setList),
             song(globals.song),
             songPart(globals.songPart),
             songInLibrary(globals.songInLibrary),
-            songFlags(globals.setListFlags)
-            */
+            songFlags(globals.songFlags)
 
   {
   }
@@ -39,9 +38,9 @@ public:
     if(n >= BMC_MAX_SETLISTS){
       return;
     }
-    if(global.setLists[n].settings[0] > 0){
+    if(store.global.setLists[n].settings[0] > 0){
       setList = n;
-      BMC_PRINTLN("SetList #", n);
+      BMC_PRINTLN("Set SetList #", n);
       flags.on(BMC_FLAG_SETLISTS_CHANGED);
       if(autoTriggerFirstSong()){
         setSong(0);
@@ -52,9 +51,9 @@ public:
     if(n >= BMC_MAX_SETLISTS_SONGS){
       return;
     }
-    if(global.setLists[setList].settings[0] > n){
+    if(store.global.setLists[setList].settings[0] > n){
       song = n;
-      songInLibrary = global.setLists[setList].events[song];
+      songInLibrary = store.global.setLists[setList].events[song];
       if(setHasSong(n)){
         songEmpty(false); // song has parts
         if(autoTriggerFirstPart()){
@@ -72,11 +71,11 @@ public:
     if(n >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    if(global.songLibrary[songInLibrary].settings[0] > n){
+    if(store.global.songLibrary[songInLibrary].settings[0] > n){
       songPart = n;
       if(songHasPart(songPart)){
         partEmpty(false);
-        uint16_t value = global.songLibrary[songInLibrary].events[songPart];
+        uint16_t value = store.global.songLibrary[songInLibrary].events[songPart];
         presets.set(value);
       } else {
         partEmpty(true);
@@ -95,7 +94,7 @@ public:
   }
   uint8_t getSetListLength(uint8_t n){
     if(n < BMC_MAX_SETLISTS_SONGS){
-      return global.setLists[n].settings[0];
+      return store.global.setLists[n].settings[0];
     }
     return 0;
   }
@@ -122,33 +121,33 @@ public:
     return flags.toggleIfTrue(BMC_FLAG_SETLISTS_SONG_PART_CHANGED);
   }
   uint16_t getSongPreset(){
-    return global.setLists[setList].events[song];
+    return store.global.setLists[setList].events[song];
   }
   uint16_t getSongPreset(uint8_t n){
     if(n<BMC_MAX_SETLISTS_SONGS){
-      return global.setLists[setList].events[n];
+      return store.global.setLists[setList].events[n];
     }
     return 0;
   }
   void scrollSet(bool t_up, bool t_endless, uint8_t t_amount, bool firstSong=true){
     uint8_t t_max = BMC_MAX_SETLISTS-1;
-    //uint8_t t_max = global.setLists[n].settings[0];
+    //uint8_t t_max = store.global.setLists[n].settings[0];
     BMCScroller <uint8_t> scroller(0, t_max);
     set(scroller.scroll(t_amount, t_up, t_endless, setList, 0, t_max), firstSong);
   }
   void scrollSong(bool t_up, bool t_endless, uint8_t t_amount){
-    uint8_t len = global.setLists[setList].settings[0];
+    uint8_t len = store.global.setLists[setList].settings[0];
 
     if(len > 1){
       //uint8_t t_max = BMC_MAX_SETLISTS_SONGS-1;
-      uint8_t t_max = global.setLists[setList].settings[0]-1;
+      uint8_t t_max = store.global.setLists[setList].settings[0]-1;
       BMCScroller <uint8_t> scroller(0, t_max);
       setSong(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
     }
   }
   void scrollPart(bool t_up, bool t_endless, uint8_t t_amount){
     //uint8_t t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
-    uint8_t t_max = global.songLibrary[songInLibrary].settings[0]-1;
+    uint8_t t_max = store.global.songLibrary[songInLibrary].settings[0]-1;
     BMCScroller <uint8_t> scroller(0, t_max);
     setPart(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
   }
@@ -162,51 +161,51 @@ public:
 
   // check if the current set has any songs
   bool setHasSongs(){
-    return global.setLists[setList].settings[0] > 0;
+    return store.global.setLists[setList].settings[0] > 0;
   }
   // check if a specific set has any songs
   bool setHasSongs(uint8_t n){
     if(n > BMC_MAX_SETLISTS){
       return false;
     }
-    return global.setLists[n].settings[0] > 0;
+    return store.global.setLists[n].settings[0] > 0;
   }
   // check if the current set has a specific song number
   bool setHasSong(uint8_t n){
     if(!setHasSongs()){
       return false;
     }
-    return global.setLists[setList].settings[0] > n;
+    return store.global.setLists[setList].settings[0] > n;
   }
 
 
 
   // check if the current song has any parts
   bool songHasParts(){
-    return global.songLibrary[songInLibrary].settings[0] > 0;
+    return store.global.songLibrary[songInLibrary].settings[0] > 0;
   }
   // check if the current song has any parts
   bool songHasParts(uint8_t n){
     if(n > BMC_MAX_SETLISTS_SONG_PARTS){
       return false;
     }
-    n = global.setLists[setList].events[n];
-    return global.songLibrary[n].settings[0] > 0;
+    n = store.global.setLists[setList].events[n];
+    return store.global.songLibrary[n].settings[0] > 0;
   }
   // check if the current song has a specific part number
   bool songHasPart(uint8_t n){
     if(!songHasParts() || n > BMC_MAX_SETLISTS_SONG_PARTS){
       return false;
     }
-    return global.songLibrary[songInLibrary].events[n] > 0;
+    return store.global.songLibrary[songInLibrary].events[n] > 0;
   }
 
   bmcStoreName getSetName(){
     return getSetName(setList);
   }
   bmcStoreName getSetName(uint8_t t_set){
-    if(t_set < BMC_MAX_SETLISTS && global.setLists[t_set].name != 0){
-      return globals.getDeviceName(global.setLists[t_set].name);
+    if(t_set < BMC_MAX_SETLISTS && store.global.setLists[t_set].name != 0){
+      return globals.getDeviceName(store.global.setLists[t_set].name);
     }
     bmcStoreName t;
     sprintf(t.name, "Set # %02u", t_set+1);
@@ -217,10 +216,10 @@ public:
     return getSongName(song);
   }
   bmcStoreName getSongName(uint8_t t_song){
-    if(global.setLists[setList].settings[0] > t_song){
-      uint16_t s = global.setLists[setList].events[t_song]-1;
-      if(global.songLibrary[s].name != 0){
-        return globals.getDeviceName(global.songLibrary[s].name);
+    if(store.global.setLists[setList].settings[0] > t_song){
+      uint16_t s = store.global.setLists[setList].events[t_song]-1;
+      if(store.global.songLibrary[s].name != 0){
+        return globals.getDeviceName(store.global.songLibrary[s].name);
       }
     }
     bmcStoreName t;
@@ -232,10 +231,10 @@ public:
     return getPartName(songPart);
   }
   bmcStoreName getPartName(uint8_t t_part){
-    if(global.songLibrary[songInLibrary].settings[0] > t_part){
-      uint16_t p = global.songLibrary[songInLibrary].events[t_part]-1;
-      if(p < BMC_MAX_PRESETS && global.presets[p].name != 0){
-        return globals.getDeviceName(global.presets[p].name);
+    if(store.global.songLibrary[songInLibrary].settings[0] > t_part){
+      uint16_t p = store.global.songLibrary[songInLibrary].events[t_part]-1;
+      if(p < BMC_MAX_PRESETS && store.global.presets[p].name != 0){
+        return globals.getDeviceName(store.global.presets[p].name);
       }
     }
     bmcStoreName t;
@@ -272,15 +271,15 @@ public:
 
 
 private:
-  BMCGlobals& globals;
-  bmcStoreGlobal& global;
   BMCPresets& presets;
+  BMCGlobals& globals;
+  bmcStore& store;
   BMCFlags <uint8_t> flags;
-  uint8_t setList = 0;
-  uint16_t song = 0;
-  uint8_t songPart = 0;
-  uint16_t songInLibrary;
-  uint8_t songFlags = 0;
+  uint8_t& setList;
+  uint16_t& song;
+  uint8_t& songPart;
+  uint16_t& songInLibrary;
+  uint8_t& songFlags;
 };
 
 #endif

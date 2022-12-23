@@ -33,7 +33,7 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings, bool forced){
   #endif
 
   #if defined(BMC_HAS_DISPLAY)
-    display.reassign(page);
+    display.reassign();
   #endif
 
   #if defined(BMC_USE_BEATBUDDY)

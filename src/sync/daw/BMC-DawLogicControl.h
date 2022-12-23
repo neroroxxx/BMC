@@ -115,6 +115,7 @@ public:
         uint8_t ch = (c>>4) & 0x07;
         uint8_t level = c & 0x0F;
         controller.setMeter(ch, level);
+        // BMC_PRINTLN("DAW received meter", ch, level);
         if(callback.dawRecievedChannelMeter){
           callback.dawRecievedChannelMeter(ch, level);
         }
@@ -190,19 +191,16 @@ public:
       }
     } else if(d.isPitchBend()){
       uint8_t ch = d.getChannel()-1;
-      int value = d.getPitchValue() & 0x3FFC;
+      int16_t value = d.getPitchValue() & 0x3FFC;
       // Logic sends a pitch value from 0 to 14840 which we then
       // map to a value from -8192 to 6651
       // the 0dB value after mapping is 4251
+      // BMC_PRINTLN("DAW pitch bend received", value);
       value = map(value, 0, 14840, (-8192), 6651);
-      
-      
-
       // in logic pro
-      // fader at max/+6db = 14843
-      // fader at unity/0db = 12441
+      // fader at max/+6db = 14840
+      // fader at unity/0db = 12440
       // fader at min/infinity = 0
-
       if(ch==8){
         controller.setMasterVolume(value);
         if(callback.dawRecievedMasterFaderPosition){
@@ -314,6 +312,10 @@ public:
       n = controller.getSelectedChannel();
     }
     for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
+      if(i>=BMC_MAX_NAMES_LENGTH){
+        t.name[BMC_MAX_NAMES_LENGTH-1] = 0;
+        break;
+      }
       t.name[i] = (char) lcd[0][e];
     }
     return t;
@@ -330,6 +332,10 @@ public:
       n = controller.getSelectedChannel();
     }
     for(uint8_t i = 0, e = (n * 7) ; i < 7 ; i++, e++){
+      if(i>=BMC_MAX_NAMES_LENGTH){
+        t.name[BMC_MAX_NAMES_LENGTH-1] = 0;
+        break;
+      }
       t.name[i] = (char) lcd[1][e];
     }
     return t;
@@ -523,7 +529,7 @@ public:
   // encoder as fader not yet implemented
   void sendEncoderFader(uint8_t ch, bool clockwise, uint8_t extraTicks){
     ch = (ch >= 8) ? controller.getSelectedChannel() : ch;
-    int volume = controller.getVolume(ch);
+    int16_t volume = controller.getVolume(ch);
     sendFaderPitch(ch+1, volume, clockwise, extraTicks);
   }
   // encoder as fader not yet implemented

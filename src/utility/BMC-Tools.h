@@ -163,9 +163,6 @@ public:
       case BMC_BUTTON_PRESS_TYPE_PRESS:
         strcpy(str, "Press");
         break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE:
-        strcpy(str, "Release -> Always");
-        break;
       case BMC_BUTTON_PRESS_TYPE_HOLD:
         strcpy(str, "Hold");
         break;
@@ -178,23 +175,26 @@ public:
       case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
         strcpy(str, "2nd Press");
         break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
-        strcpy(str, "Release -> Press");
-        break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
-        strcpy(str, "Release -> Hold");
-        break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
-        strcpy(str, "Release -> Dbl Press");
-        break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
-        strcpy(str, "Release -> Continuous");
-        break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
-        strcpy(str, "Release -> 2nd Press");
-        break;
       case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
         strcpy(str, "State Change");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE:
+        strcpy(str, "Releas/Always");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
+        strcpy(str, "Releas/Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
+        strcpy(str, "Releas/Hold");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
+        strcpy(str, "Releas/DblPress");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
+        strcpy(str, "Releas/Continuous");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
+        strcpy(str, "Releas/2ndPress");
         break;
       default:
         sprintf(str, "%u Inactive", value);
@@ -279,10 +279,101 @@ public:
         break;
     }
   }
+  static bmcStoreEvent getDeviceEventType(bmcStore& store, uint16_t n){
+    bmcStoreEvent e;
+    if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
+      return store.global.events[n-1];
+    }
+    return e;
+  }
+  static void strTrim(char * str){
+    strTrimHead(str);
+    strTrimTail(str);
+  }
+  static void strTrimHead(char * str){
+    // remove spaces at the beginning of a char array
+    uint16_t len = strlen(str);
+    if(len == 0 || str[0] != 32){
+      return;
+    }
+    char buff[len+1] = "";
+    bool skipTrim = false;
+    for(uint8_t i = 0, e = 0;i<len;i++){
+      if(!skipTrim){
+        if(str[i] == 32){
+          continue;
+        } else if(str[i] == 0){
+          break;
+        } else {
+          skipTrim = true;
+        }
+      }
+      buff[e++] = str[i];
+    }
+    strcpy(str, buff);
+  }
+  static void strTrimTail(char * str){
+    // remove spaces at end of a char array
+    uint16_t len = strlen(str);
+    if(len == 0 || str[len-1] != 32){
+      return;
+    }
+    for(int i = len; i --> 0;){
+      if(str[i] != 0){
+        if(str[i] == 32){
+          str[i] = 0;
+        } if(str[i] > 32){
+          break;
+        }
+      }
+    }
+  }
+  static void strRemoveSpaces(char * str){
+    // trim the end of a char array
+    uint16_t len = strlen(str);
+    if(len == 0){
+      return;
+    }
+    char buff[len+1] = "";
+    for(uint8_t i = 0, e = 0;i<len;i++){
+      if(str[i] == 32){
+        continue;
+      } else if(str[i] == 0){
+        break;
+      }
+      buff[e++] = str[i];
+    }
+    strcpy(str, buff);
+  }
+  static void strShorten(char * str, bool removeSpaces=false){
+    // removes all vowels as well
+    // if the first character of the string is a vowel leave it
+    // removes all spaces from string if @removeSpaces is true
+    uint16_t len = strlen(str);
+    if(len < 5){
+      return;
+    }
+    char buff[len+1] = "";
+    for(uint8_t i = 0, e = 0 ; i < len ; i++){
+      if((removeSpaces && str[i] == 32) || (i>0 && (str[i] == 65 || str[i] == 69 || str[i] == 73 ||
+         str[i] == 79 || str[i] == 85 || str[i] == 97 || str[i] == 101 ||
+         str[i] == 105 || str[i] == 111 || str[i] == 117))
+      ){
+        continue;
+      } else if(str[i] == 0){
+        break;
+      }
+      buff[e++] = str[i];
+    }
+    if(strlen(buff)>0){
+      strcpy(str, buff);
+    }
+  }
   static void getBankLetter(uint8_t n, char* buff){
-    if(n<32){
+    strcpy(buff, "");
+    if(n < 32){
       const char alph[32] = BMC_ALPHABET;
-      buff[0] = alph[n];
+      sprintf(buff, "%c", alph[n]);
     }
   }
   static uint16_t toPresetIndex(uint8_t t_bank, uint8_t t_preset){

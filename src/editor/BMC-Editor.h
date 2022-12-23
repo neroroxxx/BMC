@@ -580,9 +580,10 @@ public:
         return;
       }
     }
-    strcpy(str, "...");
+    // strcpy(str, "...");
   }
   void getDeviceNameText(uint8_t deviceType, uint16_t index, char* str){
+    strcpy(str, "...");
     switch(deviceType){
       case BMC_DEVICE_ID_PAGE:
         getDeviceNameFromIndex(store.pages[index].name, str);
@@ -765,7 +766,9 @@ public:
         #endif
         break;
       case BMC_DEVICE_ID_SETLIST_SONG:
-
+        #if BMC_MAX_SETLISTS > 0
+          // getDeviceNameFromIndex(store.global.setLists[index].name, str);
+        #endif
         break;
       case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
         #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0

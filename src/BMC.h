@@ -158,6 +158,8 @@
 
 #if defined(BMC_USE_ON_BOARD_EDITOR)
   #include "editor/onBoard/BMC-OBEMain.h"
+  // #include "editor/onBoard/BMC-IliSelector.h"
+  
 #endif
 
 
@@ -167,8 +169,6 @@
 
 // see BMC-Api.h for API calls
 class BMC {
-private:
-  BMCCallbacks callback;
 public:
   // code @ BMC.cpp
   BMC();
@@ -222,8 +222,8 @@ private:
   BMCSettings settings;
   // BMC data that holds flags and global variables
   BMCGlobals globals;
-  // a reference to store.global
-  bmcStoreGlobal& globalData;
+  // hold all callbacks for BMC
+  BMCCallbacks callback;
   // it holds a reference to store.global.settings
   BMCFlags <uint8_t> flags;
   #if BMC_MAX_LFO > 0
@@ -249,20 +249,16 @@ private:
   BMCTimer encoderFixTimer;
 #endif
 
-#if defined(BMC_USE_SYNC)
-  BMCSync sync;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-    BMCDisplay display;
-#endif
-
 #if BMC_MAX_PRESETS > 0
   BMCPresets presets;
 #endif
 
 #if BMC_MAX_SETLISTS > 0
   BMCSetLists setLists;
+#endif
+
+#if defined(BMC_USE_SYNC)
+  BMCSync sync;
 #endif
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
@@ -288,8 +284,13 @@ private:
     void readTimedEvent();
 #endif
 
+#if defined(BMC_HAS_DISPLAY)
+    BMCDisplay display;
+#endif
+
 #if defined(BMC_USE_ON_BOARD_EDITOR)
     BMCOBE obe;
+    // BMCIliSelector iliSelector;
 #endif
   unsigned long heartbeat = 0;
 
@@ -326,33 +327,22 @@ private:
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
 
   void runPageChanged(){
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderPageBanner();
+    #endif
+
     #if BMC_MAX_BUTTONS > 1
       dualPress.pageChanged();
     #endif
   }
   void runPresetChanged(){
 #if BMC_MAX_PRESETS > 0
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderPresetBanner();
+    #endif
+
     triggerPreset(presets.getIndex(), presets.getLength());
 
-
-    
-    /*
-    if(len > 0){
-      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
-      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-      for(uint8_t i = 0 ; i < len ; i++){
-        processEvent(BMC_DEVICE_GROUP_PRESET, BMC_DEVICE_ID_PRESET,
-                     t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
-      }
-
-    }
-    editor.utilitySendPreset(t_preset);
-    */
-/*
-    char presetName[30] = "";
-    presets.getName(t_preset, presetName);
-    streamToSketch(BMC_DEVICE_ID_PRESET, t_preset, presetName);
-*/
     if(callback.presetChanged){
       callback.presetChanged(presets.getBank(), presets.get());
     }
@@ -378,7 +368,11 @@ private:
 #endif
   }
   void runSetListChanged(){
-#if BMC_MAX_SETLISTS > 0 && BMC_MAX_PRESETS > 0
+#if BMC_MAX_SETLISTS > 0
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderSetListBanner();
+    #endif
+
 /*
     char setListName[30] = "";
     setLists.getName(setLists.get(), setListName);
@@ -391,6 +385,9 @@ private:
   }
   void runSongChanged(){
 #if BMC_MAX_SETLISTS > 0
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderSongBanner();
+    #endif
 
 /*
     char songName[30] = "";
@@ -404,6 +401,10 @@ private:
   }
   void runSongPartChanged(){
 #if BMC_MAX_SETLISTS > 0
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderSongPartBanner();
+    #endif
+
     uint16_t songInLibrary = setLists.getSongInLibrary();
     uint8_t part = setLists.getPart();
     uint8_t len = store.global.songLibrary[songInLibrary].settings[0];

@@ -902,6 +902,25 @@
   #define BMC_USE_ON_BOARD_EDITOR
 #endif
 
+#if !defined(BMC_TFT_SIZE)
+  #define BMC_TFT_SIZE 1
+#endif
+
+#if BMC_TFT_SIZE > 2
+  #define BMC_TFT_SIZE 2
+#endif
+
+#if BMC_TFT_SIZE == 1
+  #define BMC_TFT_WIDTH 320
+  #define BMC_TFT_HEIGHT 240
+#elif BMC_TFT_SIZE == 2
+  #define BMC_TFT_WIDTH 480
+  #define BMC_TFT_HEIGHT 320
+#endif
+
+
+
+
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
   // they are tested by the editor or at launch, the idea is that at launch
   // the test of alls LED and PIXELS should not exceed more than 4 seconds.

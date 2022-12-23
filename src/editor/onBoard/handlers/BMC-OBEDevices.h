@@ -41,12 +41,13 @@ public:
     }
     shiftActive = false;
   }
-  bool isCompatible(uint8_t t_id=255){
-    uint8_t id = (t_id==255) ? data.activeDevice.id : t_id;
+  bool isCompatible(uint16_t t_id=0xFFFF){
+    uint8_t id = (t_id==0xFFFF) ? data.activeDevice.id : t_id;
     switch(id){
+      case BMC_NONE:
       case BMC_DEVICE_ID_EVENT:
-      //case BMC_DEVICE_ID_NAME:
       case BMC_DEVICE_ID_POT_CALIBRATION:
+      case BMC_DEVICE_ID_CUSTOM_SYSEX:
       case BMC_DEVICE_ID_SKETCH_BYTE:
       case BMC_DEVICE_ID_SHORTCUTS:
         return false;
@@ -55,6 +56,9 @@ public:
   }
   void setTotalRows(){
     switch(data.activeDevice.id){
+      case BMC_DEVICE_ID_PAGE:
+        data.totalRows = 1;
+        break;
       case BMC_DEVICE_ID_NAME:
         data.totalRows = data.activeDevice.length-1;
         break;
@@ -76,21 +80,71 @@ public:
         data.totalRows += data.activeDevice.settings;
         data.totalRows += data.activeDevice.events;
         break;
+      case BMC_DEVICE_ID_BI_LED:
+      case BMC_DEVICE_ID_GLOBAL_BI_LED:
+        data.totalRows = 3;
+        break;
+      case BMC_DEVICE_ID_TRI_LED:
+      case BMC_DEVICE_ID_GLOBAL_TRI_LED:
+        data.totalRows = 4;
+        break;
+      case BMC_DEVICE_ID_RGB_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
+        data.totalRows = 1;
+        data.totalRows += data.activeDevice.events;
+        break;
       case BMC_DEVICE_ID_NL_RELAY:
       case BMC_DEVICE_ID_L_RELAY:
         data.totalRows = 5;
         break;
+      case BMC_DEVICE_ID_TRIGGER:
+        data.totalRows = 1;
+        data.totalRows += 2;
+        data.totalRows += data.activeDevice.events;
+        break;
       case BMC_DEVICE_ID_ENCODER:
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
       case BMC_DEVICE_ID_OLED:
-      case BMC_DEVICE_ID_ILI:
+      case BMC_DEVICE_ID_TEMPO_TO_TAP:
         // for all devices that only have a name and single event
         data.totalRows = 2;// one for name and one for event
+        break;
+      case BMC_DEVICE_ID_ILI:
+        data.totalRows = 3;// one for name and one for event, 1 for settings
         break;
       case BMC_DEVICE_ID_LFO:
         data.totalRows = 1;
         data.totalRows += data.activeDevice.settings;
         data.totalRows += data.activeDevice.events;
+        break;
+      case BMC_DEVICE_ID_TIMED_EVENT:
+        // name, event, 2 settings split into 3 fields
+        data.totalRows = 5;
+        break;
+      case BMC_DEVICE_ID_PRESET:
+        // 1 setting byte but it's used for length
+        data.totalRows = 1; // one for name
+        data.totalRows += BMC_MAX_PRESET_ITEMS;
+        break;
+      case BMC_DEVICE_ID_SETLIST:
+        // 1 setting byte but it's used for length
+        data.totalRows = 1; // one for name
+        data.totalRows += BMC_MAX_SETLISTS_SONGS;
+        break;
+      case BMC_DEVICE_ID_SETLIST_SONG:
+        // 1 setting byte but it's used for length
+        data.totalRows = 1; // one for name
+        data.totalRows += BMC_MAX_SETLISTS_SONG_PARTS;
+        break;
+      case BMC_DEVICE_ID_AUX_JACK:
+        // name, 3 events, 2 settings split into 4 fields
+        data.totalRows = 1;
+        data.totalRows += 4;
+        data.totalRows += data.activeDevice.events;
+        break;
+      case BMC_DEVICE_ID_PORT_PRESET:
+        data.totalRows = 1;// 1 for name
+        data.totalRows += data.availablePorts;
         break;
     }
   }
@@ -99,6 +153,7 @@ public:
       return true;
     }
     switch(data.activeDevice.id){
+      case BMC_DEVICE_ID_PAGE:
       case BMC_DEVICE_ID_NAME:
       case BMC_DEVICE_ID_BUTTON:
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
@@ -107,6 +162,8 @@ public:
       case BMC_DEVICE_ID_PIXEL:
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
       case BMC_DEVICE_ID_PIXEL_STRIP:
+      case BMC_DEVICE_ID_RGB_PIXEL:
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
       case BMC_DEVICE_ID_ENCODER:
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
       case BMC_DEVICE_ID_OLED:
@@ -116,6 +173,14 @@ public:
       case BMC_DEVICE_ID_MAGIC_ENCODER:
       case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
       case BMC_DEVICE_ID_LFO:
+      case BMC_DEVICE_ID_TRIGGER:
+      case BMC_DEVICE_ID_TEMPO_TO_TAP:
+      case BMC_DEVICE_ID_TIMED_EVENT:
+      case BMC_DEVICE_ID_PRESET:
+      case BMC_DEVICE_ID_SETLIST:
+      case BMC_DEVICE_ID_SETLIST_SONG:
+      case BMC_DEVICE_ID_AUX_JACK:
+      case BMC_DEVICE_ID_PORT_PRESET:
         for(uint8_t i = startingPage, e = 0; i < data.totalRows ; i++){
           data.addToVisibleList(i+1);
           e++;
@@ -162,10 +227,17 @@ public:
   uint16_t setOptionValue(){
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_CHANGED);
   }
+  uint16_t handlePostSaveProcessing(){
+    return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_POST_SAVE);
+  }
   uint16_t getOptionLabel(uint16_t index, uint8_t valueType=BMC_OBE_DEVICE_OPT_LABEL){
     offset = settings.getDisplayOffset()?0:1;
     uint16_t dIndex = data.deviceIndex-1;
     switch(data.activeDevice.id){
+      case BMC_DEVICE_ID_PAGE:
+        return getPageNameOption(index, valueType);
+      case BMC_DEVICE_ID_EVENT:
+        break;
       case BMC_DEVICE_ID_NAME:
         return getNamesEditor(store.global.names[dIndex], index, valueType);
       case BMC_DEVICE_ID_BUTTON:
@@ -188,6 +260,35 @@ public:
           return getLedOption<1,1>(store.global.leds[dIndex], index, valueType);
         #endif
         break;
+
+
+
+
+        
+      case BMC_DEVICE_ID_BI_LED:
+        #if BMC_MAX_BI_LEDS > 0
+          return getBiLedOption<1,2>(store.pages[globals.page].biLeds[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_BI_LED:
+        #if BMC_MAX_GLOBAL_BI_LEDS > 0
+          return getBiLedOption<1,2>(store.global.biLeds[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_TRI_LED:
+        #if BMC_MAX_TRI_LEDS > 0
+          return getTriLedOption<1,3>(store.pages[globals.page].triLeds[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_TRI_LED:
+        #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+          return getTriLedOption<1,3>(store.global.triLeds[dIndex], index, valueType);
+        #endif
+        break;
+
+
+
+
       case BMC_DEVICE_ID_ENCODER:
         #if BMC_MAX_ENCODERS > 0
           return getSingleEventDeviceOption<1,1>(store.pages[globals.page].encoders[dIndex], index, valueType);
@@ -205,7 +306,7 @@ public:
         break;
       case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          return getSingleEventDeviceOption<1,1>(store.pages[globals.page].ili[dIndex], index, valueType);
+          return getIliOption<1,1>(store.pages[globals.page].ili[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
@@ -216,6 +317,16 @@ public:
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
         #if BMC_MAX_GLOBAL_PIXELS > 0
           return getPixelOption<1,1>(store.global.pixels[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_RGB_PIXEL:
+        #if BMC_MAX_RGB_PIXELS > 0
+          return getRgbPixelOption<1,3>(store.pages[globals.page].rgbPixels[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
+        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+          return getRgbPixelOption<1,3>(store.global.rgbPixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL_STRIP:
@@ -245,9 +356,286 @@ public:
         #if BMC_MAX_LFO > 0
           return getLfoOption<3, 5, uint8_t>(store.global.lfo[dIndex], index, valueType);
         #endif
+      case BMC_DEVICE_ID_TRIGGER:
+        #if BMC_MAX_TRIGGERS > 0
+          return getTriggerOption<1, 2, uint8_t>(store.global.triggers[dIndex], index, valueType);
+        #endif
         break;
+      case BMC_DEVICE_ID_TEMPO_TO_TAP:
+        #if BMC_MAX_TEMPO_TO_TAP > 0
+          return getSingleEventDeviceOption<1,1>(store.global.tempoToTap[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_TIMED_EVENT:
+        #if BMC_MAX_TIMED_EVENTS > 0
+          return getTimedEventOption<2,1>(store.global.timedEvents[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_PRESET:
+        #if BMC_MAX_PRESETS > 0
+          return getPresetsEditor(dIndex, index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_SETLIST:
+        #if BMC_MAX_SETLISTS > 0
+          return getSetListsEditor(dIndex, index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_SETLIST_SONG:
+        #if BMC_MAX_SETLISTS > 0
+          return getSongEditor(dIndex, index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_AUX_JACK:
+        #if BMC_MAX_AUX_JACKS > 0
+          return getAuxJackOption(dIndex, index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_PORT_PRESET:
+        return getPortPresetsOption<0, 1, uint8_t>(store.global.portPresets[dIndex], index, valueType);
+        break;
+      /*
+        #if BMC_MAX_AUX_JACKS > 0
+          bmcStoreDevice <2, 3> auxJacks[BMC_MAX_AUX_JACKS];
+        #endif
+      */
     }
     strcpy(str, "undefined");
+    return 0;
+  }
+
+
+  uint16_t getPresetsEditor(uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
+    #if BMC_MAX_PRESETS > 0
+    if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
+      bmcEvent_t list[BMC_MAX_PRESET_ITEMS];
+      memset(list, 0, BMC_MAX_PRESET_ITEMS);
+      uint8_t counter = 0;
+      for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
+        if(store.global.presets[deviceIndex].events[i]>0){
+          list[counter++] = store.global.presets[deviceIndex].events[i];
+        }
+        // empty the entire preset
+        store.global.presets[deviceIndex].events[i] = 0;
+      }
+      // set the length
+      store.global.presets[deviceIndex].settings[0] = counter;
+      for(uint8_t i = 0 ; i < counter ; i++){
+        store.global.presets[deviceIndex].events[i] = list[i];
+      }
+      return 1;
+    }
+    uint16_t optionId = data.visibleRowId[index]-1;
+    for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
+      if(i==0){
+        if(optionId == 0){
+          return getNameField<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[deviceIndex], valueType);
+        }
+      } else if(i == optionId){
+        return getEventField<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[deviceIndex], "Event", i-1, 1, valueType);
+      }
+    }
+    #endif
+    return 0;
+  }
+  
+  uint16_t getSetListsEditor(uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
+    #if BMC_MAX_SETLISTS > 0
+    if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
+      bmcEvent_t list[BMC_MAX_SETLISTS_SONGS];
+      memset(list, 0, BMC_MAX_SETLISTS_SONGS);
+      uint8_t counter = 0;
+      for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
+        if(store.global.setLists[deviceIndex].events[i]>0){
+          list[counter++] = store.global.setLists[deviceIndex].events[i];
+        }
+        // empty the entire preset
+        store.global.setLists[deviceIndex].events[i] = 0;
+      }
+      // set the length
+      store.global.setLists[deviceIndex].settings[0] = counter;
+      for(uint8_t i = 0 ; i < counter ; i++){
+        store.global.setLists[deviceIndex].events[i] = list[i];
+      }
+      return 1;
+    }
+    uint16_t optionId = data.visibleRowId[index]-1;
+    for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
+      if(i==0){
+        if(optionId == 0){
+          return getNameField<1,BMC_MAX_SETLISTS_SONGS>(store.global.setLists[deviceIndex], valueType);
+        }
+      } else if(i == optionId){
+        return getPartField<1,BMC_MAX_SETLISTS_SONGS>(store.global.setLists[deviceIndex], "Song", i-1, 1, valueType);
+      }
+    }
+    #endif
+    return 0;
+  }
+  
+  uint16_t getAuxJackOption(uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
+    #if BMC_MAX_AUX_JACKS > 0
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Mode");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
+              strcpy(str, (value==0)?"Dual Buttons":"Expression Pedal");
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(item.settings[0] != data.rowEditValue){
+              item.settings[0] = data.rowEditValue;
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Engage Mode");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? ((item.settings[1]>>6) & 0x03) : data.rowEditValue;
+              strcpy(str, (value==0)?"Auto-Engage":"Toe Switch");
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t v = item.settings[0] & 0x3F;
+              uint8_t newValue = v | (data.rowEditValue<<6);
+              if(item.settings[1] != newValue){
+                item.settings[1] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 3:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Engage Value");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[1] & 0x07) : data.rowEditValue;
+              sprintf(str, "%u", (value+1)*5);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 7;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t v = item.settings[0] & 0xF8;
+              uint8_t newValue = v | data.rowEditValue;
+              if(item.settings[1] != newValue){
+                item.settings[1] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 4:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Engage Speed");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? ((item.settings[1]>>3) & 0x07) : data.rowEditValue;
+              sprintf(str, "%u ms", ((value+1)*100) + 200);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 7;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t v = item.settings[0] & 0x38;
+              uint8_t newValue = v | (data.rowEditValue<<3);
+              if(item.settings[1] != newValue){
+                item.settings[1] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 5:
+        return getEventField<sLen,eLen,tname>(item, "Pot Event", 0, 0, valueType);
+      case 6:
+        return getEventField<sLen,eLen,tname>(item, "Btn 1 / Toe Switch Engage", 1, 0, valueType);
+      case 7:
+        return getEventField<sLen,eLen,tname>(item, "Btn 2 / Toe Switch Disengage", 2, 0, valueType);
+      default:
+        break;
+    }
+    return 0;
+    #endif
+    return 0;
+  }
+  uint16_t getSongEditor(uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
+    #if BMC_MAX_SETLISTS > 0
+    if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
+      bmcEvent_t list[BMC_MAX_SETLISTS_SONG_PARTS];
+      memset(list, 0, BMC_MAX_SETLISTS_SONG_PARTS);
+      uint8_t counter = 0;
+      for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONG_PARTS ; i++){
+        if(store.global.songLibrary[deviceIndex].events[i]>0){
+          list[counter++] = store.global.songLibrary[deviceIndex].events[i];
+        }
+        // empty the entire preset
+        store.global.songLibrary[deviceIndex].events[i] = 0;
+      }
+      // set the length
+      store.global.songLibrary[deviceIndex].settings[0] = counter;
+      for(uint8_t i = 0 ; i < counter ; i++){
+        store.global.songLibrary[deviceIndex].events[i] = list[i];
+      }
+      return 1;
+    }
+    uint16_t optionId = data.visibleRowId[index]-1;
+    for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
+      if(i==0){
+        if(optionId == 0){
+          return getNameField<1,BMC_MAX_SETLISTS_SONG_PARTS>(store.global.songLibrary[deviceIndex], valueType);
+        }
+      } else if(i == optionId){
+        return getSongField<1,BMC_MAX_SETLISTS_SONG_PARTS>(store.global.songLibrary[deviceIndex], "Part", i-1, 1, valueType);
+      }
+    }
+    #endif
     return 0;
   }
   
@@ -522,10 +910,10 @@ public:
     uint16_t optionId = data.visibleRowId[index]-1;
     switch(optionId){
       case 0:
-        return getSettingsBitField<sLen,eLen,tname>(item, 0, 5, "No Hold When Continuous", valueType);
+        return getSettingsBitField<sLen,eLen,tname>(item, 0, 5, "NoHoldOnContinuous", valueType);
         break;
       case 1:
-        return getSettingsBitField<sLen,eLen,tname>(item, 0, 6, "No Release on Dbl Press", valueType);
+        return getSettingsBitField<sLen,eLen,tname>(item, 0, 6, "NoReleaseOnDblPress", valueType);
         break;
       default:
         break;
@@ -543,7 +931,7 @@ public:
         if(BMC_IS_EVEN(index)){
           switch(valueType){
             case BMC_OBE_DEVICE_OPT_LABEL:
-              sprintf(str, "Btn Event # %u Mode", e+offset);
+              sprintf(str, "Mode # %u", e+offset);
               return 0;
             case BMC_OBE_DEVICE_OPT_VALUE:
             case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
@@ -570,6 +958,18 @@ public:
         e++;
         break;
       }
+    }
+    return 0;
+  }
+  uint16_t getPageNameOption(uint16_t index, uint8_t valueType=0){
+    //getNameField
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getPageNameField(valueType);
+      default:
+        break;
     }
     return 0;
   }
@@ -614,6 +1014,59 @@ public:
     return 0;
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getBiLedOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
+        break;
+      case 2:
+        return getEventField<sLen,eLen,tname>(item, 1, 1, valueType);
+        break;
+      default:
+        break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getTriLedOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
+        break;
+      case 2:
+        return getEventField<sLen,eLen,tname>(item, 1, 1, valueType);
+        break;
+      case 3:
+        return getEventField<sLen,eLen,tname>(item, 2, 1, valueType);
+        break;
+      default:
+        break;
+    }
+    return 0;
+  }
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getSingleEventDeviceOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
@@ -632,7 +1085,6 @@ public:
   uint16_t getLfoOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
-    // BMC_PRINTLN("getLfoOption optionId:", optionId, "index:", index);
     switch(optionId){
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
@@ -720,6 +1172,226 @@ public:
         return getRangeField<sLen,eLen,tname>(item, "Max Value", 3, 0, 0, 127, valueType);
       case 8:
         return getPortsField<sLen,eLen,tname>(item, "Ports", 4, valueType);
+      default:
+        break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getPortPresetsOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    //store.global.portPresets[deviceIndex]
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    if(optionId == 0){
+      return getNameField<sLen, eLen, tname>(item, valueType);
+    } else {
+      for(uint8_t e = 0, i = 1 ; e < data.availablePorts ; e++, i++){
+        if(i == optionId){
+          switch(valueType){
+            case BMC_OBE_DEVICE_OPT_LABEL:
+              if(data.availablePortsData[e] == BMC_MIDI_PORT_USB_BIT){
+                strcpy(str, "USB");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_SERIAL_A_BIT){
+                strcpy(str, "Serial A");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_SERIAL_B_BIT){
+                strcpy(str, "Serial B");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_SERIAL_C_BIT){
+                strcpy(str, "Serial C");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_SERIAL_D_BIT){
+                strcpy(str, "Serial D");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_HOST_BIT){
+                strcpy(str, "USB Host");
+              } else if(data.availablePortsData[e] == BMC_MIDI_PORT_BLE_BIT){
+                strcpy(str, "BLE");
+              }
+              return 0;
+            case BMC_OBE_DEVICE_OPT_VALUE:
+            case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+              {
+                uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.events[0], e) : data.rowEditValue;
+                value = constrain(value, 0, 1);
+                strcpy(str, data.yesNoLabels[value]);
+                return value;
+              }
+              break;
+            case BMC_OBE_DEVICE_OPT_MIN: return 0;
+            case BMC_OBE_DEVICE_OPT_MAX: return 1;
+            case BMC_OBE_DEVICE_OPT_CHANGED:
+              if(bitRead(item.events[0], e) != data.rowEditValue){
+                bitWrite(item.events[0], e, data.rowEditValue);
+                return 1;
+              }
+              return 0;
+            default: return 0;
+          }
+          break;
+        }
+      }
+    }
+    return 0;
+  }
+
+
+
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getTimedEventOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Delay Time");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[0]) : data.rowEditValue;
+              value = constrain(value, 0, 199);
+              sprintf(str, "%u milliseconds", ((value + 1) * 10));
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 199;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(item.settings[0] != data.rowEditValue){
+              item.settings[0] = data.rowEditValue;
+              return 1;
+            }
+            return 0;
+          default: return 0;
+        }
+        break;
+      case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Re-Trigger");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[0]&0x03) : data.rowEditValue;
+              value = constrain(value, 0, 2);
+              if(value == 0){
+                strcpy(str, "Restart");
+              } else if(value == 1){
+                strcpy(str, "Stop");
+              } else if(value == 2){
+                strcpy(str, "Ignore");
+              }
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 2;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t bitValue = item.settings[0] & 0x0C;
+              uint8_t newValue = bitValue | data.rowEditValue;
+              if(item.settings[0] != newValue){
+                item.settings[0] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default: return 0;
+        }
+        break;
+      case 3:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Mode");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? ((item.settings[0]>>2) & 0x03) : data.rowEditValue;
+              value = constrain(value, 0, 2);
+              if(value == 0){
+                strcpy(str, "Once");
+              } else if(value == 1){
+                strcpy(str, "Loop");
+              }
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t bitValue = item.settings[0] & 0x03;
+              uint8_t newValue = bitValue | (data.rowEditValue<<2);
+              if(item.settings[0] != newValue){
+                item.settings[0] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default: return 0;
+        }
+        break;
+      case 4:
+        return getEventField<sLen,eLen,tname>(item, "Event", 0, 2, valueType);
+      default:
+        break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getTriggerOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Operator");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[0]&0x03) : data.rowEditValue;
+              value = constrain(value, 0, 3);
+              if(value == 0){
+                strcpy(str, "Any (Ignore Data2 Value)");
+              } else if(value == 1){
+                strcpy(str, "== (Equal To)");
+              } else if(value == 2){
+                strcpy(str, ">= (More or Equal To)");
+              } else if(value == 3){
+                strcpy(str, "<= (Less or Equal To)");
+              }
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 3;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            {
+              uint8_t bitValue = bitRead(item.settings[0], 2);
+              uint8_t newValue = data.rowEditValue;
+              bitWrite(newValue, 2, bitValue);
+              if(item.settings[0] != newValue){
+                item.settings[0] = newValue;
+                return 1;
+              }
+            }
+            return 0;
+          default: return 0;
+        }
+        break;
+      case 2:
+        return getSettingsBitField<sLen,eLen,tname>(item, 0, 2, "Ignore Port", valueType);
+      case 3:
+        return getEventField<sLen,eLen,tname>(item, "Input Event", 0, 2, valueType);
+      case 4:
+        return getEventField<sLen,eLen,tname>(item, "Output Event", 1, 2, valueType);
       default:
         break;
     }
@@ -816,6 +1488,45 @@ public:
     return 0;
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getIliOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Show Label");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(item.settings[0] != data.rowEditValue){
+              item.settings[0] = data.rowEditValue;
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 2:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      default:
+        break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getPixelOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
@@ -856,6 +1567,22 @@ public:
     return 0;
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getRgbPixelOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+      case 2:
+      case 3:
+        return getEventField<sLen,eLen,tname>(item, optionId-1, 0, valueType);
+      default:
+        break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getRelayOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
@@ -863,13 +1590,11 @@ public:
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
-        return getSettingsBitField<sLen,eLen,tname>(item, 0, 0, "SET at Startup", valueType);
-        break;
+        return getSettingsBitField<sLen,eLen,tname>(item, 0, 0, "Engage @ Startup", valueType);
       case 2:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 1, "Momentary", valueType);
       case 3:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 2, "Reverse State", valueType);
-        break;
       case 4:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
       default:
@@ -911,7 +1636,10 @@ public:
           if(value==0){
             strcpy(str, "None");
           } else {
-            sprintf(str, "Name # %u", (value-1)+offset);
+            sprintf(str, "#%u ", (value-1)+offset);
+            char nameStr[33] = "";
+            editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
+            strcat(str, nameStr);
           }
           return value;
         }
@@ -921,6 +1649,39 @@ public:
       case BMC_OBE_DEVICE_OPT_CHANGED:
         if(item.name != data.rowEditValue){
           item.name = data.rowEditValue;
+          return 1;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+  uint16_t getPageNameField(uint8_t valueType=0){
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        strcpy(str, "Name");
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? store.pages[globals.page].name : data.rowEditValue;
+          if(value==0){
+            strcpy(str, "None");
+          } else {
+            sprintf(str, "Name # %u", (value-1)+offset);
+            char nameStr[33] = "";
+            editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
+            strcat(str, nameStr);
+          }
+          return value;
+        }
+        return 0;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        if(store.pages[globals.page].name != data.rowEditValue){
+          store.pages[globals.page].name = data.rowEditValue;
           return 1;
         }
         return 0;
@@ -1182,6 +1943,88 @@ public:
     return 0;
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getSongField(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t eventIndex, uint8_t appendIndex, uint8_t valueType){
+    return getSongField<sLen, eLen, tname>(item, "", eventIndex, appendIndex, valueType);
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getSongField(bmcStoreDevice<sLen, eLen, tname>& item, const char* t_str, uint16_t eventIndex, uint8_t appendIndex, uint8_t valueType){
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        if(appendIndex==0){
+          strcpy(str, "Song");
+        } else if(appendIndex==1){
+          sprintf(str, "Song # %u", eventIndex+offset);
+        } else {
+          strcpy(str, t_str);
+        }
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[eventIndex] : data.rowEditValue;
+          if(value==0){
+            strcpy(str, "None");
+          } else {
+            sprintf(str, "Song # %u", (value-1)+offset);
+          }
+          return value;
+        }
+        break;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_SETLISTS_SONGS_LIBRARY-1;
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        if(item.events[eventIndex] != data.rowEditValue){
+          item.events[eventIndex] = data.rowEditValue;
+          return 1;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getPartField(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t eventIndex, uint8_t appendIndex, uint8_t valueType){
+    return getPartField<sLen, eLen, tname>(item, "", eventIndex, appendIndex, valueType);
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getPartField(bmcStoreDevice<sLen, eLen, tname>& item, const char* t_str, uint16_t eventIndex, uint8_t appendIndex, uint8_t valueType){
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        if(appendIndex==0){
+          strcpy(str, "Part");
+        } else if(appendIndex==1){
+          sprintf(str, "Part # %u", eventIndex+offset);
+        } else {
+          strcpy(str, t_str);
+        }
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[eventIndex] : data.rowEditValue;
+          if(value==0){
+            strcpy(str, "None");
+          } else {
+            sprintf(str, "Part # %u", (value-1)+offset);
+          }
+          return value;
+        }
+        break;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_SETLISTS_SONG_PARTS-1;
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        if(item.events[eventIndex] != data.rowEditValue){
+          item.events[eventIndex] = data.rowEditValue;
+          return 1;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getEventField(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t eventIndex, uint8_t appendIndex, uint8_t valueType){
     return getEventField<sLen, eLen, tname>(item, "", eventIndex, appendIndex, valueType);
   }
@@ -1192,7 +2035,7 @@ public:
         if(appendIndex==0){
           strcpy(str, "Event");
         } else if(appendIndex==1){
-          sprintf(str, "Event # %u", (eventIndex-1)+offset);
+          sprintf(str, "Event # %u", eventIndex+offset);
         } else {
           strcpy(str, t_str);
         }
@@ -1222,9 +2065,6 @@ public:
     }
     return 0;
   }
-
-
-
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getSettingsBitField(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t settingsIndex, uint8_t bitIndex, const char* label, uint8_t valueType=0){
     switch(valueType){

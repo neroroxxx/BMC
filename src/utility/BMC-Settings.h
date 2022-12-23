@@ -20,16 +20,17 @@
 
   struct bmcStoreGlobalSettings {
     uint32_t flags = 0;
-      bit 0
+      bit 0 getFirstEditorConnection
       bit 1 getMasterClock
-      bit 2 available
+      bit 2 getDisplayBannerTimeout
       bit 3 getIncomingListenerEnabled
       bit 4 Beatbuddy Sync Enabled
       bit 5 getActiveSenseAtStartup - Active Sensing Master Enabled
       bit 6 getMidiRealTimeBlockInput
       bit 7 getMidiRealTimeBlockOutput
       bit 8 getDisplayOffset
-      bit 9
+      bit 9 getAppendPresetNumberToPresetName
+      bit 10 getDisplayBankWithPreset
 
 
 
@@ -162,8 +163,29 @@ public:
   void setDisplayOffset(bool value){
     writeFlag(8, value);
   }
+  // This option will append the preset number to the preset name on displays.
+  bool getAppendPresetNumberToPresetName(){
+    return readFlag(9);
+  }
+  void setAppendPresetNumberToPresetName(bool value){
+    writeFlag(9, value);
+  }
+  // This option will display the bank letter with the preset number
+  bool getDisplayBankWithPreset(){
+    return readFlag(10);
+  }
+  void setDisplayBankWithPreset(bool value){
+    writeFlag(10, value);
+  }
 
   // data array
+
+  uint8_t getDisplayBannerTimeout(){
+    return settings.data[0] & 0x03;
+  }
+  void setDisplayBannerTimeout(uint8_t value){
+    BMC_WRITE_BITS(settings.data[0], value, 0x03, 0);
+  }
 
   uint8_t getListenerChannel(){
     return (settings.data[0]>>2) & 0x1F;

@@ -33,8 +33,8 @@ void BMC::assignPots(){
     bmcEvent_t toeDisengage = device.events[2];
     pots[i].reassign();
     pots[i].setCalibration(
-      globalData.potCalibration[i].events[0],
-      globalData.potCalibration[i].events[1]
+      store.global.potCalibration[i].events[0],
+      store.global.potCalibration[i].events[1]
     );
     //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
     pots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
@@ -47,8 +47,8 @@ void BMC::assignPots(){
     bmcEvent_t toeDisengage = device.events[2];
     globalPots[i].reassign();
     globalPots[i].setCalibration(
-      globalData.potCalibration[BMC_MAX_POTS+i].events[0],
-      globalData.potCalibration[BMC_MAX_POTS+i].events[1]
+      store.global.potCalibration[BMC_MAX_POTS+i].events[0],
+      store.global.potCalibration[BMC_MAX_POTS+i].events[1]
     );
     //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
     globalPots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);

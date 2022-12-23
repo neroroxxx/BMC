@@ -248,6 +248,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_IS_SYSTEM_RESET(s) (BMC_GET_MIDI_STATUS(s)==BMC_MIDI_RT_SYSTEM_RESET)
 #define BMC_IS_UNDEFINED_MIDI(s) (s==0xF4&&s==0xF5&&s==0xF7&&s==0xF9&&s==0xFD)
 
+// #define BMC_GET_EVENT_DATA(e, s) ()
+
 
 #define BMC_MIDI_GET_WORD(byteIndex,item) ((byteIndex>0) ? ((item >> (byteIndex*7)) & 0x7F) : (item & 0x7F))
 #define BMC_CLEAR_BITS(target, mask, shift) (target &= ~((mask) << shift))
@@ -357,14 +359,18 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_SCROLL_ENDLESS 1
 
 // for menu
-#define BMC_MENU_TOGGLE	 1
-#define BMC_MENU_SELECT	 2
-#define BMC_MENU_BACK  	 3
-#define BMC_MENU_PREV    4
-#define BMC_MENU_NEXT  	 5
-#define BMC_MENU_SHIFT   6
-#define BMC_MENU_INC   	 7
-#define BMC_MENU_DEC   	 8
+#define BMC_MENU_TOGGLE         	 1
+#define BMC_MENU_SELECT         	 2
+#define BMC_MENU_BACK           	 3
+#define BMC_MENU_PREV           	 4
+#define BMC_MENU_NEXT           	 5
+#define BMC_MENU_SHIFT          	 6
+#define BMC_MENU_INC            	 7
+#define BMC_MENU_DEC            	 8
+#define BMC_MENU_TOGGLE_PAGES   	 9
+#define BMC_MENU_TOGGLE_PRESETS 	 10
+#define BMC_MENU_TOGGLE_SETLISTS	 11
+#define BMC_MENU_TOGGLE_SONGS   	 12
 
 
 
@@ -1561,7 +1567,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ILI9341_GRAY_16 0x8C51
 #define BMC_ILI9341_GRAY_17 0x9492
 #define BMC_ILI9341_GRAY_18 0x9CD3
-
 #define BMC_ILI9341_GRAY_19 0xA514
 #define BMC_ILI9341_GRAY_20 0xAD55
 #define BMC_ILI9341_GRAY_21 0xB596
@@ -1569,7 +1574,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ILI9341_GRAY_23 0xC618
 #define BMC_ILI9341_GRAY_24 0xCE59
 #define BMC_ILI9341_GRAY_25 0xD69A
-
 #define BMC_ILI9341_GRAY_26 0xDEDB
 #define BMC_ILI9341_GRAY_27 0xE71C
 #define BMC_ILI9341_GRAY_28 0xEF5D
@@ -2785,9 +2789,19 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
     #include "display/BMC-Display-OLED.h"
   #endif
   #if BMC_MAX_ILI9341_BLOCKS > 0
-    #include <ILI9341_t3.h>
-    #include "font_Arial.h"
-    #include "font_ArialBold.h"
+
+    #if BMC_TFT_SIZE == 1
+      #include <ILI9341_t3.h>
+      #include "font_Arial.h"
+      #include "font_ArialBold.h"
+    #else
+      #include <ILI9488_t3.h>
+      
+      #include "ili9488_t3_font_Arial.h"
+      #include "ili9488_t3_font_ArialBold.h"
+    #endif
+
+    
     #include "editor/onBoard/BMC-OBEFont.h"
     #include "editor/onBoard/BMC-OBEFontBold.h"
     #include "display/BMC-Display-ILI9341.h"

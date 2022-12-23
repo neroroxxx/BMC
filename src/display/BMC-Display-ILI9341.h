@@ -15,42 +15,109 @@
 
 class BMC_ILI9341 {
  public:
-  ILI9341_t3 display;
-  BMC_ILI9341():display(10, 9){
-    
-  }
+  #if BMC_TFT_SIZE == 1
+    ILI9341_t3 display;
+  #else
+    ILI9488_t3 display;
+  #endif
+  
+  #if BMC_TFT_SIZE == 1
+    BMC_ILI9341():display(10, 9){}
+  #else
+    BMC_ILI9341():display(10, 9, 23){}
+  #endif
+  
   bool begin(uint8_t rotation=0){
     display.begin();
-    display.setRotation(rotation);
-    //display.setFont(&BMCDisplay_Font);
-    //display.setFont(Arial_24);
-    display.setTextWrap(false);
-    //display.setTextSize(2);
-    //display.setFont(Arial_16);
-    
-
     display.fillScreen(BMC_ILI9341_BLACK);
-    display.drawRoundRect(0, 0, 320, 240, 7, 0xfe60);
-    display.drawRoundRect(1, 1, 318, 238, 7, 0xfe60);
-    //display.fillScreen(0x0000);
-    //display.drawRect(0, 0, 320, 240, BMC_ILI9341_WHITE);
-    drawCompressedImage(120, 52, 80, 80, logo, 2550);
-    display.setFont(Arial_20_Bold);
-    char str[11] = "Loading...";
+    display.setRotation(rotation);
+    display.setTextWrap(false);
+    renderSplashScreen();
+    return true;
+
+
+    char str[20] = "";
+    uint8_t height = 0;
+    uint8_t yOffset = 0;
+    while(1){
+      for(uint8_t i=0;i<7;i++){
+        display.fillScreen(BMC_ILI9341_BLACK);
+        sprintf(str,"%u `AQqgyTWt", i);
+        if(i == 0){
+          display.setFont(BMCLiberationSansNarrow_48);
+          height = 48;
+          yOffset = 12;
+        } else if(i == 1){
+          display.setFont(BMCLiberationSansNarrow_40);
+          height = 40;
+          yOffset = 12;
+        } else if(i == 2){
+          display.setFont(BMCLiberationSansNarrow_32);
+          height = 32;
+          yOffset = 8;
+        } else if(i == 3){
+          display.setFont(BMCLiberationSansNarrow_28);
+          height = 28;
+          yOffset = 8;
+        } else if(i == 4){
+          display.setFont(BMCLiberationSansNarrow_24);
+          height = 24;
+          yOffset = 6;
+        } else if(i == 5){
+          display.setFont(BMCLiberationSansNarrow_20);
+          height = 20;
+          yOffset = 6;
+        } else if(i == 6){
+          display.setFont(BMCLiberationSansNarrow_16);
+          height = 16;
+          yOffset = 4;
+        } else {
+          break;
+        }
+        
+        display.setTextColor(BMC_ILI9341_WHITE);
+        display.drawRect(0, 0, 320, height+(yOffset*2), BMC_ILI9341_RED);
+        display.drawRect(0, yOffset, 320, height, BMC_ILI9341_GREEN);
+        display.setCursor(0, yOffset);
+        display.print(str);
+        
+        delay(2000);
+      }
+    }
+  }
+  void renderSplashScreen(){
+    uint16_t yBase = BMC_TFT_SIZE == 1 ? 0 : 40;
+
+    display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, 0xfe60);
+    display.drawRect(1, 1, BMC_TFT_WIDTH-2, BMC_TFT_WIDTH-2, 0xfe60);
+    drawCompressedImage((BMC_TFT_WIDTH/2)-(logoW/2), yBase+32, logoW, logoH, logo, 2550);
+    
+    char str[20] = "BMC";
+    display.setFont(Arial_32_Bold);
     int16_t textWidth = display.strPixelLen(str);
-    int16_t x = (320-textWidth) / 2;
+    int16_t x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
     display.setTextColor(0xfe60);
-    display.setCursor(x, 155);
+    display.setCursor(x, yBase+135);
+    display.print(str);
+
+    sprintf(str, "Version %u.%u.%u", BMC_VERSION_MAJ, BMC_VERSION_MIN, BMC_VERSION_PATCH);
+    display.setFont(Arial_16);
+    textWidth = display.strPixelLen(str);
+    x = (BMC_TFT_WIDTH-textWidth) / 2;
+    x = (x < 0) ? 0 : x;
+    display.setTextColor(BMC_ILI9341_GRAY_20);
+    display.setCursor(x, yBase+190);
     display.print(str);
 
     display.setCursor(0, 0);
+    display.setFont(BMCLiberationSansNarrow_24);
     display.setTextColor(BMC_ILI9341_WHITE);
-    display.setFontAdafruit();
-    return true;
   }
   void clear(){
-    display.fillScreen(BMC_ILI9341_BLACK);
+    BMC_PRINTLN("clear display");
+    display.fillRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_BLACK);
+    // display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_YELLOW);
   }
   private:
   void drawCompressedImage(int x, int y, int w, int h, const uint16_t *pic, uint16_t arraySize){
@@ -94,6 +161,8 @@ class BMC_ILI9341 {
     if(p>0)
       display.writeRect(x, yOffset+y, w, p/w, _buffer); 
   }
+    const uint16_t logoW = 80;
+    const uint16_t logoH = 80;
     const uint16_t logo[2550] = {
 0x0000, 0x0000, 0x1dff, 0x4180, 0x72c0, 0xa400, 0xc4c0, 0xe580, 0xfe60, 0xfe60, 0x06ff, 0xe580, 0xc4c0, 0xa400, 0x72c0, 0x4180, // 0x0010 (16)
 0x0000, 0x0000, 0x38ff, 0x3120, 0x72c0, 0xc4c0, 0xfe60, 0xfe60, 0x12ff, 0xc4c0, 0x72c0, 0x20c0, 0x0000, 0x0000, 0x31ff, 0x1060, // 0x0020 (32)
@@ -255,7 +324,6 @@ class BMC_ILI9341 {
 0xfe60, 0x03ff, 0xd520, 0x72c0, 0x1060, 0x0000, 0x0000, 0x00ff, 0x0000, 0x2eff, 0x20c0, 0x72c0, 0xc4c0, 0xfe60, 0xfe60, 0x12ff, // 0x09e0 (2528)
 0xc4c0, 0x72c0, 0x3120, 0x0000, 0x0000, 0x38ff, 0x4180, 0x72c0, 0xa400, 0xc4c0, 0xe580, 0xfe60, 0xfe60, 0x06ff, 0xe580, 0xc4c0, // 0x09f0 (2544)
 0xa400, 0x72c0, 0x4180, 0x0000, 0x0000, 0x1eff };
-
 };
 
 #endif

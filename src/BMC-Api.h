@@ -448,9 +448,7 @@ public:
   }
 #endif
 #if BMC_MAX_ILI9341_BLOCKS > 0
-  ILI9341_t3 & displayGetILI9341(){
-    return display.getILI9341();
-  }
+  
 #endif
 #endif
 

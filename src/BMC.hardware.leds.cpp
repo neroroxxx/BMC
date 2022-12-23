@@ -176,13 +176,6 @@ void BMC::assignLeds(){
     if(!BMCTools::isLedBlinkAllowed(data.type)){
       globalLeds[index].setBlinkMode(false);
     }
-    /*
-    globalLeds[index].reassign(bitRead(globalData.leds[index].event, 31));
-    // turn off blinking for certain events
-    if(!BMCTools::isLedBlinkAllowed(globalData.leds[index].event&0xFF)){
-      globalLeds[index].setBlinkMode(false);
-    }
-    */
 #if BMC_GLOBAL_LED_DIM == true
     globalLeds[index].setPwmOffValue(settings.getPwmDimWhenOff());
 #endif
@@ -219,13 +212,6 @@ void BMC::assignLeds(){
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         globalBiLeds[e].setBlinkMode(false);
       }
-      /*
-      globalBiLeds[e].reassign(bitRead(globalData.leds[e].event, 31));
-      // turn off blinking for certain events
-      if(!BMCTools::isLedBlinkAllowed(globalData.leds[e].event&0xFF)){
-        globalBiLeds[e].setBlinkMode(false);
-      }
-      */
       #if BMC_GLOBAL_LED_DIM == true
         globalBiLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
@@ -263,13 +249,6 @@ void BMC::assignLeds(){
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         globalTriLeds[e].setBlinkMode(false);
       }
-      /*
-      globalTriLeds[e].reassign(bitRead(globalData.leds[e].event, 31));
-      // turn off blinking for certain events
-      if(!BMCTools::isLedBlinkAllowed(globalData.leds[e].event&0xFF)){
-        globalTriLeds[e].setBlinkMode(false);
-      }
-      */
       #if BMC_GLOBAL_LED_DIM == true
         globalTriLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif

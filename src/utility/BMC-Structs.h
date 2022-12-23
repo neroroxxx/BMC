@@ -624,13 +624,13 @@ struct BMCLogicControlChannelVU {
 struct BMCLogicControlChannel {
   // state bits: 0=rec, 1=solo, 2=mute, 3=select, 4=signal
   uint8_t states = 0;
-  int fader = -8192;
+  int16_t fader = (-8192);
   uint8_t vPot = 0;
   BMCLogicControlChannelVU vu;
   void reset(){
     vu.reset();
     states = 0;
-    fader = -8192;
+    fader = (-8192);
     vPot = 0;
   }
   // get the state
@@ -709,10 +709,10 @@ struct BMCLogicControlChannel {
   void setVPot(uint8_t value){
     vPot = value;
   }
-  void setVolume(int value){
+  void setVolume(int16_t value){
     fader = value;
   }
-  int getVolume(){
+  int16_t getVolume(){
     return fader;
   }
 };
@@ -722,7 +722,7 @@ struct BMCLogicControlData {
   uint8_t selected = 0;
   uint32_t states = 0;
   uint8_t states2 = 0;
-  int masterVolume = 0;
+  int16_t masterVolume = 0;
   BMCLogicControlChannel channel[8];
 
   void reset(){
@@ -884,18 +884,18 @@ struct BMCLogicControlData {
   void setVPot(uint8_t n, uint8_t value){      if(chAllowed(n)){channel[n].setVPot(value);}}
   void setMeter(uint8_t n, uint8_t value){     if(chAllowed(n)){channel[n].vu.setMeter(value);}}
 
-  void setVolume(uint8_t n, int value){
+  void setVolume(uint8_t n, int16_t value){
     if(chAllowed(n)){
       channel[n].setVolume(value);
     }
   }
-  int getVolume(uint8_t n){
+  int16_t getVolume(uint8_t n){
     return chAllowed(n) ? channel[chCheck(n)].getVolume() : 0;
   }
-  void setMasterVolume(int value){
+  void setMasterVolume(int16_t value){
     masterVolume = value;
   }
-  int getMasterVolume(){
+  int16_t getMasterVolume(){
     return masterVolume;
   }
 

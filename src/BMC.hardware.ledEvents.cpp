@@ -352,12 +352,6 @@ void BMC::handleClockLeds(){
       // last 4 bits are always the color
       globalLeds[index].pulse();
     }
-    /*
-    bmcStoreLed& item = globalData.leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      globalLeds[index].pulse();
-    }
-    */
   }
 #endif
 
