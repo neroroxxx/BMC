@@ -15,11 +15,7 @@
 
 class BMC_ILI9341 {
  public:
-  #if BMC_TFT_SIZE == 1
-    ILI9341_t3 display;
-  #else
-    ILI9488_t3 display;
-  #endif
+  BMC_TFT display;
 
   BMC_ILI9341():display(10, 9){}
   

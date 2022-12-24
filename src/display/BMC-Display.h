@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -13,6 +13,7 @@
 
 #if defined(BMC_HAS_TOUCH_SCREEN)
   #include <XPT2046_Touchscreen.h>
+  #include "display/BMC-DisplayTouchCalibration.h"
 #endif
 
 // lighter gray 0x39C7
@@ -127,212 +128,8 @@ public:
   }
   #if defined(BMC_HAS_TOUCH_SCREEN)
   void touchCalibration(){
-    BMC_PRINTLN("Touch Calibration");
-    tft.display.fillScreen(BMC_ILI9341_BLACK);
-    tft.display.setFont(BMCLiberationSansNarrow_24_Bold);
-    tft.display.setTextColor(BMC_ILI9341_ORANGE);
-
-    char buff[40] = "Touch Calibration";
-    int16_t textWidth = 0;
-    int16_t x = 0;
-    int16_t y = BMC_TFT_SIZE == 1 ? 88 : 128;
-
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-    
-    tft.display.setCursor(x, y);
-    tft.display.print(buff);
-
-
-    tft.display.setFont(BMCLiberationSansNarrow_20);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-
-    strcpy(buff, "First, touch the crosshairs");
-
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-
-    tft.display.setCursor(x, y+40);
-    tft.display.print(buff);
-
-    uint16_t xPoint[2] = {0,0};
-    uint16_t yPoint[2] = {0,0};
-
-    tft.display.drawFastHLine(10, 20, 20, BMC_ILI9341_GREEN);
-    tft.display.drawFastVLine(20, 10, 20, BMC_ILI9341_GREEN);
-    delay(500);
-    while(!touchScreen.touched());
-    delay(100);
-    touchPoint = touchScreen.getPoint();
-    xPoint[0] = touchPoint.x;
-    yPoint[0] = touchPoint.y;
-
-    tft.display.drawFastHLine(10, 20, 20, BMC_ILI9341_BLACK);
-    tft.display.drawFastVLine(20, 10, 20, BMC_ILI9341_BLACK);
-
-    tft.display.drawFastHLine(BMC_TFT_WIDTH-30, BMC_TFT_HEIGHT-20, 20, BMC_ILI9341_GREEN);
-    tft.display.drawFastVLine(BMC_TFT_WIDTH-20, BMC_TFT_HEIGHT-30, 20, BMC_ILI9341_GREEN);
-
-    delay(500);
-    while(!touchScreen.touched());
-    delay(100);
-
-    touchPoint = touchScreen.getPoint();
-    xPoint[1] = touchPoint.x;
-    yPoint[1] = touchPoint.y;
-
-
-
-    int16_t xDist = BMC_TFT_WIDTH - 40;
-    int16_t yDist = BMC_TFT_HEIGHT - 40;
-
-    float xCalM = 0.0, yCalM = 0.0; // gradients
-    float xCalC = 0.0, yCalC = 0.0; // y axis crossing points
-
-    // translate in form pos = m x val + c
-    // x
-    xCalM = (float)xDist / (float)(xPoint[1] - xPoint[0]);
-    xCalC = 20.0 - ((float)xPoint[0] * xCalM);
-    // y
-    yCalM = (float)yDist / (float)(yPoint[1] - yPoint[0]);
-    yCalC = 20.0 - ((float)yPoint[0] * yCalM);
-
-    BMC_PRINTLN("x1=",xPoint[0], "x2=",xPoint[1], "y1=",yPoint[0], "y2=",yPoint[1]);
-
-    BMC_PRINTLN("xCalM=",xCalM, "xCalC=",xCalC, "yCalM=",yCalM, "yCalC=",yCalC);
-
-
-    tft.display.fillScreen(BMC_ILI9341_BLACK);
-    tft.display.setFont(BMCLiberationSansNarrow_24_Bold);
-    tft.display.setTextColor(BMC_ILI9341_ORANGE);
-    strcpy(buff, "Testing Time!"); // title
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-    tft.display.setCursor(x, y);
-    tft.display.print(buff);
-    tft.display.setFont(BMCLiberationSansNarrow_20);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-    strcpy(buff, "Tap the blocks to test accuracy"); // paragraph
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-    tft.display.setCursor(x, y+40);
-    tft.display.print(buff);
-
-
-    tft.display.fillRect(0, 0, 80, 80, BMC_ILI9341_RED);
-    tft.display.fillRect((BMC_TFT_WIDTH-80)/2, 0, 80, 80, BMC_ILI9341_RED);
-    tft.display.fillRect(BMC_TFT_WIDTH-80, 0, 80, 80, BMC_ILI9341_RED);
-
-    bmcTouchArea left;
-    bmcTouchArea middle;
-    bmcTouchArea right;
-
-    bmcTouchArea btnOk;
-    bmcTouchArea btnCancel;
-
-    left.begin(0, 0, 80, 80);
-    middle.begin((BMC_TFT_WIDTH-80)/2, 0, 80, 80);
-    right.begin(BMC_TFT_WIDTH-80, 0, 80, 80);
-    btnOk.begin(BMC_TFT_WIDTH-80, BMC_TFT_HEIGHT-40, 80, 40);
-    btnCancel.begin(0, BMC_TFT_HEIGHT-40, 80, 40);
-
-    left.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    middle.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    right.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    btnOk.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    btnCancel.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-
-    renderButton(BMC_TFT_WIDTH-80, BMC_TFT_HEIGHT-40, 80, 40, "Save", BMC_ILI9341_WHITE, BMC_ILI9341_DARKGREEN);
-    renderButton(0, BMC_TFT_HEIGHT-40, 80, 40, "Restart", BMC_ILI9341_WHITE, BMC_ILI9341_GRAY_15);
-
-    uint16_t colors[3] = {
-      BMC_ILI9341_RED,
-      BMC_ILI9341_GREEN,
-      BMC_ILI9341_BLUE,
-    };
-    uint8_t colorSel[3] = {0,0,0};
-    delay(500);
-    touchTimer.stop();
-    bool ignoreBreak = true;
-    while(1){
-      if(touchTimer.complete()){
-        if(left.isTouched(touchPoint.x, touchPoint.y)){
-          colorSel[0]++;
-          if(colorSel[0]>2){
-            colorSel[0] = 0;
-          }
-          tft.display.fillRect(0, 0, 80, 80, colors[colorSel[0]]);
-        } else if(middle.isTouched(touchPoint.x, touchPoint.y)){
-          colorSel[1]++;
-          if(colorSel[1]>2){
-            colorSel[1] = 0;
-          }
-          tft.display.fillRect((BMC_TFT_WIDTH-80)/2, 0, 80, 80, colors[colorSel[1]]);
-        } else if(right.isTouched(touchPoint.x, touchPoint.y)){
-          colorSel[2]++;
-          if(colorSel[2]>2){
-            colorSel[2] = 0;
-          }
-          tft.display.fillRect(BMC_TFT_WIDTH-80, 0, 80, 80, colors[colorSel[2]]);
-        } else if(btnOk.isTouched(touchPoint.x, touchPoint.y)){
-          BMC_PRINTLN("break??????");
-          if(!ignoreBreak){
-            break;
-          }
-          ignoreBreak = false;
-          //
-        } else if(btnCancel.isTouched(touchPoint.x, touchPoint.y)){
-          touchCalibration();
-          
-          break;
-        }
-      }
-      if(touchScreen.tirqTouched()){
-        touchTimer.stop();
-        if(touchScreen.touched()){
-          touchPoint = touchScreen.getPoint();
-        }
-        touchTimer.start(100);
-      }
-    }
-        
-    
-    
-    tft.display.fillScreen(BMC_ILI9341_BLACK);
-    tft.display.setFont(BMCLiberationSansNarrow_24_Bold);
-    tft.display.setTextColor(BMC_ILI9341_ORANGE);
-    strcpy(buff, "Calibration Complete!"); // title
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-    tft.display.setCursor(x, y);
-    tft.display.print(buff);
-    tft.display.setFont(BMCLiberationSansNarrow_20);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-    strcpy(buff, "Reboot your Teensy to continue"); // paragraph
-    textWidth = tft.display.strPixelLen(buff);
-    x = (BMC_TFT_WIDTH-textWidth) / 2;
-    x = (x < 0) ? 0 : x;
-    tft.display.setCursor(x, y+40);
-    tft.display.print(buff);
-    while(1);
-  }
-  
-  void renderButton(int x, int y, int width, int height, const char *text, uint16_t color, uint16_t background){
-    char buff[strlen(text)+1] = "";
-    strcpy(buff, text);
-    tft.display.fillRect(x, y, width, height, background);
-    tft.display.setTextColor(color);
-    tft.display.setFont(BMCLiberationSansNarrow_16);
-    int16_t textWidth = tft.display.strPixelLen(buff);
-    uint16_t textX = (width-textWidth) / 2;
-    textX = (textX < 0) ? 0 : textX;
-    tft.display.setCursor(x+textX, y+10);
-    tft.display.print(buff);
+    BMCDisplayTouchCalibration t(tft.display, touchScreen);
+    t.begin();
   }
 
   #endif
