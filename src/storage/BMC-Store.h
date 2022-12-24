@@ -76,7 +76,7 @@
     uint32_t flags = 0;
     uint32_t data[8];
     uint16_t routing[7];
-    uint16_t startup;
+    uint16_t startup = 0;
   };
   // Pot Calibration, part of the global object
   struct __attribute__ ((packed)) bmcStoreGlobalPotCalibration {
@@ -99,7 +99,6 @@
       bmcStoreDevice <0, BMC_MAX_SKETCH_BYTES, uint8_t> sketchBytes[1];
     #endif
     #if BMC_MAX_PRESETS > 0
-      //uint16_t startup = 0;
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS> presets[BMC_MAX_PRESETS];
     #endif
     #if BMC_MAX_SETLISTS > 0

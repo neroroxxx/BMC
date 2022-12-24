@@ -15,13 +15,13 @@
 
 class BMCPixelPrograms {
 private:
+  MCMidi& midi;
   BMCFlags <uint8_t> flags;
   uint8_t program = 0;
   uint8_t currentItem = 0;
   uint8_t eigthNotes = 0;
-  bmcStoreGlobal& global;
 public:
-  BMCPixelPrograms(bmcStoreGlobal& t_global):global(t_global){
+  BMCPixelPrograms(BMCMidi& t_midi):midi(t_midi){
 
   }
   void reassign(){
@@ -34,11 +34,11 @@ public:
         eigthNotes = 1;
       }
     }
-    uint8_t duration = ((global.pixelPrograms[program].events[currentItem]>>4)&0x0F)+1;
+    uint8_t duration = ((midi.globals.store.global.pixelPrograms[program].events[currentItem]>>4)&0x0F)+1;
     flags.write(BMC_PIXEL_PROGRAMS_FLAG_ACTIVE, t_active);
     if(eigthNotes == duration){
       currentItem++;
-      if(currentItem >= global.pixelPrograms[program].settings[0]){
+      if(currentItem >= midi.globals.store.global.pixelPrograms[program].settings[0]){
         currentItem = 0;
       }
       eigthNotes = 0;
@@ -58,7 +58,7 @@ public:
     if(isBlackout() || !isActive()){
       return 0;
     }
-    return (global.pixelPrograms[program].events[currentItem] & 0x0F);
+    return (midi.globals.store.global.pixelPrograms[program].events[currentItem] & 0x0F);
   }
   uint8_t getProgram(){
     return program;

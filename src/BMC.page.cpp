@@ -45,6 +45,7 @@ void BMC::setPage(uint8_t t_page, bool reassignSettings, bool forced){
   }
   if(flags.read(BMC_FLAGS_PAGE_CHANGED) && editor.connected()){
     editor.triggerStates();
+    
   }
 };
 bool BMC::pageChanged(){

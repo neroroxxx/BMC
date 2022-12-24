@@ -15,12 +15,11 @@
 
 class BMCPresets {
 public:
-  BMCPresets(BMCGlobals& t_globals):
-            globals(t_globals),
-            store(globals.store),
-            presetIndex(globals.presetIndex),
-            bank(globals.bank),
-            preset(globals.preset)
+  BMCPresets(BMCMidi& t_midi):
+            midi(t_midi),
+            presetIndex(midi.globals.presetIndex),
+            bank(midi.globals.bank),
+            preset(midi.globals.preset)
   {
   }
   void set(uint16_t t_presetAndBank, bool forced=false){
@@ -66,16 +65,16 @@ public:
   }
   bmcStoreName getName(uint16_t t_preset){
     bmcStoreName t;
-    if(globals.settings.getAppendPresetNumberToPresetName()){
+    if(midi.globals.settings.getAppendPresetNumberToPresetName()){
       char bankBuff[2] = "";
       BMCTools::getBankLetter(bank, bankBuff);
-      sprintf(t.name, "%s%u ", bankBuff, t_preset+globals.offset);
+      sprintf(t.name, "%s%u ", bankBuff, t_preset+midi.globals.offset);
     }
     uint16_t p = toPresetIndex(bank, t_preset);
-    if(p < BMC_MAX_PRESETS && store.global.presets[p].name > 0){
-      bmcName_t n = store.global.presets[p].name;
+    if(p < BMC_MAX_PRESETS && midi.globals.store.global.presets[p].name > 0){
+      bmcName_t n = midi.globals.store.global.presets[p].name;
       if(n <= BMC_MAX_NAMES_LIBRARY){
-        strcat(t.name, store.global.names[n-1].name);
+        strcat(t.name, midi.globals.store.global.names[n-1].name);
         t.name[BMC_MAX_NAMES_LENGTH-1] = 0;
       }
     }
@@ -94,12 +93,12 @@ public:
   }
   bmcStoreName getPresetStr(uint16_t t_preset){
     bmcStoreName t;
-    if(globals.settings.getDisplayBankWithPreset()){
+    if(midi.globals.settings.getDisplayBankWithPreset()){
       char bankBuff[3] = "";
       BMCTools::getBankLetter(bank, bankBuff);
-      sprintf(t.name, "%s%u", bankBuff, t_preset+globals.offset);
+      sprintf(t.name, "%s%u", bankBuff, t_preset+midi.globals.offset);
     } else {
-      sprintf(t.name, "%u", t_preset+globals.offset);
+      sprintf(t.name, "%u", t_preset+midi.globals.offset);
     }
     return t;
   }
@@ -131,7 +130,7 @@ public:
   uint8_t getLength(uint8_t t_bank, uint8_t t_preset){
     uint16_t n = toPresetIndex(t_bank, t_preset);
     if(n < BMC_MAX_PRESETS){
-      return store.global.presets[n].settings[0];
+      return midi.globals.store.global.presets[n].settings[0];
     }
     return 0;
   }
@@ -146,8 +145,7 @@ public:
     return p;
   }
 public:
-  BMCGlobals& globals;
-  bmcStore& store;
+  BMCMidi& midi;
 
 private:
   BMCFlags <uint8_t> flags;

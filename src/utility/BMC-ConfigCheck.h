@@ -902,23 +902,35 @@
   #define BMC_USE_ON_BOARD_EDITOR
 #endif
 
-#if !defined(BMC_TFT_SIZE)
-  #define BMC_TFT_SIZE 1
+#if !defined(BMC_TFT_TYPE)
+  #define BMC_TFT_TYPE 0
 #endif
 
-#if BMC_TFT_SIZE > 2
+// BMC_TFT_TYPE == 0  >>> 2.8" (320x240 ILI9341)
+// BMC_TFT_TYPE == 1  >>> 3.2" (320x240 ILI9341)
+// BMC_TFT_TYPE == 2  >>> 3.5" (480x320 ILI9488)
+// BMC_TFT_TYPE == 3  >>> 4.0" (480x320 ILI9488)
+
+#if BMC_TFT_TYPE == 0 || BMC_TFT_TYPE == 1
+  #define BMC_TFT_SIZE 1
+#elif BMC_TFT_TYPE == 2 || BMC_TFT_TYPE == 3
   #define BMC_TFT_SIZE 2
 #endif
+
 
 #if BMC_TFT_SIZE == 1
   #define BMC_TFT_WIDTH 320
   #define BMC_TFT_HEIGHT 240
-#elif BMC_TFT_SIZE == 2
+  #define BMC_TFT ILI9341_t3
+#else
   #define BMC_TFT_WIDTH 480
   #define BMC_TFT_HEIGHT 320
+  #define BMC_TFT ILI9488_t3
 #endif
 
-
+#if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_ILI_TOUCH_ENABLED)
+  #define BMC_HAS_TOUCH_SCREEN
+#endif
 
 
   // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
@@ -929,7 +941,7 @@
   // by the same value and this happens 3 times per LED/PIXEL.
 
 
-  #define BMC_MAX_LED_TEST_DELAY 25
+  #define BMC_MAX_LED_TEST_DELAY 15
 
   #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BI_LEDS*12)+(BMC_MAX_GLOBAL_BI_LEDS*13)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44) +(BMC_MAX_GLOBAL_MAGIC_ENCODERS*55))
 

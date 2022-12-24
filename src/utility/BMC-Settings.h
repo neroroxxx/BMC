@@ -61,12 +61,16 @@
 
       [2]:
         bits 00-03  Buttons Threshold
+        bits 04-04  Trigger first song
+        bits 05-05  Trigger first song part
 
       [3]: *Reserved for future updates*
       [4]: *Reserved for future updates*
       [5]: *Reserved for future updates*
       [6]: *Reserved for future updates*
-      [7]: *Reserved for future updates*
+      [7]: 16 LSb used for touch screen calibration
+        bits 00-02 TFT Type
+        bits 03-15 Max touch x
 
     uint16_t startup; startup preset data
 
@@ -398,6 +402,20 @@ public:
   }
   void setSetListTriggerFirstSongPart(uint8_t value){
     bitWrite(settings.data[2], value, 5);
+  }
+  // tft touch calibration
+  uint8_t getTouchTftType(){
+    return settings.data[7] & 0x07;
+  }
+  void setTouchTftType(uint8_t value){
+    BMC_WRITE_BITS(settings.data[7],value, 0x07, 0); //0-3
+  }
+  // tft touch calibration
+  uint8_t getTouchTftMaxX(){
+    return (settings.data[7]>>3) & 0x1FFF;
+  }
+  void setTouchTftMaxX(uint8_t value){
+    BMC_WRITE_BITS(settings.data[7],value, 0x1FFF, 3); //0-3
   }
 };
 

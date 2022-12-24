@@ -32,14 +32,11 @@
 
 class BMCOBE {
 public:
-  BMCOBE(BMCGlobals& t_globals, BMCSettings& t_settings, BMCEditor& t_editor, BMCDisplay& t_display):
-                  globals(t_globals),
-                  store(globals.store),
-                  settings(t_settings),
+  BMCOBE(BMCEditor& t_editor, BMCDisplay& t_display):
                   editor(t_editor),
                   display(t_display),
-                  tft(t_display.tft),
-                  devicesEditor(globals, settings, editor, display, data){
+                  tft(display.tft.display),
+                  devicesEditor(editor, display, data){
 
   }
   void begin(){
@@ -47,7 +44,7 @@ public:
     devicesEditor.begin();
   }
   void update(){
-    if(!globals.onBoardEditorActive()){
+    if(!display.midi.globals.onBoardEditorActive()){
       return;
     }
     devicesEditor.update();
@@ -289,11 +286,11 @@ public:
     uint16_t y = BMC_OBE_ROW_HEAD_H + (n * BMC_OBE_ROW_H);
     uint16_t color = BMC_OBE_ROW_COLOR;
     uint16_t background = BMC_OBE_ROW_BACKGROUND;
-    tft.display.setFont(BMC_OBE_ROW_FONT);
+    tft.setFont(BMC_OBE_ROW_FONT);
     if(!empty && data.activeRow == (n+1)){
       background = BMC_OBE_SEL_BACKGROUND;
       color = BMC_OBE_SEL_COLOR;
-      // tft.display.setFont(BMC_OBE_ROW_SEL_FONT);
+      // tft.setFont(BMC_OBE_ROW_SEL_FONT);
     }
     bool activeItem = isEditModeActive() && data.activeRow == (n+1);
     if(activeItem){
@@ -309,11 +306,11 @@ public:
           }
       }
     }
-    tft.display.fillRect(0, y, BMC_OBE_W-6, BMC_OBE_ROW_H, background);
+    tft.fillRect(0, y, BMC_OBE_W-6, BMC_OBE_ROW_H, background);
     if(empty || data.visibleRowId[n] == 0){
       return;
     }
-    tft.display.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
+    tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
     uint16_t id = data.visibleRowId[n]-1;
     bool rowIsEditable = false;
 
@@ -326,14 +323,14 @@ public:
     }
 
     if(rowIsEditable){
-      // tft.display.setFont(data.activeRow == (n+1) ? BMC_OBE_ROW_SEL_VALUE_FONT : BMC_OBE_ROW_VALUE_FONT);
-      tft.display.setFont(BMC_OBE_ROW_VALUE_FONT);
+      // tft.setFont(data.activeRow == (n+1) ? BMC_OBE_ROW_SEL_VALUE_FONT : BMC_OBE_ROW_VALUE_FONT);
+      tft.setFont(BMC_OBE_ROW_VALUE_FONT);
     }
-    tft.display.setCursor(BMC_OBE_SIDEBAR_WIDTH, (y + (rowIsEditable ? BMC_OBE_ROW_TEXT_Y/2 : BMC_OBE_ROW_TEXT_Y)));
-    tft.display.setTextColor(color);
+    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, (y + (rowIsEditable ? BMC_OBE_ROW_TEXT_Y/2 : BMC_OBE_ROW_TEXT_Y)));
+    tft.setTextColor(color);
     #if defined(BMC_OBE_DISPLAY_ROW_ID)
-      tft.display.print(id+1);
-      tft.display.print(" ");
+      tft.print(id+1);
+      tft.print(" ");
     #endif
     if(isDynamicList()){
       uint16_t dID = items[data.dynamicListIndex].id;
@@ -344,33 +341,33 @@ public:
             BMCDeviceData dd = editor.getDeviceData(id+1);
             // BMC_PRINTLN("renderRow()", id+1, dd.label);
             if(dd.id != 0){
-              tft.display.print(dd.label);
+              tft.print(dd.label);
               uint8_t strL = strlen(dd.label);
               char lastChar = dd.label[strL-1];
               if(lastChar!='s' && lastChar!='x' && lastChar!='p'){
-                tft.display.print("s");
+                tft.print("s");
               }
               renderCaret(y, color, background);
-              tft.display.setFont(BMC_OBE_ROW_FONT);
+              tft.setFont(BMC_OBE_ROW_FONT);
             }
           }
           break;
         case BMC_OBE_ID_G_ITEM_LIST:
         case BMC_OBE_ID_P_ITEM_LIST:
-          uint8_t offset = settings.getDisplayOffset() ? 0 : 1;
+          uint8_t offset = display.midi.globals.settings.getDisplayOffset() ? 0 : 1;
           strcpy(data.headerTitle, data.activeDevice.label);
-          // tft.display.print(data.activeDevice.label);
-          // tft.display.print(" # ");
-          tft.display.print("#");
-          tft.display.print(id + offset);
+          // tft.print(data.activeDevice.label);
+          // tft.print(" # ");
+          tft.print("#");
+          tft.print(id + offset);
 
           char nameStr[33] = "";
           editor.getDeviceNameText(data.activeDevice.id, id, nameStr);
-          tft.display.print(" ");
-          tft.display.print(nameStr);
+          tft.print(" ");
+          tft.print(nameStr);
           
           renderCaret(y, color, background);
-          tft.display.setFont(BMC_OBE_ROW_FONT);
+          tft.setFont(BMC_OBE_ROW_FONT);
           break;
       }
       return;
@@ -380,7 +377,7 @@ public:
         case BMC_OBE_ID_P_ITEM_EDIT:
           if(devicesEditor.isCompatible()){
             devicesEditor.getOptionLabel(n);
-            tft.display.print(devicesEditor.str);
+            tft.print(devicesEditor.str);
             if(!isEditModeActive()){
               devicesEditor.getOptionValue(n);
             } else {
@@ -392,7 +389,7 @@ public:
       }
       return;
     }
-    tft.display.print(items[id].label);
+    tft.print(items[id].label);
     if(!rowIsEditable){
       renderCaret(y, color, background);
     } else {
@@ -408,19 +405,19 @@ public:
   }
   void printRowValue(uint16_t y, bool activeItem, char * str){
     // uint16_t x = getCenteredX(str);
-    int16_t textWidth = tft.display.strPixelLen(str);
+    int16_t textWidth = tft.strPixelLen(str);
     int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
     x = (x < 0) ? 0 : x-6;
     //x += (BMC_OBE_SIDEBAR_WIDTH*3);
-    tft.display.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
-    // tft.display.setTextColor(BMC_OBE_ROW_EDITING_COLOR);
-    tft.display.setCursor(x, (y + 29));
-    // tft.display.setCursor(x, y+16);
-    tft.display.print(str);
-    // tft.display.setFont(BMC_OBE_ROW_FONT);
-    // tft.display.drawFastVLine(0, 0, 240, BMC_ILI9341_RED);
-    // tft.display.drawFastVLine(106, 0, 240, BMC_ILI9341_RED);
-    // tft.display.drawFastVLine(212, 0, 240, BMC_ILI9341_RED);
+    tft.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
+    // tft.setTextColor(BMC_OBE_ROW_EDITING_COLOR);
+    tft.setCursor(x, (y + 29));
+    // tft.setCursor(x, y+16);
+    tft.print(str);
+    // tft.setFont(BMC_OBE_ROW_FONT);
+    // tft.drawFastVLine(0, 0, 240, BMC_ILI9341_RED);
+    // tft.drawFastVLine(106, 0, 240, BMC_ILI9341_RED);
+    // tft.drawFastVLine(212, 0, 240, BMC_ILI9341_RED);
   }
   void updateRows(){
     if(data.isHeaderSelected()){
@@ -442,20 +439,20 @@ public:
       return;
     }
     uint8_t w = BMC_OBE_SIDEBAR_WIDTH;
-    tft.display.fillRect(BMC_OBE_W-w, BMC_OBE_ROW_HEAD_H, w, BMC_OBE_ROW_AREA, 0x0841);
+    tft.fillRect(BMC_OBE_W-w, BMC_OBE_ROW_HEAD_H, w, BMC_OBE_ROW_AREA, 0x0841);
     if(data.maxRowPages <= 1){
       return;
     }
     uint16_t scrollHandle = BMC_OBE_ROW_AREA / data.maxRowPages;
     uint16_t pos = scrollHandle * data.rowPage;
-    tft.display.fillRoundRect(BMC_OBE_W-w, BMC_OBE_ROW_HEAD_H+pos, w, scrollHandle, 3, 0xB596);
+    tft.fillRoundRect(BMC_OBE_W-w, BMC_OBE_ROW_HEAD_H+pos, w, scrollHandle, 3, 0xB596);
   }
   void renderCaret(uint16_t y, uint16_t color, uint16_t background){
-    tft.display.fillRect(BMC_OBE_CARET_BOX_X, y+1, 24, BMC_OBE_ROW_H-2, background);
+    tft.fillRect(BMC_OBE_CARET_BOX_X, y+1, 24, BMC_OBE_ROW_H-2, background);
 #if BMC_TFT_SIZE == 1
-    tft.display.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET, color, background, 2);
+    tft.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET, color, background, 2);
 #else
-    tft.display.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET, color, background, 2, 2);
+    tft.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET, color, background, 2, 2);
 #endif
   }
   void renderHeader(const char* title){
@@ -476,7 +473,7 @@ public:
     } else if(data.level[0] == 0){
       strcpy(buff, "BMC Editor");
     }
-    tft.display.setFont(BMC_OBE_HEAD_FONT);
+    tft.setFont(BMC_OBE_HEAD_FONT);
     uint16_t x = getCenteredX(buff);
     uint16_t color = BMC_OBE_HEAD_COLOR;
     uint16_t background = BMC_OBE_HEAD_BACKGROUND;
@@ -484,12 +481,12 @@ public:
       background = BMC_OBE_HEAD_SEL_BACKGROUND;
       color = BMC_OBE_SEL_COLOR;
     }
-    tft.display.fillRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, background);
-    tft.display.drawRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, BMC_OBE_ROW_DIVIDER);
-    tft.display.setTextColor(color);
-    tft.display.setCursor(x, BMC_OBE_HEAD_TXT_Y);
-    tft.display.print(buff);
-    tft.display.setFont(BMC_OBE_ROW_FONT);
+    tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, background);
+    tft.drawRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, BMC_OBE_ROW_DIVIDER);
+    tft.setTextColor(color);
+    tft.setCursor(x, BMC_OBE_HEAD_TXT_Y);
+    tft.print(buff);
+    tft.setFont(BMC_OBE_ROW_FONT);
   }
   // @queue is used for encoders to avoid the values being unstable
   void menuCommand(uint8_t cmd, bool queue=false){
@@ -498,23 +495,23 @@ public:
         exitEditor();
         return;
       }
-      if(globals.editorConnected()){
+      if(display.midi.globals.editorConnected()){
         display.renderUnavailableBanner("Unavailable","While Editor App in Use");
         return;
       }
-      globals.toggleOnBoardEditor();
-      if(globals.onBoardEditorActive()){
+      display.midi.globals.toggleOnBoardEditor();
+      if(display.midi.globals.onBoardEditorActive()){
         enterEditor();
       } else {
         exitEditor();
       }
       return;
     } else if(cmd==BMC_MENU_SELECT){
-      if(!globals.onBoardEditorActive()){
+      if(!display.midi.globals.onBoardEditorActive()){
         menuCommand(BMC_MENU_TOGGLE);
         return;
       }
-    } else if(!globals.onBoardEditorActive()){
+    } else if(!display.midi.globals.onBoardEditorActive()){
       return;
     }
     switch(cmd){
@@ -745,16 +742,13 @@ public:
     return flags.toggleIfTrue(BMC_OBE_FLAGS_SHIFT);
   }
   bool active(){
-    return globals.onBoardEditorActive();
+    return display.midi.globals.onBoardEditorActive();
   }
 private:
-  // Reference to the store from BMC.h
-  BMCGlobals& globals;
-  bmcStore& store;
-  BMCSettings& settings;
   BMCEditor& editor;
   BMCDisplay& display;
-  BMC_ILI9341& tft;
+  BMC_TFT& tft;
+  // BMC_ILI9341& tft;
   // all variables live here
   BMCOBEData data;
   BMCOBEDevices devicesEditor;
@@ -818,26 +812,26 @@ private:
     }
     switch(id){
       case BMC_OBE_ID_S_BTN_HOLD_TIME:
-        originalValue = settings.getButtonHoldThreshold();
+        originalValue = display.midi.globals.settings.getButtonHoldThreshold();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setButtonHoldThreshold(value);
+          display.midi.globals.settings.setButtonHoldThreshold(value);
         }
         sprintf(str, "%u ms", (value+2)*250);
         return value;
       case BMC_OBE_ID_S_DISPLAY_OFFSET:
-        originalValue = settings.getDisplayOffset();
+        originalValue = display.midi.globals.settings.getDisplayOffset();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setDisplayOffset(value);
+          display.midi.globals.settings.setDisplayOffset(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_DISPLAY_BANNERS:
-        originalValue = settings.getDisplayBannerTimeout();
+        originalValue = display.midi.globals.settings.getDisplayBannerTimeout();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setDisplayBannerTimeout(value);
+          display.midi.globals.settings.setDisplayBannerTimeout(value);
         }
         if(value == 0){
           strcpy(str, "Disabled");
@@ -846,71 +840,71 @@ private:
         }
         return value;
       case BMC_OBE_ID_S_PREPEND_PRESET:
-        originalValue = settings.getAppendPresetNumberToPresetName();
+        originalValue = display.midi.globals.settings.getAppendPresetNumberToPresetName();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setAppendPresetNumberToPresetName(value);
+          display.midi.globals.settings.setAppendPresetNumberToPresetName(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_PREPEND_BANK:
-        originalValue = settings.getDisplayBankWithPreset();
+        originalValue = display.midi.globals.settings.getDisplayBankWithPreset();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setDisplayBankWithPreset(value);
+          display.midi.globals.settings.setDisplayBankWithPreset(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_DIM_LEDS:
-        originalValue = settings.getPwmDimWhenOff();
+        originalValue = display.midi.globals.settings.getPwmDimWhenOff();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setPwmDimWhenOff(value);
+          display.midi.globals.settings.setPwmDimWhenOff(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_STARTUP_PRESET:
-        originalValue = settings.getStartupPreset();
+        originalValue = display.midi.globals.settings.getStartupPreset();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setStartupPreset(value);
+          display.midi.globals.settings.setStartupPreset(value);
         }
         if(value==0){
           strcpy(str, "None");
         } else {
-          BMCTools::getPresetLabel((value-1), str, store.global);
+          BMCTools::getPresetLabel((value-1), str, display.midi.globals.store.global);
         }
         return value;
       case BMC_OBE_ID_S_TRIG_1ST_SONG:
-        originalValue = settings.getSetListTriggerFirstSong();
+        originalValue = display.midi.globals.settings.getSetListTriggerFirstSong();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setSetListTriggerFirstSong(value);
+          display.midi.globals.settings.setSetListTriggerFirstSong(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_TRIG_1ST_PART:
-        originalValue = settings.getSetListTriggerFirstSongPart();
+        originalValue = display.midi.globals.settings.getSetListTriggerFirstSongPart();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setSetListTriggerFirstSongPart(value);
+          display.midi.globals.settings.setSetListTriggerFirstSongPart(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       // MIDI MENU
       case BMC_OBE_ID_S_IN_CTRL: // 
-        originalValue = settings.getIncomingListenerEnabled();
+        originalValue = display.midi.globals.settings.getIncomingListenerEnabled();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setIncomingListenerEnabled(value);
+          display.midi.globals.settings.setIncomingListenerEnabled(value);
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
       case BMC_OBE_ID_S_IN_CTRL_CH:
-        originalValue = settings.getListenerChannel();
+        originalValue = display.midi.globals.settings.getListenerChannel();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setListenerChannel(value);
+          display.midi.globals.settings.setListenerChannel(value);
         }
         if(value==0){
           strcpy(str, "Omni");
@@ -919,10 +913,10 @@ private:
         }
         return value;
       case BMC_OBE_ID_S_IN_CTRL_ACTION:
-        originalValue = settings.getIncomingProgramType();
+        originalValue = display.midi.globals.settings.getIncomingProgramType();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setIncomingProgramType(value);
+          display.midi.globals.settings.setIncomingProgramType(value);
         }
         switch(value){
           case 0: strcpy(str, "None"); break;
@@ -931,10 +925,10 @@ private:
         }
         return value;
       case BMC_OBE_ID_S_CLOCK_IN_PORT:
-        originalValue = settings.getClockInputPortBit();
+        originalValue = display.midi.globals.settings.getClockInputPortBit();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setClockInputPortBit(value);
+          display.midi.globals.settings.setClockInputPortBit(value);
         }
         switch(data.availablePortsData[value]){
           case BMC_MIDI_PORT_USB_BIT: strcpy(str, "USB"); break;
@@ -947,61 +941,61 @@ private:
         }
         return value;
       case BMC_OBE_ID_S_MASTER_CLOCK:
-        originalValue = settings.getMasterClock();
+        originalValue = display.midi.globals.settings.getMasterClock();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setMasterClock(value);
+          display.midi.globals.settings.setMasterClock(value);
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
       case BMC_OBE_ID_S_ACTIVE_SENSE:
-        originalValue = settings.getActiveSenseAtStartup();
+        originalValue = display.midi.globals.settings.getActiveSenseAtStartup();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setActiveSenseAtStartup(value);
+          display.midi.globals.settings.setActiveSenseAtStartup(value);
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
       case BMC_OBE_ID_S_BLOCK_RT_IN:
-        originalValue = settings.getMidiRealTimeBlockInput();
+        originalValue = display.midi.globals.settings.getMidiRealTimeBlockInput();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setMidiRealTimeBlockInput(value);
+          display.midi.globals.settings.setMidiRealTimeBlockInput(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_BLOCK_RT_OUT:
-        originalValue = settings.getMidiRealTimeBlockOutput();
+        originalValue = display.midi.globals.settings.getMidiRealTimeBlockOutput();
         value = (!active) ? originalValue : value;
         if(setValue && setChangesMade(originalValue, value)){
-          settings.setMidiRealTimeBlockOutput(value);
+          display.midi.globals.settings.setMidiRealTimeBlockOutput(value);
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
       // change pages
       case BMC_OBE_ID_CP_GO_TO_PAGE:
         {
-          originalValue = globals.page;
+          originalValue = display.midi.globals.page;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.page = value;
-            globals.setReloadPage(true);
+            display.midi.globals.page = value;
+            display.midi.globals.setReloadPage(true);
             forceExitEditor();
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
           editor.getDeviceNameText(BMC_DEVICE_ID_PAGE, value, buff);
-          sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
+          sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }
       case BMC_OBE_ID_CP_GO_TO_BANK:
       #if BMC_MAX_PRESETS > 0
         {
-          originalValue = globals.bank;
+          originalValue = display.midi.globals.bank;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.bank = value;
-            globals.setTriggerBank(true);
+            display.midi.globals.bank = value;
+            display.midi.globals.setTriggerBank(true);
             return value;
           }
           char buff[3] = "";
@@ -1015,17 +1009,17 @@ private:
       case BMC_OBE_ID_CP_GO_TO_PRESET:
       #if BMC_MAX_PRESETS > 0
         {
-          originalValue = globals.preset;
+          originalValue = display.midi.globals.preset;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.preset = value;
-            globals.setTriggerPreset(true);
+            display.midi.globals.preset = value;
+            display.midi.globals.setTriggerPreset(true);
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
-          uint16_t p = BMCTools::toPresetIndex(globals.preset, value);
+          uint16_t p = BMCTools::toPresetIndex(display.midi.globals.preset, value);
           editor.getDeviceNameText(BMC_DEVICE_ID_PRESET, p, buff);
-          sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
+          sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }
       #else
@@ -1034,16 +1028,16 @@ private:
       case BMC_OBE_ID_CP_GO_TO_SETLIST:
       #if BMC_MAX_SETLISTS > 0
         {
-          originalValue = globals.setList;
+          originalValue = display.midi.globals.setList;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.setList = value;
-            globals.setTriggerSetList(true);
+            display.midi.globals.setList = value;
+            display.midi.globals.setTriggerSetList(true);
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
           editor.getDeviceNameText(BMC_DEVICE_ID_SETLIST, value, buff);
-          sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
+          sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }
       #else
@@ -1052,21 +1046,21 @@ private:
       case BMC_OBE_ID_CP_GO_TO_SONG:
       #if BMC_MAX_SETLISTS > 0
         {
-          originalValue = globals.song;
+          originalValue = display.midi.globals.song;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.song = value;
-            globals.setTriggerSong(true);
+            display.midi.globals.song = value;
+            display.midi.globals.setTriggerSong(true);
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
-          uint16_t s = store.global.setLists[globals.setList].events[value];
+          uint16_t s = display.midi.globals.store.global.setLists[display.midi.globals.setList].events[value];
           if(s > 0){
             editor.getDeviceNameText(BMC_DEVICE_ID_SETLIST_SONG_LIBRARY, s, buff);
           } else {
             strcpy(buff, "*empty");
           }
-          sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
+          sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }
       #else
@@ -1075,21 +1069,21 @@ private:
       case BMC_OBE_ID_CP_GO_TO_PART:
       #if BMC_MAX_SETLISTS > 0
         {
-          originalValue = globals.songPart;
+          originalValue = display.midi.globals.songPart;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            globals.songPart = value;
-            globals.setTriggerPart(true);
+            display.midi.globals.songPart = value;
+            display.midi.globals.setTriggerPart(true);
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
-          uint16_t p = store.global.songLibrary[globals.songInLibrary].events[value];
+          uint16_t p = display.midi.globals.store.global.songLibrary[display.midi.globals.songInLibrary].events[value];
           if(p > 0){
             editor.getDeviceNameText(BMC_DEVICE_ID_PRESET, p, buff);
           } else {
             strcpy(buff, "*empty");
           }
-          sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
+          sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }
       #else
@@ -1140,10 +1134,10 @@ private:
     data.reset();
   }
   void enterEditor(){
-    globals.setDisplayRenderDisable(true);
-    globals.setOnBoardEditorActive(true);
-    tft.display.setFont(BMC_OBE_ROW_FONT);
-    tft.display.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
+    display.midi.globals.setDisplayRenderDisable(true);
+    display.midi.globals.setOnBoardEditorActive(true);
+    tft.setFont(BMC_OBE_ROW_FONT);
+    tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
     render();
   }
   void forceExitEditor(){
@@ -1160,62 +1154,62 @@ private:
       if(!waitingForConfirmation()){
         flags.on(BMC_OBE_FLAGS_WAITING_FOR_CONFIRM);
       }
-      tft.display.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
+      tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
       renderConfirmSave();
       return;
     }
-    globals.setDisplayRenderDisable(false);
-    globals.setOnBoardEditorActive(false);
+    display.midi.globals.setDisplayRenderDisable(false);
+    display.midi.globals.setOnBoardEditorActive(false);
     reset();
-    // tft.display.setFontAdafruit();
-    // tft.display.setFont(BMCLiberationSansNarrow_16);
-    tft.display.setFont(BMCLiberationSansNarrow_24);
-    tft.display.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
+    // tft.setFontAdafruit();
+    // tft.setFont(BMCLiberationSansNarrow_16);
+    tft.setFont(BMCLiberationSansNarrow_24);
+    tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
     display.reassign();
   }
 
   void renderConfirmSave(){
     char buff[18] = "Save Changes?";
-    tft.display.setFont(BMC_OBE_CONFIRMATION_FONT);
+    tft.setFont(BMC_OBE_CONFIRMATION_FONT);
     uint16_t x = getCenteredX(buff);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-    tft.display.setCursor(x, 40);
-    tft.display.print(buff);
+    tft.setTextColor(BMC_ILI9341_WHITE);
+    tft.setCursor(x, 40);
+    tft.print(buff);
     uint16_t c1 = !data.saveConfirmationValue ? BMC_OBE_ROW_EDITABLE_BACKGROUND : BMC_ILI9341_BLACK;
     uint16_t c2 = data.saveConfirmationValue ? BMC_OBE_ROW_EDITABLE_BACKGROUND : BMC_ILI9341_BLACK;
 
-    tft.display.fillRoundRect(30, 120, 120, 60, 7, c1);
-    tft.display.drawRoundRect(30, 120, 120, 60, 7, 0x528A);
+    tft.fillRoundRect(30, 120, 120, 60, 7, c1);
+    tft.drawRoundRect(30, 120, 120, 60, 7, 0x528A);
 
-    tft.display.fillRoundRect(170, 120, 120, 60, 7, c2);
-    tft.display.drawRoundRect(170, 120, 120, 60, 7, 0x528A);
+    tft.fillRoundRect(170, 120, 120, 60, 7, c2);
+    tft.drawRoundRect(170, 120, 120, 60, 7, 0x528A);
 
-    tft.display.setCursor(73, 140);
-    tft.display.print("NO");
-    tft.display.setCursor(205, 140);
-    tft.display.print("YES");
+    tft.setCursor(73, 140);
+    tft.print("NO");
+    tft.setCursor(205, 140);
+    tft.print("YES");
   }
   void handleConfirmation(){
     // get input value
-    tft.display.fillScreen(BMC_ILI9341_BLACK);
+    tft.fillScreen(BMC_ILI9341_BLACK);
     char buff[17] = "";
     strcpy(buff, data.saveConfirmationValue ? "Saving..." : "No Changes Saved");
-    tft.display.setFont(BMC_OBE_CONFIRMATION_FONT);
-    // int16_t textWidth = tft.display.strPixelLen(buff);
+    tft.setFont(BMC_OBE_CONFIRMATION_FONT);
+    // int16_t textWidth = tft.strPixelLen(buff);
     // int16_t x = (BMC_OBE_W-textWidth) / 2;
     // if(x < 0){
     //   x = 0;
     // }
     uint16_t x = getCenteredX(buff);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-    tft.display.setCursor(x, 80);
-    tft.display.print(buff);
+    tft.setTextColor(BMC_ILI9341_WHITE);
+    tft.setCursor(x, 80);
+    tft.print(buff);
     if(data.saveConfirmationValue){
       editor.saveEEPROM();
     } else {
       editor.reloadPreviouslySavedStore();
     }
-    globals.setAssignStoreData(true);
+    display.midi.globals.setAssignStoreData(true);
     flags.off(BMC_OBE_FLAGS_ROW_EDIT_CHANGED);
     flags.off(BMC_OBE_FLAGS_WAITING_FOR_CONFIRM);
     exitEditor();
@@ -1226,7 +1220,7 @@ private:
     return getCenteredX(str);
   }
   uint16_t getCenteredX(char * buff){
-    int16_t textWidth = tft.display.strPixelLen(buff);
+    int16_t textWidth = tft.strPixelLen(buff);
     int16_t x = (BMC_OBE_W-textWidth) / 2;
     return (x < 0) ? 0 : x;
   }

@@ -9,13 +9,13 @@
 BMC::BMC():
   settings(store.global.settings),
   globals(store, settings),
-  midi(callback, globals, store.global),
+  midi(callback, globals),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
   #if BMC_MAX_PRESETS > 0
-    ,presets(globals)
+    ,presets(midi)
   #endif
   #if BMC_MAX_SETLISTS > 0
     ,setLists(presets)
@@ -26,23 +26,23 @@ BMC::BMC():
   #endif
 
   #if BMC_MAX_CUSTOM_SYSEX > 0
-    ,customSysEx(midi, store.global)
+    ,customSysEx(midi)
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
     ,tempoToTap(midi)
   #endif
   #if BMC_MAX_TRIGGERS > 0
-    ,triggers(midi, globals, store.global)
+    ,triggers(midi)
   #endif
   #if BMC_MAX_PIXEL_PROGRAMS > 0
-    ,pixelPrograms(store.global)
+    ,pixelPrograms(midi)
   #endif
   #if BMC_MAX_TIMED_EVENTS > 0
-    ,timedEvents(globals, store.global)
+    ,timedEvents(midi)
   #endif
 
   #if defined(BMC_HAS_DISPLAY)
-    ,display(store, globals
+    ,display(midi
     #if defined(BMC_USE_SYNC)
       ,sync
     #endif
@@ -50,8 +50,7 @@ BMC::BMC():
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
-    ,obe(globals, settings, editor, display)
-    // ,iliSelector(globals, settings, editor, display)
+    ,obe(editor, display)
   #endif
 
     ,page(globals.page)
@@ -148,6 +147,13 @@ void BMC::update(){
     #if defined(BMC_HAS_DISPLAY)
       #if BMC_MAX_ILI9341_BLOCKS > 0
         display.initILI9341Blocks();
+        #if defined(BMC_HAS_TOUCH_SCREEN)
+          uint8_t tftType = settings.getTouchTftType();
+          uint16_t tftTouchX = settings.getTouchTftMaxX();
+          if(tftType != BMC_TFT_TYPE || tftTouchX == 0){
+            display.touchCalibration();
+          }
+        #endif
       #endif
       display.clearAll();
     #endif

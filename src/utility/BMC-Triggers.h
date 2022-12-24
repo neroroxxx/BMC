@@ -15,11 +15,9 @@
 
 class BMCTriggers {
 public:
-  BMCTriggers(BMCMidi& t_midi, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
+  BMCTriggers(BMCMidi& t_midi):
     midi(t_midi),
-    incoming(midi.message),
-    globals(t_globals),
-    global(t_global)
+    incoming(midi.message)
   {
 
   }
@@ -28,7 +26,7 @@ public:
     totalReadableTriggers = 0;
     activeList.zeroOut();
     for(uint8_t i = 0 ; i < BMC_MAX_TRIGGERS ; i++){
-      bmcStoreDevice <1, 2>& device = global.triggers[i];
+      bmcStoreDevice <1, 2>& device = midi.globals.store.global.triggers[i];
       if(active(device.events[0]) && device.events[1] != 0){
         flags.on(BMC_TRIGGERS_FLAG_AVAILABLE);
         activeList.setBit(i, true);
@@ -44,8 +42,7 @@ public:
     if(incoming.getStatus()==BMC_NONE || index>=totalReadableTriggers || !activeList.getBit(index)){
       return false;
     }
-    //bmcStoreGlobalTriggers& trigger = global.triggers[index];
-    bmcStoreDevice <1, 2>& device = global.triggers[index];
+    bmcStoreDevice <1, 2>& device = midi.globals.store.global.triggers[index];
     return active(device.events[0]) && match(device.events[0], device.settings[0]);
   }
   uint32_t getEvent(uint8_t index){
@@ -70,14 +67,12 @@ private:
   // reference to midi object from BMC
   BMCMidi& midi;
   BMCMidiMessage& incoming;
-  BMCGlobals& globals;
-  bmcStoreGlobal& global;
   BMCFlags <uint8_t> flags;
   BMCBitStates <BMC_MAX_TRIGGERS> activeList;
   uint8_t totalReadableTriggers = 0;
 
   bool active(bmcEvent_t type){
-    bmcStoreEvent data = globals.getDeviceEventType(type);
+    bmcStoreEvent data = midi.globals.getDeviceEventType(type);
     switch(data.type){
       case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
       case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
@@ -88,7 +83,7 @@ private:
     return false;
   }
   bool match(bmcEvent_t trigger, uint8_t settings){
-    bmcStoreEvent data = globals.getDeviceEventType(trigger);
+    bmcStoreEvent data = midi.globals.getDeviceEventType(trigger);
     if(incoming.getStatus()==BMC_NONE){
       return false;
     }

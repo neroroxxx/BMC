@@ -20,12 +20,8 @@ class BMC_ILI9341 {
   #else
     ILI9488_t3 display;
   #endif
-  
-  #if BMC_TFT_SIZE == 1
-    BMC_ILI9341():display(10, 9){}
-  #else
-    BMC_ILI9341():display(10, 9, 23){}
-  #endif
+
+  BMC_ILI9341():display(10, 9){}
   
   bool begin(uint8_t rotation=0){
     display.begin();
@@ -88,8 +84,8 @@ class BMC_ILI9341 {
   void renderSplashScreen(){
     uint16_t yBase = BMC_TFT_SIZE == 1 ? 0 : 40;
 
-    display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, 0xfe60);
-    display.drawRect(1, 1, BMC_TFT_WIDTH-2, BMC_TFT_WIDTH-2, 0xfe60);
+    display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_ORANGE);
+    display.drawRect(1, 1, BMC_TFT_WIDTH-2, BMC_TFT_WIDTH-2, BMC_ILI9341_ORANGE);
     drawCompressedImage((BMC_TFT_WIDTH/2)-(logoW/2), yBase+32, logoW, logoH, logo, 2550);
     
     char str[20] = "BMC";
@@ -97,7 +93,7 @@ class BMC_ILI9341 {
     int16_t textWidth = display.strPixelLen(str);
     int16_t x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
-    display.setTextColor(0xfe60);
+    display.setTextColor(BMC_ILI9341_ORANGE);
     display.setCursor(x, yBase+135);
     display.print(str);
 
@@ -106,7 +102,7 @@ class BMC_ILI9341 {
     textWidth = display.strPixelLen(str);
     x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
-    display.setTextColor(BMC_ILI9341_GRAY_20);
+    display.setTextColor(BMC_ILI9341_GRAY_18);
     display.setCursor(x, yBase+190);
     display.print(str);
 
@@ -117,7 +113,7 @@ class BMC_ILI9341 {
   void clear(){
     BMC_PRINTLN("clear display");
     display.fillRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_BLACK);
-    // display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_YELLOW);
+    // display.drawRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_ORANGE);
   }
   private:
   void drawCompressedImage(int x, int y, int w, int h, const uint16_t *pic, uint16_t arraySize){

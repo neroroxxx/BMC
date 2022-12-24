@@ -1544,7 +1544,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_ILI9341_RED 0xF800
 #define BMC_ILI9341_MAGENTA 0xF81F
 #define BMC_ILI9341_YELLOW 0xFFE0
-#define BMC_ILI9341_ORANGE 0xFD20
+#define BMC_ILI9341_ORANGE 0xFE60
 #define BMC_ILI9341_GREENYELLOW 0xAFE5
 #define BMC_ILI9341_PINK 0xFC18
 
@@ -2796,11 +2796,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
       #include "font_ArialBold.h"
     #else
       #include <ILI9488_t3.h>
-      
       #include "ili9488_t3_font_Arial.h"
       #include "ili9488_t3_font_ArialBold.h"
     #endif
-
     
     #include "editor/onBoard/BMC-OBEFont.h"
     #include "editor/onBoard/BMC-OBEFontBold.h"

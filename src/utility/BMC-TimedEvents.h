@@ -19,14 +19,14 @@
 
 class BMCTimedEvents {
 public:
-  BMCTimedEvents(BMCGlobals& t_globals, bmcStoreGlobal& t_global):globals(t_globals),global(t_global){
+  BMCTimedEvents(BMCMidi& t_midi):midi(t_midi){
 
   }
   void buildListeners(){
     flags.off(BMC_TIMED_EVENTS_FLAG_AVAILABLE);
     totalReadyTimedEvents = 0;
     for(uint8_t i=0;i<BMC_MAX_TIMED_EVENTS;i++){
-      bmcStoreDevice <2, 1>& device = global.timedEvents[i];
+      bmcStoreDevice <2, 1>& device = midi.globals.store.global.timedEvents[i];
       if(device.events[0]>0){
         flags.on(BMC_TIMED_EVENTS_FLAG_AVAILABLE);
         totalReadyTimedEvents = i+1;
@@ -45,8 +45,8 @@ public:
     if(n >= BMC_MAX_TIMED_EVENTS){
       return;
     }
-    bmcStoreDevice <2, 1>& device = global.timedEvents[n];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
+    bmcStoreDevice <2, 1>& device = midi.globals.store.global.timedEvents[n];
+    bmcStoreEvent data = midi.globals.getDeviceEventType(device.events[0]);
     // first check if the timed event has any event data
     if(data.type == BMC_NONE){
       return;
@@ -114,16 +114,16 @@ public:
     return false;
   }
   bmcEvent_t getEvent(uint8_t n){
-    return global.timedEvents[n].events[0];
+    return midi.globals.store.global.timedEvents[n].events[0];
   }
   uint16_t getTimeout(uint8_t n){
-    return (global.timedEvents[n].settings[0]+1)*10;
+    return (midi.globals.store.global.timedEvents[n].settings[0]+1)*10;
   }
   uint8_t getReTrigger(uint8_t n){
-    return global.timedEvents[n].settings[1] & 0x03;
+    return midi.globals.store.global.timedEvents[n].settings[1] & 0x03;
   }
   uint8_t getMode(uint8_t n){
-    return (global.timedEvents[n].settings[1]>>2) & 0x03;
+    return (midi.globals.store.global.timedEvents[n].settings[1]>>2) & 0x03;
   }
   uint8_t available(){
     return totalReadyTimedEvents;
@@ -131,12 +131,12 @@ public:
 
 private:
   // reference to midi object from BMC
-  BMCGlobals& globals;
-  bmcStoreGlobal& global;
+  BMCMidi& midi;
   BMCFlags <uint8_t> flags;
+  BMCFlags <uint8_t> timerFlags[BMC_MAX_TIMED_EVENTS];
   uint8_t totalReadyTimedEvents = 0;
   BMCTimerLong timers[BMC_MAX_TIMED_EVENTS];
-  BMCFlags <uint8_t> timerFlags[BMC_MAX_TIMED_EVENTS];
+  
 
 };
 

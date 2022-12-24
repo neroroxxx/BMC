@@ -1535,7 +1535,7 @@ private:
     #else
       uint16_t address = getGlobalOffset();
       address += sizeof(store.global);
-      storage.set(address,store.pages);
+      storage.set(address, store.pages);
     #endif
   }
   // save a single page and notify to reassign

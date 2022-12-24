@@ -1,6 +1,6 @@
 /*
   This is a wrapper for the Adafruit ILI9341 library
-  https://github.com/adafruit/BMC_DISPLAY_T
+  https://github.com/adafruit/BMC_TFT
 
   Prints text or built-in icons
 */
@@ -14,12 +14,6 @@
 #define BMC_ILI_FONT_MD BMCLiberationSansNarrow_32
 #define BMC_ILI_FONT_LG BMCLiberationSansNarrow_40
 #define BMC_ILI_FONT_XL BMCLiberationSansNarrow_48
-
-#if BMC_TFT_SIZE == 1
-  #define BMC_DISPLAY_T ILI9341_t3
-#else
-  #define BMC_DISPLAY_T ILI9488_t3
-#endif
 
 // BMCLiberationMono_24;
 // BMCLiberationMono_28;
@@ -75,20 +69,21 @@ class BMC_ILI9341_BLOCK {
       hBound = 40;
     }
   }
-  void clear(BMC_DISPLAY_T & tft, uint16_t t_settings){
+  void clear(BMC_TFT& tft, uint16_t t_settings){
     settings = t_settings;
     crc = 0;
+    //BMC_PRINTLN("block settings", settings);
     tft.fillRect(xBound, yBound, wBound, hBound, background);
-    // tft.drawRect(xBound, yBound, wBound, hBound, color);
+    tft.drawRect(xBound, yBound, wBound, hBound, color);
   }
-  void print(BMC_DISPLAY_T & tft, uint8_t t_crc, const char* str, const char* label=""){
+  void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label=""){
     // add one extra character for the EOL
     uint8_t len = strlen(str)+1;
     char c[len] = "";
     strncpy(c, str, len);
     print(tft, t_crc, c, label);
   }
-  void print(BMC_DISPLAY_T & tft, uint8_t t_crc, char* str, const char* label=""){
+  void print(BMC_TFT& tft, uint8_t t_crc, char* str, const char* label=""){
     if(crc == t_crc){
       return;
     }
@@ -100,13 +95,12 @@ class BMC_ILI9341_BLOCK {
     if(len == 0){
       return;
     }
+    
     uint16_t labelYOffset = renderLabel(tft, label);
     uint16_t fontData = findFontSize(tft, str, labelYOffset);
     uint8_t fontHeight = fontData & 0xFF;
     uint8_t fontPadding = (fontData>>8) & 0xFF;
-
     
-
     len = strlen(str);
 
     char outStr[len+1] = "";
@@ -115,7 +109,7 @@ class BMC_ILI9341_BLOCK {
       outStr[i] = str[i];
       uint16_t lineWidth = tft.strPixelLen(outStr);
       if(lineWidth > wBound){
-        if(outStr[i] == ' ' && i > 0){
+        if(outStr[i] == 32 && i > 0){
           outStr[i-1] = 0;
         }
         outStr[i] = 0;
@@ -133,14 +127,14 @@ class BMC_ILI9341_BLOCK {
     tft.setTextColor(color);
     tft.print(outStr);
   }
-  uint8_t renderLabel(BMC_DISPLAY_T & tft, const char* t_str){
+  uint8_t renderLabel(BMC_TFT& tft, const char* t_str){
     if(hBound == 40 || !bitRead(settings, 0) || strlen(t_str) == 0){
       return 0;
     }
     char str[strlen(t_str)] = "";
     strcpy(str, t_str);
     tft.setFont(Arial_9_Bold);
-    // uint8_t len = strlen(str);
+    
     int16_t x = xBound + ((wBound - tft.strPixelLen(str)) / 2);
     uint16_t y = yBound + 3;
     tft.setCursor(x, y);
@@ -148,7 +142,7 @@ class BMC_ILI9341_BLOCK {
     tft.print(str);
     return 10;
   }
-  uint16_t findFontSize(BMC_DISPLAY_T & tft, char * str, uint16_t t_labelYOffset){
+  uint16_t findFontSize(BMC_TFT& tft, char * str, uint16_t t_labelYOffset){
     uint8_t fontHeightList[7] = {48, 40, 32, 28, 24, 20, 16};
     // offset for font, this value is added to top and bottom to keep string
     // as centered vertically as possible
@@ -189,9 +183,9 @@ class BMC_ILI9341_BLOCK {
       // if it's more than 50% of the string doesn't fit
       // remove all spaces and vowels to shorten string
       if(strWidth > (wBound*2)){
-        BMCTools::strShorten(str, true);
+        // BMCTools::strShorten(str, true);
       } else if(strWidth > (wBound*1.5)){
-        BMCTools::strShorten(str);
+        // BMCTools::strShorten(str);
       }
     }
     return fontHeight | ((fontPadding*2)<<8);

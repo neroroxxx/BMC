@@ -19,6 +19,49 @@ struct __attribute__ ((packed)) BMCDeviceData {
   uint8_t settings = 0;
   uint8_t events = 0;
 };
+struct bmcXY {
+  int16_t x = 0;
+  int16_t y = 0;
+};
+struct bmcTouchArea {
+  int16_t x = 0;
+  int16_t y = 0;
+  uint16_t width = 0;
+  uint16_t height = 0;
+  float xCalM = 0.0, yCalM = 0.0; // gradients
+  float xCalC = 0.0, yCalC = 0.0; // y axis crossing points
+  bmcXY xy;
+  bmcTouchArea(){}
+  void begin(int16_t t_x, int16_t t_y, uint16_t w, uint16_t h){
+    x = t_x;
+    y = t_y;
+    width = w;
+    height = h;
+  }
+  void setCalibrationData(float t_xCalM, float t_xCalC, float t_yCalM, float t_yCalC){
+    xCalM = t_xCalM;
+    xCalC = t_xCalC;
+    yCalM = t_yCalM;
+    yCalC = t_yCalC;
+  }
+  bool isTouched(int16_t t_x, int16_t t_y){
+    getScreenCoordinates(t_x, t_y);
+    if ((xy.x >= x) && (xy.x <= (x+width)) && (xy.y >= y) && (xy.y <= (y+height))){
+      return true;
+    }
+    return false;
+  }
+  void getScreenCoordinates(int16_t t_x, int16_t t_y){
+    int16_t xCoord = round((t_x * xCalM) + xCalC);
+    int16_t yCoord = round((t_y * yCalM) + yCalC);
+    if(xCoord < 0) xCoord = 0;
+    if(xCoord >= BMC_TFT_WIDTH) xCoord = BMC_TFT_WIDTH - 1;
+    if(yCoord < 0) yCoord = 0;
+    if(yCoord >= BMC_TFT_HEIGHT) yCoord = BMC_TFT_HEIGHT - 1;
+    xy.x = xCoord;
+    xy.y = yCoord;
+  }
+};
 
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {

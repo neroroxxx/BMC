@@ -20,13 +20,10 @@
 
 class BMCOBEDevices {
 public:
-  BMCOBEDevices(BMCGlobals& t_globals, BMCSettings& t_settings, BMCEditor& t_editor, BMCDisplay& t_display, BMCOBEData& t_data):
-                  globals(t_globals),
-                  store(globals.store),
-                  settings(t_settings),
+  BMCOBEDevices(BMCEditor& t_editor, BMCDisplay& t_display, BMCOBEData& t_data):
                   editor(t_editor),
                   display(t_display),
-                  tft(t_display.tft),
+                  tft(display.tft.display),
                   data(t_data){
 
   }
@@ -231,7 +228,7 @@ public:
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_POST_SAVE);
   }
   uint16_t getOptionLabel(uint16_t index, uint8_t valueType=BMC_OBE_DEVICE_OPT_LABEL){
-    offset = settings.getDisplayOffset()?0:1;
+    offset = display.midi.globals.settings.getDisplayOffset()?0:1;
     uint16_t dIndex = data.deviceIndex-1;
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_PAGE:
@@ -239,25 +236,25 @@ public:
       case BMC_DEVICE_ID_EVENT:
         break;
       case BMC_DEVICE_ID_NAME:
-        return getNamesEditor(store.global.names[dIndex], index, valueType);
+        return getNamesEditor(display.midi.globals.store.global.names[dIndex], index, valueType);
       case BMC_DEVICE_ID_BUTTON:
         #if BMC_MAX_BUTTONS > 0
-          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.pages[globals.page].buttons[dIndex], index, valueType);
+          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(display.midi.globals.store.pages[display.midi.globals.page].buttons[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
         #if BMC_MAX_GLOBAL_BUTTONS > 0
-          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.global.buttons[dIndex], index, valueType);
+          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(display.midi.globals.store.global.buttons[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
-          return getLedOption<1,1>(store.pages[globals.page].leds[dIndex], index, valueType);
+          return getLedOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].leds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_LED:
         #if BMC_MAX_GLOBAL_LEDS > 0
-          return getLedOption<1,1>(store.global.leds[dIndex], index, valueType);
+          return getLedOption<1,1>(display.midi.globals.store.global.leds[dIndex], index, valueType);
         #endif
         break;
 
@@ -267,22 +264,22 @@ public:
         
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
-          return getBiLedOption<1,2>(store.pages[globals.page].biLeds[dIndex], index, valueType);
+          return getBiLedOption<1,2>(display.midi.globals.store.pages[display.midi.globals.page].biLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:
         #if BMC_MAX_GLOBAL_BI_LEDS > 0
-          return getBiLedOption<1,2>(store.global.biLeds[dIndex], index, valueType);
+          return getBiLedOption<1,2>(display.midi.globals.store.global.biLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_TRI_LED:
         #if BMC_MAX_TRI_LEDS > 0
-          return getTriLedOption<1,3>(store.pages[globals.page].triLeds[dIndex], index, valueType);
+          return getTriLedOption<1,3>(display.midi.globals.store.pages[display.midi.globals.page].triLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:
         #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-          return getTriLedOption<1,3>(store.global.triLeds[dIndex], index, valueType);
+          return getTriLedOption<1,3>(display.midi.globals.store.global.triLeds[dIndex], index, valueType);
         #endif
         break;
 
@@ -291,84 +288,84 @@ public:
 
       case BMC_DEVICE_ID_ENCODER:
         #if BMC_MAX_ENCODERS > 0
-          return getSingleEventDeviceOption<1,1>(store.pages[globals.page].encoders[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].encoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
         #if BMC_MAX_GLOBAL_ENCODERS > 0
-          return getSingleEventDeviceOption<1,1>(store.global.encoders[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.global.encoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
-          return getSingleEventDeviceOption<1,1>(store.pages[globals.page].oled[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].oled[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          return getIliOption<1,1>(store.pages[globals.page].ili[dIndex], index, valueType);
+          return getIliOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].ili[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
-          return getPixelOption<1,1>(store.pages[globals.page].pixels[dIndex], index, valueType);
+          return getPixelOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].pixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
         #if BMC_MAX_GLOBAL_PIXELS > 0
-          return getPixelOption<1,1>(store.global.pixels[dIndex], index, valueType);
+          return getPixelOption<1,1>(display.midi.globals.store.global.pixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
-          return getRgbPixelOption<1,3>(store.pages[globals.page].rgbPixels[dIndex], index, valueType);
+          return getRgbPixelOption<1,3>(display.midi.globals.store.pages[display.midi.globals.page].rgbPixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
         #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
-          return getRgbPixelOption<1,3>(store.global.rgbPixels[dIndex], index, valueType);
+          return getRgbPixelOption<1,3>(display.midi.globals.store.global.rgbPixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL_STRIP:
         #if BMC_MAX_PIXEL_STRIP > 0
-          return getPixelOption<1,1>(store.pages[globals.page].pixelStrip[dIndex], index, valueType);
+          return getPixelOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].pixelStrip[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_NL_RELAY:
         #if BMC_MAX_NL_RELAYS > 0
-          return getRelayOption<1,1>(store.global.relaysNL[dIndex], index, valueType);
+          return getRelayOption<1,1>(display.midi.globals.store.global.relaysNL[dIndex], index, valueType);
         #endif
       case BMC_DEVICE_ID_L_RELAY:
         #if BMC_MAX_L_RELAYS > 0
-          return getRelayOption<1,1>(store.global.relaysL[dIndex], index, valueType);
+          return getRelayOption<1,1>(display.midi.globals.store.global.relaysL[dIndex], index, valueType);
         #endif
       case BMC_DEVICE_ID_MAGIC_ENCODER:
         #if BMC_MAX_MAGIC_ENCODERS > 0
-          return getMagicEncoderOption<1,1>(store.pages[globals.page].magicEncoders[dIndex], index, valueType);
+          return getMagicEncoderOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].magicEncoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
         #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
-          return getMagicEncoderOption<1,1>(store.global.magicEncoders[dIndex], index, valueType);
+          return getMagicEncoderOption<1,1>(display.midi.globals.store.global.magicEncoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_LFO:
         #if BMC_MAX_LFO > 0
-          return getLfoOption<3, 5, uint8_t>(store.global.lfo[dIndex], index, valueType);
+          return getLfoOption<3, 5, uint8_t>(display.midi.globals.store.global.lfo[dIndex], index, valueType);
         #endif
       case BMC_DEVICE_ID_TRIGGER:
         #if BMC_MAX_TRIGGERS > 0
-          return getTriggerOption<1, 2, uint8_t>(store.global.triggers[dIndex], index, valueType);
+          return getTriggerOption<1, 2, uint8_t>(display.midi.globals.store.global.triggers[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_TEMPO_TO_TAP:
         #if BMC_MAX_TEMPO_TO_TAP > 0
-          return getSingleEventDeviceOption<1,1>(store.global.tempoToTap[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.global.tempoToTap[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_TIMED_EVENT:
         #if BMC_MAX_TIMED_EVENTS > 0
-          return getTimedEventOption<2,1>(store.global.timedEvents[dIndex], index, valueType);
+          return getTimedEventOption<2,1>(display.midi.globals.store.global.timedEvents[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PRESET:
@@ -392,7 +389,7 @@ public:
         #endif
         break;
       case BMC_DEVICE_ID_PORT_PRESET:
-        return getPortPresetsOption<0, 1, uint8_t>(store.global.portPresets[dIndex], index, valueType);
+        return getPortPresetsOption<0, 1, uint8_t>(display.midi.globals.store.global.portPresets[dIndex], index, valueType);
         break;
       /*
         #if BMC_MAX_AUX_JACKS > 0
@@ -412,16 +409,16 @@ public:
       memset(list, 0, BMC_MAX_PRESET_ITEMS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
-        if(store.global.presets[deviceIndex].events[i]>0){
-          list[counter++] = store.global.presets[deviceIndex].events[i];
+        if(display.midi.globals.store.global.presets[deviceIndex].events[i]>0){
+          list[counter++] = display.midi.globals.store.global.presets[deviceIndex].events[i];
         }
         // empty the entire preset
-        store.global.presets[deviceIndex].events[i] = 0;
+        display.midi.globals.store.global.presets[deviceIndex].events[i] = 0;
       }
       // set the length
-      store.global.presets[deviceIndex].settings[0] = counter;
+      display.midi.globals.store.global.presets[deviceIndex].settings[0] = counter;
       for(uint8_t i = 0 ; i < counter ; i++){
-        store.global.presets[deviceIndex].events[i] = list[i];
+        display.midi.globals.store.global.presets[deviceIndex].events[i] = list[i];
       }
       return 1;
     }
@@ -429,10 +426,10 @@ public:
     for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
       if(i==0){
         if(optionId == 0){
-          return getNameField<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[deviceIndex], valueType);
+          return getNameField<1,BMC_MAX_PRESET_ITEMS>(display.midi.globals.store.global.presets[deviceIndex], valueType);
         }
       } else if(i == optionId){
-        return getEventField<1,BMC_MAX_PRESET_ITEMS>(store.global.presets[deviceIndex], "Event", i-1, 1, valueType);
+        return getEventField<1,BMC_MAX_PRESET_ITEMS>(display.midi.globals.store.global.presets[deviceIndex], "Event", i-1, 1, valueType);
       }
     }
     #endif
@@ -446,16 +443,16 @@ public:
       memset(list, 0, BMC_MAX_SETLISTS_SONGS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
-        if(store.global.setLists[deviceIndex].events[i]>0){
-          list[counter++] = store.global.setLists[deviceIndex].events[i];
+        if(display.midi.globals.store.global.setLists[deviceIndex].events[i]>0){
+          list[counter++] = display.midi.globals.store.global.setLists[deviceIndex].events[i];
         }
         // empty the entire preset
-        store.global.setLists[deviceIndex].events[i] = 0;
+        display.midi.globals.store.global.setLists[deviceIndex].events[i] = 0;
       }
       // set the length
-      store.global.setLists[deviceIndex].settings[0] = counter;
+      display.midi.globals.store.global.setLists[deviceIndex].settings[0] = counter;
       for(uint8_t i = 0 ; i < counter ; i++){
-        store.global.setLists[deviceIndex].events[i] = list[i];
+        display.midi.globals.store.global.setLists[deviceIndex].events[i] = list[i];
       }
       return 1;
     }
@@ -463,10 +460,10 @@ public:
     for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
       if(i==0){
         if(optionId == 0){
-          return getNameField<1,BMC_MAX_SETLISTS_SONGS>(store.global.setLists[deviceIndex], valueType);
+          return getNameField<1,BMC_MAX_SETLISTS_SONGS>(display.midi.globals.store.global.setLists[deviceIndex], valueType);
         }
       } else if(i == optionId){
-        return getPartField<1,BMC_MAX_SETLISTS_SONGS>(store.global.setLists[deviceIndex], "Song", i-1, 1, valueType);
+        return getPartField<1,BMC_MAX_SETLISTS_SONGS>(display.midi.globals.store.global.setLists[deviceIndex], "Song", i-1, 1, valueType);
       }
     }
     #endif
@@ -612,16 +609,16 @@ public:
       memset(list, 0, BMC_MAX_SETLISTS_SONG_PARTS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONG_PARTS ; i++){
-        if(store.global.songLibrary[deviceIndex].events[i]>0){
-          list[counter++] = store.global.songLibrary[deviceIndex].events[i];
+        if(display.midi.globals.store.global.songLibrary[deviceIndex].events[i]>0){
+          list[counter++] = display.midi.globals.store.global.songLibrary[deviceIndex].events[i];
         }
         // empty the entire preset
-        store.global.songLibrary[deviceIndex].events[i] = 0;
+        display.midi.globals.store.global.songLibrary[deviceIndex].events[i] = 0;
       }
       // set the length
-      store.global.songLibrary[deviceIndex].settings[0] = counter;
+      display.midi.globals.store.global.songLibrary[deviceIndex].settings[0] = counter;
       for(uint8_t i = 0 ; i < counter ; i++){
-        store.global.songLibrary[deviceIndex].events[i] = list[i];
+        display.midi.globals.store.global.songLibrary[deviceIndex].events[i] = list[i];
       }
       return 1;
     }
@@ -629,10 +626,10 @@ public:
     for(uint8_t i = 0, n = data.totalRows ; i < n ; i++){
       if(i==0){
         if(optionId == 0){
-          return getNameField<1,BMC_MAX_SETLISTS_SONG_PARTS>(store.global.songLibrary[deviceIndex], valueType);
+          return getNameField<1,BMC_MAX_SETLISTS_SONG_PARTS>(display.midi.globals.store.global.songLibrary[deviceIndex], valueType);
         }
       } else if(i == optionId){
-        return getSongField<1,BMC_MAX_SETLISTS_SONG_PARTS>(store.global.songLibrary[deviceIndex], "Part", i-1, 1, valueType);
+        return getSongField<1,BMC_MAX_SETLISTS_SONG_PARTS>(display.midi.globals.store.global.songLibrary[deviceIndex], "Part", i-1, 1, valueType);
       }
     }
     #endif
@@ -652,7 +649,7 @@ public:
           charPage = 0;
           charPerPage = 0;
           memset(nameBuff, ' ', BMC_MAX_NAMES_LENGTH-1);
-          strcpy(nameBuff, store.global.names[data.deviceIndex].name);
+          strcpy(nameBuff, display.midi.globals.store.global.names[data.deviceIndex].name);
           for(uint8_t i = 0 ; i < BMC_MAX_NAMES_LENGTH-1 ; i++){
             if(nameBuff[i] == 0){
               nameBuff[i] = ' ';
@@ -693,7 +690,7 @@ public:
           buff.trim();
           memset(nameBuff, 0, BMC_MAX_NAMES_LENGTH-1);
           buff.toCharArray(nameBuff, BMC_MAX_NAMES_LENGTH-1);
-          bmcStoreName& nameObj = store.global.names[data.deviceIndex];
+          bmcStoreName& nameObj = display.midi.globals.store.global.names[data.deviceIndex];
           if(strlen(nameBuff) != strlen(nameObj.name) || !BMC_STR_MATCH(nameBuff, nameObj.name)){
             strcpy(nameObj.name, nameBuff);
             return 1;
@@ -812,45 +809,45 @@ public:
     uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
     uint16_t charX = charIndex - (charPage*charPerPage);
     x += (charX*fontWidth);
-    tft.display.setFontAdafruit();
-    tft.display.setTextSize(fontSize);
-    tft.display.setCursor(x, y);
+    tft.setFontAdafruit();
+    tft.setTextSize(fontSize);
+    tft.setCursor(x, y);
     if(charEditActive){
-      tft.display.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
+      tft.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
     } else {
-      tft.display.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+      tft.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
     }
-    tft.display.print(nameBuff[charIndex]);
+    tft.print(nameBuff[charIndex]);
     charIndexState = true;
     updateNamesEditorCursor();
   }
   void renderNamesEditor(){
     if(!data.namesEditorActive){
-      tft.display.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
+      tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
     }
     uint8_t fontSize = 5;
     uint8_t fontWidth = 6*fontSize;
     uint8_t fontHeight = 8*fontSize;
     uint16_t x = 10;
     uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
-    tft.display.setFontAdafruit();
-    tft.display.setTextSize(fontSize);
-    tft.display.setCursor(x, y);
+    tft.setFontAdafruit();
+    tft.setTextSize(fontSize);
+    tft.setCursor(x, y);
     charPerPage = floor(BMC_OBE_W/(fontWidth+0.0));
     for(uint8_t i = 0; i < charPerPage ; i++){
       uint8_t c = i+(charPage*charPerPage);
       if(c==charIndex && charEditActive){
-        tft.display.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
+        tft.setTextColor(BMC_ILI9341_YELLOW, BMC_ILI9341_BLACK);
       } else {
-        tft.display.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+        tft.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
       }
       if(c >= BMC_MAX_NAMES_LENGTH){
-        tft.display.print(" ");
+        tft.print(" ");
       } else {
         if(nameBuff[c] == 0){
-          tft.display.print(" ");
+          tft.print(" ");
         } else {
-          tft.display.print(nameBuff[c]);
+          tft.print(nameBuff[c]);
         }
       }
     }
@@ -861,16 +858,16 @@ public:
     if(charIndex == -1){
       return;
     }
-    tft.display.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, 30, BMC_ILI9341_RED);
+    tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, 30, BMC_ILI9341_RED);
     char buff[23] = "";
     sprintf(buff, "Char %u of %u", charIndex+offset, BMC_MAX_NAMES_LENGTH-1);
-    tft.display.setTextColor(BMC_ILI9341_WHITE);
-    tft.display.setFont(BMCLiberationSansNarrow_18);
-    int16_t textWidth = tft.display.strPixelLen(buff);
+    tft.setTextColor(BMC_ILI9341_WHITE);
+    tft.setFont(BMCLiberationSansNarrow_18);
+    int16_t textWidth = tft.strPixelLen(buff);
     int16_t x = (BMC_OBE_W-textWidth) / 2;
-    tft.display.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
-    tft.display.print(buff);
-    tft.display.setFontAdafruit();
+    tft.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
+    tft.print(buff);
+    tft.setFontAdafruit();
   }
   void renderNamesEditorCursor(){
     updateCharTitle();
@@ -883,11 +880,11 @@ public:
     y += fontHeight+(fontSize*2);
     uint16_t charX = charIndex - (charPage*charPerPage);
     x += (charX*fontWidth);
-    tft.display.fillRect(0, y, BMC_OBE_W, 3, BMC_ILI9341_BLACK);
+    tft.fillRect(0, y, BMC_OBE_W, 3, BMC_ILI9341_BLACK);
     if(charIndex == -1){
       return;
     }
-    tft.display.fillRect(x, y, fontWidth, 3, BMC_ILI9341_WHITE);
+    tft.fillRect(x, y, fontWidth, 3, BMC_ILI9341_WHITE);
   }
   void updateNamesEditorCursor(){
     charIndexState = !charIndexState;
@@ -901,7 +898,7 @@ public:
     color = !charIndexState ? color : BMC_ILI9341_BLACK;
     uint16_t charX = charIndex - (charPage*charPerPage);
     x += (charX*fontWidth);
-    tft.display.fillRect(x, y, fontWidth, 3, color);
+    tft.fillRect(x, y, fontWidth, 3, color);
     charBlinker.start(300);
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
@@ -1179,7 +1176,7 @@ public:
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getPortPresetsOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
-    //store.global.portPresets[deviceIndex]
+    //display.midi.globals.store.global.portPresets[deviceIndex]
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
     if(optionId == 0){
@@ -1665,7 +1662,7 @@ public:
       case BMC_OBE_DEVICE_OPT_VALUE:
       case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
         {
-          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? store.pages[globals.page].name : data.rowEditValue;
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? display.midi.globals.store.pages[display.midi.globals.page].name : data.rowEditValue;
           if(value==0){
             strcpy(str, "None");
           } else {
@@ -1680,8 +1677,8 @@ public:
       case BMC_OBE_DEVICE_OPT_MIN: return 0;
       case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
       case BMC_OBE_DEVICE_OPT_CHANGED:
-        if(store.pages[globals.page].name != data.rowEditValue){
-          store.pages[globals.page].name = data.rowEditValue;
+        if(display.midi.globals.store.pages[display.midi.globals.page].name != data.rowEditValue){
+          display.midi.globals.store.pages[display.midi.globals.page].name = data.rowEditValue;
           return 1;
         }
         return 0;
@@ -2137,12 +2134,9 @@ public:
   char str[65];
 private:
   // Reference to the store from BMC.h
-  BMCGlobals& globals;
-  bmcStore& store;
-  BMCSettings& settings;
   BMCEditor& editor;
   BMCDisplay& display;
-  BMC_ILI9341& tft;
+  BMC_TFT& tft;
   BMCOBEData& data;
   BMCTimer charBlinker;
   char nameBuff[BMC_MAX_NAMES_LENGTH];
