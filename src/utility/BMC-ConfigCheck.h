@@ -8,6 +8,11 @@
 #define BMC_CONFIG_CHECK_H
 #include "utility/BMC-ConfigCheckPins.h"
 
+  // disable the ILI display on teensy 3.2 as it will not fit
+  #if BMC_TEENSY_MODEL == 32 && BMC_MAX_ILI9341_BLOCKS > 0
+    #error "ILI NO SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
+  #endif
+
   // the min/max values that can ever be used
   // the max for everything is 255 this is to be able to fit lengths inside
   // 8-bit unsigned integers, specially when sending these values out thru midi
@@ -832,7 +837,7 @@
 
   // as of right now no support for the clicktrack on Teensy 4.0
   // since it's hardcoded to use DAC on T3.2/T3.6
-  #if BMC_TEENSY_MODEL == 40 || BMC_TEENSY_MODEL == 41
+  #if BMC_TEENSY_MODEL > 36
     #if defined(BMC_USE_CLICK_TRACK)
       #undef BMC_USE_CLICK_TRACK
     #endif
@@ -843,7 +848,9 @@
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS+BMC_MAX_BI_LEDS+BMC_MAX_GLOBAL_BI_LEDS+BMC_MAX_TRI_LEDS+BMC_MAX_GLOBAL_TRI_LEDS)
   #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS+BMC_MAX_PIXEL_STRIP)
 
-
+  #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS)>0
+    #define BMC_HAS_LEDS
+  #endif
   // typedef for Presets and library
   // this is used in order to increase the maximum from 255 to up to 999
   // this is for both presets and library.
@@ -898,18 +905,24 @@
 #endif
 
 
-#if BMC_MAX_ILI9341_BLOCKS > 0 || defined(BMC_HAS_BUTTONS)
+#if BMC_MAX_ILI9341_BLOCKS > 0
+
+#if !defined(BMC_USER_DISABLED_OBE)
   #define BMC_USE_ON_BOARD_EDITOR
+#endif
+
+// Teensy 3.2 doesn't have enough flash to support the on board editor
+#if BMC_TEENSY_MODEL == 32 && defined(BMC_USE_ON_BOARD_EDITOR)
+  #undef BMC_USE_ON_BOARD_EDITOR
+#endif
+
+#if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_ILI_TOUCH_ENABLED)
+  #define BMC_HAS_TOUCH_SCREEN
 #endif
 
 #if !defined(BMC_TFT_TYPE)
   #define BMC_TFT_TYPE 0
 #endif
-
-// BMC_TFT_TYPE == 0  >>> 2.8" (320x240 ILI9341)
-// BMC_TFT_TYPE == 1  >>> 3.2" (320x240 ILI9341)
-// BMC_TFT_TYPE == 2  >>> 3.5" (480x320 ILI9488)
-// BMC_TFT_TYPE == 3  >>> 4.0" (480x320 ILI9488)
 
 #if BMC_TFT_TYPE == 0 || BMC_TFT_TYPE == 1
   #define BMC_TFT_SIZE 1
@@ -917,7 +930,10 @@
   #define BMC_TFT_SIZE 2
 #endif
 
-
+// BMC_TFT_TYPE == 0  >>> 2.8" (320x240 ILI9341)
+// BMC_TFT_TYPE == 1  >>> 3.2" (320x240 ILI9341)
+// BMC_TFT_TYPE == 2  >>> 3.5" (480x320 ILI9488)
+// BMC_TFT_TYPE == 3  >>> 4.0" (480x320 ILI9488)
 #if BMC_TFT_SIZE == 1
   #define BMC_TFT_WIDTH 320
   #define BMC_TFT_HEIGHT 240
@@ -928,8 +944,6 @@
   #define BMC_TFT ILI9488_t3
 #endif
 
-#if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_ILI_TOUCH_ENABLED)
-  #define BMC_HAS_TOUCH_SCREEN
 #endif
 
 

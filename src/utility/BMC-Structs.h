@@ -19,10 +19,20 @@ struct __attribute__ ((packed)) BMCDeviceData {
   uint8_t settings = 0;
   uint8_t events = 0;
 };
+struct __attribute__ ((packed)) BMCEventData {
+  uint8_t type = BMC_NONE;
+  char label[35] = "";
+  bool available = false;
+  bool scroll = false;
+  bool ports = false;
+  uint8_t fields = 0;
+};
 struct bmcXY {
   int16_t x = 0;
   int16_t y = 0;
 };
+
+#if defined(BMC_HAS_TOUCH_SCREEN)
 struct bmcTouchArea {
   int16_t x = 0;
   int16_t y = 0;
@@ -62,7 +72,30 @@ struct bmcTouchArea {
     xy.y = yCoord;
   }
 };
-
+#endif
+struct bmcDawChannelsInfo {
+  int8_t index = -1;
+  bool isOled = false;
+  char name[10];
+  char value[10];
+  char twoDigitDisplay[3];
+  uint8_t stateBits = 0;
+  uint8_t vuValue = 0;
+  uint16_t vuBits = 0;
+  uint8_t vPotLevel = 0;
+  uint16_t vPotBits = 0;
+  void reset(){
+    index = -1;
+    isOled = false;
+    strcpy(name, "");
+    strcpy(value, "");
+    stateBits = 0;
+    vuValue = 0;
+    vuBits = 0;
+    vPotLevel = 0;
+    vPotBits = 0;
+  }
+};
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
   int16_t pins[3] = {-1, -1, -1};

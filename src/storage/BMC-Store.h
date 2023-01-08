@@ -30,6 +30,8 @@
     uint8_t settings[sLen];
     T events[eLen];
   };
+
+  
   
   // Page Object
   struct __attribute__ ((packed)) bmcStorePage {
@@ -71,12 +73,23 @@
       bmcStoreDevice <1, 1> ili[BMC_MAX_ILI9341_BLOCKS];
     #endif
   };
+
+  struct __attribute__ ((packed)) bmcStoreTouchSettings {
+    float xM = 0.0;
+    float xC = 0.0;
+    float yM = 0.0;
+    float yC = 0.0;
+  };
+
  // Settings object
   struct __attribute__ ((packed)) bmcStoreGlobalSettings {
     uint32_t flags = 0;
     uint32_t data[8];
     uint16_t routing[7];
     uint16_t startup = 0;
+    #ifdef BMC_HAS_TOUCH_SCREEN
+    bmcStoreTouchSettings touchCalibration;
+    #endif
   };
   // Pot Calibration, part of the global object
   struct __attribute__ ((packed)) bmcStoreGlobalPotCalibration {

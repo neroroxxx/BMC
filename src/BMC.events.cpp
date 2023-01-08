@@ -107,8 +107,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       break;
     case BMC_EVENT_TYPE_MIDI_PITCH_BEND:
       if(group==BMC_DEVICE_GROUP_POT){
-        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteB);
-        if(byteA==0){
+        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+        if(byteB==0){
           int8_t pitch = midi.getLocalPitch(channel);
           if(value<59){
             // pitch down
@@ -123,7 +123,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
             midi.sendPitchBend(e.ports, channel, 0);
             midi.setLocalPitch(channel, 0);
           }
-        } else if(byteA==1){
+        } else if(byteB==1){
           // leave the first 10 values of the pot as a buffer for a flat pitch
           if(value>9){
             // move pitch up
@@ -869,11 +869,13 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
             }
           #endif
         } else if(byteA == 2){
-          bmcStoreName t = sync.daw.getLcdTrackName(byteB);
-          display.renderText(deviceIndex, isOled, e.type, t.name);
-        } else if(byteA == 2){
-          bmcStoreName t = sync.daw.getLcdTrackValue(byteB);
-          display.renderText(deviceIndex, isOled, e.type, t.name);
+          display.updateDawChannelInfo(byteB);
+          // bmcStoreName t = sync.daw.getLcdTrackName(byteB);
+          // display.renderText(deviceIndex, isOled, e.type, t.name);
+        } else if(byteA == 3){
+          char str[3] = "";
+          sync.daw.getTwoDigitDisplay(str);
+          display.renderText(deviceIndex, isOled, e.type, str);
         }
       }
 #endif

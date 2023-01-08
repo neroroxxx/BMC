@@ -9,23 +9,27 @@
 #include "utility/BMC-Def.h"
 
 
-#if defined(BMC_HAS_DISPLAY) && defined(BMC_HAS_TOUCH_SCREEN)
+#if defined(BMC_HAS_TOUCH_SCREEN)
 
 #include <XPT2046_Touchscreen.h>
 
 class BMCDisplayTouchCalibration {
 private:
+  BMCMidi& midi;
   BMC_TFT& tft;
   XPT2046_Touchscreen& touchScreen;
   TS_Point touchPoint;
   
 public:
-  float xCalM = 0.0, yCalM = 0.0; // gradients
-  float xCalC = 0.0, yCalC = 0.0; // y axis crossing points
-  BMCDisplayTouchCalibration(BMC_TFT& t_tft, XPT2046_Touchscreen& t_touchScreen):
+  bmcStoreTouchSettings cal;
+  BMCDisplayTouchCalibration(BMCMidi& t_midi, BMC_TFT& t_tft, XPT2046_Touchscreen& t_touchScreen):
+  midi(t_midi),
   tft(t_tft),
   touchScreen(t_touchScreen){
-    
+    cal.xM = 0.0;
+    cal.xC = 0.0;
+    cal.yM = 0.0;
+    cal.yC = 0.0;
   }
   void begin(){
     bool firstLoop = true;
@@ -62,14 +66,14 @@ public:
 
     // translate in form pos = m x val + c
     // x
-    xCalM = (float)(BMC_TFT_WIDTH - 40) / (float)(xPoint[1] - xPoint[0]);
-    xCalC = 20.0 - ((float)xPoint[0] * xCalM);
+    cal.xM = (float)(BMC_TFT_WIDTH - 40) / (float)(xPoint[1] - xPoint[0]);
+    cal.xC = 20.0 - ((float)xPoint[0] * cal.xM);
     // y
-    yCalM = (float)(BMC_TFT_HEIGHT - 40) / (float)(yPoint[1] - yPoint[0]);
-    yCalC = 20.0 - ((float)yPoint[0] * yCalM);
+    cal.yM = (float)(BMC_TFT_HEIGHT - 40) / (float)(yPoint[1] - yPoint[0]);
+    cal.yC = 20.0 - ((float)yPoint[0] * cal.yM);
 
     // BMC_PRINTLN("x1=",xPoint[0], "x2=",xPoint[1], "y1=",yPoint[0], "y2=",yPoint[1]);
-    // BMC_PRINTLN("xCalM=",xCalM, "xCalC=",xCalC, "yCalM=",yCalM, "yCalC=",yCalC);
+    // BMC_PRINTLN("cal.xM=",cal.xM, "cal.xC=",cal.xC, "cal.yM=",cal.yM, "cal.yC=",cal.yC);
 
     printMessage("Testing Time!", "Tap the blocks to test,", "use a stylus and your fingers");
 
@@ -85,11 +89,11 @@ public:
     btnOk.begin(BMC_TFT_WIDTH-80, BMC_TFT_HEIGHT-40, 80, 40);
     btnCancel.begin(0, BMC_TFT_HEIGHT-40, 80, 40);
 
-    left.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    middle.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    right.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    btnOk.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
-    btnCancel.setCalibrationData(xCalM, xCalC, yCalM, yCalC);
+    left.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+    middle.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+    right.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+    btnOk.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+    btnCancel.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
     renderButton(BMC_TFT_WIDTH-80, BMC_TFT_HEIGHT-40, 80, 40, "Save", BMC_ILI9341_WHITE, BMC_ILI9341_DARKGREEN);
     renderButton(0, BMC_TFT_HEIGHT-40, 80, 40, "Restart", BMC_ILI9341_WHITE, BMC_ILI9341_GRAY_10);
 
@@ -135,8 +139,12 @@ public:
         delay(50);
       }
     }
-    printMessage("Calibration Complete!", "Reboot your Teensy");
-    while(1);
+    midi.globals.settings.setTouchTftCalibration(0, cal.xM);
+    midi.globals.settings.setTouchTftCalibration(1, cal.xC);
+    midi.globals.settings.setTouchTftCalibration(2, cal.yM);
+    midi.globals.settings.setTouchTftCalibration(3, cal.yC);
+    midi.globals.settings.setTouchScreenIsCalibrated(1);
+    printMessage("Calibration Complete!", "You can now", "reboot your Teensy");
   }
   void drawCrossHair(bool top, uint16_t color){
     if(top){
@@ -150,7 +158,7 @@ public:
   }
   void printMessage(const char * title, const char * line1, const char * line2=""){
     tft.fillScreen(BMC_ILI9341_BLACK);
-    uint8_t y = 90;
+    uint8_t y = 95;
     printLine(title, true, y);
     printLine(line1, false, y+38);
     if(strlen(line2)>0){

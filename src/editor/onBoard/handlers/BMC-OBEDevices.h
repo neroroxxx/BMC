@@ -17,6 +17,9 @@
 #include "utility/BMC-Def.h"
 #include "display/BMC-Display.h"
 #include "editor/onBoard/BMC-OBEDef.h"
+#include "editor/onBoard/handlers/BMC-OBEEvents.h"
+
+
 
 class BMCOBEDevices {
 public:
@@ -24,7 +27,8 @@ public:
                   editor(t_editor),
                   display(t_display),
                   tft(display.tft.display),
-                  data(t_data){
+                  data(t_data),
+                  eventsData(editor, display, offset){
 
   }
   void begin(){
@@ -42,7 +46,7 @@ public:
     uint8_t id = (t_id==0xFFFF) ? data.activeDevice.id : t_id;
     switch(id){
       case BMC_NONE:
-      case BMC_DEVICE_ID_EVENT:
+      // case BMC_DEVICE_ID_EVENT:
       case BMC_DEVICE_ID_POT_CALIBRATION:
       case BMC_DEVICE_ID_CUSTOM_SYSEX:
       case BMC_DEVICE_ID_SKETCH_BYTE:
@@ -51,11 +55,24 @@ public:
     }
     return true;
   }
+
+  bool isEventsList(uint16_t t_id=0xFFFF){
+    uint8_t id = (t_id==0xFFFF) ? data.activeDevice.id : t_id;
+    return id == BMC_DEVICE_ID_EVENT;
+  }
+  void getEventStatusName(char * str, uint8_t id){
+    strcpy(str, "");
+    if(id < BMC_MAX_EVENTS_LIBRARY){
+      uint8_t status = display.midi.globals.store.global.events[id].type;
+      eventsData.getEventStatusName(str, status);
+    }
+  }
   void setTotalRows(){
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_PAGE:
         data.totalRows = 1;
         break;
+      case BMC_DEVICE_ID_EVENT:
       case BMC_DEVICE_ID_NAME:
         data.totalRows = data.activeDevice.length-1;
         break;
@@ -234,7 +251,7 @@ public:
       case BMC_DEVICE_ID_PAGE:
         return getPageNameOption(index, valueType);
       case BMC_DEVICE_ID_EVENT:
-        break;
+        return getEventsEditor(display.midi.globals.store.global.events[dIndex], index, valueType);
       case BMC_DEVICE_ID_NAME:
         return getNamesEditor(display.midi.globals.store.global.names[dIndex], index, valueType);
       case BMC_DEVICE_ID_BUTTON:
@@ -257,11 +274,6 @@ public:
           return getLedOption<1,1>(display.midi.globals.store.global.leds[dIndex], index, valueType);
         #endif
         break;
-
-
-
-
-        
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
           return getBiLedOption<1,2>(display.midi.globals.store.pages[display.midi.globals.page].biLeds[dIndex], index, valueType);
@@ -635,6 +647,199 @@ public:
     #endif
     return 0;
   }
+
+
+
+
+
+  
+
+  uint16_t getEventsEditor(bmcStoreEvent& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR:
+        // render
+        if(!data.eventsEditorActive){
+          // set the item first
+          eventsData.setTempEventData(item);
+          renderEventsEditor(true);
+          data.eventsEditorActive = true;
+        }
+        return 1;
+      case BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE:
+        // select/deselect field
+        data.eventEditorEditMode = index;
+        renderEventsEditor();
+        if(index == 0){
+          eventsData.exitEditing(item);
+        }
+        break;
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        //strcpy(str, "");
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          // uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
+          // strcpy(str, (value==0)?"Solid":"Blink");
+          // return value;
+          //renderNamesEditor(true);
+        }
+        break;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return getEventRowCount();
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        // determine if event has changed
+        BMC_PRINTLN("check for changes");
+        return eventsData.hasChanges(item);
+      case BMC_OBE_DEVICE_CUSTOM_SCROLL_UP:
+        if(!data.eventsEditorActive){
+          return 0;
+        } else {
+          if(data.activeRow == 0){
+            return 0;
+          }
+          if(data.visibleRowId[data.activeRow-1] == 0){
+            eventsData.setNextStatus();
+            renderEventsEditor(true);
+          } else {
+            eventsData.setNextFieldValue(data.visibleRowId[data.activeRow-1]-1);
+            renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+            // renderEventsEditor();
+          }
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN:
+        if(!data.eventsEditorActive){
+          return 0;
+        } else {
+          if(data.activeRow == 0){
+            return 0;
+          }
+          if(data.visibleRowId[data.activeRow-1] == 0){
+            eventsData.setPrevStatus();
+            renderEventsEditor(true);
+          } else {
+            eventsData.setPrevFieldValue(data.visibleRowId[data.activeRow-1]-1);
+            renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+            // renderEventsEditor();
+          }
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_UP:
+        if(!data.eventsEditorActive){
+          return 0;
+        } else {
+          data.triggerHeaderRender = true;
+          if(data.cursorNext()){
+            // renderEventsEditor();
+            renderEventsEditorRow(data.visibleRowId[data.activeRowPrev-1], data.activeRowPrev-1);
+            renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+          } else {
+            data.nextListPage();
+            data.visibleRowIdLength = 0;
+            renderEventsEditor();
+          }
+        }
+        return 1;
+      case BMC_OBE_DEVICE_CUSTOM_ROW_SCROLL_DOWN:
+        if(!data.eventsEditorActive){
+          return 0;
+        } else {
+          data.triggerHeaderRender = true;
+          if(data.cursorPrev()){
+            // renderEventsEditor();
+            renderEventsEditorRow(data.visibleRowId[data.activeRowPrev-1], data.activeRowPrev-1);
+            renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+          } else {
+            data.prevListPage();
+            data.visibleRowIdLength = 0;
+            renderEventsEditor();
+          }
+          
+        }
+        return 1;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+  void renderEventsEditor(bool reset=false){
+    if(reset){
+      data.activeRow = 1;
+      data.rowPage = 0;
+      data.totalRows = getEventRowCount();
+      data.maxRowPages = ceil(data.totalRows / (BMC_OBE_ROWS_PER_PAGE+0.0));
+      if(data.maxRowPages == 0){
+        data.maxRowPages = 1;
+      }
+      data.rowEditValue = 0;
+      // tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
+      data.visibleRowIdLength = 0;
+    }
+    bool addToVisList = data.visibleRowIdLength == 0;
+    if(addToVisList){
+      #if defined(BMC_HAS_TOUCH_SCREEN)
+        tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA-BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
+        // render a footer with controls
+        bmcRenderTouchButtons buttons;
+        buttons.renderV(tft);
+      #else
+        tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
+      #endif
+    }
+    for(uint8_t i = (data.rowPage * BMC_OBE_ROWS_PER_PAGE), e=0, n=data.totalRows; i < n && e<BMC_OBE_ROWS_PER_PAGE; i++, e++){
+      if(addToVisList){
+        data.addToVisibleList(i);
+      }
+      renderEventsEditorRow(data.visibleRowId[e], e);
+    }
+  }
+  void renderEventsEditorRow(uint8_t row, uint8_t rowIndex){
+    bool activeItem = (row == data.getActiveVisibleRow());
+    
+    uint16_t background = activeItem ? BMC_OBE_SEL_BACKGROUND : BMC_OBE_ROW_BACKGROUND;
+    uint16_t color = activeItem ? BMC_OBE_SEL_COLOR : BMC_OBE_ROW_COLOR;
+    uint16_t y = BMC_OBE_ROW_HEAD_H + (rowIndex * BMC_OBE_ROW_H);
+    if(data.eventEditorEditMode && activeItem){
+      background = BMC_OBE_ROW_EDITABLE_BACKGROUND;
+    }
+    tft.fillRect(0, y, BMC_OBE_W, BMC_OBE_ROW_H, background);
+    tft.setFont(BMC_OBE_ROW_VALUE_FONT);
+    tft.setTextColor(color);
+    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, y+5);
+    char str[40] = "";
+    if(row == 0){
+      // row 0 is the first 
+      tft.print("Event Type");
+      eventsData.getStatusLabel(str);
+      renderEventsEditorRowValue(y, activeItem, str);
+    } else {
+      eventsData.getFieldLabel(str, row-1);
+      tft.print(str);
+      strcpy(str, "");
+      eventsData.getFieldValueLabel(str, row-1);
+      renderEventsEditorRowValue(y, activeItem, str);
+    }
+    tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
+  }
+  void renderEventsEditorRowValue(uint16_t y, bool activeItem, char * str){
+    int16_t textWidth = tft.strPixelLen(str);
+    int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
+    x = (x < 0) ? 0 : x-6;
+    tft.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
+    tft.setCursor(x, (y + 29));
+    tft.print(str);
+  }
+
+
+
+  uint16_t getEventRowCount(){
+    return eventsData.getFieldsCount();
+  }
+  uint16_t getEventAvailable(){
+    return eventsData.isAvailable();
+  }
   
   uint16_t getNamesEditor(bmcStoreName& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
@@ -853,6 +1058,11 @@ public:
     }
     charBlinker.start(300);
     renderNamesEditorCursor();
+    #if defined(BMC_HAS_TOUCH_SCREEN)
+      // render a footer with controls
+      bmcRenderTouchButtons buttons;
+      buttons.renderH(tft);
+    #endif
   }
   void updateCharTitle(){
     if(charIndex == -1){
@@ -1634,7 +1844,7 @@ public:
             strcpy(str, "None");
           } else {
             sprintf(str, "#%u ", (value-1)+offset);
-            char nameStr[33] = "";
+            char nameStr[40] = "";
             editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
             strcat(str, nameStr);
           }
@@ -1667,7 +1877,7 @@ public:
             strcpy(str, "None");
           } else {
             sprintf(str, "Name # %u", (value-1)+offset);
-            char nameStr[33] = "";
+            char nameStr[40] = "";
             editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
             strcat(str, nameStr);
           }
@@ -1699,7 +1909,7 @@ public:
         {
           uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[eventIndex] : data.rowEditValue;
           value = constrain(value, 0, 143);
-          getPortName(value);
+          data.getPortName(str, value);
           return value;
         }
         break;
@@ -1716,201 +1926,23 @@ public:
         // if(data.rowEditValue > 143){
         //   data.rowEditValue = 0;
         // }
-        setPortBit(true);
-        getPortName(data.rowEditValue);
+        data.rowEditValue = data.setPortBit(true, data.rowEditValue);
+        data.getPortName(str, data.rowEditValue);
         return 1;
       case BMC_OBE_DEVICE_CUSTOM_SCROLL_DOWN:
         // data.rowEditValue--;
         // if(data.rowEditValue < 0){
         //   data.rowEditValue = 143;
         // }
-        setPortBit(false);
-        getPortName(data.rowEditValue);
+        data.rowEditValue = data.setPortBit(false, data.rowEditValue);
+        data.getPortName(str, data.rowEditValue);
         return 1;
       default:
         return 0;
     }
     return 0;
   }
-  void setPortBit(bool direction){
-    //uint8_t prevValue = data.rowEditValue;
-    
-    if(direction){
-      data.rowEditValue++;
-      if(data.rowEditValue > 143){
-        data.rowEditValue = 0;
-      }
-    } else {
-      data.rowEditValue--;
-      if(data.rowEditValue < 0 || data.rowEditValue > 143){
-        data.rowEditValue = 143;
-      }
-    }
-    uint8_t value = data.rowEditValue;
-    if(value > 1 && value < 128){
-      if(direction){
-        uint8_t handledBit = 1;
-        #if !defined(BMC_MIDI_SERIAL_A_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_B_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_C_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_D_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-
-        #if !defined(BMC_USB_HOST_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-
-        #if !defined(BMC_MIDI_BLE_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, ++handledBit, 1);
-          }
-        #else
-          handledBit++;
-        #endif
-      } else {
-        uint8_t handledBit = 6;
-
-        #if !defined(BMC_MIDI_BLE_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-
-        #if !defined(BMC_USB_HOST_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_D_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_C_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_B_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-
-        #if !defined(BMC_MIDI_SERIAL_A_ENABLED)
-          if(bitRead(value, handledBit)){
-            bitWrite(value, handledBit, 0);
-            bitWrite(value, --handledBit, 1);
-          }
-        #else
-          handledBit--;
-        #endif
-      }
-    }
-    data.rowEditValue = value;
-  }
-  void getPortName(uint8_t value){
-    strcpy(str, "");
-    if(value == 0){
-      strcpy(str, "None");
-    } else if(value < 127){
-      if(bitRead(value, 0)){
-        strcpy(str, " USB");
-      }
-      if(bitRead(value, 1)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "A");
-      }
-      if(bitRead(value, 2)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "B");
-      }
-      if(bitRead(value, 3)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "C");
-      }
-      if(bitRead(value, 4)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "D");
-      }
-      if(bitRead(value, 5)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "HOST");
-      }
-      if(bitRead(value, 6)){
-        if(strlen(str)>0){
-          strcat(str, "+");
-        }
-        strcat(str, "BLE");
-      }
-    } else {
-      sprintf(str, "Port Preset # %u", (value & 0x0F)+1);
-    }
-  }
+  
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getRangeField(bmcStoreDevice<sLen, eLen, tname>& item, const char* t_str, uint16_t eventIndex, uint8_t append, uint16_t min, uint16_t max, uint8_t valueType){
     switch(valueType){
@@ -2138,6 +2170,7 @@ private:
   BMCDisplay& display;
   BMC_TFT& tft;
   BMCOBEData& data;
+  BMCOBEEvents eventsData;
   BMCTimer charBlinker;
   char nameBuff[BMC_MAX_NAMES_LENGTH];
   int8_t charIndex = 0;

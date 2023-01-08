@@ -1,6 +1,6 @@
 /*
 See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2022 RoxXxtar.com
+Copyright (c) 2023 RoxXxtar.com
 See BMC Documentation for License
 See LICENSE file in the project root for full license information.
 */
@@ -14444,7 +14444,9 @@ See LICENSE file in the project root for full license information.
 #if defined(BMC_USE_ILI9341)
 #undef BMC_USE_ILI9341
 #endif
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_1)
+
+#if defined(BMC_DEVICE_UI_ILI) && BMC_TEENSY_MODEL != 32
+#if defined(BMC_DEVICE_UI_ILI_1)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14454,7 +14456,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_2)
+#if defined(BMC_DEVICE_UI_ILI_2)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14464,7 +14466,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_3)
+#if defined(BMC_DEVICE_UI_ILI_3)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14474,7 +14476,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_4)
+#if defined(BMC_DEVICE_UI_ILI_4)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14484,7 +14486,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_5)
+#if defined(BMC_DEVICE_UI_ILI_5)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14494,7 +14496,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_6)
+#if defined(BMC_DEVICE_UI_ILI_6)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14504,7 +14506,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_7)
+#if defined(BMC_DEVICE_UI_ILI_7)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14514,7 +14516,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_8)
+#if defined(BMC_DEVICE_UI_ILI_8)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14524,7 +14526,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_9)
+#if defined(BMC_DEVICE_UI_ILI_9)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14534,7 +14536,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_10)
+#if defined(BMC_DEVICE_UI_ILI_10)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14544,7 +14546,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_11)
+#if defined(BMC_DEVICE_UI_ILI_11)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14554,7 +14556,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_12)
+#if defined(BMC_DEVICE_UI_ILI_12)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14564,7 +14566,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_13)
+#if defined(BMC_DEVICE_UI_ILI_13)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14574,7 +14576,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_14)
+#if defined(BMC_DEVICE_UI_ILI_14)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14584,7 +14586,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_15)
+#if defined(BMC_DEVICE_UI_ILI_15)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14594,7 +14596,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
-#if defined(BMC_DEVICE_UI_ILI) && defined(BMC_DEVICE_UI_ILI_16)
+#if defined(BMC_DEVICE_UI_ILI_16)
 #ifdef BMC_MAX_ILI9341_BLOCKS
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -14604,6 +14606,7 @@ See LICENSE file in the project root for full license information.
 #endif
 
 
+#endif
 #endif
 #endif
 #endif

@@ -148,10 +148,10 @@ void BMC::update(){
       #if BMC_MAX_ILI9341_BLOCKS > 0
         display.initILI9341Blocks();
         #if defined(BMC_HAS_TOUCH_SCREEN)
-          uint8_t tftType = settings.getTouchTftType();
-          uint16_t tftTouchX = settings.getTouchTftMaxX();
-          if(tftType != BMC_TFT_TYPE || tftTouchX == 0){
+          if(!settings.getTouchScreenIsCalibrated()){
             display.touchCalibration();
+            editor.saveEEPROM();
+            while(1);
           }
         #endif
       #endif
@@ -208,6 +208,9 @@ void BMC::update(){
 
   #if defined(BMC_HAS_DISPLAY)
     display.update();
+    // #if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_HAS_TOUCH_SCREEN)
+    //   obe.menuCommand(display.getTouchCommand());
+    // #endif
   #endif
 
   #if BMC_MAX_TEMPO_TO_TAP > 0

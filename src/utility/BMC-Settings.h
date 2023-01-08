@@ -40,8 +40,8 @@
         bits 02-06  getListenerChannel, 0=omni, 1-16=listen to specific channel
         bits 07-13  getListenerPorts
         bits 14-17  deviceId
-        bits 18-18  dim pwm leds when off
-        bits 19-19  *1 bit Available*
+        bits 18-18  getPwmDimWhenOff
+        bits 19-19  getTouchScreenIsCalibrated
         bits 20-21  current Store
         bits 22-24  Slave Clock Input (only 1 port) (NOT YET IMPLEMENTED)
         bits 25-27  getChainingPort
@@ -68,9 +68,7 @@
       [4]: *Reserved for future updates*
       [5]: *Reserved for future updates*
       [6]: *Reserved for future updates*
-      [7]: 16 LSb used for touch screen calibration
-        bits 00-02 TFT Type
-        bits 03-15 Max touch x
+      [7]: *Reserved for future updates*
 
     uint16_t startup; startup preset data
 
@@ -218,6 +216,13 @@ public:
   }
   void setPwmDimWhenOff(uint8_t value){
     bitWrite(settings.data[0],18,value);
+  }
+  // touch screen is calibrated
+  uint8_t getTouchScreenIsCalibrated(){
+    return (settings.data[0]>>19) & 0x01;
+  }
+  void setTouchScreenIsCalibrated(uint8_t value){
+    bitWrite(settings.data[0],19,value);
   }
   // store address
   uint8_t getStoreAddress(){
@@ -404,18 +409,26 @@ public:
     bitWrite(settings.data[2], value, 5);
   }
   // tft touch calibration
-  uint8_t getTouchTftType(){
-    return settings.data[7] & 0x07;
+  float getTouchTftCalibration(uint8_t n){
+#ifdef BMC_HAS_TOUCH_SCREEN
+    switch(n){
+      case 0: return settings.touchCalibration.xM;
+      case 1: return settings.touchCalibration.xC;
+      case 2: return settings.touchCalibration.yM;
+      case 3: return settings.touchCalibration.yC;
+    }
+#endif
+    return 0.0;
   }
-  void setTouchTftType(uint8_t value){
-    BMC_WRITE_BITS(settings.data[7],value, 0x07, 0); //0-3
-  }
-  // tft touch calibration
-  uint8_t getTouchTftMaxX(){
-    return (settings.data[7]>>3) & 0x1FFF;
-  }
-  void setTouchTftMaxX(uint8_t value){
-    BMC_WRITE_BITS(settings.data[7],value, 0x1FFF, 3); //0-3
+  void setTouchTftCalibration(uint8_t n, float value){
+#ifdef BMC_HAS_TOUCH_SCREEN
+    switch(n){
+      case 0: settings.touchCalibration.xM = value; break;
+      case 1: settings.touchCalibration.xC = value; break;
+      case 2: settings.touchCalibration.yM = value; break;
+      case 3: settings.touchCalibration.yC = value; break;
+    }
+#endif
   }
 };
 

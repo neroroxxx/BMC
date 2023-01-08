@@ -1042,18 +1042,21 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_USE_KEMP
       bitWrite(buildData,15,1);
     #endif
+    
     // bit 16 available
     // bit 17 available
     #ifdef BMC_USE_FAS3
-      bitWrite(buildData,18,1);
+      bitWrite(buildData, 18, 1);
     #endif
     #ifdef BMC_USE_DAW_LC
-      bitWrite(buildData,19,1);
+      bitWrite(buildData, 19, 1);
     #endif
     #ifdef BMC_USE_ILI9341
-      bitWrite(buildData,20,1);
+      bitWrite(buildData, 20, 1);
     #endif
-
+    #ifdef BMC_HAS_TOUCH_SCREEN
+      bitWrite(buildData, 21, 1);
+    #endif
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);

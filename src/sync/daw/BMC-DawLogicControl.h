@@ -12,6 +12,17 @@
 
 #ifdef BMC_USE_DAW_LC
 
+
+#define BMC_USE_LOGIC_PROTOCOL
+
+#if defined(BMC_USE_LOGIC_PROTOCOL)
+  #define BMC_DAW_DEVICE_ID 0x10
+  #define BMC_DAW_VERSION_ID 0x14
+#else
+  #define BMC_DAW_DEVICE_ID 0x14
+  #define BMC_DAW_VERSION_ID 0x13
+#endif
+
 class BMCDawLogicControl {
 private:
   BMCMidi& midi;
@@ -21,6 +32,8 @@ private:
   int16_t delayCh = -1;
   BMCTimer delayTimer;
   char lcd[2][57];
+  char twoDigitDisplay[3] = "";
+  const char sevDigitChars[64] = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63};
 public:
   BMCLogicControlData controller;
 
@@ -83,7 +96,7 @@ public:
       return false;
     }
     if(d.isSysEx()){
-      if(d.sysex[1]==0 && d.sysex[2]==0 && d.sysex[3]==0x66 && d.sysex[4]==0x10){
+      if(d.sysex[1]==0 && d.sysex[2]==0 && d.sysex[3]==0x66 && d.sysex[4]==BMC_DAW_DEVICE_ID){
         incomingSysEx(d);
         return true;
       }
@@ -103,7 +116,11 @@ public:
         if(callback.dawChannelVPotUpdate){
           callback.dawChannelVPotUpdate(ch, value, centered, mode);
         }
-      } else if((c & 0xF0) == 0x40){
+      } else if(c==0x4A){
+        parseTwoDigitDisplay(v, 0);
+    	} else if(c==0x4B){
+        parseTwoDigitDisplay(0, v);
+    	} else if((c & 0xF0) == 0x40){
     		uint8_t  digit = c & 0x0F;
         //BMC_PRINTLN(">",c,digit,v);
     		if(digit < 10 && callback.dawReceivedTimeCodeDigit){
@@ -236,6 +253,7 @@ public:
         break;
       case 0x11:
         // 2-digit seven segment display, write multiple digits
+        parseTwoDigitDisplay(d.sysex[6], d.sysex[7]);
         break;
       case 0x12:
         // 56x2 display
@@ -274,7 +292,6 @@ public:
           //char lcd[5]  = "";
           //char peak[5] = "";
           //char sign[5] = "";
-
           //strcpy(lcd,  (bitRead(d.sysex[7],2) ? "LCD " : "----"));
           //strcpy(peak, (bitRead(d.sysex[7],1) ? "PEAK" : "----"));
           //strcpy(sign, (bitRead(d.sysex[7],0) ? "SIGN" : "----"));
@@ -285,6 +302,15 @@ public:
         //BMC_PRINTLN("Mackie Global LCD Meter Mode", d.sysex[6] ? "verical" : "horizontal");
         break;
     }
+  }
+  void parseTwoDigitDisplay(uint8_t a, uint8_t b){
+    if(a > 0 && a < 64){
+      twoDigitDisplay[1] = sevDigitChars[a];
+    }
+    if(b > 0 && b < 64){
+      twoDigitDisplay[0] = sevDigitChars[b];
+    }
+    BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
   }
   void parseLCD(BMCMidiMessage d){
     uint8_t offset = d.sysex[6];
@@ -299,6 +325,9 @@ public:
         lcd[1][e-56] = c;
       }
     }
+  }
+  void getTwoDigitDisplay(char* str){
+    strcpy(str, twoDigitDisplay);
   }
   //controller.getSelectedChannel();
   bmcStoreName getLcdTrackName(){
@@ -570,7 +599,7 @@ public:
     //BMC_PRINTLN("sendHostConnectionQuery");
     uint8_t reply[18] =
   	{
-  		0xF0, 0x00, 0x00, 0x66, 0x10,      // Prefix
+  		0xF0, 0x00, 0x00, 0x66, BMC_DAW_DEVICE_ID,      // Prefix
   		0x01,                              // Host Connection Query
   		0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // Serial Number
   		0x4F, 0x4E, 0x45, 0x69,            // Challenge Code
@@ -582,7 +611,7 @@ public:
     //BMC_PRINTLN("sendHostConnectionConfirmation");
     uint8_t reply[18] =
   	{
-  		0xF0, 0x00, 0x00, 0x66, 0x10,      // Prefix
+  		0xF0, 0x00, 0x00, 0x66, BMC_DAW_DEVICE_ID,      // Prefix
   		0x03,                              // Connection Confirmation
       0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, // Serial Number
   		0x4F, 0x4E, 0x45, 0x69,            // Challenge Code
@@ -594,9 +623,10 @@ public:
     //BMC_PRINTLN("sendVersionReply");
     uint8_t reply[12] =
     {
-      0xF0, 0x00, 0x00, 0x66, 0x10, // Prefix
-      0x14,                         // Version Reply
-      'V', '2', '.', '5', '3',      // Version
+      0xF0, 0x00, 0x00, 0x66, BMC_DAW_DEVICE_ID, // Prefix
+      // 0x14,                         // Version Reply
+      BMC_DAW_VERSION_ID,              // Version Reply
+      'V', '2', '.', '5', '4',      // Version
       0xF7,                         // EOX
     };
     midi.sendSysEx(BMC_USB, reply, 12, true);
