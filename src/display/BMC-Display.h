@@ -114,18 +114,7 @@ public:
         memset(dawChName[i], 0, 8);
       }
 #endif
-#if BMC_MAX_OLED > 0
-// not needed just yet
 
-    for(uint8_t i=0;i<BMC_MAX_OLED;i++){
-#if defined(BMC_USE_DAW_LC)
-      if(store.pages[page].oled[i].type==BMC_DISPLAY_EVENT_TYPE_DAW){
-
-      }
-    }
-#endif
-
-#endif
 #if BMC_MAX_ILI9341_BLOCKS > 0
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
 
