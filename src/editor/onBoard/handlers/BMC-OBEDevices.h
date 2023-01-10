@@ -49,7 +49,7 @@ public:
       // case BMC_DEVICE_ID_EVENT:
       case BMC_DEVICE_ID_POT_CALIBRATION:
       case BMC_DEVICE_ID_CUSTOM_SYSEX:
-      case BMC_DEVICE_ID_SKETCH_BYTE:
+      // case BMC_DEVICE_ID_SKETCH_BYTE:
       case BMC_DEVICE_ID_SHORTCUTS:
         return false;
     }
@@ -75,6 +75,9 @@ public:
       case BMC_DEVICE_ID_EVENT:
       case BMC_DEVICE_ID_NAME:
         data.totalRows = data.activeDevice.length-1;
+        break;
+      case BMC_DEVICE_ID_SKETCH_BYTE:
+        data.totalRows = BMC_MAX_SKETCH_BYTES;
         break;
       case BMC_DEVICE_ID_BUTTON:
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
@@ -169,6 +172,7 @@ public:
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_PAGE:
       case BMC_DEVICE_ID_NAME:
+      case BMC_DEVICE_ID_SKETCH_BYTE:
       case BMC_DEVICE_ID_BUTTON:
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
       case BMC_DEVICE_ID_LED:
@@ -254,6 +258,11 @@ public:
         return getEventsEditor(display.midi.globals.store.global.events[dIndex], index, valueType);
       case BMC_DEVICE_ID_NAME:
         return getNamesEditor(display.midi.globals.store.global.names[dIndex], index, valueType);
+      case BMC_DEVICE_ID_SKETCH_BYTE:
+        #if BMC_MAX_SKETCH_BYTES > 0
+          return getSketchByteOption<0, BMC_MAX_SKETCH_BYTES, uint8_t>(display.midi.globals.store.global.sketchBytes[0], dIndex, index, valueType);
+        #endif
+        break;
       case BMC_DEVICE_ID_BUTTON:
         #if BMC_MAX_BUTTONS > 0
           return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(display.midi.globals.store.pages[display.midi.globals.page].buttons[dIndex], index, valueType);
@@ -1180,6 +1189,45 @@ public:
     }
     return 0;
   }
+#if BMC_MAX_SKETCH_BYTES > 0
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getSketchByteOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t dIndex, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    // BMC_PRINTLN("getSketchByteOption", optionId, data.visibleRowId[index], index, data.totalRows);
+    for(uint8_t i = 0 ; i < BMC_MAX_SKETCH_BYTES ; i++){
+      if(optionId == i){
+        BMCSketchByteData sb = BMCBuildData::getSketchByteData(i);
+        // BMCTools::getSketchByteFormat(str, index, tempValue);
+        BMC_PRINTLN(i, "getSketchByteOption min max", sb.min, sb.max, data.rowEditValue);
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, sb.name);
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.events[i] : data.rowEditValue;
+              BMCTools::getSketchByteFormat(str, i, value);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return sb.min;
+          case BMC_OBE_DEVICE_OPT_MAX: return sb.max;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(item.events[i] != data.rowEditValue){
+              item.events[i] = data.rowEditValue;
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+      }
+    }
+    return 0;
+  }
+#endif
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getLedOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
@@ -1852,7 +1900,7 @@ public:
         }
         return 0;
       case BMC_OBE_DEVICE_OPT_MIN: return 0;
-      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
+      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY;
       case BMC_OBE_DEVICE_OPT_CHANGED:
         if(item.name != data.rowEditValue){
           item.name = data.rowEditValue;

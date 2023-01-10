@@ -11,7 +11,6 @@
 
 struct __attribute__ ((packed)) BMCDeviceData {
   uint8_t id = 0;
-  char idtxt[40] = "";
   char label[19] = "";
   int16_t group = 0;
   uint16_t length = 0;

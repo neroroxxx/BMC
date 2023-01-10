@@ -279,6 +279,50 @@ public:
         break;
     }
   }
+  static void getSketchByteFormat(char* str, uint8_t n, uint8_t value){
+#if BMC_MAX_SKETCH_BYTES > 0
+    BMCSketchByteData t = BMCBuildData::getSketchByteData(n);
+    // buffer.initialValue = 0;
+    // buffer.min = 0;
+    // buffer.max = 255;
+    // buffer.step = 1;
+    // buffer.formatType = BMC_NONE;
+    // buffer.formatValue = BMC_NONE;
+    // buffer.formatAppend = BMC_NONE;
+    uint8_t fType = t.formatType;
+    uint8_t fValue = t.formatValue;
+    uint8_t fAppend = t.formatAppend;
+    char txt[16] = "";
+
+    switch(fAppend){
+      case 0: strcpy(txt, ""); break;
+      case 1: strcpy(txt, "sec"); break;
+      case 2: strcpy(txt, "ms"); break;
+      case 3: strcpy(txt, "us"); break;
+      case 4: strcpy(txt, "mm"); break;
+      case 5: strcpy(txt, "cm"); break;
+      case 6: strcpy(txt, "m"); break;
+      case 7: strcpy(txt, "%"); break;
+      case 8: strcpy(txt, "degrees"); break;
+      case 9: strcpy(txt, "bpm"); break;
+      case 10: strcpy(txt, "hours"); break;
+      case 11: strcpy(txt, "minutes"); break;
+      case 12: strcpy(txt, "seconds"); break;
+      case 13: strcpy(txt, "days"); break;
+      case 14: strcpy(txt, "weeks"); break;
+      case 15: strcpy(txt, "hours"); break;
+    }
+    switch(fType){
+      case 0: sprintf(str, "%u %s", value, txt); break;
+      case 1: sprintf(str, "%u %s", (value+fValue), txt); break;
+      case 2: sprintf(str, "%u %s", (value-fValue), txt); break;
+      case 3: sprintf(str, "%u %s", (value*fValue), txt); break;
+      case 4: sprintf(str, "%u %s", (value/fValue), txt); break;
+      case 5: strcpy(str, (value == 0) ? "Off" : "On"); break;
+      default: sprintf(str, "%u", value); break;
+    }
+#endif
+  }
   static bmcStoreEvent getDeviceEventType(bmcStore& store, uint16_t n){
     bmcStoreEvent e;
     if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
@@ -386,6 +430,7 @@ public:
   static void getPresetLabel(uint8_t t_bank, uint8_t t_preset, char * str, bmcStoreGlobal& t_store){
     uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
     if(t_presetAndBank < BMC_MAX_PRESETS){
+#if BMC_MAX_PRESETS_ > 0
       bmcName_t n = t_store.presets[t_presetAndBank].name;
       char name[BMC_MAX_NAMES_LENGTH] = "";
       char bankStr[2] = "";
@@ -394,12 +439,14 @@ public:
         strcpy(name, t_store.names[n].name);
       }
       sprintf(str, "%s%u%s", bankStr, t_preset, name);
+#endif
     }
   }
   static void getPresetLabel(uint16_t t_presetAndBank, char * str, bmcStoreGlobal& t_store){
     uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
     uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
     if(t_presetAndBank < BMC_MAX_PRESETS){
+#if BMC_MAX_PRESETS_ > 0
       bmcName_t n = t_store.presets[t_presetAndBank].name;
       char name[BMC_MAX_NAMES_LENGTH] = "";
       char bankStr[2] = "";
@@ -408,6 +455,7 @@ public:
         strcpy(name, t_store.names[n].name);
       }
       sprintf(str, "%s%u%s", bankStr, t_preset, name);
+#endif
     }
   }
   static bool isValidRelayEvent(uint8_t t_type){

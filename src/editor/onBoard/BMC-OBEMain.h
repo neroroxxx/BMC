@@ -351,8 +351,6 @@ public:
         case BMC_OBE_ID_P_ITEM_LIST:
           uint8_t offset = display.midi.globals.settings.getDisplayOffset() ? 0 : 1;
           strcpy(data.headerTitle, data.activeDevice.label);
-          // tft.print(data.activeDevice.label);
-          // tft.print(" # ");
           tft.print("#");
           tft.print(id + offset);
 
@@ -661,7 +659,6 @@ public:
           min = devicesEditor.getMin();
           max = devicesEditor.getMax();
           steps = 1;
-          BMC_PRINTLN("************************ cursorPrev");
           if(devicesEditor.handleCustomValueScroller(false, shiftActive())){
             updateRows();
             return;
@@ -672,15 +669,20 @@ public:
           return;
         }
       }
-      id = data.getActiveVisibleRow()-1;
-      min = items[id].min;
-      max = items[id].max;
-      steps = items[id].steps;
+      if(steps == 0){
+        id = data.getActiveVisibleRow()-1;
+        min = items[id].min;
+        max = items[id].max;
+        steps = items[id].steps;
+      }
+      
+      
       if((int)(data.rowEditValue-steps) < min){
         data.rowEditValue = max;
       } else {
         data.rowEditValue -= steps;
       }
+      BMC_PRINTLN("PREV", id, min, max, steps, data.rowEditValue);
       updateRows();
       return;
     }
@@ -735,13 +737,13 @@ public:
           return;
         }
       }
-
-      id = data.getActiveVisibleRow()-1;
-      min = items[id].min;
-      max = items[id].max;
-      steps = items[id].steps;
-
-
+      if(steps == 0){
+        id = data.getActiveVisibleRow()-1;
+        min = items[id].min;
+        max = items[id].max;
+        steps = items[id].steps;
+      }
+      
       if(data.rowEditValue+steps > max){
         data.rowEditValue = min;
       } else {

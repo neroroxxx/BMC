@@ -1469,48 +1469,6 @@ private:
     }
     return 0;
   }
-  void getSketchByteFormat(char* str, uint8_t n, uint8_t value){
-    BMCSketchByteData t = BMCBuildData::getSketchByteData(n);
-    // buffer.initialValue = 0;
-    // buffer.min = 0;
-    // buffer.max = 255;
-    // buffer.step = 1;
-    // buffer.formatType = BMC_NONE;
-    // buffer.formatValue = BMC_NONE;
-    // buffer.formatAppend = BMC_NONE;
-    uint8_t fType = t.formatType;
-    uint8_t fValue = t.formatValue;
-    uint8_t fAppend = t.formatAppend;
-    char txt[16] = "";
-
-    if(fType>0){
-      switch(fAppend){
-        case 0: strcpy(txt, ""); break;
-        case 1: strcpy(txt, "sec"); break;
-        case 2: strcpy(txt, "ms"); break;
-        case 3: strcpy(txt, "us"); break;
-        case 4: strcpy(txt, "mm"); break;
-        case 5: strcpy(txt, "cm"); break;
-        case 6: strcpy(txt, "m"); break;
-        case 7: strcpy(txt, "%"); break;
-        case 8: strcpy(txt, "degrees"); break;
-        case 9: strcpy(txt, "bpm"); break;
-        case 10: strcpy(txt, "hours"); break;
-        case 11: strcpy(txt, "minutes"); break;
-        case 12: strcpy(txt, "seconds"); break;
-        case 13: strcpy(txt, "days"); break;
-        case 14: strcpy(txt, "weeks"); break;
-        case 15: strcpy(txt, "hours"); break;
-      }
-    }
-    switch(fType){
-      case 1: sprintf(str, "%u %s", (value+fValue), txt); break;
-      case 2: sprintf(str, "%u %s", (value-fValue), txt); break;
-      case 3: sprintf(str, "%u %s", (value*fValue), txt); break;
-      case 4: sprintf(str, "%u %s", (value/fValue), txt); break;
-      case 5: strcpy(str, (value == 0) ? "Off" : "On"); break;
-    }
-  }
   uint16_t eventBmcEventTypeSketchByte(char* str, uint8_t fieldRequest, uint8_t field){
     uint8_t index = BMC_GET_BYTE(0, tempEvent.event);
     BMCSketchByteData sb = BMCBuildData::getSketchByteData(index);
@@ -1521,7 +1479,7 @@ private:
         return eventGetField8BitValueRange(str, "Sketch Byte", fieldRequest, 0, 0, BMC_MAX_SKETCH_BYTES-1, true);
       case 2:
         switch(fieldRequest){
-          case 0: strcpy(str, "Command"); return 1; /* label */
+          case 0: strcpy(str, "Value"); return 1; /* label */
           case 1: return sb.min; /* min */
           case 2: return sb.max; /* max */
           case 3: /* get stored value */
@@ -1530,7 +1488,7 @@ private:
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
             return 1;
           case 5: /* formatted value */
-            getSketchByteFormat(str, index, tempValue);
+            BMCTools::getSketchByteFormat(str, index, tempValue);
             return 1;
         }
         break;
