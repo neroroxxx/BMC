@@ -43,10 +43,10 @@
       bmcStoreDevice <1, 1> leds[BMC_MAX_LEDS];
     #endif
     #if BMC_MAX_BI_LEDS > 0
-      bmcStoreDevice <1, 2> biLeds[BMC_MAX_BI_LEDS];
+      bmcStoreDevice <2, 2> biLeds[BMC_MAX_BI_LEDS];
     #endif
     #if BMC_MAX_TRI_LEDS > 0
-      bmcStoreDevice <1, 3> triLeds[BMC_MAX_TRI_LEDS];
+      bmcStoreDevice <3, 3> triLeds[BMC_MAX_TRI_LEDS];
     #endif
     #if BMC_MAX_PIXELS > 0
       bmcStoreDevice <1, 1> pixels[BMC_MAX_PIXELS];
@@ -125,10 +125,10 @@
       bmcStoreDevice <1, 1> leds[BMC_MAX_GLOBAL_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_BI_LEDS > 0
-      bmcStoreDevice <1, 2> biLeds[BMC_MAX_GLOBAL_BI_LEDS];
+      bmcStoreDevice <2, 2> biLeds[BMC_MAX_GLOBAL_BI_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-      bmcStoreDevice <1, 3> triLeds[BMC_MAX_GLOBAL_TRI_LEDS];
+      bmcStoreDevice <3, 3> triLeds[BMC_MAX_GLOBAL_TRI_LEDS];
     #endif
     #if BMC_MAX_GLOBAL_ENCODERS > 0
       bmcStoreDevice <1, 1> encoders[BMC_MAX_GLOBAL_ENCODERS];

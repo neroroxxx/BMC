@@ -246,9 +246,11 @@ void BMC::ctrlHardware(){
     {
       uint8_t deviceId = (editor.getCtrlValue()>>16) & 0xFF;
       uint16_t deviceIndex = editor.getCtrlValue() & 0xFF;
+      BMC_PRINTLN("deviceId", deviceId, "deviceIndex", deviceIndex);
       if(deviceId == BMC_DEVICE_ID_LED){
         #if BMC_MAX_LEDS > 0
         if(deviceIndex < BMC_MAX_LEDS){
+          BMC_PRINTLN("Test led");
           leds[deviceIndex].test();
         }
         #endif
@@ -314,7 +316,6 @@ void BMC::ctrlHardware(){
         #endif
       } else if(deviceId == BMC_DEVICE_ID_PIXEL_STRIP){
         #if BMC_MAX_PIXEL_STRIP > 0
-          BMC_PRINTLN("Test pixelstrip");
           pixels.test(deviceId, 0);
         #endif
       }

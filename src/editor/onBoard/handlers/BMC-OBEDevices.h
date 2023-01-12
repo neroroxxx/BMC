@@ -99,11 +99,17 @@ public:
         break;
       case BMC_DEVICE_ID_BI_LED:
       case BMC_DEVICE_ID_GLOBAL_BI_LED:
-        data.totalRows = 3;
+        // data.totalRows = 3;
+        data.totalRows = 1;
+        data.totalRows += data.activeDevice.settings;
+        data.totalRows += data.activeDevice.events;
         break;
       case BMC_DEVICE_ID_TRI_LED:
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:
-        data.totalRows = 4;
+        // data.totalRows = 4;
+        data.totalRows = 1;
+        data.totalRows += data.activeDevice.settings;
+        data.totalRows += data.activeDevice.events;
         break;
       case BMC_DEVICE_ID_RGB_PIXEL:
       case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
@@ -275,32 +281,32 @@ public:
         break;
       case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
-          return getLedOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].leds[dIndex], index, valueType);
+          return getLedOption<1, 1>(display.midi.globals.store.pages[display.midi.globals.page].leds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_LED:
         #if BMC_MAX_GLOBAL_LEDS > 0
-          return getLedOption<1,1>(display.midi.globals.store.global.leds[dIndex], index, valueType);
+          return getLedOption<1, 1>(display.midi.globals.store.global.leds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
-          return getBiLedOption<1,2>(display.midi.globals.store.pages[display.midi.globals.page].biLeds[dIndex], index, valueType);
+          return getBiLedOption<2, 2>(display.midi.globals.store.pages[display.midi.globals.page].biLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:
         #if BMC_MAX_GLOBAL_BI_LEDS > 0
-          return getBiLedOption<1,2>(display.midi.globals.store.global.biLeds[dIndex], index, valueType);
+          return getBiLedOption<2, 2>(display.midi.globals.store.global.biLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_TRI_LED:
         #if BMC_MAX_TRI_LEDS > 0
-          return getTriLedOption<1,3>(display.midi.globals.store.pages[display.midi.globals.page].triLeds[dIndex], index, valueType);
+          return getTriLedOption<3, 3>(display.midi.globals.store.pages[display.midi.globals.page].triLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:
         #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-          return getTriLedOption<1,3>(display.midi.globals.store.global.triLeds[dIndex], index, valueType);
+          return getTriLedOption<3, 3>(display.midi.globals.store.global.triLeds[dIndex], index, valueType);
         #endif
         break;
 
@@ -699,7 +705,6 @@ public:
       case BMC_OBE_DEVICE_OPT_MAX: return getEventRowCount();
       case BMC_OBE_DEVICE_OPT_CHANGED:
         // determine if event has changed
-        BMC_PRINTLN("check for changes");
         return eventsData.hasChanges(item);
       case BMC_OBE_DEVICE_CUSTOM_SCROLL_UP:
         if(!data.eventsEditorActive){
@@ -1236,35 +1241,72 @@ public:
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
-        switch(valueType){
-          case BMC_OBE_DEVICE_OPT_LABEL:
-            strcpy(str, "Mode");
-            return 0;
-          case BMC_OBE_DEVICE_OPT_VALUE:
-          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-            {
-              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
-              strcpy(str, (value==0)?"Solid":"Blink");
-              return value;
-            }
-            break;
-          case BMC_OBE_DEVICE_OPT_MIN: return 0;
-          case BMC_OBE_DEVICE_OPT_MAX: return 1;
-          case BMC_OBE_DEVICE_OPT_CHANGED:
-            if(item.settings[0] != data.rowEditValue){
-              item.settings[0] = data.rowEditValue;
-              return 1;
-            }
-            return 0;
-          default:
-            return 0;
-        }
-        break;
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode", 0, valueType);
+        // switch(valueType){
+        //   case BMC_OBE_DEVICE_OPT_LABEL:
+        //     strcpy(str, "Mode");
+        //     return 0;
+        //   case BMC_OBE_DEVICE_OPT_VALUE:
+        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        //     {
+        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
+        //       if(value == 0){
+        //         strcpy(str, "Solid");
+        //       } else {
+        //         sprintf(str, "Blink %u ms", value*100);
+        //       }
+        //       return value;
+        //     }
+        //     break;
+        //   case BMC_OBE_DEVICE_OPT_MIN: return 0;
+        //   case BMC_OBE_DEVICE_OPT_MAX: return 1;
+        //   case BMC_OBE_DEVICE_OPT_CHANGED:
+        //     if(item.settings[0] != data.rowEditValue){
+        //       item.settings[0] = data.rowEditValue;
+        //       return 1;
+        //     }
+        //     return 0;
+        //   default:
+        //     return 0;
+        // }
+        // break;
       case 2:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
         break;
       default:
         break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getLedBlinkOption(bmcStoreDevice<sLen, eLen, tname>& item, const char* label, uint16_t index, uint8_t valueType){
+    strcpy(str,"");
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        strcpy(str, label);
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[index] : data.rowEditValue;
+          if(value == 0){
+            strcpy(str, "Solid");
+          } else {
+            sprintf(str, "Blink %u ms", value*100);
+          }
+          return value;
+        }
+        break;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return 5;
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        if(item.settings[index] != data.rowEditValue){
+          item.settings[index] = data.rowEditValue;
+          return 1;
+        }
+        return 0;
+      default:
+        return 0;
     }
     return 0;
   }
@@ -1276,11 +1318,13 @@ public:
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
-        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
-        break;
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode 1", 0, valueType);
       case 2:
+        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
+      case 3:
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode 2", 1, valueType);
+      case 4:
         return getEventField<sLen,eLen,tname>(item, 1, 1, valueType);
-        break;
       default:
         break;
     }
@@ -1294,14 +1338,17 @@ public:
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
-        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
-        break;
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode 1", 0, valueType);
       case 2:
-        return getEventField<sLen,eLen,tname>(item, 1, 1, valueType);
-        break;
+        return getEventField<sLen,eLen,tname>(item, 0, 1, valueType);
       case 3:
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode 2", 1, valueType);
+      case 4:
+        return getEventField<sLen,eLen,tname>(item, 1, 1, valueType);
+      case 5:
+        return getLedBlinkOption<sLen,eLen,tname>(item, "Mode 3", 2, valueType);
+      case 6:
         return getEventField<sLen,eLen,tname>(item, 2, 1, valueType);
-        break;
       default:
         break;
     }

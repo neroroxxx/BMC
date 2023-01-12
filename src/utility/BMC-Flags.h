@@ -21,12 +21,6 @@ template <typename T>
 class BMCFlags {
 private:
   T flags = 0;
-// with BMC in Fast Mode there's no extra checking
-#if !defined(BMC_FAST_MODE)
-  bool validate(uint8_t bit){
-    return (bit < (sizeof(T)*8));
-  };
-#endif
 public:
   // write the value for all flags
   void write(T t_value){
@@ -39,11 +33,7 @@ public:
   // if you include the bit value to read() it will return true/false
   // if the bit is on or off
   bool read(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      return validate(bit) ? bitRead(flags,bit) : false;
-    #else
-      return bitRead(flags,bit);
-    #endif
+    return bitRead(flags, bit);
   }
   bool compare(uint8_t bit, bool t_value){
     return read(bit)==t_value;
@@ -56,29 +46,15 @@ public:
   // where n is the number of bits in the template
   // value = true/false, 0/1
   void write(uint8_t bit, bool value){
-    #if !defined(BMC_FAST_MODE)
-      if(validate(bit)){
-        bitWrite(flags, bit, value);
-      }
-    #else
-      bitWrite(flags, bit, value);
-    #endif
+    bitWrite(flags, bit, value);
   }
   // turns the bit on (true)
   void on(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      write(bit, true);
-    #else
-      bitSet(flags, bit);
-    #endif
+    bitSet(flags, bit);
   }
   // turns the bit off (false)
   void off(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      write(bit, false);
-    #else
-      bitClear(flags, bit);
-    #endif
+    bitClear(flags, bit);
   }
   // flip all the bits in the flag
   void flip(){
@@ -86,14 +62,7 @@ public:
   }
   // toggle the bit value from 0 to 1 or vice-versa
   bool toggle(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      if(validate(bit)){
-        flags ^= 1UL << bit;
-      }
-    #else
-      flags ^= 1UL << bit;
-    #endif
-
+    flags ^= 1UL << bit;
     return bitRead(flags, bit);
   }
   // if the bit is on, it will turn it off and return true
@@ -102,34 +71,19 @@ public:
   // this is used on BMC to check if something has changed then reverting
   // the bit to 0
   bool toggleIfTrue(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      if(validate(bit) && bitRead(flags, bit)){
-        bitClear(flags, bit);
-        return true;
-      }
-    #else
-      if(bitRead(flags, bit)){
-        bitClear(flags, bit);
-        return true;
-      }
-    #endif
-
+    if(bitRead(flags, bit)){
+      bitClear(flags, bit);
+      return true;
+    }
     return false;
   }
   // same as toggleIfTrue but it toggles the bit to 1 if it's 0
   // useful if you want to check if something has already happened.
   bool toggleIfFalse(uint8_t bit){
-    #if !defined(BMC_FAST_MODE)
-      if(validate(bit) && !bitRead(flags,bit)){
-        bitSet(flags, bit);
-        return false;
-      }
-    #else
-      if(!bitRead(flags,bit)){
-        bitSet(flags, bit);
-        return false;
-      }
-    #endif
+    if(!bitRead(flags,bit)){
+      bitSet(flags, bit);
+      return false;
+    }
     return true;
   }
   // set all bits to 0

@@ -118,27 +118,6 @@
 #if defined(BMC_USE_SYNC)
   #include "sync/BMC-Sync.h"
 #endif
-/*
-#if defined(BMC_USE_DAW_LC)
-  #include "sync/daw/BMC-DawLogicControl.h"
-#endif
-
-#if defined(BMC_USE_BEATBUDDY)
-  #include "sync/beatbuddy/BMC-BeatBuddy.h"
-#endif
-
-#if defined(BMC_USE_HELIX)
-  #include "sync/helix/BMC-Helix.h"
-#endif
-
-#if defined(BMC_USE_FAS)
-  #include "sync/fas/BMC-Fas.h"
-#endif
-
-#if defined(BMC_USE_KEMPER)
-  #include "sync/kemp/BMC-Kemp.h"
-#endif
-*/
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
   #include "utility/BMC-CustomSysEx.h"
@@ -161,9 +140,6 @@
   // #include "editor/onBoard/BMC-IliSelector.h"
   
 #endif
-
-
-
 
 //const uint8_t bmcLogCurve[128] = {0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,7,7,7,8,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,16,17,17,18,19,20,21,22,23,24,25,26,27,28,30,31,32,34,35,37,39,40,42,44,46,48,50,53,55,58,60,63,66,69,72,75,78,82,85,89,93,98,102,106,111,116,121,127,133,139,145,151,158,165,172,180,188,197,205,215,224,234,245,255};
 
@@ -536,6 +512,7 @@ private:
 
 
 #if BMC_TOTAL_LEDS > 0
+    BMCEndlessTimer ledBlinkerTimer;
     void setupLeds();
     void assignLeds();
     void readLeds();
@@ -627,10 +604,7 @@ private:
   #endif
 
   #if BMC_MAX_GLOBAL_POTS > 0
-    // code @ BMC.hardware.pots.cpp
     BMCPot globalPots[BMC_MAX_GLOBAL_POTS];
-    //void assignGlobalPots();
-    //void readGlobalPots();
   #endif
   
   void setupPots();
@@ -674,7 +648,6 @@ private:
   void setupAuxJacks();
   void assignAuxJacks();
   void readAuxJacks();
-  //uint8_t auxJacksStates = 0;
 #endif
 
   // code @ BMC.debug.cpp

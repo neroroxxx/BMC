@@ -9,6 +9,7 @@
 #if BMC_TOTAL_LEDS > 0
 // SETUP
 void BMC::setupLeds(){
+  ledBlinkerTimer.start(BMC_LED_BLINK_TIMEOUT);
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
@@ -19,7 +20,7 @@ void BMC::setupLeds(){
     #endif
 
     #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-      leds[i].test();
+      leds[i].test(true);
     #endif
 
     #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
@@ -41,7 +42,7 @@ void BMC::setupLeds(){
     #endif
 
     #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
-      globalLeds[i].test();
+      globalLeds[i].test(true);
     #endif
 
     #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
@@ -61,7 +62,7 @@ void BMC::setupLeds(){
         biLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        biLeds[e].test();
+        biLeds[e].test(true);
       #endif
       #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
         if(biLeds[e].muxTesting()){
@@ -81,7 +82,7 @@ void BMC::setupLeds(){
         globalBiLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
-        globalBiLeds[e].test();
+        globalBiLeds[e].test(true);
       #endif
       #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
         if(globalBiLeds[e].muxTesting()){
@@ -101,7 +102,7 @@ void BMC::setupLeds(){
         triLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        triLeds[e].test();
+        triLeds[e].test(true);
       #endif
       #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
         if(triLeds[e].muxTesting()){
@@ -121,7 +122,7 @@ void BMC::setupLeds(){
         globalTriLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
-        globalTriLeds[e].test();
+        globalTriLeds[e].test(true);
       #endif
       #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
         if(globalTriLeds[e].muxTesting()){
@@ -132,20 +133,6 @@ void BMC::setupLeds(){
   }
 #endif
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void BMC::assignLeds(){
 #if BMC_MAX_LEDS > 0
@@ -184,11 +171,12 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_BI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_BI_LEDS; index++){
-    bmcStoreDevice <1, 2>& device = store.pages[page].biLeds[index];
-    for(uint16_t e = (index*2), u = 0; e < BMC_MAX_BI_LEDS; e++, u++){
+    bmcStoreDevice <2, 2>& device = store.pages[page].biLeds[index];
+    // for(uint16_t e = (index*2), u = 0; e < BMC_MAX_BI_LEDS; e++, u++){
+    for(uint16_t e = (index*2), u = 0; u < 2; e++, u++){
       globals.biLedStates[u].clear();
       bmcStoreEvent data = globals.getDeviceEventType(device.events[u]);
-      biLeds[e].reassign(device.settings[0]);
+      biLeds[e].reassign(device.settings[u]);
       // turn off blinking for certain events like MIDI IO
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         biLeds[e].setBlinkMode(false);
@@ -203,11 +191,12 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_GLOBAL_BI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_GLOBAL_BI_LEDS; index++){
-    bmcStoreDevice <1, 2>& device = store.global.biLeds[index];
-    for(uint16_t e = (index*2), u = 0; e < BMC_MAX_BI_LEDS; e++, u++){
+    bmcStoreDevice <2, 2>& device = store.global.biLeds[index];
+    // for(uint16_t e = (index*2), u = 0; e < BMC_MAX_GLOBAL_BI_LEDS; e++, u++){
+    for(uint16_t e = (index*2), u = 0; u < 2; e++, u++){
       globals.globalBiLedStates[u].clear();
       bmcStoreEvent data = globals.getDeviceEventType(device.events[u]);
-      globalBiLeds[e].reassign(device.settings[0]);
+      globalBiLeds[e].reassign(device.settings[u]);
       // turn off blinking for certain events like MIDI IO
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         globalBiLeds[e].setBlinkMode(false);
@@ -221,11 +210,12 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_TRI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_TRI_LEDS; index++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].triLeds[index];
-    for(uint16_t e = (index*3), u = 0; e < BMC_MAX_TRI_LEDS; e++, u++){
+    bmcStoreDevice <3, 3>& device = store.pages[page].triLeds[index];
+    // for(uint16_t e = (index*3), u = 0; e < BMC_MAX_TRI_LEDS; e++, u++){
+    for(uint16_t e = (index*3), u = 0; u < 3; e++, u++){
       globals.triLedStates[u].clear();
       bmcStoreEvent data = globals.getDeviceEventType(device.events[u]);
-      triLeds[e].reassign(device.settings[0]);
+      triLeds[e].reassign(device.settings[u]);
       // turn off blinking for certain events like MIDI IO
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         triLeds[e].setBlinkMode(false);
@@ -240,11 +230,12 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_GLOBAL_TRI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_GLOBAL_TRI_LEDS; index++){
-    bmcStoreDevice <1, 3>& device = store.global.triLeds[index];
-    for(uint16_t e = (index*3), u = 0; e < BMC_MAX_TRI_LEDS; e++, u++){
+    bmcStoreDevice <3, 3>& device = store.global.triLeds[index];
+    // for(uint16_t e = (index*3), u = 0; e < BMC_MAX_GLOBAL_TRI_LEDS; e++, u++){
+    for(uint16_t e = (index*3), u = 0; u < 3; e++, u++){
       globals.globalTriLedStates[u].clear();
       bmcStoreEvent data = globals.getDeviceEventType(device.events[u]);
-      globalTriLeds[e].reassign(device.settings[0]);
+      globalTriLeds[e].reassign(device.settings[u]);
       // turn off blinking for certain events like MIDI IO
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         globalTriLeds[e].setBlinkMode(false);
@@ -272,6 +263,7 @@ void BMC::assignLeds(){
 
 
 void BMC::readLeds(){
+  bool blinkState = ledBlinkerTimer.complete();
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     bmcStoreDevice <1, 1>& device = store.pages[page].leds[i];
@@ -288,7 +280,7 @@ void BMC::readLeds(){
       leds[i].setBlinkMode(bitRead(state, 2));
       leds[i].setState(bitRead(state, 3));
     }
-    globals.ledStates.setBit(i, leds[i].update());
+    globals.ledStates.setBit(i, leds[i].update(blinkState));
 
 #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     mux.writeDigital(leds[i].getMuxPin(), leds[i].getMuxState());
@@ -317,7 +309,7 @@ void BMC::readLeds(){
       globalLeds[i].setBlinkMode(bitRead(state, 2));
       globalLeds[i].setState(bitRead(state, 3));
     }
-    globals.globalLedStates.setBit(i, globalLeds[i].update());
+    globals.globalLedStates.setBit(i, globalLeds[i].update(blinkState));
 
   #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
     mux.writeDigital(globalLeds[i].getMuxPin(), globalLeds[i].getMuxState());
@@ -333,8 +325,8 @@ void BMC::readLeds(){
 
 #if BMC_MAX_BI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_BI_LEDS; i++){
-    bmcStoreDevice <1, 2>& device = store.pages[page].biLeds[i];
-    for(uint16_t e = (index*2), u = 0; u < 2; e++, u++){
+    bmcStoreDevice <2, 2>& device = store.pages[page].biLeds[i];
+    for(uint16_t e = (i*2), u = 0; u < 2; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_BI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
       if(state<=1){
@@ -348,7 +340,7 @@ void BMC::readLeds(){
         biLeds[e].setBlinkMode(bitRead(state, 2));
         biLeds[e].setState(bitRead(state, 3));
       }
-      globals.biLedStates[u].setBit(i, biLeds[e].update());
+      globals.biLedStates[u].setBit(i, biLeds[e].update(blinkState));
 
   #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       mux.writeDigital(biLeds[e].getMuxPin(), biLeds[e].getMuxState());
@@ -369,7 +361,7 @@ void BMC::readLeds(){
 
 #if BMC_MAX_GLOBAL_BI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BI_LEDS; i++){
-    bmcStoreDevice <1, 2>& device = store.global.biLeds[i];
+    bmcStoreDevice <2, 2>& device = store.global.biLeds[i];
     for(uint16_t e = (i*2), u = 0; u < 2; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_BI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
@@ -381,7 +373,7 @@ void BMC::readLeds(){
         globalBiLeds[e].setBlinkMode(bitRead(state, 2));
         globalBiLeds[e].setState(bitRead(state, 3));
       }
-      globals.globalBiLedStates[u].setBit(i, globalBiLeds[e].update());
+      globals.globalBiLedStates[u].setBit(i, globalBiLeds[e].update(blinkState));
 
     #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       mux.writeDigital(globalBiLeds[e].getMuxPin(), globalBiLeds[e].getMuxState());
@@ -402,7 +394,7 @@ void BMC::readLeds(){
 
 #if BMC_MAX_TRI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_TRI_LEDS; i++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].triLeds[i];
+    bmcStoreDevice <3, 3>& device = store.pages[page].triLeds[i];
     for(uint16_t e = (i*3), u = 0; u < 3; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_TRI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
@@ -417,7 +409,7 @@ void BMC::readLeds(){
         triLeds[e].setBlinkMode(bitRead(state, 2));
         triLeds[e].setState(bitRead(state, 3));
       }
-      globals.triLedStates[u].setBit(i, triLeds[e].update());
+      globals.triLedStates[u].setBit(i, triLeds[e].update(blinkState));
 
   #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       mux.writeDigital(triLeds[e].getMuxPin(), triLeds[e].getMuxState());
@@ -440,7 +432,7 @@ void BMC::readLeds(){
 
 #if BMC_MAX_GLOBAL_TRI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_TRI_LEDS; i++){
-    bmcStoreDevice <1, 3>& device = store.global.triLeds[i];
+    bmcStoreDevice <3, 3>& device = store.global.triLeds[i];
     for(uint16_t e = (i*3), u = 0; u < 3; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_TRI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
@@ -452,7 +444,7 @@ void BMC::readLeds(){
         globalTriLeds[e].setBlinkMode(bitRead(state, 2));
         globalTriLeds[e].setState(bitRead(state, 3));
       }
-      globals.globalTriLedStates[u].setBit(i, globalTriLeds[e].update());
+      globals.globalTriLedStates[u].setBit(i, globalTriLeds[e].update(blinkState));
 
     #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
       mux.writeDigital(globalTriLeds[e].getMuxPin(), globalTriLeds[e].getMuxState());

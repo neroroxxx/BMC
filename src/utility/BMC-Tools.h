@@ -430,7 +430,7 @@ public:
   static void getPresetLabel(uint8_t t_bank, uint8_t t_preset, char * str, bmcStoreGlobal& t_store){
     uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
     if(t_presetAndBank < BMC_MAX_PRESETS){
-#if BMC_MAX_PRESETS_ > 0
+#if BMC_MAX_PRESETS > 0
       bmcName_t n = t_store.presets[t_presetAndBank].name;
       char name[BMC_MAX_NAMES_LENGTH] = "";
       char bankStr[2] = "";
@@ -443,10 +443,10 @@ public:
     }
   }
   static void getPresetLabel(uint16_t t_presetAndBank, char * str, bmcStoreGlobal& t_store){
-    uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
-    uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
     if(t_presetAndBank < BMC_MAX_PRESETS){
-#if BMC_MAX_PRESETS_ > 0
+#if BMC_MAX_PRESETS > 0
+      uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
+      uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
       bmcName_t n = t_store.presets[t_presetAndBank].name;
       char name[BMC_MAX_NAMES_LENGTH] = "";
       char bankStr[2] = "";

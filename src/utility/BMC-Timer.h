@@ -124,6 +124,9 @@ public:
     interval = value;
     timer.start(interval);
   }
+  intervalType_t getInterval(){
+    return interval;
+  }
   void restart(){
     start(interval);
   }

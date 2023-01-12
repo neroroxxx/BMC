@@ -16,8 +16,11 @@
 class BMC_ILI9341 {
  public:
   BMC_TFT display;
-
-  BMC_ILI9341():display(10, 9){}
+  #if defined(BMC_ILI_RESET_PIN)
+    BMC_ILI9341():display(10, 9, BMC_ILI_RESET_PIN){}
+  #else
+    BMC_ILI9341():display(10, 9){}
+  #endif
   
   bool begin(uint8_t rotation=0){
     display.begin();

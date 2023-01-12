@@ -803,19 +803,19 @@ public:
     #endif
 
     #if BMC_MAX_BI_LEDS > 0
-    {BMC_DEVICE_ID_BI_LED, "Bi-Color Led", 2, BMC_MAX_BI_LEDS, false, 0, 2},
+    {BMC_DEVICE_ID_BI_LED, "Bi-Color Led", 2, BMC_MAX_BI_LEDS, false, 2, 2},
     #endif
 
     #if BMC_MAX_GLOBAL_BI_LEDS > 0
-    {BMC_DEVICE_ID_GLOBAL_BI_LED, "Global Bi Led", 2, BMC_MAX_GLOBAL_BI_LEDS, true, 0, 2},
+    {BMC_DEVICE_ID_GLOBAL_BI_LED, "Global Bi Led", 2, BMC_MAX_GLOBAL_BI_LEDS, true, 3, 2},
     #endif
 
     #if BMC_MAX_TRI_LEDS > 0
-    {BMC_DEVICE_ID_TRI_LED, "Tri-Color Led", 2, BMC_MAX_TRI_LEDS, false, 0, 3},
+    {BMC_DEVICE_ID_TRI_LED, "Tri-Color Led", 2, BMC_MAX_TRI_LEDS, false, 3, 3},
     #endif
 
     #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-    {BMC_DEVICE_ID_GLOBAL_TRI_LED, "Global Tri Led", 2, BMC_MAX_GLOBAL_TRI_LEDS, true, 0, 3},
+    {BMC_DEVICE_ID_GLOBAL_TRI_LED, "Global Tri Led", 2, BMC_MAX_GLOBAL_TRI_LEDS, true, 3, 3},
     #endif
 
     #if BMC_MAX_ENCODERS > 0

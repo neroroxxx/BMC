@@ -324,9 +324,9 @@ public:
 #if BMC_MAX_OLED > 0
     memset(last, 0, BMC_MAX_OLED);
     clearOleds();
+#if defined(BMC_USE_DAW_LC)
     uint16_t page = midi.globals.page;
     for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
-#if defined(BMC_USE_DAW_LC)
       if(midi.globals.store.pages[page].oled[i].events[0] == BMC_NONE){
         continue;
       }
@@ -336,8 +336,8 @@ public:
           initDawChannelInfo(true, i, BMC_GET_BYTE(1, e.event));
         }
       }
-#endif
     }
+#endif
 #endif
   }
   void reassignIliBlocks(){
@@ -356,9 +356,9 @@ public:
   #endif
     clearIliBlocks();
 
+#if defined(BMC_USE_DAW_LC)
     uint16_t page = midi.globals.page;
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-#if defined(BMC_USE_DAW_LC)
       if(midi.globals.store.pages[page].ili[i].events[0] == 0){
         continue;
       }
@@ -387,8 +387,8 @@ public:
           }
         }
       }
-#endif
     }
+#endif
 #endif
   }
   void reassign(){
@@ -400,9 +400,6 @@ public:
     reassignOleds();
     reassignIliBlocks();
   }
-
-
-
 
 #if defined(BMC_USE_DAW_LC)
   #if BMC_MAX_ILI9341_BLOCKS > 0
@@ -487,7 +484,6 @@ public:
     if(!allowRendering() || dawChannelsBlock==-1){
       return;
     }
-    BMC_PRINTLN("************ initDawChannels");
     updateDawChannels(true);
   }
   void updateDawChannels(bool reset=false){

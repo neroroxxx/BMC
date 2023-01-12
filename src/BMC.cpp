@@ -5,6 +5,7 @@
   See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
+
 // Initialize all compiled objects
 BMC::BMC():
   settings(store.global.settings),

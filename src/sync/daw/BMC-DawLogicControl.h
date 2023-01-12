@@ -310,7 +310,7 @@ public:
     if(b > 0 && b < 64){
       twoDigitDisplay[0] = sevDigitChars[b];
     }
-    BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
+    // BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
   }
   void parseLCD(BMCMidiMessage d){
     uint8_t offset = d.sysex[6];

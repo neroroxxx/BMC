@@ -266,13 +266,13 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
           for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,2>(store.pages[p].biLeds[index], index, p);
+            incomingMessageDeviceWrite<2, 2>(store.pages[p].biLeds[index], index, p);
           }
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:
         #if BMC_MAX_GLOBAL_BI_LEDS > 0
-          incomingMessageDeviceWrite<1,2>(store.global.biLeds[index], index);
+          incomingMessageDeviceWrite<2, 2>(store.global.biLeds[index], index);
           if(!backupActive()){
             saveGlobalBiLed(index);
             reloadData();
@@ -282,13 +282,13 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_TRI_LED:
         #if BMC_MAX_TRI_LEDS > 0
           for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,3>(store.pages[p].triLeds[index], index, p);
+            incomingMessageDeviceWrite<3, 3>(store.pages[p].triLeds[index], index, p);
           }
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:
         #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-          incomingMessageDeviceWrite<1,3>(store.global.triLeds[index], index);
+          incomingMessageDeviceWrite<3, 3>(store.global.triLeds[index], index);
           if(!backupActive()){
             saveGlobalTriLed(index);
             reloadData();
@@ -601,25 +601,25 @@ void BMCEditor::incomingMessageDevice(bool write){
       break;
     case BMC_DEVICE_ID_BI_LED:
       #if BMC_MAX_BI_LEDS > 0
-        deviceResponseData <1, 2>
+        deviceResponseData <2, 2>
         (store.pages[page].biLeds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_BI_LED:
       #if BMC_MAX_GLOBAL_BI_LEDS > 0
-        deviceResponseData <1, 2>
+        deviceResponseData <2, 2>
         (store.global.biLeds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_TRI_LED:
       #if BMC_MAX_TRI_LEDS > 0
-        deviceResponseData <1, 3>
+        deviceResponseData <3, 3>
         (store.pages[page].triLeds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_TRI_LED:
       #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-        deviceResponseData <1, 3>
+        deviceResponseData <3, 3>
         (store.global.triLeds[index], buff, index, deviceType);
       #endif
       break;
