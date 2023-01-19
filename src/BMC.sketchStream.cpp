@@ -35,8 +35,8 @@ void BMC::streamToSketch(uint8_t t_id, int t_value, char* str){
     item.id = t_id;
     item.value = t_value;
 
-    if(t_id==BMC_DEVICE_ID_PAGE && strlen(BMC_STREAM_TEMPL_PAGE)+strlen(str)<30){
-      sprintf(item.name, BMC_STREAM_TEMPL_PAGE, (uint8_t) (t_value+1), str);
+    if(t_id==BMC_DEVICE_ID_LAYER && strlen(BMC_STREAM_TEMPL_LAYER)+strlen(str)<30){
+      sprintf(item.name, BMC_STREAM_TEMPL_LAYER, (uint8_t) (t_value+1), str);
     } else if(t_id==BMC_DEVICE_ID_PRESET && strlen(BMC_STREAM_TEMPL_PRESET)+strlen(str)<30){
       sprintf(item.name, BMC_STREAM_TEMPL_PRESET,(uint8_t) (t_value+1), str);
     } else if(t_id==BMC_DEVICE_ID_SETLIST && strlen(BMC_STREAM_TEMPL_SETLIST)+strlen(str)<30){

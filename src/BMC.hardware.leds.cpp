@@ -15,7 +15,7 @@ void BMC::setupLeds(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
     leds[i].begin(ui.pins[0]);
 
-    #if BMC_PAGE_LED_DIM == true
+    #if BMC_LAYER_LED_DIM == true
     leds[i].setPwmOffValue(settings.getPwmDimWhenOff());
     #endif
 
@@ -58,7 +58,7 @@ void BMC::setupLeds(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BI_LED, i);
     for(uint16_t e = (i*2), u=0; e < 2; e++, u++){
       biLeds[e].begin(ui.pins[u]);
-      #if BMC_PAGE_LED_DIM == true
+      #if BMC_LAYER_LED_DIM == true
         biLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
@@ -98,7 +98,7 @@ void BMC::setupLeds(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_TRI_LED, i);
     for(uint16_t e = (i*3), u=0; e < 3; e++, u++){
       triLeds[e].begin(ui.pins[u]);
-      #if BMC_PAGE_LED_DIM == true
+      #if BMC_LAYER_LED_DIM == true
         triLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
@@ -138,7 +138,7 @@ void BMC::assignLeds(){
 #if BMC_MAX_LEDS > 0
   globals.ledStates.clear();
   for(uint16_t index = 0; index < BMC_MAX_LEDS; index++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].leds[index];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].leds[index];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 
     leds[index].reassign(device.settings[0]);
@@ -146,7 +146,7 @@ void BMC::assignLeds(){
     if(!BMCTools::isLedBlinkAllowed(data.type)){
       leds[index].setBlinkMode(false);
     }
-#if BMC_PAGE_LED_DIM == true
+#if BMC_LAYER_LED_DIM == true
     leds[index].setPwmOffValue(settings.getPwmDimWhenOff());
 #endif
   }
@@ -171,7 +171,7 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_BI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_BI_LEDS; index++){
-    bmcStoreDevice <2, 2>& device = store.pages[page].biLeds[index];
+    bmcStoreDevice <2, 2>& device = store.layers[layer].biLeds[index];
     // for(uint16_t e = (index*2), u = 0; e < BMC_MAX_BI_LEDS; e++, u++){
     for(uint16_t e = (index*2), u = 0; u < 2; e++, u++){
       globals.biLedStates[u].clear();
@@ -181,7 +181,7 @@ void BMC::assignLeds(){
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         biLeds[e].setBlinkMode(false);
       }
-      #if BMC_PAGE_LED_DIM == true
+      #if BMC_LAYER_LED_DIM == true
         biLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
     }
@@ -210,7 +210,7 @@ void BMC::assignLeds(){
 
 #if BMC_MAX_TRI_LEDS > 0
   for(uint16_t index = 0; index < BMC_MAX_TRI_LEDS; index++){
-    bmcStoreDevice <3, 3>& device = store.pages[page].triLeds[index];
+    bmcStoreDevice <3, 3>& device = store.layers[layer].triLeds[index];
     // for(uint16_t e = (index*3), u = 0; e < BMC_MAX_TRI_LEDS; e++, u++){
     for(uint16_t e = (index*3), u = 0; u < 3; e++, u++){
       globals.triLedStates[u].clear();
@@ -220,7 +220,7 @@ void BMC::assignLeds(){
       if(!BMCTools::isLedBlinkAllowed(data.type)){
         triLeds[e].setBlinkMode(false);
       }
-      #if BMC_PAGE_LED_DIM == true
+      #if BMC_LAYER_LED_DIM == true
         triLeds[e].setPwmOffValue(settings.getPwmDimWhenOff());
       #endif
     }
@@ -266,7 +266,7 @@ void BMC::readLeds(){
   bool blinkState = ledBlinkerTimer.complete();
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].leds[i];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].leds[i];
     uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_LED, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
     if(state<=1){
@@ -325,7 +325,7 @@ void BMC::readLeds(){
 
 #if BMC_MAX_BI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_BI_LEDS; i++){
-    bmcStoreDevice <2, 2>& device = store.pages[page].biLeds[i];
+    bmcStoreDevice <2, 2>& device = store.layers[layer].biLeds[i];
     for(uint16_t e = (i*2), u = 0; u < 2; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_BI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
@@ -394,7 +394,7 @@ void BMC::readLeds(){
 
 #if BMC_MAX_TRI_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_TRI_LEDS; i++){
-    bmcStoreDevice <3, 3>& device = store.pages[page].triLeds[i];
+    bmcStoreDevice <3, 3>& device = store.layers[layer].triLeds[i];
     for(uint16_t e = (i*3), u = 0; u < 3; e++, u++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_TRI_LED, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);

@@ -36,7 +36,7 @@ void BMC::editorRead(){
 void BMC::assignStoreData(){
   // The editor has updated data in EEPROM so we need to update all Hardware and Settings
   BMC_PRINTLN("editor.readyToReload()");
-  setPage(editor.getPage(), true);
+  setLayer(editor.getLayer(), true);
 
   if(callback.storeUpdated){
     callback.storeUpdated();
@@ -210,14 +210,14 @@ void BMC::controlReceived(){
 }
 void BMC::ctrlHardware(){
   switch(editor.getCtrlParameter()){
-    case BMC_CTRL_PAGE_GET:
-      editor.pageSendChangeMessage(false);
+    case BMC_CTRL_LAYERS_GET:
+      editor.layerSendChangeMessage(false);
       break;
-    case BMC_CTRL_PAGE_SET:
-      if(editor.getCtrlWrite() && editor.getCtrlValue()<BMC_MAX_PAGES){
-        setPage(editor.getCtrlValue() & 0xFF);
+    case BMC_CTRL_LAYERS_SET:
+      if(editor.getCtrlWrite() && editor.getCtrlValue()<BMC_MAX_LAYERS){
+        setLayer(editor.getCtrlValue() & 0xFF);
       }
-      editor.pageSendChangeMessage(false);
+      editor.layerSendChangeMessage(false);
       break;
 
     case BMC_CTRL_GET_STATES:

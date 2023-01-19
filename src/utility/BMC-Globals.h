@@ -26,7 +26,7 @@
 #define BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE 	 6
 #define BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER    7
 #define BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA      	 8
-#define BMC_GLOBALS_FLAG_RELOAD_PAGE            	 9
+#define BMC_GLOBALS_FLAG_RELOAD_LAYER            	 9
 #define BMC_GLOBALS_FLAG_TRIGGER_BANK           	 10
 #define BMC_GLOBALS_FLAG_TRIGGER_PRESET         	 11
 #define BMC_GLOBALS_FLAG_TRIGGER_SETLIST        	 12
@@ -166,11 +166,11 @@ public:
   bool assignStoreData(){
     return flags.toggleIfTrue(BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA);
   }
-  void setReloadPage(bool t_state){
-    flags.write(BMC_GLOBALS_FLAG_RELOAD_PAGE, t_state);
+  void setReloadLayer(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_RELOAD_LAYER, t_state);
   }
-  bool reloadPage(){
-    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_RELOAD_PAGE);
+  bool reloadLayer(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_RELOAD_LAYER);
   }
   void setTriggerBank(bool t_state){
     flags.write(BMC_GLOBALS_FLAG_TRIGGER_BANK, t_state);
@@ -316,7 +316,7 @@ bmcStoreName getDeviceName(uint16_t n){
 
 public:
   uint8_t offset = 0;
-  uint8_t page = 0;
+  uint8_t layer = 0;
   uint16_t bpm = 120;
 
 #if BMC_MAX_PRESETS > 0

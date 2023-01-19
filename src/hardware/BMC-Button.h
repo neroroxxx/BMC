@@ -210,13 +210,13 @@ public:
     buttonFlags.reset(1 << BMC_BTN_FLAG_MUX_STATE);
     reset(true);
 
-    // when pages change BMC expects all buttons to be in their OPEN position
+    // when layers change BMC expects all buttons to be in their OPEN position
     // before reading them again, this is because if a button was used to change
-    // pages on it's press, hold, or continuous, then when the page changes
+    // layers on it's press, hold, or continuous, then when the layer changes
     // if the button has a new event assigned to that same trigger, that event
-    // will automatically be triggered, this will also cause pages to change
-    // more than once in some cases, so it you want to scroll pages you will
-    // not go to the next page but 2 or 3 pages up.
+    // will automatically be triggered, this will also cause layers to change
+    // more than once in some cases, so it you want to scroll layers you will
+    // not go to the next layer but 2 or 3 layers up.
     // to solve this there's the REASSIGNED flag, this tells the button to
     // ignore EVERYTHING thing until the button has been released.
     // ------------------------

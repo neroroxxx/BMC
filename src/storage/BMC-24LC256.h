@@ -43,14 +43,14 @@
  *    Depending on EEPROM device size, this may result in one or more of the   *
  *    most significant bits in the I2C address bytes being unused (or "don't   *
  *    care").                                                                  *
- * 4. An EEPROM contains an integral number of pages.                          *
+ * 4. An EEPROM contains an integral number of layers.                          *
  *                                                                             *
  * To use the BMC24LC256 library, the Arduino Wire library must also            *
  * be included.                                                                *
  *                                                                             *
  * Jack Christensen 23Mar2013 v1                                               *
  * 29Mar2013 v2 - Updated to span page boundaries (and therefore also          *
- * device boundaries, assuming an integral number of pages per device)         *
+ * device boundaries, assuming an integral number of layers per device)         *
  * 08Jul2014 v3 - Generalized for 2kb - 2Mb EEPROMs.                           *
  *                                                                             *
  * External EEPROM Library by Jack Christensen is licensed under CC BY-SA 4.0, *

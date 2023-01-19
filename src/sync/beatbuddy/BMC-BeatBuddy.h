@@ -57,7 +57,7 @@ public:
     }
   }
   void reassign(){
-    // reset the current expression value so when changing pages BMC won't
+    // reset the current expression value so when changing layers BMC won't
     // trigger the pots value immediately
     tExpression = 255;
   }

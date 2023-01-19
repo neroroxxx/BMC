@@ -27,7 +27,7 @@ void BMC::setupPots(){
 void BMC::assignPots(){
 #if BMC_MAX_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
+    bmcStoreDevice <1, 3>& device = store.layers[layer].pots[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     bmcEvent_t toeEngage = device.events[1];
     bmcEvent_t toeDisengage = device.events[2];
@@ -71,7 +71,7 @@ void BMC::readPots(){
     }
   }
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].pots[i];
+    bmcStoreDevice <1, 3>& device = store.layers[layer].pots[i];
     //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
 #if BMC_MAX_MUX_IN_ANALOG > 0
     pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));

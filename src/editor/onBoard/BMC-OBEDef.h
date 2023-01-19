@@ -170,8 +170,8 @@
 
 // main
 #define BMC_OBE_ID_GO_TO             	 1
-// main > change page
-#define BMC_OBE_ID_CP_GO_TO_PAGE     	 2
+// main > change layer
+#define BMC_OBE_ID_CP_GO_TO_LAYER     	 2
 #define BMC_OBE_ID_CP_GO_TO_BANK     	 3
 #define BMC_OBE_ID_CP_GO_TO_PRESET   	 4
 #define BMC_OBE_ID_CP_GO_TO_SETLIST  	 5
@@ -212,12 +212,12 @@
 // main > global > items > editor
 #define BMC_OBE_ID_G_ITEM_EDIT       	 32
 // main
-#define BMC_OBE_ID_PAGES             	 33
-// main > pages
-#define BMC_OBE_ID_PAGES_ITEMS       	 34
-// main > pages > items
+#define BMC_OBE_ID_LAYERS             	 33
+// main > layers
+#define BMC_OBE_ID_LAYERS_ITEMS       	 34
+// main > layers > items
 #define BMC_OBE_ID_P_ITEM_LIST       	 35
-// main > pages > items > editor
+// main > layers > items > editor
 #define BMC_OBE_ID_P_ITEM_EDIT       	 36
 
 
@@ -430,7 +430,7 @@ class BMCOBEData {
     level[getCurrentLevel()] = value;
   }
   // return true to update rows
-  // return false to go to next page of list
+  // return false to go to next layer of list
   bool cursorPrev(){
     // store the last row that was selected
     activeRowPrev = activeRow;
@@ -465,7 +465,7 @@ class BMCOBEData {
     return false;
   }
   // return true to update rows
-  // return false to go to next page of list
+  // return false to go to next layer of list
   bool cursorNext(){
     // store the last row that was selected
     activeRowPrev = activeRow;

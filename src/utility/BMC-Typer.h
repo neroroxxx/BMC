@@ -56,7 +56,7 @@ public:
     if(value >= 10){
       // 10 is clear
       // 11 is custom callback
-      // 12 is page
+      // 12 is layer
       // 13 is preset
       // 14 is fas preset
       // 15 is fas scene

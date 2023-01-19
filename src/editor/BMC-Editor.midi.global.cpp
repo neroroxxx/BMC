@@ -60,7 +60,7 @@ void BMCEditor::globalProcessMessage(){
       break;
     case BMC_GLOBALF_EDITOR_PERFORM_MODE:
       // no yet implemented, its meant to be a customizable screen
-      // for easy editing that only loads the data of the current page and
+      // for easy editing that only loads the data of the current layer and
       // loads things as needed instead of loading all data from EEPROM
       // into the editor app as it does normally
       //globalEditorPerformMode(isWriteMessage());
@@ -86,7 +86,7 @@ void BMCEditor::incomingMessageEvent(bool write){
     backupEventMessage(sysExLength);
     return;
   }
-  uint16_t index = getMessagePageNumber();
+  uint16_t index = getMessageLayerNumber();
   if(index>0 && index>=BMC_MAX_EVENTS_LIBRARY){
     sendNotification(BMC_NOTIFY_INVALID_EVENT, index, true);
     return;
@@ -133,7 +133,7 @@ void BMCEditor::incomingMessageName(bool write){
     return;
   }
   //BMC_MAX_NAMES_LENGTH
-  uint16_t index = getMessagePageNumber();
+  uint16_t index = getMessageLayerNumber();
   if(index>0 && index>=BMC_MAX_NAMES_LIBRARY){
     sendNotification(BMC_NOTIFY_INVALID_NAME, index, true);
     return;
@@ -177,7 +177,7 @@ void BMCEditor::incomingMessageDevice(bool write){
   uint16_t index = incoming.get14Bits(11);
 
   uint16_t maxDevices = checkIfHardwareAvailable(deviceType);
-  uint8_t page = getMessagePageNumber();
+  uint8_t layer = getMessageLayerNumber();
 
   // bytes 13 and 14 have the name pointer
   sysExLength += (incoming.get7Bits(15) * 2);
@@ -200,41 +200,41 @@ void BMCEditor::incomingMessageDevice(bool write){
     return;
   }
   if(write && maxDevices > 0){
-    uint16_t pageToWrite = page;
-    uint16_t maxPageToWrite = page+1;
-    if(isDeviceWriteToAllPages() && !backupActive()){
+    uint16_t pageToWrite = layer;
+    uint16_t maxLayerToWrite = layer+1;
+    if(isDeviceWriteToAllLayers() && !backupActive()){
       pageToWrite = 0;
-      maxPageToWrite = BMC_MAX_PAGES;
-      BMC_PRINTLN("Save to all pages",pageToWrite, maxPageToWrite);
+      maxLayerToWrite = BMC_MAX_LAYERS;
+      BMC_PRINTLN("Save to all layers",pageToWrite, maxLayerToWrite);
     } else {
-      BMC_PRINTLN("DO NOT Save to all pages",pageToWrite, maxPageToWrite);
+      BMC_PRINTLN("DO NOT Save to all layers",pageToWrite, maxLayerToWrite);
     }
     if(backupActive()){
-      if(pageToWrite >= BMC_MAX_PAGES){
+      if(pageToWrite >= BMC_MAX_LAYERS){
         sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
         return;
       }
     }
     switch(deviceType){
-      case BMC_DEVICE_ID_PAGE:
+      case BMC_DEVICE_ID_LAYER:
         // write new data and save, starts at byte 13
         if(!backupActive()){
-          store.pages[index].name = incoming.get14Bits(13);
-          savePagesAndReloadData(page);
+          store.layers[index].name = incoming.get14Bits(13);
+          saveLayersAndReloadData(layer);
         } else {
-          if(index<BMC_MAX_PAGES){
+          if(index<BMC_MAX_LAYERS){
             uint16_t e = incoming.get14Bits(13);
             if(e > BMC_MAX_NAMES_LIBRARY){
               e = 0;
             }
-            store.pages[index].name = e;
+            store.layers[index].name = e;
           }
         }
         break;
       case BMC_DEVICE_ID_BUTTON:
         #if BMC_MAX_BUTTONS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.pages[p].buttons[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(store.layers[p].buttons[index], index, p);
           }
         #endif
         break;
@@ -249,8 +249,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].leds[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].leds[index], index, p);
           }
         #endif
         break;
@@ -265,8 +265,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<2, 2>(store.pages[p].biLeds[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<2, 2>(store.layers[p].biLeds[index], index, p);
           }
         #endif
         break;
@@ -281,8 +281,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_TRI_LED:
         #if BMC_MAX_TRI_LEDS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<3, 3>(store.pages[p].triLeds[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<3, 3>(store.layers[p].triLeds[index], index, p);
           }
         #endif
         break;
@@ -297,8 +297,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_ENCODER:
         #if BMC_MAX_ENCODERS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].encoders[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].encoders[index], index, p);
           }
         #endif
         break;
@@ -313,8 +313,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_POT:
         #if BMC_MAX_POTS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,3>(store.pages[p].pots[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,3>(store.layers[p].pots[index], index, p);
           }
         #endif
         break;
@@ -338,8 +338,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_MAGIC_ENCODER:
         #if BMC_MAX_MAGIC_ENCODERS > 0
-        for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<3, 3>(store.pages[p].magicEncoders[index], index, p);
+        for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<3, 3>(store.layers[p].magicEncoders[index], index, p);
           }
         #endif
         break;
@@ -354,8 +354,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].pixels[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].pixels[index], index, p);
           }
         #endif
         break;
@@ -370,8 +370,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,3>(store.pages[p].rgbPixels[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,3>(store.layers[p].rgbPixels[index], index, p);
           }
         #endif
         break;
@@ -386,8 +386,8 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_PIXEL_STRIP:
         #if BMC_MAX_PIXEL_STRIP > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].pixelStrip[0], 0, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].pixelStrip[0], 0, p);
           }
         #endif
         break;
@@ -420,15 +420,15 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].oled[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].oled[index], index, p);
           }
         #endif
         break;
       case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          for(uint16_t p = pageToWrite ; p < maxPageToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.pages[p].ili[index], index, p);
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1,1>(store.layers[p].ili[index], index, p);
           }
         #endif
         break;
@@ -563,22 +563,22 @@ void BMCEditor::incomingMessageDevice(bool write){
   buff.prepareEditorMessage(
     port, deviceId,
     BMC_EDITOR_FUNCTION_DEVICE, 0,
-    page
+    layer
   );
 
   buff.appendToSysEx7Bits(deviceType);
   buff.appendToSysEx14Bits(index);
   buff.appendToSysEx14Bits(maxDevices);
   switch(deviceType){
-    case BMC_DEVICE_ID_PAGE:
-      //BMC_PRINTLN("BMC_DEVICE_ID_PAGE");
-      // page names only include the name
-      buff.appendToSysEx14Bits(store.pages[index].name);
+    case BMC_DEVICE_ID_LAYER:
+      //BMC_PRINTLN("BMC_DEVICE_ID_LAYER");
+      // layer names only include the name
+      buff.appendToSysEx14Bits(store.layers[index].name);
       break;
     case BMC_DEVICE_ID_BUTTON:
       #if BMC_MAX_BUTTONS > 0
         deviceResponseData <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>
-        (store.pages[page].buttons[index], buff, index, deviceType);
+        (store.layers[layer].buttons[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_BUTTON:
@@ -590,7 +590,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_LED:
       #if BMC_MAX_LEDS > 0
         deviceResponseData <1, 1>
-        (store.pages[page].leds[index], buff, index, deviceType);
+        (store.layers[layer].leds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_LED:
@@ -602,7 +602,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_BI_LED:
       #if BMC_MAX_BI_LEDS > 0
         deviceResponseData <2, 2>
-        (store.pages[page].biLeds[index], buff, index, deviceType);
+        (store.layers[layer].biLeds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_BI_LED:
@@ -614,7 +614,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_TRI_LED:
       #if BMC_MAX_TRI_LEDS > 0
         deviceResponseData <3, 3>
-        (store.pages[page].triLeds[index], buff, index, deviceType);
+        (store.layers[layer].triLeds[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_TRI_LED:
@@ -626,7 +626,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_ENCODER:
       #if BMC_MAX_ENCODERS > 0
         deviceResponseData <1, 1>
-        (store.pages[page].encoders[index], buff, index, deviceType);
+        (store.layers[layer].encoders[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_ENCODER:
@@ -638,7 +638,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_POT:
       #if BMC_MAX_POTS > 0
         deviceResponseData <1, 3>
-        (store.pages[page].pots[index], buff, index, deviceType);
+        (store.layers[layer].pots[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_POT:
@@ -656,7 +656,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_MAGIC_ENCODER:
       #if BMC_MAX_MAGIC_ENCODERS > 0
         deviceResponseData <3, 3>
-        (store.pages[page].magicEncoders[index], buff, index, deviceType);
+        (store.layers[layer].magicEncoders[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
@@ -668,7 +668,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_PIXEL:
       #if BMC_MAX_PIXELS > 0
         deviceResponseData <1, 1>
-        (store.pages[page].pixels[index], buff, index, deviceType);
+        (store.layers[layer].pixels[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_PIXEL:
@@ -680,7 +680,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_RGB_PIXEL:
       #if BMC_MAX_RGB_PIXELS > 0
         deviceResponseData <1, 3>
-        (store.pages[page].rgbPixels[index], buff, index, deviceType);
+        (store.layers[layer].rgbPixels[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
@@ -692,7 +692,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_PIXEL_STRIP:
       #if BMC_MAX_PIXEL_STRIP > 0
         deviceResponseData <1, 1>
-        (store.pages[page].pixelStrip[0], buff, 0, deviceType);
+        (store.layers[layer].pixelStrip[0], buff, 0, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_NL_RELAY:
@@ -716,7 +716,7 @@ void BMCEditor::incomingMessageDevice(bool write){
     case BMC_DEVICE_ID_OLED:
       #if BMC_MAX_OLED > 0
         deviceResponseData <1, 1>
-        (store.pages[page].oled[index], buff, index, deviceType);
+        (store.layers[layer].oled[index], buff, index, deviceType);
       #endif
       break;
     case BMC_DEVICE_ID_ILI:
@@ -724,7 +724,7 @@ void BMCEditor::incomingMessageDevice(bool write){
         // write new data and save, starts at byte 9
         #if BMC_MAX_ILI9341_BLOCKS > 0
           //BMC_PRINTLN("BMC_DEVICE_ID_ILI");
-          bmcStoreDevice <1,1>& item = store.pages[page].ili[index];
+          bmcStoreDevice <1,1>& item = store.layers[layer].ili[index];
           BMCUIData ui = BMCBuildData::getUIData(deviceType, -1);
           buff.appendToSysEx16Bits(ui.x);
           buff.appendToSysEx16Bits(ui.y);
@@ -826,7 +826,7 @@ void BMCEditor::incomingMessageDevice(bool write){
   sendToEditor(buff);
 }
 template <uint8_t sLen, uint8_t eLen, typename tname>
-void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t page){
+void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer){
   uint16_t name = incoming.get14Bits(13);
   if(name <= BMC_MAX_NAMES_LIBRARY){
     item.name  = name;
@@ -862,8 +862,8 @@ void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& it
     }
     lenCount += 2;
   }
-  if(page >= 0 && !backupActive()){
-    savePagesAndReloadData(page);
+  if(layer >= 0 && !backupActive()){
+    saveLayersAndReloadData(layer);
     reloadData();
   }
 }
@@ -983,7 +983,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
   }
 
   // build info flags will return all the compiled settings for this build
-  uint16_t itemId = getMessagePageNumber();
+  uint16_t itemId = getMessageLayerNumber();
   BMCMidiMessage buff;
   buff.prepareEditorMessage(
     port, deviceId,
@@ -1057,6 +1057,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_HAS_TOUCH_SCREEN
       bitWrite(buildData, 21, 1);
     #endif
+    #if defined(BMC_TFT_SIZE) && BMC_TFT_SIZE != 1
+      bitWrite(buildData, 22, 1);
+    #endif
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);
@@ -1088,8 +1091,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONGS);
     buff.appendToSysEx7Bits(BMC_MAX_SETLISTS_SONG_PARTS);
     buff.appendToSysEx14Bits(BMC_MAX_SETLISTS_SONGS_LIBRARY);
-    //pages
-    buff.appendToSysEx14Bits(BMC_MAX_PAGES);
+    //layers
+    buff.appendToSysEx14Bits(BMC_MAX_LAYERS);
     // hardware
     buff.appendToSysEx14Bits(BMC_MAX_BUTTON_EVENTS);
     buff.appendToSysEx14Bits(BMC_MAX_BUTTONS);
@@ -1242,7 +1245,7 @@ void BMCEditor::globalSettingsMessage(bool write){// BMC_GLOBALF_SETTINGS
   buff.prepareEditorMessage(
     port, deviceId,
     BMC_GLOBALF_SETTINGS, 0,
-    page
+    layer
   );
   buff.appendToSysEx7Bits(maxStoreAddresses());
   buff.appendToSysEx7Bits(storeAddress);
@@ -1311,7 +1314,7 @@ void BMCEditor::globalPotCalibration(){//BMC_GLOBALF_POT_CALIBRATION
   if(!isValidGlobalMessage()){
     return;
   }
-  uint8_t index = getMessagePageNumber();
+  uint8_t index = getMessageLayerNumber();
   if(index >= BMC_TOTAL_POTS_AUX_JACKS){
     BMC_PRINTLN("BMC_NOTIFY_INVALID_POT", index);
     sendNotification(BMC_NOTIFY_INVALID_POT, index, true);
@@ -1336,7 +1339,7 @@ void BMCEditor::globalSketchBytesData(){
   if(!isValidGlobalMessage()){
     return;
   }
-  uint16_t index = getMessagePageNumber();
+  uint16_t index = getMessageLayerNumber();
   if(index>0 && index>=BMC_MAX_SKETCH_BYTES){
     sendNotification(BMC_NOTIFY_INVALID_SKETCH_BYTE_DATA, index, true);
     return;

@@ -54,7 +54,7 @@ BMC::BMC():
     ,obe(editor, display)
   #endif
 
-    ,page(globals.page)
+    ,layer(globals.layer)
 
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
@@ -138,9 +138,9 @@ void BMC::update(){
   // even tho this could be done in the begin() method BMC will do a few things
   // only when the very first bmc.update() method is called.
   // this is so you can initialize other things in your sketch, like displays
-  // once all those are initialized then BMC will call the first page and
+  // once all those are initialized then BMC will call the first layer and
   // send the startup preset.
-  // This way if any callbacks triggered by the page change can be triggered
+  // This way if any callbacks triggered by the layer change can be triggered
   // and seen by your display.
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
     BMC_PRINTLN("FIRST loop()");
@@ -158,13 +158,13 @@ void BMC::update(){
       #endif
       display.clearAll();
     #endif
-    // set the current page to page 1 (0)
+    // set the current layer to layer 1 (0)
     // also the second parameter specifies that we want to reassign settings
     // in this case since it's the initial setup we are assigning the curent
     // data in settings to all objects that require this data
     // We do this here so that any other objects initialized after BMC
     // can receive callbacks.
-    setPage(0, true);
+    setLayer(0, true);
 
     // Startup Preset
     #if BMC_MAX_PRESETS > 0
@@ -197,8 +197,8 @@ void BMC::update(){
     oneMilliSecondtimer = 0;
     BMC_PRINTLN("FIRST loop() complete");
   }
-  if(globals.reloadPage()){
-    reloadPage();
+  if(globals.reloadLayer()){
+    reloadLayer();
   }
   if(globals.assignStoreData()){
     assignStoreData();
@@ -319,9 +319,9 @@ void BMC::update(){
     }
   #endif
 
-  // used specifically when pages have changed
-  if(pageChanged()){
-    runPageChanged();
+  // used specifically when layers have changed
+  if(layerChanged()){
+    runLayerChanged();
   }
 
   // read the input of the serial monitor

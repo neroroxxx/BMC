@@ -55,32 +55,6 @@ class BMC_ILI9341_BLOCK {
         wBound = BMC_TFT_WIDTH * 0.25;
         break;
     }
-    // switch(blockSize){
-    //   case 0:
-    //   case 1:
-    //     wBound = BMC_TFT_SIZE==1 ? 320 : 480;
-    //     break;
-    //   case 2:
-    //   case 3:
-    //     wBound = BMC_TFT_SIZE==1 ? 256 : 384;
-    //     break;
-    //   case 4:
-    //   case 5:
-    //     wBound = BMC_TFT_SIZE==1 ? 192 : 288;
-    //     break;
-    //   case 6:
-    //   case 7:
-    //     wBound = BMC_TFT_SIZE==1 ? 128 : 192;
-    //     break;
-    //   case 8:
-    //   case 9:
-    //     wBound = BMC_TFT_SIZE==1 ? 96  : 144;
-    //     break;
-    //   case 10:
-    //   case 11:
-    //     wBound = BMC_TFT_SIZE==1 ? 64  : 96;
-    //     break;
-    // }
     if(BMC_IS_EVEN(blockSize)){
       hBound = 80;
     } else {
@@ -92,6 +66,9 @@ class BMC_ILI9341_BLOCK {
     crc = 0;
     //BMC_PRINTLN("block settings", settings);
     tft.fillRect(xBound, yBound, wBound, hBound, background);
+    if(bitRead(settings, 1)){
+      tft.drawRect(xBound, yBound, wBound, hBound, color);
+    }
     // tft.drawRect(xBound, yBound, wBound, hBound, color);
   }
   void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label=""){

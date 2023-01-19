@@ -11,7 +11,7 @@
  *                                                                             *
  * This library will work with most I2C serial EEPROM chips between 2k bits    *
  * and 2048k bits (2M bits) in size. Multiple EEPROMs on the bus are supported *
- * as a single address space. I/O across block, page and device boundaries     *
+ * as a single address space. I/O across block, layer and device boundaries     *
  * is supported. Certain assumptions are made regarding the EEPROM             *
  * device addressing. These assumptions should be true for most EEPROMs        *
  * but there are exceptions, so read the datasheet and know your hardware.     *
@@ -46,14 +46,14 @@
  *    Depending on EEPROM device size, this may result in one or more of the   *
  *    most significant bits in the I2C address bytes being unused (or "don't   *
  *    care").                                                                  *
- * 4. An EEPROM contains an integral number of pages.                          *
+ * 4. An EEPROM contains an integral number of layers.                          *
  *                                                                             *
  * To use the BMC24LC256 library, the Arduino Wire library must also            *
  * be included.                                                                *
  *                                                                             *
  * Jack Christensen 23Mar2013 v1                                               *
- * 29Mar2013 v2 - Updated to span page boundaries (and therefore also          *
- * device boundaries, assuming an integral number of pages per device)         *
+ * 29Mar2013 v2 - Updated to span layer boundaries (and therefore also          *
+ * device boundaries, assuming an integral number of layers per device)         *
  * 08Jul2014 v3 - Generalized for 2kb - 2Mb EEPROMs.                           *
  *                                                                             *
  * External EEPROM Library by Jack Christensen is licensed under CC BY-SA 4.0, *
@@ -75,7 +75,7 @@
 //   EEPROM manufacturers use kbits in their part numbers.)
 // - nDevice is the number of EEPROM devices on the I2C bus (all must
 //   be identical).
-// - pageSize is the EEPROM's page size in bytes.
+// - pageSize is the EEPROM's layer size in bytes.
 // - eepromAddr is the EEPROM's I2C address and defaults to 0x50 which is common.
 BMC24LC256::BMC24LC256(BMC_eeprom_size_t deviceCapacity, uint8_t nDevice, unsigned int pageSize, uint8_t eepromAddr)
 {
@@ -123,7 +123,7 @@ uint8_t BMC24LC256::write(unsigned long addr, uint8_t *values, unsigned int nByt
     uint8_t ctrlByte;       //control uint8_t (I2C device address & chip/block select bits)
     uint8_t txStatus = 0;   //transmit status
     uint16_t nWrite;        //number of bytes to write
-    uint16_t nPage;         //number of bytes remaining on current page, starting at addr
+    uint16_t nPage;         //number of bytes remaining on current layer, starting at addr
 
     if (addr + nBytes > _totalCapacity) {   //will this write go past the top of the EEPROM?
         return EEPROM_ADDR_ERR;             //yes, tell the caller
@@ -169,7 +169,7 @@ uint8_t BMC24LC256::read(unsigned long addr, uint8_t *values, unsigned int nByte
     uint8_t ctrlByte;
     uint8_t rxStatus;
     unsigned int nRead;             //number of bytes to read
-    unsigned int nPage;             //number of bytes remaining on current page, starting at addr
+    unsigned int nPage;             //number of bytes remaining on current layer, starting at addr
 
     if (addr + nBytes > _totalCapacity) {   //will this read take us past the top of the EEPROM?
         return EEPROM_ADDR_ERR;             //yes, tell the caller

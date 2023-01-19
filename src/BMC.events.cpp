@@ -308,8 +308,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       if(group == BMC_DEVICE_GROUP_BUTTON){
         uint8_t cmd = valueTyper.cmd(byteA, byteB);
         if(cmd > 10){// cmd 10 is Clear
-          if(cmd==12){// page
-            setPage(valueTyper.getRawOutput());
+          if(cmd==12){// layer
+            setLayer(valueTyper.getRawOutput());
           } else if(cmd==13){// preset
 #if BMC_MAX_PRESETS > 0
             presets.set(valueTyper.getRawOutput());
@@ -428,92 +428,92 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #endif
       break;
 
-    // PAGES
-    case BMC_EVENT_TYPE_PAGE:
+    // LAYERS
+    case BMC_EVENT_TYPE_LAYER:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         if(group == BMC_DEVICE_GROUP_BUTTON){
           if(scroll.enabled){
-            scrollPage(scroll.direction, scroll.endless, scroll.amount);
+            scrollLayer(scroll.direction, scroll.endless, scroll.amount);
           } else {
-            setPage(byteA);
+            setLayer(byteA);
           }
         } else if(group == BMC_DEVICE_GROUP_ENCODER){
-          scrollPage(scroll.direction, scroll.endless, scroll.amount);
+          scrollLayer(scroll.direction, scroll.endless, scroll.amount);
         }
       } else {
         if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(page, 0, BMC_MAX_PAGES-1, 0, 100);
+          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
         } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (event & 0x3FFF) == page;
+          return (event & 0x3FFF) == layer;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          #if BMC_MAX_PAGES < 10
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%01u", "PAGE");
-          #elif BMC_MAX_PAGES < 100
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%02u", "PAGE");
+          #if BMC_MAX_LAYERS < 10
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%01u", "LAYER");
+          #elif BMC_MAX_LAYERS < 100
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%02u", "LAYER");
           #else
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%03u", "PAGE");
+            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%03u", "LAYER");
           #endif
           return false;
 #endif
         }
       }
       break;
-    case BMC_EVENT_TYPE_PAGE_NAME:
+    case BMC_EVENT_TYPE_LAYER_NAME:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         return false;
       } else {
         if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(page, 0, BMC_MAX_PAGES-1, 0, 100);
+          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
         } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (event & 0x3FFF) == page;
+          return (event & 0x3FFF) == layer;
         } else {
 #if defined(BMC_HAS_DISPLAY)
           uint16_t pageN = (event & 0x3FFF);
-          if(pageN < BMC_MAX_PAGES){
-            bmcStoreName t = globals.getDeviceName(store.pages[pageN].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name, "PAGE");
+          if(pageN < BMC_MAX_LAYERS){
+            bmcStoreName t = globals.getDeviceName(store.layers[pageN].name);
+            display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
           }
           return false;
 #endif
         }
       }
       break;
-    case BMC_EVENT_TYPE_PAGE_SELECTED:
+    case BMC_EVENT_TYPE_LAYER_SELECTED:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         //
       } else {
         if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(page, 0, BMC_MAX_PAGES-1, 0, 100);
+          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
         } else if(group != BMC_DEVICE_GROUP_DISPLAY){
           return false;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          #if BMC_MAX_PAGES < 10
-            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%01u", "PAGE");
-          #elif BMC_MAX_PAGES < 100
-            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%02u", "PAGE");
+          #if BMC_MAX_LAYERS < 10
+            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%01u", "LAYER");
+          #elif BMC_MAX_LAYERS < 100
+            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%02u", "LAYER");
           #else
-            display.renderNumber(deviceIndex, isOled, e.type, page+globals.offset, "%02u", "PAGE");
+            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%02u", "LAYER");
           #endif
           return false;
 #endif
         }
       }
       break;
-    case BMC_EVENT_TYPE_PAGE_SELECTED_NAME:
+    case BMC_EVENT_TYPE_LAYER_SELECTED_NAME:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         //
       } else {
         if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(page, 0, BMC_MAX_PAGES-1, 0, 100);
+          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
         } else if(group != BMC_DEVICE_GROUP_DISPLAY){
           return false;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          if(page < BMC_MAX_PAGES){
-            bmcStoreName t = globals.getDeviceName(store.pages[page].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name, "PAGE");
+          if(layer < BMC_MAX_LAYERS){
+            bmcStoreName t = globals.getDeviceName(store.layers[layer].name);
+            display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
           }
           return false;
 #endif
@@ -825,31 +825,42 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
 #endif
+
+#if defined(BMC_HAS_DISPLAY)
+    case BMC_EVENT_TYPE_DEVICE_NAME:
+      if(group == BMC_DEVICE_GROUP_DISPLAY){
+        bmcStoreName t;
+        editor.getDeviceNameText(byteA, BMC_GET_BYTE_2(1, event), t.name);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "NAME");
+      }
+      break;
+#endif
     // EXTERNAL SYNC
 #ifdef BMC_USE_DAW_LC
-    case BMC_EVENT_TYPE_DAW_BUTTON:
+    case BMC_EVENT_TYPE_DAW_COMMAND:
       // handled by BMC::handleButton
       if(group == BMC_DEVICE_GROUP_BUTTON){
+
         sync.daw.sendButtonCommand(byteA, byteB, false);
-      }
-      break;
-    case BMC_EVENT_TYPE_DAW_LED:
-      if(group == BMC_DEVICE_GROUP_LED){
+
+      } else if(group == BMC_DEVICE_GROUP_LED){
+
         return sync.daw.getLedState(byteA, byteB);
+
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+
+        sync.daw.sendEncoderScrolling(byteA, byteB, scroll.direction, scroll.amount);
+
       } else if(group == BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return sync.daw.getLedState(byteA, byteB)>0 ? 100 : 0;
-      }
-      break;
-    case BMC_EVENT_TYPE_DAW_ENCODER:
-      if(group == BMC_DEVICE_GROUP_ENCODER){
-        if(byteA==BMC_DAW_ENC_CMD_VPOT){
-          sync.daw.sendVPot(byteB, scroll.direction, scroll.amount);
-        } else if(byteA==BMC_DAW_ENC_CMD_FADER){
-          sync.daw.sendEncoderFader(byteB, scroll.direction, scroll.amount);
-        } else if(byteA==BMC_DAW_ENC_CMD_FADER_MASTER){
-          sync.daw.sendEncoderMasterFader(scroll.direction, scroll.amount);
-        } else if(byteA==BMC_DAW_ENC_CMD_SCRUB){
-          sync.daw.sendTransportScrubWheel(scroll.direction, scroll.amount);
+
+        if(byteA == BMC_DAW_CMD_VPOT_SELECT || (byteA >= BMC_DAW_CMD_VPOT_LED_1 && byteA <= BMC_DAW_CMD_VPOT_LED_CENTER)){
+          return sync.daw.getVPotValuePercentage(byteB);
+        } else if(byteA >= BMC_DAW_CMD_METER_LED_PEAK && byteA <= BMC_DAW_CMD_METER_LED_12){
+          return sync.daw.getMeterValuePercentage(byteB);
+        } else if(byteA >= BMC_DAW_CMD_FADER_TOUCH){
+          return sync.daw.getFaderValuePercentage(byteB);
+        } else {
+          return sync.daw.getLedState(byteA, byteB)>0 ? 100 : 0;
         }
       }
       break;
@@ -879,17 +890,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         }
       }
 #endif
-      break;
-    case BMC_EVENT_TYPE_DAW_MAGIC_ENCODER:
-      if(group == BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        if(byteA==0){
-          return sync.daw.getVPotValuePercentage(byteB);
-        } else if(byteA==1){
-          return sync.daw.getMeterValuePercentage(byteB);
-        } else {
-          return sync.daw.getFaderValuePercentage(byteB);
-        }       
-      }
       break;
 #endif
 

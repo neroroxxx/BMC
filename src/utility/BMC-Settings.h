@@ -267,7 +267,7 @@ public:
 
   // Incoming midi programs
   // @value: 0 do nothing
-  //         1 change pages
+  //         1 change layers
   //         2 trigger presets
   uint8_t getIncomingProgramType(){
     return settings.data[1] & 0x03;

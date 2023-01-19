@@ -149,7 +149,7 @@ class BMCGFX : public Print {
 
   /**********************************************************************/
   /*!
-    @brief  Enable (or disable) Code Page 437-compatible charset.
+    @brief  Enable (or disable) Code Layer 437-compatible charset.
             There was an error in glcdfont.c for the longest time -- one
             character (#176, the 'light shade' block) was missing -- this
             threw off the index of every character that followed it.

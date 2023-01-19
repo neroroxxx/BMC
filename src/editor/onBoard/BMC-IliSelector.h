@@ -42,7 +42,7 @@ public:
   void menuCommand(uint8_t cmd, bool queue=false){
     // c
     if(
-      cmd==BMC_MENU_TOGGLE_PAGES ||
+      cmd==BMC_MENU_TOGGLE_LAYERS ||
       cmd==BMC_MENU_TOGGLE_PRESETS ||
       cmd==BMC_MENU_TOGGLE_SETLISTS ||
       cmd==BMC_MENU_TOGGLE_SONGS
@@ -103,7 +103,7 @@ private:
     isActive = false;
     tft.display.setFontAdafruit();
     tft.display.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
-    display.reassign(globals.page);
+    display.reassign(globals.layer);
   }
 
 };

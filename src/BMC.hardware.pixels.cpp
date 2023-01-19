@@ -16,7 +16,7 @@ void BMC::assignPixels(){
 #if BMC_MAX_PIXELS > 0
   globals.pixelStates.clear();
   for(uint16_t i=0;i<BMC_MAX_PIXELS;i++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].pixels[i];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].pixels[i];
     pixels.setDimColor(pixels.getPixelIndex(i), device.settings[0]);
   }
 #endif
@@ -34,7 +34,7 @@ void BMC::assignPixels(){
   globals.rgbPixelStates[1].clear();
   globals.rgbPixelStates[2].clear();
   for(uint16_t i=0;i<BMC_MAX_RGB_PIXELS;i++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].rgbPixels[i];
+    bmcStoreDevice <1, 3>& device = store.layers[layer].rgbPixels[i];
     bmcStoreEvent r = globals.getDeviceEventType(device.events[0]);
     bmcStoreEvent g = globals.getDeviceEventType(device.events[1]);
     bmcStoreEvent b = globals.getDeviceEventType(device.events[2]);
@@ -66,7 +66,7 @@ void BMC::assignPixels(){
 #if BMC_MAX_PIXEL_STRIP > 0
   {
     globals.pixelStripStates.clear();
-    bmcStoreDevice <1, 1>& device = store.pages[page].pixelStrip[0];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].pixelStrip[0];
     pixels.setDimColor(pixels.getPixelStripIndex(0), device.settings[0]);
   }
 #endif
@@ -78,7 +78,7 @@ void BMC::assignPixels(){
 void BMC::readPixels(){
 #if BMC_MAX_PIXELS > 0
   for(uint16_t i = 0; i < BMC_MAX_PIXELS; i++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].pixels[i];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].pixels[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
@@ -134,7 +134,7 @@ void BMC::readPixels(){
 
 #if BMC_MAX_RGB_PIXELS > 0
   for(uint16_t i = 0; i < BMC_MAX_RGB_PIXELS; i++){
-    bmcStoreDevice <1, 3>& device = store.pages[page].rgbPixels[i];
+    bmcStoreDevice <1, 3>& device = store.layers[layer].rgbPixels[i];
     for(uint8_t e = 0; e < 3; e++){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_RGB_PIXEL, i,
                                   BMC_EVENT_IO_TYPE_OUTPUT, device.events[e]);
@@ -172,7 +172,7 @@ void BMC::readPixels(){
 
 #if BMC_MAX_PIXEL_STRIP > 0
   for(uint16_t i = 0; i < 1; i++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].pixelStrip[i];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].pixelStrip[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL_STRIP, i,
                                 BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);

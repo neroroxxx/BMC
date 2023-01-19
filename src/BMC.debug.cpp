@@ -54,7 +54,7 @@ void BMC::readDebug(){
     #endif
 
     #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
-      BMC_PRINTLN("pots = Toggle debugging page and global pots output.");
+      BMC_PRINTLN("pots = Toggle debugging layer and global pots output.");
     #endif
 
     #ifdef BMC_MIDI_BLE_ENABLED
@@ -69,8 +69,8 @@ void BMC::readDebug(){
 
     BMC_PRINTLN("storageDebug = Prints the time it takes to read/write/clear EEPROM everytime the actions happens");
     BMC_PRINTLN("metrics = Prints some metrics of the performance of BMC like loops per second, etc. Happens every other second.");
-    BMC_PRINTLN("nextPage = Go to next page");
-    BMC_PRINTLN("prevPage = Go to previous page");
+    BMC_PRINTLN("nextLayer = Go to next layer");
+    BMC_PRINTLN("prevLayer = Go to previous layer");
     BMC_PRINTLN("midiClockInfo = Display Master/Slave Clock Info");
     BMC_PRINTLN("midiIn = Toggles displaying all incoming MIDI Messages (excludes Clock)");
     BMC_PRINTLN("midiOut = Toggles displaying all outgoing MIDI Messages (excludes Clock)");
@@ -159,13 +159,13 @@ void BMC::readDebug(){
     }
     printDebugHeader(debugInput);
 
-  } else if(BMC_STR_MATCH(debugInput,"nextPage")){
+  } else if(BMC_STR_MATCH(debugInput,"nextLayer")){
 
-    nextPage();
+    nextLayer();
 
-  } else if(BMC_STR_MATCH(debugInput,"prevPage")){
+  } else if(BMC_STR_MATCH(debugInput,"prevLayer")){
 
-    prevPage();
+    prevLayer();
 
   } else if(BMC_STR_MATCH(debugInput,"midiClockInfo")){
 
@@ -257,8 +257,8 @@ void BMC::readDebug(){
     BMC_PRINTLN("BMC_MAX_NL_RELAYS", BMC_MAX_NL_RELAYS);
     BMC_PRINTLN("BMC_MAX_L_RELAYS", BMC_MAX_L_RELAYS);
     BMC_PRINTLN("");
-    BMC_PRINTLN("*** PAGES ***");
-    BMC_PRINTLN("BMC_MAX_PAGES", BMC_MAX_PAGES);
+    BMC_PRINTLN("*** LAYERS ***");
+    BMC_PRINTLN("BMC_MAX_LAYERS", BMC_MAX_LAYERS);
     BMC_PRINTLN("BMC_MAX_BUTTONS", BMC_MAX_BUTTONS);
     BMC_PRINTLN("BMC_MAX_BUTTON_EVENTS", BMC_MAX_BUTTON_EVENTS);
     BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
@@ -431,28 +431,28 @@ void BMC::readDebug(){
       BMC_PRINTLN("store.global.relaysL[0]",sizeof(store.global.relaysL[0]),"bytes");
     #endif
 
-    #if BMC_MAX_PAGES > 0
+    #if BMC_MAX_LAYERS > 0
       BMC_PRINTLN("");
-      BMC_PRINTLN("store.pages",sizeof(store.pages),"bytes");
-      BMC_PRINTLN("store.pages[0]",sizeof(store.pages[0]),"bytes");
+      BMC_PRINTLN("store.layers",sizeof(store.layers),"bytes");
+      BMC_PRINTLN("store.layers[0]",sizeof(store.layers[0]),"bytes");
 
       #if BMC_MAX_BUTTONS > 0
-        BMC_PRINTLN("store.pages[0].buttons",sizeof(store.pages[0].buttons),"bytes");
-        BMC_PRINTLN("store.pages[0].buttons[0]",sizeof(store.pages[0].buttons[0]),"bytes");
-        BMC_PRINTLN("store.pages[0].buttons[0].events[0]",sizeof(store.pages[0].buttons[0].events[0]),"bytes");
+        BMC_PRINTLN("store.layers[0].buttons",sizeof(store.layers[0].buttons),"bytes");
+        BMC_PRINTLN("store.layers[0].buttons[0]",sizeof(store.layers[0].buttons[0]),"bytes");
+        BMC_PRINTLN("store.layers[0].buttons[0].events[0]",sizeof(store.layers[0].buttons[0].events[0]),"bytes");
       #endif
       #if BMC_MAX_ENCODERS > 0
-        BMC_PRINTLN("store.pages[0].encoders",sizeof(store.pages[0].encoders),"bytes");
-        BMC_PRINTLN("store.pages[0].encoders[0]",sizeof(store.pages[0].encoders[0]),"bytes");
+        BMC_PRINTLN("store.layers[0].encoders",sizeof(store.layers[0].encoders),"bytes");
+        BMC_PRINTLN("store.layers[0].encoders[0]",sizeof(store.layers[0].encoders[0]),"bytes");
       #endif
       #if BMC_MAX_POTS > 0
-        BMC_PRINTLN("store.pages[0].pots",sizeof(store.pages[0].pots),"bytes");
-        BMC_PRINTLN("store.pages[0].pots[0]",sizeof(store.pages[0].pots[0]),"bytes");
+        BMC_PRINTLN("store.layers[0].pots",sizeof(store.layers[0].pots),"bytes");
+        BMC_PRINTLN("store.layers[0].pots[0]",sizeof(store.layers[0].pots[0]),"bytes");
       #endif
 
       #if BMC_MAX_LEDS > 0
-        BMC_PRINTLN("store.pages[0].leds",sizeof(store.pages[0].leds),"bytes");
-        BMC_PRINTLN("store.pages[0].leds[0]",sizeof(store.pages[0].leds[0]),"bytes");
+        BMC_PRINTLN("store.layers[0].leds",sizeof(store.layers[0].leds),"bytes");
+        BMC_PRINTLN("store.layers[0].leds[0]",sizeof(store.layers[0].leds[0]),"bytes");
       #endif
     #endif
     printDebugHeader(debugInput);

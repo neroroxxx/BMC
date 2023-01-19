@@ -185,7 +185,7 @@ public:
     }
     return false;
   }
-  // reassign the LED behaviour, used when switching pages or the editor
+  // reassign the LED behaviour, used when switching layers or the editor
   // has updated EEPROM
   void reassign(uint8_t t_settings=0){
     reset();

@@ -11,14 +11,14 @@
 uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
   /*
   // ledType
-  // 0 = page led (BMC_LED_TYPE_PAGE)
+  // 0 = layer led (BMC_LED_TYPE_LAYER)
   // 1 = global led (BMC_LED_TYPE_GLOBAL)
   // 2 = PWM led (BMC_LED_TYPE_PWM)
   // 3 = pixel (BMC_LED_TYPE_PIXEL)
   // 4 = rgb pixel Red event (BMC_LED_TYPE_RGB_RED)
   // 5 = rgb pixel Green event (BMC_LED_TYPE_RGB_GREEN)
   // 6 = rgb pixel Blue event (BMC_LED_TYPE_RGB_BLUE)
-  // page and global leds use the most significant bit of the even as the Blink setting
+  // layer and global leds use the most significant bit of the even as the Blink setting
   // this is bit-31
   // pixels use the 4 most significant bits for color
   // PWM Leds use the 4 most significant bits for brightness
@@ -57,13 +57,13 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
     case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
       return globals.hasMidiActivity(byteA) ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
 
-    case BMC_LED_EVENT_TYPE_PAGE:
-      return byteA == page;
+    case BMC_LED_EVENT_TYPE_LAYER:
+      return byteA == layer;
 
 
     case BMC_EVENT_TYPE_CUSTOM:
 #if BMC_MAX_GLOBAL_LEDS > 0
-      if(ledType==BMC_LED_TYPE_GLOBAL){// page led
+      if(ledType==BMC_LED_TYPE_GLOBAL){// layer led
         if(byteA<BMC_MAX_GLOBAL_LEDS){
           return globals.globalLedCustomState.getBit(byteA);
         }
@@ -73,7 +73,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_LEDS > 0
       // the only reason to leave ledType here even if Global Leds are
       // not compiled is so we don't get compiler errors for the unused variable
-      if(ledType==BMC_LED_TYPE_PAGE){// global led
+      if(ledType==BMC_LED_TYPE_LAYER){// global led
         if(byteA<BMC_MAX_LEDS){
           return globals.ledCustomState.getBit(byteA);
         }
@@ -328,7 +328,7 @@ void BMC::handleClockLeds(){
 
 #if BMC_MAX_LEDS > 0
   for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].leds[index];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].leds[index];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     // first bit is always the "blink" state
     if(BMCTools::isMidiClockLedEvent(data.type)){
@@ -336,7 +336,7 @@ void BMC::handleClockLeds(){
       leds[index].pulse();
     }
 
-    //bmcStoreLed& item = store.pages[page].leds[index];
+    //bmcStoreLed& item = store.layers[layer].leds[index];
     //if(BMCTools::isMidiClockLedEvent(item.event)){
       //leds[index].pulse();
     //}
@@ -358,7 +358,7 @@ void BMC::handleClockLeds(){
 
 #if BMC_MAX_PIXELS > 0
   for(uint8_t index = 0; index < BMC_MAX_PIXELS; index++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].pixels[index];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].pixels[index];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
     // first bit is always the "blink" state
     if(BMCTools::isMidiClockLedEvent(data.type)){
@@ -371,7 +371,7 @@ void BMC::handleClockLeds(){
 #if BMC_MAX_RGB_PIXELS > 0
   for(uint8_t index = 0; index < BMC_MAX_RGB_PIXELS; index++){
 
-    bmcStoreDevice <1, 3>& device = store.pages[page].rgbPixels[index];
+    bmcStoreDevice <1, 3>& device = store.layers[layer].rgbPixels[index];
     for(uint8_t e = 0; e < 3; e++){
       bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
       // first bit is always the "blink" state

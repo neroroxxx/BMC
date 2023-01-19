@@ -138,7 +138,7 @@ public:
         uint16_t dID = items[data.dynamicListIndex].id;
         switch(dID){
           case BMC_OBE_ID_GLOBAL_ITEMS:
-          case BMC_OBE_ID_PAGES_ITEMS:
+          case BMC_OBE_ID_LAYERS_ITEMS:
             {
               bool useGlobalItems = (dID == BMC_OBE_ID_GLOBAL_ITEMS);
               if(editor.devicesData[id].id==0 || editor.devicesData[id].length==0){
@@ -242,7 +242,7 @@ public:
     uint16_t dID = items[data.dynamicListIndex].id;
     switch(dID){
       case BMC_OBE_ID_GLOBAL_ITEMS:
-      case BMC_OBE_ID_PAGES_ITEMS:
+      case BMC_OBE_ID_LAYERS_ITEMS:
         data.totalRows = 0;
         for(uint16_t t = 0 ; t < editor.getDevicesDataLength() ; t++){
           if(editor.devicesData[t].id==0 || editor.devicesData[t].length==0){
@@ -331,7 +331,7 @@ public:
       uint16_t dID = items[data.dynamicListIndex].id;
       switch(dID){
         case BMC_OBE_ID_GLOBAL_ITEMS:
-        case BMC_OBE_ID_PAGES_ITEMS:
+        case BMC_OBE_ID_LAYERS_ITEMS:
           {
             BMCDeviceData dd = editor.getDeviceData(id+1);
             // BMC_PRINTLN("renderRow()", id+1, dd.label);
@@ -607,7 +607,7 @@ public:
       if(isDynamicList()){
         switch(items[data.dynamicListIndex].id){
           case BMC_OBE_ID_GLOBAL_ITEMS:
-          case BMC_OBE_ID_PAGES_ITEMS:
+          case BMC_OBE_ID_LAYERS_ITEMS:
             {
               strcpy(data.headerTitle, items[data.dynamicListIndex].label);
               uint16_t id = data.getActiveVisibleListItem();
@@ -795,7 +795,7 @@ private:
   const uint16_t totalMenuItems = 36;
   const BMCOBEMenuItem items[36] = {
     {{0}, BMC_OBE_ID_GO_TO, "Go To", BMC_OBE_MENU_LIST},
-      {{1,0}, BMC_OBE_ID_CP_GO_TO_PAGE, "Page", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PAGES-1, 1},
+      {{1,0}, BMC_OBE_ID_CP_GO_TO_LAYER, "Layer", BMC_OBE_EDIT_LIST, 0, BMC_MAX_LAYERS-1, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_BANK, "Bank", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESET_BANKS-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_PRESET, "Preset", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESETS_PER_BANK-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_SETLIST, "Setlist", BMC_OBE_EDIT_LIST, 0, BMC_MAX_SETLISTS > 0?(BMC_MAX_SETLISTS-1):0, 1},
@@ -826,10 +826,10 @@ private:
       {{1,2}, BMC_OBE_ID_GLOBAL_ITEMS, "Global Devices", BMC_OBE_MENU_DYNAMIC_LIST, 0, 40, 1},
         {{2,2}, BMC_OBE_ID_G_ITEM_LIST, "Global List", BMC_OBE_MENU_DYNAMIC_LIST, 0, 0xFFFF, 1},
           {{3,2}, BMC_OBE_ID_G_ITEM_EDIT, "Global Edit", BMC_OBE_MENU_DYNAMIC_EDIT, 0, 0xFFFF, 1},
-    {{0}, BMC_OBE_ID_PAGES, "Pages", BMC_OBE_MENU_LIST},
-      {{1,3}, BMC_OBE_ID_PAGES_ITEMS, "Pages Devices", BMC_OBE_MENU_DYNAMIC_LIST, 0, 40, 1},
-        {{2,3}, BMC_OBE_ID_P_ITEM_LIST, "Pages List", BMC_OBE_MENU_DYNAMIC_LIST, 0, 0xFFFF, 1},
-          {{3,3}, BMC_OBE_ID_P_ITEM_EDIT, "Pages Edit", BMC_OBE_MENU_DYNAMIC_EDIT, 0, 0xFFFF, 1}
+    {{0}, BMC_OBE_ID_LAYERS, "Layers", BMC_OBE_MENU_LIST},
+      {{1,3}, BMC_OBE_ID_LAYERS_ITEMS, "Layers Devices", BMC_OBE_MENU_DYNAMIC_LIST, 0, 40, 1},
+        {{2,3}, BMC_OBE_ID_P_ITEM_LIST, "Layers List", BMC_OBE_MENU_DYNAMIC_LIST, 0, 0xFFFF, 1},
+          {{3,3}, BMC_OBE_ID_P_ITEM_EDIT, "Layers Edit", BMC_OBE_MENU_DYNAMIC_EDIT, 0, 0xFFFF, 1}
   };
   uint16_t getEditorValue(uint16_t id){
     char str[40] = "";
@@ -969,7 +969,7 @@ private:
         }
         switch(value){
           case 0: strcpy(str, "None"); break;
-          case 1: strcpy(str, "Change Page"); break;
+          case 1: strcpy(str, "Change Layer"); break;
           case 2: strcpy(str, "Change Preset"); break;
         }
         return value;
@@ -1021,19 +1021,19 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
-      // change pages
-      case BMC_OBE_ID_CP_GO_TO_PAGE:
+      // change layers
+      case BMC_OBE_ID_CP_GO_TO_LAYER:
         {
-          originalValue = display.midi.globals.page;
+          originalValue = display.midi.globals.layer;
           value = (!active) ? originalValue : value;
           if(setValue && originalValue != value){
-            display.midi.globals.page = value;
-            display.midi.globals.setReloadPage(true);
+            display.midi.globals.layer = value;
+            display.midi.globals.setReloadLayer(true);
             forceExitEditor();
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
-          editor.getDeviceNameText(BMC_DEVICE_ID_PAGE, value, buff);
+          editor.getDeviceNameText(BMC_DEVICE_ID_LAYER, value, buff);
           sprintf(str, "#%u %s", value+(display.midi.globals.settings.getDisplayOffset()?0:1), buff);
           return value;
         }

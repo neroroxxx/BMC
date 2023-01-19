@@ -370,10 +370,12 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MENU_DEC            	 8
 #define BMC_MENU_CANCEL         	 9
 #define BMC_MENU_SAVE           	 10
-#define BMC_MENU_TOGGLE_PAGES   	 11
-#define BMC_MENU_TOGGLE_PRESETS 	 12
-#define BMC_MENU_TOGGLE_SETLISTS	 13
-#define BMC_MENU_TOGGLE_SONGS   	 14
+
+
+#define BMC_MENU_TOGGLE_LAYERS   	 9
+#define BMC_MENU_TOGGLE_PRESETS 	 10
+#define BMC_MENU_TOGGLE_SETLISTS	 11
+#define BMC_MENU_TOGGLE_SONGS   	 12
 
 
 
@@ -407,11 +409,11 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_SYSTEM_LFO                  	 26
 // SKETCH BYTES
 #define BMC_EVENT_TYPE_SKETCH_BYTE                 	 27
-// PAGES
-#define BMC_EVENT_TYPE_PAGE                        	 28
-#define BMC_EVENT_TYPE_PAGE_NAME                   	 29
-#define BMC_EVENT_TYPE_PAGE_SELECTED               	 30
-#define BMC_EVENT_TYPE_PAGE_SELECTED_NAME          	 31
+// LAYERS
+#define BMC_EVENT_TYPE_LAYER                        	 28
+#define BMC_EVENT_TYPE_LAYER_NAME                   	 29
+#define BMC_EVENT_TYPE_LAYER_SELECTED               	 30
+#define BMC_EVENT_TYPE_LAYER_SELECTED_NAME          	 31
 // PRESETS
 #define BMC_EVENT_TYPE_PRESET                      	 32
 #define BMC_EVENT_TYPE_PRESET_NAME                 	 33
@@ -441,11 +443,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_PIXEL_PROGRAM_BLACKOUT      	 55
 #define BMC_EVENT_TYPE_CUSTOM_SYSEX                	 56
 // EXTERNAL SYNC
-#define BMC_EVENT_TYPE_DAW_BUTTON                  	 57
-#define BMC_EVENT_TYPE_DAW_LED                     	 58
-#define BMC_EVENT_TYPE_DAW_ENCODER                 	 59
+#define BMC_EVENT_TYPE_DAW_COMMAND                   57
 #define BMC_EVENT_TYPE_DAW_DISPLAY                 	 60
-#define BMC_EVENT_TYPE_DAW_MAGIC_ENCODER           	 61
 #define BMC_EVENT_TYPE_BEATBUDDY                   	 62
 #define BMC_EVENT_TYPE_BEATBUDDY_BPM               	 63
 #define BMC_EVENT_TYPE_BEATBUDDY_FOLDER            	 64
@@ -456,25 +455,26 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_FAS_BLOCK_PARAM             	 69
 #define BMC_EVENT_TYPE_HELIX                       	 70
 // HARDWARE
-#define BMC_EVENT_TYPE_BUTTON                      	 71
-#define BMC_EVENT_TYPE_GLOBAL_BUTTON               	 72
-#define BMC_EVENT_TYPE_LED                         	 73
-#define BMC_EVENT_TYPE_GLOBAL_LED                  	 74
-#define BMC_EVENT_TYPE_BI_LED                      	 75
-#define BMC_EVENT_TYPE_GLOBAL_BI_LED               	 76
-#define BMC_EVENT_TYPE_TRI_LED                     	 77
-#define BMC_EVENT_TYPE_GLOBAL_TRI_LED              	 78
-#define BMC_EVENT_TYPE_POT                         	 79
-#define BMC_EVENT_TYPE_GLOBAL_POT                  	 80
-#define BMC_EVENT_TYPE_ENCODER                     	 81
-#define BMC_EVENT_TYPE_GLOBAL_ENCODER              	 82
-#define BMC_EVENT_TYPE_PIXEL                       	 83
-#define BMC_EVENT_TYPE_GLOBAL_PIXEL                	 84
-#define BMC_EVENT_TYPE_RGB_PIXEL                   	 85
-#define BMC_EVENT_TYPE_GLOBAL_RGB_PIXEL            	 86
-#define BMC_EVENT_TYPE_NL_RELAY                    	 87
-#define BMC_EVENT_TYPE_L_RELAY                     	 88
-#define BMC_EVENT_TYPE_AUX_JACK                    	 89
+#define BMC_EVENT_TYPE_DEVICE_NAME                   71
+#define BMC_EVENT_TYPE_BUTTON                      	 72
+#define BMC_EVENT_TYPE_GLOBAL_BUTTON               	 73
+#define BMC_EVENT_TYPE_LED                         	 74
+#define BMC_EVENT_TYPE_GLOBAL_LED                  	 75
+#define BMC_EVENT_TYPE_BI_LED                      	 76
+#define BMC_EVENT_TYPE_GLOBAL_BI_LED               	 77
+#define BMC_EVENT_TYPE_TRI_LED                     	 78
+#define BMC_EVENT_TYPE_GLOBAL_TRI_LED              	 79
+#define BMC_EVENT_TYPE_POT                         	 80
+#define BMC_EVENT_TYPE_GLOBAL_POT                  	 81
+#define BMC_EVENT_TYPE_ENCODER                     	 82
+#define BMC_EVENT_TYPE_GLOBAL_ENCODER              	 83
+#define BMC_EVENT_TYPE_PIXEL                       	 84
+#define BMC_EVENT_TYPE_GLOBAL_PIXEL                	 85
+#define BMC_EVENT_TYPE_RGB_PIXEL                   	 86
+#define BMC_EVENT_TYPE_GLOBAL_RGB_PIXEL            	 87
+#define BMC_EVENT_TYPE_NL_RELAY                    	 88
+#define BMC_EVENT_TYPE_L_RELAY                     	 89
+#define BMC_EVENT_TYPE_AUX_JACK                    	 90
 
 
 
@@ -498,7 +498,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // ID for BMC Elements
 // HARDWARE TYPES
-#define BMC_DEVICE_ID_PAGE                 	 1
+#define BMC_DEVICE_ID_LAYER                 	 1
 #define BMC_DEVICE_ID_EVENT                	 2
 #define BMC_DEVICE_ID_NAME                 	 3
 // hardware
@@ -520,7 +520,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DEVICE_ID_GLOBAL_TRI_LED       	 19
 #define BMC_DEVICE_ID_MAGIC_ENCODER        	 20
 #define BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER 	 21
-// only page
+// only layer
 #define BMC_DEVICE_ID_OLED                 	 22
 #define BMC_DEVICE_ID_ILI                  	 23
 #define BMC_DEVICE_ID_PIXEL_STRIP          	 24
@@ -554,7 +554,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // original values
 // ID for BMC Elements
 // HARDWARE TYPES
-#define BMC_DEVICE_ID_PAGE                	 1
+#define BMC_DEVICE_ID_LAYER                	 1
 #define BMC_DEVICE_ID_EVENT               	 2
 #define BMC_DEVICE_ID_NAME                	 3
 
@@ -786,8 +786,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #endif
 #endif
 
-#ifndef BMC_PAGE_LED_DIM
-  #define BMC_PAGE_LED_DIM true
+#ifndef BMC_LAYER_LED_DIM
+  #define BMC_LAYER_LED_DIM true
 #endif
 
 #ifndef BMC_GLOBAL_LED_DIM
@@ -829,9 +829,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // make sure you follow the format of each
 // these can not exceed 30 characters including the EOL
 
-// used when changing pages
-#ifndef BMC_STREAM_TEMPL_PAGE
-  #define BMC_STREAM_TEMPL_PAGE "Page %03u %s"
+// used when changing layers
+#ifndef BMC_STREAM_TEMPL_LAYER
+  #define BMC_STREAM_TEMPL_LAYER "Layer %03u %s"
 #endif
 
 // used when changing presets
@@ -889,12 +889,12 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_BUTTON_PRESS_TYPE_RELEASE_ALT 11
 #define BMC_BUTTON_PRESS_TYPE_STATE_CHANGE 12
 
-// 0 = page led
+// 0 = layer led
 // 1 = global led
 // 2 = PWM led
 // 3 = pixel
 // 4 = rgb pixel
-#define BMC_LED_TYPE_PAGE 0
+#define BMC_LED_TYPE_LAYER 0
 #define BMC_LED_TYPE_GLOBAL 1
 #define BMC_LED_TYPE_PWM 2
 #define BMC_LED_TYPE_PIXEL 3
@@ -1127,7 +1127,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 /*
   LIBRARY
 */
-#define BMC_LIBRARY_EVENT_TYPE_PAGE 1
+#define BMC_LIBRARY_EVENT_TYPE_LAYER 1
 #define BMC_LIBRARY_EVENT_TYPE_CLOCK 2
 #define BMC_LIBRARY_EVENT_TYPE_PIXEL_PROGRAM 3
 #define BMC_LIBRARY_EVENT_TYPE_BEATBUDDY_SET_BPM 4
@@ -1138,8 +1138,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_CUSTOM 127
 
 // BUTTON EVENT TYPES
-#define BMC_BUTTON_EVENT_TYPE_PAGE 1
-#define BMC_BUTTON_EVENT_TYPE_PAGE_SCROLL 2
+#define BMC_BUTTON_EVENT_TYPE_LAYER 1
+#define BMC_BUTTON_EVENT_TYPE_LAYER_SCROLL 2
 #define BMC_BUTTON_EVENT_TYPE_PROGRAM_SCROLL 3
 #define BMC_BUTTON_EVENT_TYPE_CONTROL_SCROLL 4
 #define BMC_BUTTON_EVENT_TYPE_CONTROL_TOGGLE 5
@@ -1223,11 +1223,11 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // **************************************
 //           LED EVENT TYPES
 // **************************************
-// These are used for Page Leds, Global Leds, PWM Leds and Pixels
+// These are used for Layer Leds, Global Leds, PWM Leds and Pixels
 #define BMC_LED_EVENT_TYPE_MIDI_ACTIVITY 1
 #define BMC_LED_EVENT_TYPE_CLOCK_SYNC 2
 #define BMC_LED_EVENT_TYPE_STATUS 3
-#define BMC_LED_EVENT_TYPE_PAGE 4
+#define BMC_LED_EVENT_TYPE_LAYER 4
 #define BMC_LED_EVENT_TYPE_PRESET 5
 #define BMC_LED_EVENT_TYPE_BUTTON 6
 #define BMC_LED_EVENT_TYPE_GLOBAL_BUTTON 7
@@ -1297,75 +1297,175 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // **********************************
 //         BMC DAW CMD BUTTONS
 // **********************************
-#define BMC_DAW_BTN_CMD_REC               	 0
-#define BMC_DAW_BTN_CMD_SOLO              	 1
-#define BMC_DAW_BTN_CMD_MUTE              	 2
-#define BMC_DAW_BTN_CMD_SELECT            	 3
-#define BMC_DAW_BTN_CMD_VPOT              	 4
-#define BMC_DAW_BTN_CMD_ASSIGN_TRACK      	 5
-#define BMC_DAW_BTN_CMD_ASSIGN_SEND       	 6
-#define BMC_DAW_BTN_CMD_ASSIGN_PAN        	 7
-#define BMC_DAW_BTN_CMD_ASSIGN_PLUGIN     	 8
-#define BMC_DAW_BTN_CMD_ASSIGN_EQ         	 9
-#define BMC_DAW_BTN_CMD_ASSIGN_INSTR      	 10
-#define BMC_DAW_BTN_CMD_BANK_LEFT         	 11
-#define BMC_DAW_BTN_CMD_BANK_RIGHT        	 12
-#define BMC_DAW_BTN_CMD_CHANNEL_LEFT      	 13
-#define BMC_DAW_BTN_CMD_CHANNEL_RIGHT     	 14
-#define BMC_DAW_BTN_CMD_FLIP              	 15
-#define BMC_DAW_BTN_CMD_GLOBAL            	 16
-#define BMC_DAW_BTN_CMD_NAMEVAL           	 17
-#define BMC_DAW_BTN_CMD_SMPTEBEATS        	 18
-#define BMC_DAW_BTN_CMD_F1                	 19
-#define BMC_DAW_BTN_CMD_F2                	 20
-#define BMC_DAW_BTN_CMD_F3                	 21
-#define BMC_DAW_BTN_CMD_F4                	 22
-#define BMC_DAW_BTN_CMD_F5                	 23
-#define BMC_DAW_BTN_CMD_F6                	 24
-#define BMC_DAW_BTN_CMD_F7                	 25
-#define BMC_DAW_BTN_CMD_F8                	 26
-#define BMC_DAW_BTN_CMD_VIEW_MIDI         	 27
-#define BMC_DAW_BTN_CMD_VIEW_INPUTS       	 28
-#define BMC_DAW_BTN_CMD_VIEW_AUDIO        	 29
-#define BMC_DAW_BTN_CMD_VIEW_INSTR        	 30
-#define BMC_DAW_BTN_CMD_VIEW_AUX          	 31
-#define BMC_DAW_BTN_CMD_VIEW_BUS          	 32
-#define BMC_DAW_BTN_CMD_VIEW_OUT          	 33
-#define BMC_DAW_BTN_CMD_VIEW_USER         	 34
-#define BMC_DAW_BTN_CMD_MOD_SHIFT         	 35
-#define BMC_DAW_BTN_CMD_MOD_OPTION        	 36
-#define BMC_DAW_BTN_CMD_MOD_CONTROL       	 37
-#define BMC_DAW_BTN_CMD_MOD_CMD           	 38
-#define BMC_DAW_BTN_CMD_AUTOMATION_READ   	 39
-#define BMC_DAW_BTN_CMD_AUTOMATION_WRITE  	 40
-#define BMC_DAW_BTN_CMD_AUTOMATION_TRIM   	 41
-#define BMC_DAW_BTN_CMD_AUTOMATION_TOUCH  	 42
-#define BMC_DAW_BTN_CMD_AUTOMATION_LATCH  	 43
-#define BMC_DAW_BTN_CMD_AUTOMATION_GROUP  	 44
-#define BMC_DAW_BTN_CMD_UTILITY_SAVE      	 45
-#define BMC_DAW_BTN_CMD_UTILITY_UNDO      	 46
-#define BMC_DAW_BTN_CMD_UTILITY_CANCEL    	 47
-#define BMC_DAW_BTN_CMD_UTILITY_ENTER     	 48
-#define BMC_DAW_BTN_CMD_TRANSPORT_MARKER  	 49
-#define BMC_DAW_BTN_CMD_TRANSPORT_NUDGE   	 50
-#define BMC_DAW_BTN_CMD_TRANSPORT_CYCLE   	 51
-#define BMC_DAW_BTN_CMD_TRANSPORT_DROP    	 52
-#define BMC_DAW_BTN_CMD_TRANSPORT_REPLACE 	 53
-#define BMC_DAW_BTN_CMD_TRANSPORT_CLICK   	 54
-#define BMC_DAW_BTN_CMD_TRANSPORT_SOLO    	 55
-#define BMC_DAW_BTN_CMD_TRANSPORT_REWIND  	 56
-#define BMC_DAW_BTN_CMD_TRANSPORT_FORWARD 	 57
-#define BMC_DAW_BTN_CMD_TRANSPORT_STOP    	 58
-#define BMC_DAW_BTN_CMD_TRANSPORT_PLAY    	 59
-#define BMC_DAW_BTN_CMD_TRANSPORT_REC     	 60
-#define BMC_DAW_BTN_CMD_CURSOR_UP         	 61
-#define BMC_DAW_BTN_CMD_CURSOR_DOWN       	 62
-#define BMC_DAW_BTN_CMD_CURSOR_LEFT       	 63
-#define BMC_DAW_BTN_CMD_CURSOR_RIGHT      	 64
-#define BMC_DAW_BTN_CMD_CURSOR_ZOOM       	 65
-#define BMC_DAW_BTN_CMD_SCRUB             	 66
-#define BMC_DAW_BTN_CMD_FADER_TOUCH       	 67
-#define BMC_DAW_BTN_CMD_FADER_TOUCH_MASTER	 68
+// #define BMC_DAW_CMD_REC               	 0
+// #define BMC_DAW_CMD_SOLO              	 1
+// #define BMC_DAW_CMD_MUTE              	 2
+// #define BMC_DAW_CMD_SELECT            	 3
+// #define BMC_DAW_CMD_VPOT_SELECT              	 4
+// #define BMC_DAW_CMD_ASSIGN_TRACK      	 5
+// #define BMC_DAW_CMD_ASSIGN_SEND       	 6
+// #define BMC_DAW_CMD_ASSIGN_PAN        	 7
+// #define BMC_DAW_CMD_ASSIGN_PLUGIN     	 8
+// #define BMC_DAW_CMD_ASSIGN_EQ         	 9
+// #define BMC_DAW_CMD_ASSIGN_INSTR      	 10
+// #define BMC_DAW_CMD_BANK_LEFT         	 11
+// #define BMC_DAW_CMD_BANK_RIGHT        	 12
+// #define BMC_DAW_CMD_CHANNEL_LEFT      	 13
+// #define BMC_DAW_CMD_CHANNEL_RIGHT     	 14
+// #define BMC_DAW_CMD_FLIP              	 15
+// #define BMC_DAW_CMD_GLOBAL_VIEW            	 16
+// #define BMC_DAW_CMD_NAMEVAL           	 17
+// #define BMC_DAW_CMD_SMPTEBEATS        	 18
+// #define BMC_DAW_CMD_F1                	 19
+// #define BMC_DAW_CMD_F2                	 20
+// #define BMC_DAW_CMD_F3                	 21
+// #define BMC_DAW_CMD_F4                	 22
+// #define BMC_DAW_CMD_F5                	 23
+// #define BMC_DAW_CMD_F6                	 24
+// #define BMC_DAW_CMD_F7                	 25
+// #define BMC_DAW_CMD_F8                	 26
+// #define BMC_DAW_CMD_VIEW_MIDI         	 27
+// #define BMC_DAW_CMD_VIEW_INPUTS       	 28
+// #define BMC_DAW_CMD_VIEW_AUDIO        	 29
+// #define BMC_DAW_CMD_VIEW_INSTR        	 30
+// #define BMC_DAW_CMD_VIEW_AUX          	 31
+// #define BMC_DAW_CMD_VIEW_BUS          	 32
+// #define BMC_DAW_CMD_VIEW_OUT          	 33
+// #define BMC_DAW_CMD_VIEW_USER         	 34
+// #define BMC_DAW_CMD_MOD_SHIFT         	 35
+// #define BMC_DAW_CMD_MOD_OPTION        	 36
+// #define BMC_DAW_CMD_MOD_CONTROL       	 37
+// #define BMC_DAW_CMD_MOD_CMD_ALT           	 38
+// #define BMC_DAW_CMD_AUTOMATION_READ   	 39
+// #define BMC_DAW_CMD_AUTOMATION_WRITE  	 40
+// #define BMC_DAW_CMD_AUTOMATION_TRIM   	 41
+// #define BMC_DAW_CMD_AUTOMATION_TOUCH  	 42
+// #define BMC_DAW_CMD_AUTOMATION_LATCH  	 43
+// #define BMC_DAW_CMD_AUTOMATION_GROUP  	 44
+// #define BMC_DAW_CMD_UTILITY_SAVE      	 45
+// #define BMC_DAW_CMD_UTILITY_UNDO      	 46
+// #define BMC_DAW_CMD_UTILITY_CANCEL    	 47
+// #define BMC_DAW_CMD_UTILITY_ENTER     	 48
+// #define BMC_DAW_CMD_TRANSPORT_MARKER  	 49
+// #define BMC_DAW_CMD_TRANSPORT_NUDGE   	 50
+// #define BMC_DAW_CMD_TRANSPORT_CYCLE   	 51
+// #define BMC_DAW_CMD_TRANSPORT_DROP    	 52
+// #define BMC_DAW_CMD_TRANSPORT_REPLACE 	 53
+// #define BMC_DAW_CMD_TRANSPORT_CLICK   	 54
+// #define BMC_DAW_CMD_TRANSPORT_SOLO    	 55
+// #define BMC_DAW_CMD_TRANSPORT_REWIND  	 56
+// #define BMC_DAW_CMD_TRANSPORT_FORWARD 	 57
+// #define BMC_DAW_CMD_TRANSPORT_STOP    	 58
+// #define BMC_DAW_CMD_TRANSPORT_PLAY    	 59
+// #define BMC_DAW_CMD_TRANSPORT_REC     	 60
+// #define BMC_DAW_CMD_CURSOR_UP         	 61
+// #define BMC_DAW_CMD_CURSOR_DOWN       	 62
+// #define BMC_DAW_CMD_CURSOR_LEFT       	 63
+// #define BMC_DAW_CMD_CURSOR_RIGHT      	 64
+// #define BMC_DAW_CMD_CURSOR_ZOOM       	 65
+// #define BMC_DAW_CMD_SCRUB             	 66
+// #define BMC_DAW_CMD_FADER_TOUCH       	 67
+// #define BMC_DAW_CMD_FADER_TOUCH_MASTER	 68
+#define BMC_DAW_CMD_REC               	 0
+#define BMC_DAW_CMD_SOLO              	 1
+#define BMC_DAW_CMD_MUTE              	 2
+#define BMC_DAW_CMD_SELECT            	 3
+#define BMC_DAW_CMD_VPOT_SELECT       	 4
+#define BMC_DAW_CMD_ASSIGN_TRACK      	 5
+#define BMC_DAW_CMD_ASSIGN_SEND       	 6
+#define BMC_DAW_CMD_ASSIGN_PAN        	 7
+#define BMC_DAW_CMD_ASSIGN_PLUGIN     	 8
+#define BMC_DAW_CMD_ASSIGN_EQ         	 9
+#define BMC_DAW_CMD_ASSIGN_INSTR      	 10
+#define BMC_DAW_CMD_BANK_LEFT         	 11
+#define BMC_DAW_CMD_BANK_RIGHT        	 12
+#define BMC_DAW_CMD_CHANNEL_LEFT      	 13
+#define BMC_DAW_CMD_CHANNEL_RIGHT     	 14
+#define BMC_DAW_CMD_FLIP              	 15
+#define BMC_DAW_CMD_GLOBAL_VIEW       	 16
+#define BMC_DAW_CMD_NAMEVAL           	 17
+#define BMC_DAW_CMD_SMPTEBEATS        	 18
+#define BMC_DAW_CMD_F1                	 19
+#define BMC_DAW_CMD_F2                	 20
+#define BMC_DAW_CMD_F3                	 21
+#define BMC_DAW_CMD_F4                	 22
+#define BMC_DAW_CMD_F5                	 23
+#define BMC_DAW_CMD_F6                	 24
+#define BMC_DAW_CMD_F7                	 25
+#define BMC_DAW_CMD_F8                	 26
+#define BMC_DAW_CMD_VIEW_MIDI         	 27
+#define BMC_DAW_CMD_VIEW_INPUTS       	 28
+#define BMC_DAW_CMD_VIEW_AUDIO        	 29
+#define BMC_DAW_CMD_VIEW_INSTR        	 30
+#define BMC_DAW_CMD_VIEW_AUX          	 31
+#define BMC_DAW_CMD_VIEW_BUS          	 32
+#define BMC_DAW_CMD_VIEW_OUT          	 33
+#define BMC_DAW_CMD_VIEW_USER         	 34
+#define BMC_DAW_CMD_MOD_SHIFT         	 35
+#define BMC_DAW_CMD_MOD_OPTION        	 36
+#define BMC_DAW_CMD_MOD_CONTROL       	 37
+#define BMC_DAW_CMD_MOD_CMD_ALT       	 38
+#define BMC_DAW_CMD_AUTOMATION_READ   	 39
+#define BMC_DAW_CMD_AUTOMATION_WRITE  	 40
+#define BMC_DAW_CMD_AUTOMATION_TRIM   	 41
+#define BMC_DAW_CMD_AUTOMATION_TOUCH  	 42
+#define BMC_DAW_CMD_AUTOMATION_LATCH  	 43
+#define BMC_DAW_CMD_AUTOMATION_GROUP  	 44
+#define BMC_DAW_CMD_UTILITY_SAVE      	 45
+#define BMC_DAW_CMD_UTILITY_UNDO      	 46
+#define BMC_DAW_CMD_UTILITY_CANCEL    	 47
+#define BMC_DAW_CMD_UTILITY_ENTER     	 48
+#define BMC_DAW_CMD_TRANSPORT_MARKER  	 49
+#define BMC_DAW_CMD_TRANSPORT_NUDGE   	 50
+#define BMC_DAW_CMD_TRANSPORT_CYCLE   	 51
+#define BMC_DAW_CMD_TRANSPORT_DROP    	 52
+#define BMC_DAW_CMD_TRANSPORT_REPLACE 	 53
+#define BMC_DAW_CMD_TRANSPORT_CLICK   	 54
+#define BMC_DAW_CMD_TRANSPORT_SOLO    	 55
+#define BMC_DAW_CMD_TRANSPORT_REWIND  	 56
+#define BMC_DAW_CMD_TRANSPORT_FORWARD 	 57
+#define BMC_DAW_CMD_TRANSPORT_STOP    	 58
+#define BMC_DAW_CMD_TRANSPORT_PLAY    	 59
+#define BMC_DAW_CMD_TRANSPORT_REC     	 60
+#define BMC_DAW_CMD_CURSOR_UP         	 61
+#define BMC_DAW_CMD_CURSOR_DOWN       	 62
+#define BMC_DAW_CMD_CURSOR_LEFT       	 63
+#define BMC_DAW_CMD_CURSOR_RIGHT      	 64
+#define BMC_DAW_CMD_CURSOR_ZOOM       	 65
+#define BMC_DAW_CMD_SCRUB             	 66
+#define BMC_DAW_CMD_FADER_TOUCH       	 67
+#define BMC_DAW_CMD_FADER_TOUCH_MASTER	 68
+#define BMC_DAW_CMD_SMPTE             	 69
+#define BMC_DAW_CMD_BEATS             	 70
+#define BMC_DAW_CMD_RUDE_SOLO         	 71
+#define BMC_DAW_CMD_RELAY             	 72
+#define BMC_DAW_CMD_METER_LED_PEAK    	 73
+#define BMC_DAW_CMD_METER_LED_1       	 74
+#define BMC_DAW_CMD_METER_LED_2       	 75
+#define BMC_DAW_CMD_METER_LED_3       	 76
+#define BMC_DAW_CMD_METER_LED_4       	 77
+#define BMC_DAW_CMD_METER_LED_5       	 78
+#define BMC_DAW_CMD_METER_LED_6       	 79
+#define BMC_DAW_CMD_METER_LED_7       	 80
+#define BMC_DAW_CMD_METER_LED_8       	 81
+#define BMC_DAW_CMD_METER_LED_9       	 82
+#define BMC_DAW_CMD_METER_LED_10      	 83
+#define BMC_DAW_CMD_METER_LED_11      	 84
+#define BMC_DAW_CMD_METER_LED_12      	 85
+#define BMC_DAW_CMD_VPOT_LED_1        	 86
+#define BMC_DAW_CMD_VPOT_LED_2        	 87
+#define BMC_DAW_CMD_VPOT_LED_3        	 88
+#define BMC_DAW_CMD_VPOT_LED_4        	 89
+#define BMC_DAW_CMD_VPOT_LED_5        	 90
+#define BMC_DAW_CMD_VPOT_LED_6        	 91
+#define BMC_DAW_CMD_VPOT_LED_7        	 92
+#define BMC_DAW_CMD_VPOT_LED_8        	 93
+#define BMC_DAW_CMD_VPOT_LED_9        	 94
+#define BMC_DAW_CMD_VPOT_LED_10       	 95
+#define BMC_DAW_CMD_VPOT_LED_11       	 96
+#define BMC_DAW_CMD_VPOT_LED_CENTER   	 97
+#define BMC_DAW_CMD_PREV_MARKER   	     98
+#define BMC_DAW_CMD_NEXT_MARKER   	     99
 
 
 // **********************************
@@ -1665,16 +1765,16 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_CC_GLOBAL_MONITOR_OUT_LEVEL 73
 
 
-// KEMPER PARAMETERS WITH PAGE AND PARAMETER
-// KEMPER PARAM PAGE RIG
+// KEMPER PARAMETERS WITH LAYER AND PARAMETER
+// KEMPER PARAM LAYER RIG
 #define BMC_KEMPER_PARAM_RIG_TEMPO 0x400
 #define BMC_KEMPER_PARAM_RIG_VOLUME 0x401
 #define BMC_KEMPER_PARAM_RIG_TEMPO_ENABLE 0x402
-// KEMPER PARAM PAGE INPUT
+// KEMPER PARAM LAYER INPUT
 #define BMC_KEMPER_PARAM_INPUT_NOISE_GATE_INTENSITY 0x903
 #define BMC_KEMPER_PARAM_INPUT_CLEAN_SENSE 0x904
 #define BMC_KEMPER_PARAM_INPUT_DISTORTION_SENSE 0x905
-// KEMPER PARAM PAGE AMPLIFIER
+// KEMPER PARAM LAYER AMPLIFIER
 #define BMC_KEMPER_PARAM_AMPLIFIER_ON_OFF 0xA02
 #define BMC_KEMPER_PARAM_AMPLIFIER_GAIN 0xA04
 #define BMC_KEMPER_PARAM_AMPLIFIER_DEFINITION 0xA06
@@ -1685,20 +1785,20 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_AMPLIFIER_TUBE_SHAPE_ 0xA0B
 #define BMC_KEMPER_PARAM_AMPLIFIER_TUBE_BIAS 0xA0C
 #define BMC_KEMPER_PARAM_AMPLIFIER_DIRECT_MIX 0xA0F
-// KEMPER PARAM PAGE EQUALIZER
+// KEMPER PARAM LAYER EQUALIZER
 #define BMC_KEMPER_PARAM_EQUALIZER_ON_OFF 0xB02
 #define BMC_KEMPER_PARAM_EQUALIZER_BASS 0xB04
 #define BMC_KEMPER_PARAM_EQUALIZER_MIDDLE 0xB05
 #define BMC_KEMPER_PARAM_EQUALIZER_TREBLE 0xB06
 #define BMC_KEMPER_PARAM_EQUALIZER_PRESENCE 0xB07
-// KEMPER PARAM PAGE CABINET
+// KEMPER PARAM LAYER CABINET
 #define BMC_KEMPER_PARAM_CABINET_ON_OFF 0xC02
 #define BMC_KEMPER_PARAM_CABINET_VOLUME 0xC03
 #define BMC_KEMPER_PARAM_CABINET_HIGH_SHIFT 0xC04
 #define BMC_KEMPER_PARAM_CABINET_LOW_SHIFT 0xC05
 #define BMC_KEMPER_PARAM_CABINET_CHARACTER 0xC06
 #define BMC_KEMPER_PARAM_CABINET_PURE_CABINET__RIG_ 0xC07
-// KEMPER PARAM PAGE STOMP A
+// KEMPER PARAM LAYER STOMP A
 #define BMC_KEMPER_PARAM_STOMP_A_TYPE 0x3200
 #define BMC_KEMPER_PARAM_STOMP_A_ON_OFF_4_MIX 0x3203
 #define BMC_KEMPER_PARAM_STOMP_A_VOLUME_7_STEREO 0x3206
@@ -1797,7 +1897,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_A_SWELL 0x326B
 #define BMC_KEMPER_PARAM_STOMP_A_SMEAR 0x326C
 #define BMC_KEMPER_PARAM_STOMP_A_DUCKING_PRE_POST 0x326D
-// KEMPER PARAM PAGE STOMP B
+// KEMPER PARAM LAYER STOMP B
 #define BMC_KEMPER_PARAM_STOMP_B_TYPE 0x3300
 #define BMC_KEMPER_PARAM_STOMP_B_ON_OFF_4_MIX 0x3303
 #define BMC_KEMPER_PARAM_STOMP_B_VOLUME_7_STEREO 0x3306
@@ -1896,7 +1996,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_B_SWELL 0x336B
 #define BMC_KEMPER_PARAM_STOMP_B_SMEAR 0x336C
 #define BMC_KEMPER_PARAM_STOMP_B_DUCKING_PRE_POST 0x336D
-// KEMPER PARAM PAGE STOMP C
+// KEMPER PARAM LAYER STOMP C
 #define BMC_KEMPER_PARAM_STOMP_C_TYPE 0x3400
 #define BMC_KEMPER_PARAM_STOMP_C_ON_OFF_4_MIX 0x3403
 #define BMC_KEMPER_PARAM_STOMP_C_VOLUME_7_STEREO 0x3406
@@ -1995,7 +2095,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_C_SWELL 0x346B
 #define BMC_KEMPER_PARAM_STOMP_C_SMEAR 0x346C
 #define BMC_KEMPER_PARAM_STOMP_C_DUCKING_PRE_POST 0x346D
-// KEMPER PARAM PAGE STOMP D
+// KEMPER PARAM LAYER STOMP D
 #define BMC_KEMPER_PARAM_STOMP_D_TYPE 0x3500
 #define BMC_KEMPER_PARAM_STOMP_D_ON_OFF_4_MIX 0x3503
 #define BMC_KEMPER_PARAM_STOMP_D_VOLUME_7_STEREO 0x3506
@@ -2094,7 +2194,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_D_SWELL 0x356B
 #define BMC_KEMPER_PARAM_STOMP_D_SMEAR 0x356C
 #define BMC_KEMPER_PARAM_STOMP_D_DUCKING_PRE_POST 0x356D
-// KEMPER PARAM PAGE STOMP X
+// KEMPER PARAM LAYER STOMP X
 #define BMC_KEMPER_PARAM_STOMP_X_TYPE 0x3800
 #define BMC_KEMPER_PARAM_STOMP_X_ON_OFF_4_MIX 0x3803
 #define BMC_KEMPER_PARAM_STOMP_X_VOLUME_7_STEREO 0x3806
@@ -2193,7 +2293,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_X_SWELL 0x386B
 #define BMC_KEMPER_PARAM_STOMP_X_SMEAR 0x386C
 #define BMC_KEMPER_PARAM_STOMP_X_DUCKING_PRE_POST 0x386D
-// KEMPER PARAM PAGE STOMP MOD
+// KEMPER PARAM LAYER STOMP MOD
 #define BMC_KEMPER_PARAM_STOMP_MOD_TYPE 0x3A00
 #define BMC_KEMPER_PARAM_STOMP_MOD_ON_OFF_4_MIX 0x3A03
 #define BMC_KEMPER_PARAM_STOMP_MOD_VOLUME_7_STEREO 0x3A06
@@ -2292,7 +2392,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_MOD_SWELL 0x3A6B
 #define BMC_KEMPER_PARAM_STOMP_MOD_SMEAR 0x3A6C
 #define BMC_KEMPER_PARAM_STOMP_MOD_DUCKING_PRE_POST 0x3A6D
-// KEMPER PARAM PAGE STOMP DELAY
+// KEMPER PARAM LAYER STOMP DELAY
 #define BMC_KEMPER_PARAM_STOMP_DELAY_TYPE 0x3C00
 #define BMC_KEMPER_PARAM_STOMP_DELAY_ON_OFF_4_MIX 0x3C03
 #define BMC_KEMPER_PARAM_STOMP_DELAY_VOLUME_7_STEREO 0x3C06
@@ -2391,7 +2491,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_STOMP_DELAY_SWELL 0x3C6B
 #define BMC_KEMPER_PARAM_STOMP_DELAY_SMEAR 0x3C6C
 #define BMC_KEMPER_PARAM_STOMP_DELAY_DUCKING_PRE_POST 0x3C6D
-// KEMPER PARAM PAGE REVERB
+// KEMPER PARAM LAYER REVERB
 #define BMC_KEMPER_PARAM_REVERB_TYPE 0x4B00
 #define BMC_KEMPER_PARAM_REVERB_ON_OFF__CUTS_TAIL_ 0x4B02
 #define BMC_KEMPER_PARAM_REVERB_MIX 0x4B03
@@ -2404,12 +2504,12 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_KEMPER_PARAM_REVERB_PRE_DELAY 0x4B0A
 #define BMC_KEMPER_PARAM_REVERB_ON_OFF__KEEPS_TAIL__ 0x4B0B
 #define BMC_KEMPER_PARAM_REVERB_DUCKING 0x4B0C
-// KEMPER PARAM PAGE SYSTEM GLOBAL
+// KEMPER PARAM LAYER SYSTEM GLOBAL
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_STOMP_A_HOLD_108_STOMP_B_HOLD_ 0x7D6B
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_STOMP_C_HOLD_110_STOMP_D_HOLD_ 0x7D6D
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_STOMP_X_HOLD_113_STOMP_MOD_HOLD_ 0x7D6F
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_STOMP_DLY_HOLD 0x7D72
-// KEMPER PARAM PAGE SYSTEM GLOBAL
+// KEMPER PARAM LAYER SYSTEM GLOBAL
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_MAIN_OUTPUT_VOLUME 0x7F00
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_HEADPHONE_OUTPUT_VOLUME_ 0x7F01
 #define BMC_KEMPER_PARAM_SYSTEM_GLOBAL_MONITOR_OUTPUT_VOLUME 0x7F02
@@ -2549,7 +2649,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // RELAY
 #define BMC_RELAY_EVENT_TYPE_PRESET 1
-#define BMC_RELAY_EVENT_TYPE_PAGE 2
+#define BMC_RELAY_EVENT_TYPE_LAYER 2
 // 8 user defined events
 // this feature will be added to the editor and documented later on
 #define BMC_RELAY_EVENT_TYPE_USER_1 118
@@ -2587,7 +2687,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // ENCODER EVENT TYPES
 #define BMC_ENCODER_EVENT_TYPE_CLOCK 1
-#define BMC_ENCODER_EVENT_TYPE_PAGES 2
+#define BMC_ENCODER_EVENT_TYPE_LAYER 2
 #define BMC_ENCODER_EVENT_TYPE_PRESETS 3
 // available 4 & 5
 #define BMC_ENCODER_EVENT_TYPE_BEATBUDDY_CMD 6
@@ -2626,9 +2726,9 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DISPLAY_EVENT_TYPE_KEYWORD             	 1
 #define BMC_DISPLAY_EVENT_TYPE_ICON                	 2
 #define BMC_DISPLAY_EVENT_TYPE_BPM                 	 3
-#define BMC_DISPLAY_EVENT_TYPE_PAGE                	 4
-#define BMC_DISPLAY_EVENT_TYPE_PAGE_NAME           	 5
-#define BMC_DISPLAY_EVENT_TYPE_CURRENT_PAGE_NAME   	 6
+#define BMC_DISPLAY_EVENT_TYPE_LAYER                	 4
+#define BMC_DISPLAY_EVENT_TYPE_LAYER_NAME           	 5
+#define BMC_DISPLAY_EVENT_TYPE_CURRENT_LAYERNAME   	 6
 #define BMC_DISPLAY_EVENT_TYPE_BUTTON              	 7
 #define BMC_DISPLAY_EVENT_TYPE_GLOBAL_BUTTON       	 8
 #define BMC_DISPLAY_EVENT_TYPE_ENCODER             	 9
@@ -2675,8 +2775,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 //#define BMC_TRIGGER_EVENT_TYPE_LIBRARY3 5 // available
 #define BMC_TRIGGER_EVENT_TYPE_PRESET 6
 #define BMC_TRIGGER_EVENT_TYPE_PRESET_SCROLL 7
-#define BMC_TRIGGER_EVENT_TYPE_PAGE 8
-#define BMC_TRIGGER_EVENT_TYPE_PAGE_SCROLL 9
+#define BMC_TRIGGER_EVENT_TYPE_LAYER 8
+#define BMC_TRIGGER_EVENT_TYPE_LAYER_SCROLL 9
 #define BMC_TRIGGER_EVENT_TYPE_ACTIVE_SENSE 10
 #define BMC_TRIGGER_EVENT_TYPE_RELAY_NL_CONTROL 12
 #define BMC_TRIGGER_EVENT_TYPE_RELAY_L_CONTROL 13
@@ -2698,7 +2798,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_TIMED_EVENT_TYPE_GLOBAL_BUTTON_EVENT 6
 #define BMC_TIMED_EVENT_TYPE_ENCODER 7
 #define BMC_TIMED_EVENT_TYPE_GLOBAL_ENCODER 8
-#define BMC_TIMED_EVENT_TYPE_PAGE 9
+#define BMC_TIMED_EVENT_TYPE_LAYER 9
 #define BMC_TIMED_EVENT_TYPE_PRESET 10
 #define BMC_TIMED_EVENT_TYPE_MASTER_CLOCK 11
 #define BMC_TIMED_EVENT_TYPE_CUSTOM 127
@@ -2725,8 +2825,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // flags used by BMCEditorMidiFlags
 // only use 7 bits of a uint8_t
 #define BMC_EDITOR_SYSEX_FLAG_WRITE 0
-#define BMC_EDITOR_SYSEX_FLAG_PAGE 1
-#define BMC_EDITOR_SYSEX_FLAG_ALL_PAGES 2
+#define BMC_EDITOR_SYSEX_FLAG_LAYER 1
+#define BMC_EDITOR_SYSEX_FLAG_ALL_LAYERS 2
 #define BMC_EDITOR_SYSEX_FLAG_BACKUP 3
 #define BMC_EDITOR_SYSEX_FLAG_ERROR 4
 
@@ -2735,8 +2835,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_CTRL_GROUP_PRESET 1
 #define BMC_CTRL_GROUP_CLICK_TRACK 2
   // BMC_CTRL_GROUP_HARDWARE 0
-  #define BMC_CTRL_PAGE_GET                0
-  #define BMC_CTRL_PAGE_SET              	 1
+  #define BMC_CTRL_LAYERS_GET                0
+  #define BMC_CTRL_LAYERS_SET              	 1
   #define BMC_CTRL_BUTTON_TRIGGER_TOGGLE 	 2
   #define BMC_CTRL_BUTTON_TRIGGER_PRESS  	 3
   #define BMC_CTRL_BUTTON_TRIGGER_RELEASE	 4

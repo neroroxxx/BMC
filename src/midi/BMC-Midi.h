@@ -384,12 +384,12 @@ private:
   // sent or received
   BMCMidiData midiData;
   // listenerPorts = the MIDI port that will react to things like
-  // page changes, preset changes and bank changes
+  // layer changes, preset changes and bank changes
   BMCMidiPort listenerPorts;
   // the port that wil receive MIDI Clock signal
   uint8_t slaveClockPort = 0;
   // channel = the channel that BMC will react to things like
-  // page changes, preset changes and bank changes
+  // layer changes, preset changes and bank changes
   uint8_t channel = 0;
   // debug variables only compiled if BMC_DEBUG is enabled
   #ifdef BMC_DEBUG

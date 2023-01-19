@@ -103,10 +103,11 @@ public:
     rainbowCurrentColor = BMC_COLOR_RED;
 #endif
 #if BMC_MAX_PIXELS > 0
-    for(uint8_t i=0; i<BMC_MAX_PIXELS; i++){
+    for(uint8_t i=0; i < BMC_MAX_PIXELS; i++){
       BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, i);
       setDimColor(i, ui.style);
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
+        BMC_PRINTLN("test pixel", i);
         test(BMC_DEVICE_ID_PIXEL, i, true);
       #endif
     }
@@ -127,7 +128,6 @@ public:
       setDimColor(n, ui.style);
       //setDimColor(n, BMCBuildData::getRgbPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        //test(getRgbPixelIndex(i));
         test(BMC_DEVICE_ID_RGB_PIXEL, i, true);
       #endif
     }
@@ -138,7 +138,6 @@ public:
       setDimColor(n, ui.style);
       //setDimColor(n, BMCBuildData::getRgbPixelDefaultColor(i));
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        //test(getGlobalRgbPixelIndex(i));
         test(BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, i, true);
       #endif
     }
@@ -243,7 +242,7 @@ public:
     // turn pixel on and off
     //setPixelValue(n, BMCPixelColors::getRgbColor(random(1,13)));
     
-    for(uint8_t i = 0, n=(t_init ? 2 : 4) ; i < n ; i++){
+    for(uint8_t i = 0, m=(t_init ? 2 : 4) ; i < m ; i++){
       setPixelValue(n, BMCPixelColors::getRgbColor(i+1));
       pixels.show();
       delay(BMC_MAX_LED_TEST_DELAY);

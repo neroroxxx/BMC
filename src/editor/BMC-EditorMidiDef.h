@@ -34,7 +34,7 @@
 #define BMC_EDITOR_FUNCTION_NAME          	 17
 #define BMC_EDITOR_FUNCTION_DEVICE        	 18
 
-// get build info, includes things like PINS, number of buttons, leds, etc. Page Number bytes specify the item being retrieved.
+// get build info, includes things like PINS, number of buttons, leds, etc. Layer Number bytes specify the item being retrieved.
 #define BMC_GLOBALF_BUILD_INFO 125
     #define BMC_GLOBALF_BUILD_INFO_FLAGS       0
     #define BMC_GLOBALF_BUILD_INFO_DEVICE_NAME 1
@@ -73,7 +73,7 @@
   #define BMC_NOTIFY_INVALID_CHECKSUM        	 9
   #define BMC_NOTIFY_INVALID_SIZE            	 10
   #define BMC_NOTIFY_INVALID_INDEX           	 11
-  #define BMC_NOTIFY_INVALID_PAGE            	 12
+  #define BMC_NOTIFY_INVALID_LAYER            	 12
   #define BMC_NOTIFY_INVALID_PRESET          	 13
   #define BMC_NOTIFY_INVALID_POT             	 14
   #define BMC_NOTIFY_INVALID_STORE_ADDRESS   	 15
@@ -81,9 +81,9 @@
   #define BMC_NOTIFY_INVALID_SKETCH_BYTE_DATA	 17
   #define BMC_NOTIFY_REQUEST_ACCEPTED        	 18
 
-// PAGE FUNCTIONS
-#define BMC_PAGEF_PAGE 0
-#define BMC_PAGEF_PAGE_NAME 1
+// LAYER FUNCTIONS
+#define BMC_LAYERF_LAYER 0
+#define BMC_LAYERF_LAYER_NAME 1
 
 
 

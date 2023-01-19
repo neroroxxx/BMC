@@ -120,13 +120,13 @@ bool BMCEditor::connectionHasChanged(){
 void BMCEditor::setPort(uint8_t port){
   bitWrite(this->port,port,1);
 }
-void BMCEditor::setPage(uint8_t page){
-  if(page < BMC_MAX_PAGES){
-    this->page = page;
+void BMCEditor::setLayer(uint8_t layer){
+  if(layer < BMC_MAX_LAYERS){
+    this->layer = layer;
   }
 }
-uint8_t BMCEditor::getPage(){
-  return page;
+uint8_t BMCEditor::getLayer(){
+  return layer;
 }
 
 

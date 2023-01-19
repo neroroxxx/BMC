@@ -9,8 +9,8 @@ See LICENSE file in the project root for full license information.
 #define BMC_CONFIG_CHECK_PINS_H
 
 
-#ifndef BMC_MAX_PAGES
-  #define BMC_MAX_PAGES 1
+#ifndef BMC_MAX_LAYERS
+  #define BMC_MAX_LAYERS 1
 #endif
 
 #ifndef BMC_MAX_MUX_IN

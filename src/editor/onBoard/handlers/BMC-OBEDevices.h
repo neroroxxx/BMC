@@ -69,7 +69,7 @@ public:
   }
   void setTotalRows(){
     switch(data.activeDevice.id){
-      case BMC_DEVICE_ID_PAGE:
+      case BMC_DEVICE_ID_LAYER:
         data.totalRows = 1;
         break;
       case BMC_DEVICE_ID_EVENT:
@@ -133,7 +133,7 @@ public:
         data.totalRows = 2;// one for name and one for event
         break;
       case BMC_DEVICE_ID_ILI:
-        data.totalRows = 3;// one for name and one for event, 1 for settings
+        data.totalRows = 4; 
         break;
       case BMC_DEVICE_ID_LFO:
         data.totalRows = 1;
@@ -176,7 +176,7 @@ public:
       return true;
     }
     switch(data.activeDevice.id){
-      case BMC_DEVICE_ID_PAGE:
+      case BMC_DEVICE_ID_LAYER:
       case BMC_DEVICE_ID_NAME:
       case BMC_DEVICE_ID_SKETCH_BYTE:
       case BMC_DEVICE_ID_BUTTON:
@@ -258,8 +258,8 @@ public:
     offset = display.midi.globals.settings.getDisplayOffset()?0:1;
     uint16_t dIndex = data.deviceIndex-1;
     switch(data.activeDevice.id){
-      case BMC_DEVICE_ID_PAGE:
-        return getPageNameOption(index, valueType);
+      case BMC_DEVICE_ID_LAYER:
+        return getLayerNameOption(index, valueType);
       case BMC_DEVICE_ID_EVENT:
         return getEventsEditor(display.midi.globals.store.global.events[dIndex], index, valueType);
       case BMC_DEVICE_ID_NAME:
@@ -271,7 +271,7 @@ public:
         break;
       case BMC_DEVICE_ID_BUTTON:
         #if BMC_MAX_BUTTONS > 0
-          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(display.midi.globals.store.pages[display.midi.globals.page].buttons[dIndex], index, valueType);
+          return getButtonOption<BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>(display.midi.globals.store.layers[display.midi.globals.layer].buttons[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
@@ -281,7 +281,7 @@ public:
         break;
       case BMC_DEVICE_ID_LED:
         #if BMC_MAX_LEDS > 0
-          return getLedOption<1, 1>(display.midi.globals.store.pages[display.midi.globals.page].leds[dIndex], index, valueType);
+          return getLedOption<1, 1>(display.midi.globals.store.layers[display.midi.globals.layer].leds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_LED:
@@ -291,7 +291,7 @@ public:
         break;
       case BMC_DEVICE_ID_BI_LED:
         #if BMC_MAX_BI_LEDS > 0
-          return getBiLedOption<2, 2>(display.midi.globals.store.pages[display.midi.globals.page].biLeds[dIndex], index, valueType);
+          return getBiLedOption<2, 2>(display.midi.globals.store.layers[display.midi.globals.layer].biLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_BI_LED:
@@ -301,7 +301,7 @@ public:
         break;
       case BMC_DEVICE_ID_TRI_LED:
         #if BMC_MAX_TRI_LEDS > 0
-          return getTriLedOption<3, 3>(display.midi.globals.store.pages[display.midi.globals.page].triLeds[dIndex], index, valueType);
+          return getTriLedOption<3, 3>(display.midi.globals.store.layers[display.midi.globals.layer].triLeds[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_TRI_LED:
@@ -315,7 +315,7 @@ public:
 
       case BMC_DEVICE_ID_ENCODER:
         #if BMC_MAX_ENCODERS > 0
-          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].encoders[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].encoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
@@ -325,17 +325,17 @@ public:
         break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
-          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].oled[dIndex], index, valueType);
+          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].oled[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          return getIliOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].ili[dIndex], index, valueType);
+          return getIliOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].ili[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
         #if BMC_MAX_PIXELS > 0
-          return getPixelOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].pixels[dIndex], index, valueType);
+          return getPixelOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].pixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_PIXEL:
@@ -345,7 +345,7 @@ public:
         break;
       case BMC_DEVICE_ID_RGB_PIXEL:
         #if BMC_MAX_RGB_PIXELS > 0
-          return getRgbPixelOption<1,3>(display.midi.globals.store.pages[display.midi.globals.page].rgbPixels[dIndex], index, valueType);
+          return getRgbPixelOption<1,3>(display.midi.globals.store.layers[display.midi.globals.layer].rgbPixels[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
@@ -355,7 +355,7 @@ public:
         break;
       case BMC_DEVICE_ID_PIXEL_STRIP:
         #if BMC_MAX_PIXEL_STRIP > 0
-          return getPixelOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].pixelStrip[dIndex], index, valueType);
+          return getPixelOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].pixelStrip[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_NL_RELAY:
@@ -368,12 +368,12 @@ public:
         #endif
       case BMC_DEVICE_ID_MAGIC_ENCODER:
         #if BMC_MAX_MAGIC_ENCODERS > 0
-          return getMagicEncoderOption<1,1>(display.midi.globals.store.pages[display.midi.globals.page].magicEncoders[dIndex], index, valueType);
+          return getMagicEncoderOption<3,3>(display.midi.globals.store.layers[display.midi.globals.layer].magicEncoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
         #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
-          return getMagicEncoderOption<1,1>(display.midi.globals.store.global.magicEncoders[dIndex], index, valueType);
+          return getMagicEncoderOption<3,3>(display.midi.globals.store.global.magicEncoders[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_LFO:
@@ -1182,7 +1182,7 @@ public:
     }
     return 0;
   }
-  uint16_t getPageNameOption(uint16_t index, uint8_t valueType=0){
+  uint16_t getLayerNameOption(uint16_t index, uint8_t valueType=0){
     //getNameField
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
@@ -1199,11 +1199,9 @@ public:
   uint16_t getSketchByteOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t dIndex, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
-    // BMC_PRINTLN("getSketchByteOption", optionId, data.visibleRowId[index], index, data.totalRows);
     for(uint8_t i = 0 ; i < BMC_MAX_SKETCH_BYTES ; i++){
       if(optionId == i){
         BMCSketchByteData sb = BMCBuildData::getSketchByteData(i);
-        // BMCTools::getSketchByteFormat(str, index, tempValue);
         BMC_PRINTLN(i, "getSketchByteOption min max", sb.min, sb.max, data.rowEditValue);
         switch(valueType){
           case BMC_OBE_DEVICE_OPT_LABEL:
@@ -1804,7 +1802,7 @@ public:
           case BMC_OBE_DEVICE_OPT_VALUE:
           case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
             {
-              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0],0) : data.rowEditValue;
               strcpy(str, data.yesNoLabels[value]);
               return value;
             }
@@ -1812,8 +1810,8 @@ public:
           case BMC_OBE_DEVICE_OPT_MIN: return 0;
           case BMC_OBE_DEVICE_OPT_MAX: return 1;
           case BMC_OBE_DEVICE_OPT_CHANGED:
-            if(item.settings[0] != data.rowEditValue){
-              item.settings[0] = data.rowEditValue;
+            if(bitRead(item.settings[0], 0) != data.rowEditValue){
+              bitWrite(item.settings[0], 0, data.rowEditValue);
               return 1;
             }
             return 0;
@@ -1822,6 +1820,31 @@ public:
         }
         break;
       case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Add Border");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 1) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 1) != data.rowEditValue){
+              bitWrite(item.settings[0], 1, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 3:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
       default:
         break;
@@ -1967,7 +1990,7 @@ public:
       case BMC_OBE_DEVICE_OPT_VALUE:
       case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
         {
-          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? display.midi.globals.store.pages[display.midi.globals.page].name : data.rowEditValue;
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? display.midi.globals.store.layers[display.midi.globals.layer].name : data.rowEditValue;
           if(value==0){
             strcpy(str, "None");
           } else {
@@ -1982,8 +2005,8 @@ public:
       case BMC_OBE_DEVICE_OPT_MIN: return 0;
       case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
       case BMC_OBE_DEVICE_OPT_CHANGED:
-        if(display.midi.globals.store.pages[display.midi.globals.page].name != data.rowEditValue){
-          display.midi.globals.store.pages[display.midi.globals.page].name = data.rowEditValue;
+        if(display.midi.globals.store.layers[display.midi.globals.layer].name != data.rowEditValue){
+          display.midi.globals.store.layers[display.midi.globals.layer].name = data.rowEditValue;
           return 1;
         }
         return 0;

@@ -51,7 +51,7 @@ void BMCEditor::backupGlobalStartup(uint16_t t_minLength){
 */
 // BMC 2.0
 void BMCEditor::backupEventMessage(uint16_t t_minLength){
-  uint16_t index = getMessagePageNumber();
+  uint16_t index = getMessageLayerNumber();
   if(index >= BMC_MAX_EVENTS_LIBRARY){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
@@ -67,7 +67,7 @@ void BMCEditor::backupEventMessage(uint16_t t_minLength){
   sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, t_minLength);
 }
 void BMCEditor::backupNameMessage(uint16_t t_minLength){
-  uint16_t index = getMessagePageNumber();
+  uint16_t index = getMessageLayerNumber();
   if(index >= BMC_MAX_NAMES_LIBRARY){
     sendNotification(BMC_NOTIFY_BACKUP_DATA_ACCEPTED, 0);
     return;
@@ -133,29 +133,29 @@ void BMCEditor::backupGlobalLRelay(uint16_t t_minLength){
 
 }
 
-void BMCEditor::backupPageName(uint16_t t_minLength){
+void BMCEditor::backupLayerName(uint16_t t_minLength){
 
 }
-// PAGE DATA
-void BMCEditor::backupPageButton(uint16_t t_minLength){
+// LAYER DATA
+void BMCEditor::backupLayerButton(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPageLed(uint16_t t_minLength){
+void BMCEditor::backupLayerLed(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPagePwmLed(uint16_t t_minLength){
+void BMCEditor::backupLayerPwmLed(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPagePixel(uint16_t t_minLength){
+void BMCEditor::backupLayerPixel(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPageRgbPixel(uint16_t t_minLength){
+void BMCEditor::backupLayerRgbPixel(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPageEncoder(uint16_t t_minLength){
+void BMCEditor::backupLayerEncoder(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPagePot(uint16_t t_minLength){
+void BMCEditor::backupLayerPot(uint16_t t_minLength){
 
 }
 void BMCEditor::backupGlobalButton(uint16_t t_minLength){
@@ -169,9 +169,9 @@ void BMCEditor::backupGlobalPot(uint16_t t_minLength){
 
 }
 
-void BMCEditor::backupPageOled(uint16_t t_minLength){
+void BMCEditor::backupLayerOled(uint16_t t_minLength){
 
 }
-void BMCEditor::backupPageIli(uint16_t t_minLength){
+void BMCEditor::backupLayerIli(uint16_t t_minLength){
 
 }

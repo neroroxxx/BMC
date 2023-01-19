@@ -462,7 +462,7 @@ public:
     switch(t_type){
       case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
       case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
-      case BMC_EVENT_TYPE_PAGE:
+      case BMC_EVENT_TYPE_LAYER:
       case BMC_EVENT_TYPE_PRESET:
         return true;
     }
@@ -607,6 +607,7 @@ public:
   }
   // an Endless SOS of all LEDs, use for stopping BMC
   static void sos(){
+    // while(1);
     /*
     #if BMC_TOTAL_LEDS == 0
       while(1);

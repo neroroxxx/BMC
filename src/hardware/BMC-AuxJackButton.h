@@ -49,7 +49,7 @@ public:
     pinMode(pin, BMC_BUTTON_PIN_MODE);
     debounceTime = millis();
   }
-  // reassign the POT behaviour, used when switching pages or the editor
+  // reassign the POT behaviour, used when switching layers or the editor
   // has updated EEPROM
   void reassign(){
     flags.reset();

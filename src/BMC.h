@@ -31,7 +31,7 @@
 
 // Basic flags
 #define BMC_FLAGS_CLICK_TRACK_RESPOND 0
-#define BMC_FLAGS_PAGE_CHANGED 1
+#define BMC_FLAGS_LAYER_CHANGED 1
 #define BMC_FLAGS_FIRST_LOOP 2
 #define BMC_FLAGS_STATUS_LED 3
 
@@ -151,21 +151,21 @@ public:
   void begin();
   void update();
 
-  // code @ BMC.page.cpp
-  // get the current page number
-  uint8_t getPage();
-  // go to a new page
+  // code @ BMC.layer.cpp
+  // get the current layer number
+  uint8_t getLayer();
+  // go to a new layer
   // @reassignSettings if true will reassign all global settings
-  void setPage(uint8_t page, bool reassignSettings=false, bool forced=false);
-  void reloadPage();
-  void nextPage();
-  void prevPage();
-  // scroll to a different page, either the previous or next page
-  void scrollPage(bool t_dir, bool t_endless, uint8_t t_amount);
-  void scrollPage(uint8_t t_settings, uint8_t t_amount);
-  void scrollPage(uint8_t t_flags, uint8_t t_min,
+  void setLayer(uint8_t layer, bool reassignSettings=false, bool forced=false);
+  void reloadLayer();
+  void nextLayer();
+  void prevLayer();
+  // scroll to a different layer, either the previous or next layer
+  void scrollLayer(bool t_dir, bool t_endless, uint8_t t_amount);
+  void scrollLayer(uint8_t t_settings, uint8_t t_amount);
+  void scrollLayer(uint8_t t_flags, uint8_t t_min,
                   uint8_t t_max, uint8_t t_amount);
-  void scrollPage(bool t_direction, bool t_endless,
+  void scrollLayer(bool t_direction, bool t_endless,
                   uint8_t t_min, uint8_t t_max,
                   uint8_t t_amount);
 
@@ -270,15 +270,15 @@ private:
 #endif
   unsigned long heartbeat = 0;
 
-  uint8_t & page;
+  uint8_t & layer;
   uint8_t programBank = 0;
 
-#if BMC_MAX_PAGE > 127 || BMC_MAX_PRESETS > 127
-  // used when incoming Program Change is set to Page or Preset,
+#if BMC_MAX_LAYERS > 127 || BMC_MAX_PRESETS > 127
+  // used when incoming Program Change is set to Layer or Preset,
   // when Control Change # 0 is received, it's value is the bank,
-  // since there's a max of 255 pages or presets the CC#0 value can only be
+  // since there's a max of 255 layers or presets the CC#0 value can only be
   // 0 or 1, if say CC#0 value 0 is received then Program #0 will take you
-  // to Page/Preset 0, if CC#0 is 1 then Progra#0 will take you to Page/Preset 128
+  // to Layer/Preset 0, if CC#0 is 1 then Progra#0 will take you to Layer/Preset 128
   uint8_t bank = 0;
 #endif
 
@@ -302,13 +302,13 @@ private:
   // code @ BMC.cpp
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
 
-  void runPageChanged(){
+  void runLayerChanged(){
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
-      display.renderPageBanner();
+      display.renderLayerBanner();
     #endif
 
     #if BMC_MAX_BUTTONS > 1
-      dualPress.pageChanged();
+      dualPress.layerChanged();
     #endif
   }
   void runPresetChanged(){
@@ -409,9 +409,9 @@ private:
     streamMidiClockBPM(midiClock.getBpm());
   }
 
-  // code @ BMC.page.cpp
-  bool pageChanged();
-  bool pageChangedPeek();
+  // code @ BMC.layer.cpp
+  bool layerChanged();
+  bool layerChangedPeek();
 
   // code @ BMC.events.cpp
   uint8_t processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,

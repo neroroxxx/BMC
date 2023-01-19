@@ -134,7 +134,7 @@ public:
   void (*oneSecondPassed)(uint8_t stopwatchState);
   void (*editorConnection)(bool state);
   void (*storeUpdated)();
-  void (*pageChanged)(uint8_t page);
+  void (*pageChanged)(uint8_t layer);
   void (*menuCommand)(uint8_t t_command);
   void (*typerCommand)(uint16_t t_value, uint16_t t_rawValue);
   void (*typerCustomCommand)(uint16_t t_value, uint16_t t_rawValue);

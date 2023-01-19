@@ -47,7 +47,7 @@
 
 
 
-  These Dual Button Presses are usually used for Utility, maybe to change Pages,
+  These Dual Button Presses are usually used for Utility, maybe to change Layers,
   save edits, maybe even to change stores.
 */
 #ifndef BMC_BUTTONS_DUAL_HANDLER_H
@@ -141,11 +141,11 @@ public:
       }
     }
   }
-  // when pages change on BMC buttons are locked out until they are all released
-  // this is by design to avoid one press of a button changing pages too many times
+  // when layers change on BMC buttons are locked out until they are all released
+  // this is by design to avoid one press of a button changing layers too many times
   // because of this we have to add this call which resets the dual press handler
-  // anytime there's a page change.
-  void pageChanged(){
+  // anytime there's a layer change.
+  void layerChanged(){
     if(callbackAvailable()){
       reset();
       timeout.stop();

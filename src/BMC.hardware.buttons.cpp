@@ -27,7 +27,7 @@ void BMC::setupButtons(){
 void BMC::assignButtons(){
 #if BMC_MAX_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
-    assignButton(buttons[i], store.pages[page].buttons[i]);
+    assignButton(buttons[i], store.layers[layer].buttons[i]);
   }
 #endif
 
@@ -58,7 +58,7 @@ void BMC::assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,
   }
 }
 // assign button hold threshold and flags.
-// this happens everytime a page changes since it can be different for each page
+// this happens everytime a layer changes since it can be different for each layer
 // also we activate buttons, if a button doesn't have an event attached then
 // we don't bother parsing the event data, UNLESS all buttons are active thru settings
 
@@ -66,7 +66,7 @@ void BMC::assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,
 void BMC::readButtons(){
 #if BMC_MAX_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
-    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.pages[page].buttons[i];
+    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.layers[layer].buttons[i];
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
@@ -136,14 +136,14 @@ void BMC::readButtons(){
 template <uint8_t sLen, uint8_t eLen>
 void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device,
                   uint8_t deviceType, uint16_t index, uint8_t t_trigger){
-  //bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.pages[page].buttons[index];
+  //bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.layers[layer].buttons[index];
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
     uint8_t type = data.type;
     uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
 /*
 #ifdef BMC_USE_DAW_LC
-    if(type==BMC_EVENT_TYPE_DAW_BUTTON &&
+    if(type==BMC_EVENT_TYPE_DAW_COMMAND &&
       (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
       uint8_t cmd = BMC_GET_BYTE(0, data.event);
       uint8_t ch = BMC_GET_BYTE(1, data.event);
@@ -180,7 +180,7 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
     uint8_t trigger = (device.settings[e] & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
 
 #ifdef BMC_USE_DAW_LC
-    if(type==BMC_EVENT_TYPE_DAW_BUTTON &&
+    if(type==BMC_EVENT_TYPE_DAW_COMMAND &&
       (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
       uint8_t cmd = BMC_GET_BYTE(0, data.event);
       uint8_t ch = BMC_GET_BYTE(1, data.event);
@@ -253,15 +253,15 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
         }
         break;
 
-  #if BMC_MAX_PAGES > 1
-      case BMC_BUTTON_EVENT_TYPE_PAGE:
-        setPage(byteA);
+  #if BMC_MAX_LAYERS > 1
+      case BMC_BUTTON_EVENT_TYPE_LAYER:
+        setLayer(byteA);
         break;
-      case BMC_BUTTON_EVENT_TYPE_PAGE_SCROLL:
+      case BMC_BUTTON_EVENT_TYPE_LAYER_SCROLL:
         // byteA = flags, bit-0 direction, bit-1 endless
-        // byteB = min page
-        // byteC = max page
-        scrollPage(byteA, byteB, byteC, 1);
+        // byteB = min layer
+        // byteC = max layer
+        scrollLayer(byteA, byteB, byteC, 1);
         break;
   #endif
       case BMC_BUTTON_EVENT_TYPE_PROGRAM_SCROLL:
@@ -658,8 +658,8 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
         {
           uint8_t cmd = valueTyper.cmd(byteA, byteB);
           if(cmd > 10){// cmd 10 is Clear
-            if(cmd==12){// page
-              setPage(valueTyper.getRawOutput());
+            if(cmd==12){// layer
+              setLayer(valueTyper.getRawOutput());
             } else if(cmd==13){// preset
 #if BMC_MAX_PRESETS > 0
               presets.set(valueTyper.getRawOutput());
@@ -801,7 +801,7 @@ void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
   #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
 
   #ifdef BMC_USE_DAW_LC
-      case BMC_EVENT_TYPE_DAW_BUTTON: break;// handled in the press type handler
+      case BMC_EVENT_TYPE_DAW_COMMAND: break;// handled in the press type handler
   #endif
 
       case BMC_BUTTON_EVENT_TYPE_USER_1:

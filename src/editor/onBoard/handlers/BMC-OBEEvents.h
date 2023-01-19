@@ -97,10 +97,12 @@ public:
     uint16_t min = getData(5, fieldN, 1);
     uint16_t max = getData(5, fieldN, 2);
     tempValue = getData(5, fieldN, 3);
-    if(tempValue < max){
-      tempValue++;
-    } else {
-      tempValue = min;
+    if(!hasCustomScrollFieldValue(true, fieldN)){
+      if(tempValue < max){
+        tempValue++;
+      } else {
+        tempValue = min;
+      }
     }
     getData(5, fieldN, 4);
     return tempValue;
@@ -109,13 +111,18 @@ public:
     uint16_t min = getData(5, fieldN, 1);
     uint16_t max = getData(5, fieldN, 2);
     tempValue = getData(5, fieldN, 3);
-    if(tempValue > min){
-      tempValue--;
-    } else {
-      tempValue = max;
+    if(!hasCustomScrollFieldValue(false, fieldN)){
+      if(tempValue > min){
+        tempValue--;
+      } else {
+        tempValue = max;
+      }
     }
     getData(5, fieldN, 4);
     return tempValue;
+  }
+  uint16_t hasCustomScrollFieldValue(bool direction, uint8_t fieldN){
+    return getData(5, fieldN, direction ? 6 : 7);
   }
   void getFieldLabel(char* str, uint8_t row){
     getData(str, 5, row, 0);
@@ -162,13 +169,18 @@ private:
         return 1;
       case 5: /* formatted value */
         {
-          char str2[40];
-          strcpy(str2, "...");
-          if(tempValue <= BMC_MAX_NAMES_LIBRARY){
-            editor.getDeviceNameFromIndex(tempValue, str2);
+          if(tempEvent.name == 0){
+            strcpy(str, "None");
+          } else {
+            char str2[40];
+            strcpy(str2, "...");
+            if(tempValue <= BMC_MAX_NAMES_LIBRARY){
+              editor.getDeviceNameFromIndex(tempEvent.name, str2);
+            }
+            sprintf(str, "#%u ", tempEvent.name);
+            strcat(str, str2);
           }
-          sprintf(str, "#%u ", tempValue);
-          strcat(str, str2);
+          
         }
         return 1;
     }
@@ -206,10 +218,10 @@ private:
   uint16_t eventGetScrollLimitField(char* str, uint8_t request){
     return eventGetFieldYesNo(str, "Scroll Endlessly", request, 2);
   }
-  uint16_t eventGetDawTrackField(char* str, uint8_t request){
+  uint16_t eventGetDawChannelField(char* str, uint8_t request){
     uint8_t value = BMC_GET_BYTE(1, tempEvent.event);
     switch(request){
-      case 0: strcpy(str, "Track #"); return 1; /* label */
+      case 0: strcpy(str, "Channel #"); return 1; /* label */
       case 1: return 0; /* min */
       case 2: return 8; /* max */
       case 3: return value; /* get stored value */
@@ -218,9 +230,9 @@ private:
         return 1;
       case 5: /* formatted value */
         if(value == 8){
-          strcpy(str, "Selected Track");
+          strcpy(str, "Selected Channel");
         } else {
-          sprintf(str, "Track # %u", value + offset);
+          sprintf(str, "# %u", value + offset);
         }
         return 1;
     }
@@ -267,14 +279,14 @@ private:
     return 0;
   }
   uint16_t eventGetField16BitValueRange(char* str, const char* str2, uint8_t request, uint8_t bytePos, uint16_t min, uint16_t max, bool useOffset){
-    uint16_t value = BMC_GET_BYTE(bytePos, tempEvent.event);
+    uint16_t value = BMC_GET_BYTE_2(bytePos, tempEvent.event);
     switch(request){
       case 0: strcpy(str, str2); return 1; /* label */
       case 1: return min; /* min */
       case 2: return max; /* max */
       case 3: return value; /* get stored value */
       case 4: /* set stored value */
-        BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFFFF, bytePos*16);
+        BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFFFF, bytePos*8);
         return 1;
       case 5: /* formatted value */
         sprintf(str, "%u", value + (useOffset ? offset : 0));
@@ -548,44 +560,44 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeSketchByte(str, fieldRequest, field);}
         break;
 
-      case BMC_EVENT_TYPE_PAGE:
-        if(request==0){ /* available */ return BMC_MAX_PAGES > 1; }
+      case BMC_EVENT_TYPE_LAYER:
+        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
         else if(request==1){ /* fields */ return 4; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Page #"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypePage(str, fieldRequest, field);}
+        else if(request==4){ /* name */ strcpy(str, "Layer #"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeLayer(str, fieldRequest, field);}
         break;
 
 #if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PAGE_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_PAGES > 1; }
+      case BMC_EVENT_TYPE_LAYER_SELECTED:
+        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
         else if(request==1){ /* fields */ return 0; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Page # (SEL)"); return 1;}
+        else if(request==4){ /* name */ strcpy(str, "Layer # (SEL)"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
         break;
 #endif
 
 #if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PAGE_NAME:
-        if(request==0){ /* available */ return BMC_MAX_PAGES > 1; }
+      case BMC_EVENT_TYPE_LAYER_NAME:
+        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
         else if(request==1){ /* fields */ return 1; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Page Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypePageName(str, fieldRequest, field);}
+        else if(request==4){ /* name */ strcpy(str, "Layer Name"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeLayerName(str, fieldRequest, field);}
         break;
 #endif
 
 #if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PAGE_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_PAGES > 1; }
+      case BMC_EVENT_TYPE_LAYER_SELECTED_NAME:
+        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
         else if(request==1){ /* fields */ return 0; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Page Name (SEL)"); return 1;}
+        else if(request==4){ /* name */ strcpy(str, "Layer Name (SEL)"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
         break;
 #endif
@@ -805,38 +817,50 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeAuxJack(str, fieldRequest, field);}
         break;
 
-#if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_BUTTONS) || defined(BMC_HAS_MAGIC_ENCODER) || BMC_MAX_TRIGGERS > 0)
-      case BMC_EVENT_TYPE_DAW_BUTTON:
+#if defined(BMC_HAS_DISPLAY)
+      case BMC_EVENT_TYPE_DEVICE_NAME:
         if(request==0){ /* available */ return true; }
         else if(request==1){ /* fields */ return 2; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "DAW Button"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeDawButton(str, fieldRequest, field);}
+        else if(request==4){ /* name */ strcpy(str, "Device Name"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeDeviceName(str, fieldRequest, field);}
         break;
 #endif
 
-#if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_LEDS))
-      case BMC_EVENT_TYPE_DAW_LED:
+#if defined(BMC_USE_DAW_LC)
+      case BMC_EVENT_TYPE_DAW_COMMAND:
         if(request==0){ /* available */ return true; }
         else if(request==1){ /* fields */ return 2; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "DAW Led"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeDawLed(str, fieldRequest, field);}
+        else if(request==4){ /* name */ strcpy(str, "DAW Command"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeDawCommand(str, fieldRequest, field);}
         break;
 #endif
 
-#if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_ENCODERS))
-      case BMC_EVENT_TYPE_DAW_ENCODER:
-        if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 2; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "DAW Encoder"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeDawEncoder(str, fieldRequest, field);}
-        break;
-#endif
+
+// #if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_LEDS))
+//       case BMC_EVENT_TYPE_DAW_LED:
+//         if(request==0){ /* available */ return true; }
+//         else if(request==1){ /* fields */ return 2; }
+//         else if(request==2){ /* scroll */ return false; }
+//         else if(request==3){ /* ports */ return false; }
+//         else if(request==4){ /* name */ strcpy(str, "DAW Led"); return 1;}
+//         else if(request==5){ /* field */ return eventBmcEventTypeDawLed(str, fieldRequest, field);}
+//         break;
+// #endif
+
+// #if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_ENCODERS))
+//       case BMC_EVENT_TYPE_DAW_ENCODER:
+//         if(request==0){ /* available */ return true; }
+//         else if(request==1){ /* fields */ return 2; }
+//         else if(request==2){ /* scroll */ return false; }
+//         else if(request==3){ /* ports */ return false; }
+//         else if(request==4){ /* name */ strcpy(str, "DAW Encoder"); return 1;}
+//         else if(request==5){ /* field */ return eventBmcEventTypeDawEncoder(str, fieldRequest, field);}
+//         break;
+// #endif
 
 #if defined(BMC_USE_DAW_LC) && defined(BMC_HAS_DISPLAY)
       case BMC_EVENT_TYPE_DAW_DISPLAY:
@@ -849,16 +873,16 @@ private:
         break;
 #endif
 
-#if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_LEDS))
-      case BMC_EVENT_TYPE_DAW_MAGIC_ENCODER:
-        if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 2; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "DAW Magic Encoder Leds"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeDawMagicEncoder(str, fieldRequest, field);}
-        break;
-#endif
+// #if defined(BMC_USE_DAW_LC) && (defined(BMC_HAS_MAGIC_ENCODER) || defined(BMC_HAS_LEDS))
+//       case BMC_EVENT_TYPE_DAW_MAGIC_ENCODER:
+//         if(request==0){ /* available */ return true; }
+//         else if(request==1){ /* fields */ return 2; }
+//         else if(request==2){ /* scroll */ return false; }
+//         else if(request==3){ /* ports */ return false; }
+//         else if(request==4){ /* name */ strcpy(str, "DAW Magic Encoder Leds"); return 1;}
+//         else if(request==5){ /* field */ return eventBmcEventTypeDawMagicEncoder(str, fieldRequest, field);}
+//         break;
+// #endif
 
 #if defined(BMC_HAS_BUTTONS)
       case BMC_EVENT_TYPE_CUSTOM_SYSEX:
@@ -1333,7 +1357,7 @@ private:
                 } else if(cmd==11){
                   strcpy(str, "Set Custom"); return 1;
                 } else if(cmd==12){
-                  strcpy(str, "Set Page"); return 1;
+                  strcpy(str, "Set Layer"); return 1;
                 } else if(cmd==13){
                   strcpy(str, "Set Preset"); return 1;
                 } else if(cmd==14){
@@ -1378,7 +1402,7 @@ private:
               } else if(cmd==1){
                 strcpy(str, "Set Custom");
               } else if(cmd==2){
-                strcpy(str, "Set Page");
+                strcpy(str, "Set Layer");
               } else if(cmd==3){
                 strcpy(str, "Set Preset");
               } else if(cmd==4){
@@ -1501,12 +1525,12 @@ private:
     }
     return 0;
   }
-  uint16_t eventBmcEventTypePage(char* str, uint8_t fieldRequest, uint8_t field){
+  uint16_t eventBmcEventTypeLayer(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
-        return eventGetField16BitValueRange(str, "Page", fieldRequest, 0, 0, BMC_MAX_PAGES-1, true);
+        return eventGetField16BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
       case 2:
         return eventGetScrollEnableField(str, fieldRequest);
       case 3:
@@ -1516,12 +1540,12 @@ private:
     }
     return 0;
   }
-  uint16_t eventBmcEventTypePageName(char* str, uint8_t fieldRequest, uint8_t field){
+  uint16_t eventBmcEventTypeLayerName(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
-        return eventGetField16BitValueRange(str, "Page", fieldRequest, 0, 0, BMC_MAX_PAGES-1, true);
+        return eventGetField16BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
     }
     return 0;
   }
@@ -1735,15 +1759,133 @@ private:
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeDawButton(char* str, uint8_t fieldRequest, uint8_t field){
+  uint16_t eventBmcEventTypeDeviceName(char* str, uint8_t fieldRequest, uint8_t field){
+    uint16_t len = 0;
+    for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
+      if(editor.devicesData[i].hardware && editor.devicesData[i].group!=BMC_DEVICE_GROUP_DISPLAY){
+        len++;
+      }
+    }
+    if(len == 0){
+      len = 1;
+    }
+
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
         switch(fieldRequest){
-          case 0: strcpy(str, "Action"); return 1; /* label */
+          case 0: strcpy(str, "Device"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return 68; /* max */
+          case 2: return len-1; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(0, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+            return 1;
+          case 5: /* formatted value */
+            {
+              uint16_t deviceLen = 0;
+              bool updateD = false;
+              uint16_t _tempValue = BMC_GET_BYTE(0, tempEvent.event);
+              while(!checkIfDeviceIsValidForNameEvent(_tempValue)){
+                updateD = true;
+                _tempValue++;
+                if(_tempValue >= 40){
+                  _tempValue = 0;
+                }
+              }
+              if(updateD){
+                BMC_WRITE_BITS(tempEvent.event, _tempValue, 0xFF, 0);
+              }
+              for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
+                if(editor.devicesData[i].hardware && editor.devicesData[i].group!=BMC_DEVICE_GROUP_DISPLAY){
+                  if(editor.devicesData[i].id == _tempValue){
+                    deviceLen = editor.devicesData[i].length;
+                    strcpy(str, editor.devicesData[i].label);
+                    break;
+                  }
+                }
+              }
+              if(BMC_GET_BYTE_2(1, tempEvent.event) >= deviceLen){
+                BMC_WRITE_BITS(tempEvent.event, 0, 0xFFFF, 8);
+              }
+            }
+            return 1;
+          case 6:
+            {
+              tempValue++;
+              if(tempValue >= 40){
+                tempValue = 0;
+              }
+              while(!checkIfDeviceIsValidForNameEvent(tempValue)){
+                tempValue++;
+                if(tempValue >= 40){
+                  tempValue = 0;
+                }
+              }
+            }
+            return 1;
+          case 7:
+            {
+              if(tempValue > 0){
+                tempValue--;
+              } else {
+                tempValue = 39;
+              }
+              while(!checkIfDeviceIsValidForNameEvent(tempValue)){
+                if(tempValue > 0){
+                  tempValue--;
+                } else {
+                  tempValue = 39;
+                }
+              }
+            }
+            return 1;
+        }
+        break;
+      case 2:
+        {
+          uint8_t deviceLen = 0;
+          for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
+            if(editor.devicesData[i].hardware && editor.devicesData[i].group!=BMC_DEVICE_GROUP_DISPLAY){
+              if(editor.devicesData[i].id == BMC_GET_BYTE(0, tempEvent.event)){
+                deviceLen = editor.devicesData[i].length;
+                break;
+              }
+            }
+          }
+          if(deviceLen == 0){
+            deviceLen = 1;
+          }
+          return eventGetField16BitValueRange(str, "Device Index", fieldRequest, 1, 0, deviceLen-1, true);
+        }
+        break;
+        
+    }
+    return 0;
+  }
+  bool checkIfDeviceIsValidForNameEvent(int16_t id){
+    bool valid = false;
+    for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
+      if(editor.devicesData[i].hardware && editor.devicesData[i].group!=BMC_DEVICE_GROUP_DISPLAY){
+        if(editor.devicesData[i].id == id){
+          valid = true;
+          break;
+        }
+      }
+    }
+    return valid;
+  }
+  uint16_t eventBmcEventTypeDawCommand(char* str, uint8_t fieldRequest, uint8_t field){
+    switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        switch(fieldRequest){
+          case 0: strcpy(str, "Command/Status"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 99; /* max */
           case 3: /* get stored value */
             return BMC_GET_BYTE(0, tempEvent.event);
           case 4: /* set stored value */
@@ -1751,208 +1893,240 @@ private:
             return 1;
           case 5: /* formatted value */
             switch(BMC_GET_BYTE(0, tempEvent.event)){
-              case BMC_DAW_BTN_CMD_REC: strcpy(str, "Ch. REC"); return 1;
-              case BMC_DAW_BTN_CMD_SOLO: strcpy(str, "Ch. SOLO"); return 1;
-              case BMC_DAW_BTN_CMD_MUTE: strcpy(str, "Ch. MUTE"); return 1;
-              case BMC_DAW_BTN_CMD_SELECT: strcpy(str, "Ch. SELECT"); return 1;
-              case BMC_DAW_BTN_CMD_VPOT: strcpy(str, "Ch. VPot"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_TRACK: strcpy(str, "VPot Assgn TRACK"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_SEND: strcpy(str, "VPot Assgn SEND"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_PAN: strcpy(str, "VPot Assgn PAN"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_PLUGIN: strcpy(str, "VPot Assgn PLUGIN"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_EQ: strcpy(str, "VPot Assgn EQ"); return 1;
-              case BMC_DAW_BTN_CMD_ASSIGN_INSTR: strcpy(str, "VPot Assgn INSTR"); return 1;
-              case BMC_DAW_BTN_CMD_BANK_LEFT: strcpy(str, "Bank NEXT"); return 1;
-              case BMC_DAW_BTN_CMD_BANK_RIGHT: strcpy(str, "Bank PREV"); return 1;
-              case BMC_DAW_BTN_CMD_CHANNEL_LEFT: strcpy(str, "Ch. NEXT"); return 1;
-              case BMC_DAW_BTN_CMD_CHANNEL_RIGHT: strcpy(str, "Ch. PREV"); return 1;
-              case BMC_DAW_BTN_CMD_FLIP: strcpy(str, "FLIP"); return 1;
-              case BMC_DAW_BTN_CMD_GLOBAL: strcpy(str, "GLOBAL"); return 1;
-              case BMC_DAW_BTN_CMD_NAMEVAL: strcpy(str, "NAMEVAL"); return 1;
-              case BMC_DAW_BTN_CMD_SMPTEBEATS: strcpy(str, "SMPTEBEATS"); return 1;
-              case BMC_DAW_BTN_CMD_F1: strcpy(str, "F1"); return 1;
-              case BMC_DAW_BTN_CMD_F2: strcpy(str, "F2"); return 1;
-              case BMC_DAW_BTN_CMD_F3: strcpy(str, "F3"); return 1;
-              case BMC_DAW_BTN_CMD_F4: strcpy(str, "F4"); return 1;
-              case BMC_DAW_BTN_CMD_F5: strcpy(str, "F5"); return 1;
-              case BMC_DAW_BTN_CMD_F6: strcpy(str, "F6"); return 1;
-              case BMC_DAW_BTN_CMD_F7: strcpy(str, "F7"); return 1;
-              case BMC_DAW_BTN_CMD_F8: strcpy(str, "F8"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_MIDI: strcpy(str, "View MIDI"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_INPUTS: strcpy(str, "View INPUTS"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_AUDIO: strcpy(str, "View AUDIO"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_INSTR: strcpy(str, "View INSTR"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_AUX: strcpy(str, "View AUX"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_BUS: strcpy(str, "View BUS"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_OUT: strcpy(str, "View OUT"); return 1;
-              case BMC_DAW_BTN_CMD_VIEW_USER: strcpy(str, "View USER"); return 1;
-              case BMC_DAW_BTN_CMD_MOD_SHIFT: strcpy(str, "Mod SHIFT"); return 1;
-              case BMC_DAW_BTN_CMD_MOD_OPTION: strcpy(str, "Mod OPTION"); return 1;
-              case BMC_DAW_BTN_CMD_MOD_CONTROL: strcpy(str, "Mod CONTROL"); return 1;
-              case BMC_DAW_BTN_CMD_MOD_CMD: strcpy(str, "Mod CMD"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_READ: strcpy(str, "READ"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_WRITE: strcpy(str, "WRITE"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_TRIM: strcpy(str, "TRIM"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_TOUCH: strcpy(str, "TOUCH"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_LATCH: strcpy(str, "LATCH"); return 1;
-              case BMC_DAW_BTN_CMD_AUTOMATION_GROUP: strcpy(str, "GROUP"); return 1;
-              case BMC_DAW_BTN_CMD_UTILITY_SAVE: strcpy(str, "SAVE"); return 1;
-              case BMC_DAW_BTN_CMD_UTILITY_UNDO: strcpy(str, "UNDO"); return 1;
-              case BMC_DAW_BTN_CMD_UTILITY_CANCEL: strcpy(str, "CANCEL"); return 1;
-              case BMC_DAW_BTN_CMD_UTILITY_ENTER: strcpy(str, "ENTER"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_MARKER: strcpy(str, "MARKER"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_NUDGE: strcpy(str, "NUDGE"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_CYCLE: strcpy(str, "CYCLE"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_DROP: strcpy(str, "DROP"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_REPLACE: strcpy(str, "REPLACE"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_CLICK: strcpy(str, "CLICK"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_SOLO: strcpy(str, "SOLO"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_REWIND: strcpy(str, "REWIND"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_FORWARD: strcpy(str, "FORWARD"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_STOP: strcpy(str, "STOP"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_PLAY: strcpy(str, "PLAY"); return 1;
-              case BMC_DAW_BTN_CMD_TRANSPORT_REC: strcpy(str, "REC"); return 1;
-              case BMC_DAW_BTN_CMD_CURSOR_UP: strcpy(str, "Cursor UP"); return 1;
-              case BMC_DAW_BTN_CMD_CURSOR_DOWN: strcpy(str, "Cursor DOWN"); return 1;
-              case BMC_DAW_BTN_CMD_CURSOR_LEFT: strcpy(str, "Cursor LEFT"); return 1;
-              case BMC_DAW_BTN_CMD_CURSOR_RIGHT: strcpy(str, "Cursor RIGHT"); return 1;
-              case BMC_DAW_BTN_CMD_CURSOR_ZOOM: strcpy(str, "Cursor ZOOM"); return 1;
-              case BMC_DAW_BTN_CMD_SCRUB: strcpy(str, "SCRUB"); return 1;
-              case BMC_DAW_BTN_CMD_FADER_TOUCH: strcpy(str, "FADER TOUCH"); return 1;
-              case BMC_DAW_BTN_CMD_FADER_TOUCH_MASTER: strcpy(str, "FADER TOUCH MASTER"); return 1;
+              case BMC_DAW_CMD_REC: strcpy(str, "Ch. REC"); return 1;
+              case BMC_DAW_CMD_SOLO: strcpy(str, "Ch. SOLO"); return 1;
+              case BMC_DAW_CMD_MUTE: strcpy(str, "Ch. MUTE"); return 1;
+              case BMC_DAW_CMD_SELECT: strcpy(str, "Ch. SELECT"); return 1;
+              case BMC_DAW_CMD_VPOT_SELECT: strcpy(str, "Ch. VPot"); return 1;
+              case BMC_DAW_CMD_ASSIGN_TRACK: strcpy(str, "VPot Assgn TRACK"); return 1;
+              case BMC_DAW_CMD_ASSIGN_SEND: strcpy(str, "VPot Assgn SEND"); return 1;
+              case BMC_DAW_CMD_ASSIGN_PAN: strcpy(str, "VPot Assgn PAN"); return 1;
+              case BMC_DAW_CMD_ASSIGN_PLUGIN: strcpy(str, "VPot Assgn PLUGIN"); return 1;
+              case BMC_DAW_CMD_ASSIGN_EQ: strcpy(str, "VPot Assgn EQ"); return 1;
+              case BMC_DAW_CMD_ASSIGN_INSTR: strcpy(str, "VPot Assgn INSTR"); return 1;
+              case BMC_DAW_CMD_BANK_LEFT: strcpy(str, "Bank NEXT"); return 1;
+              case BMC_DAW_CMD_BANK_RIGHT: strcpy(str, "Bank PREV"); return 1;
+              case BMC_DAW_CMD_CHANNEL_LEFT: strcpy(str, "Ch. NEXT"); return 1;
+              case BMC_DAW_CMD_CHANNEL_RIGHT: strcpy(str, "Ch. PREV"); return 1;
+              case BMC_DAW_CMD_FLIP: strcpy(str, "FLIP"); return 1;
+              case BMC_DAW_CMD_GLOBAL_VIEW: strcpy(str, "GLOBAL"); return 1;
+              case BMC_DAW_CMD_NAMEVAL: strcpy(str, "NAMEVAL"); return 1;
+              case BMC_DAW_CMD_SMPTEBEATS: strcpy(str, "SMPTEBEATS"); return 1;
+              case BMC_DAW_CMD_F1: strcpy(str, "F1"); return 1;
+              case BMC_DAW_CMD_F2: strcpy(str, "F2"); return 1;
+              case BMC_DAW_CMD_F3: strcpy(str, "F3"); return 1;
+              case BMC_DAW_CMD_F4: strcpy(str, "F4"); return 1;
+              case BMC_DAW_CMD_F5: strcpy(str, "F5"); return 1;
+              case BMC_DAW_CMD_F6: strcpy(str, "F6"); return 1;
+              case BMC_DAW_CMD_F7: strcpy(str, "F7"); return 1;
+              case BMC_DAW_CMD_F8: strcpy(str, "F8"); return 1;
+              case BMC_DAW_CMD_VIEW_MIDI: strcpy(str, "View MIDI"); return 1;
+              case BMC_DAW_CMD_VIEW_INPUTS: strcpy(str, "View INPUTS"); return 1;
+              case BMC_DAW_CMD_VIEW_AUDIO: strcpy(str, "View AUDIO"); return 1;
+              case BMC_DAW_CMD_VIEW_INSTR: strcpy(str, "View INSTR"); return 1;
+              case BMC_DAW_CMD_VIEW_AUX: strcpy(str, "View AUX"); return 1;
+              case BMC_DAW_CMD_VIEW_BUS: strcpy(str, "View BUS"); return 1;
+              case BMC_DAW_CMD_VIEW_OUT: strcpy(str, "View OUT"); return 1;
+              case BMC_DAW_CMD_VIEW_USER: strcpy(str, "View USER"); return 1;
+              case BMC_DAW_CMD_MOD_SHIFT: strcpy(str, "Mod SHIFT"); return 1;
+              case BMC_DAW_CMD_MOD_OPTION: strcpy(str, "Mod OPTION"); return 1;
+              case BMC_DAW_CMD_MOD_CONTROL: strcpy(str, "Mod CONTROL"); return 1;
+              case BMC_DAW_CMD_MOD_CMD_ALT: strcpy(str, "Mod CMD"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_READ: strcpy(str, "READ"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_WRITE: strcpy(str, "WRITE"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_TRIM: strcpy(str, "TRIM"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_TOUCH: strcpy(str, "TOUCH"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_LATCH: strcpy(str, "LATCH"); return 1;
+              case BMC_DAW_CMD_AUTOMATION_GROUP: strcpy(str, "GROUP"); return 1;
+              case BMC_DAW_CMD_UTILITY_SAVE: strcpy(str, "SAVE"); return 1;
+              case BMC_DAW_CMD_UTILITY_UNDO: strcpy(str, "UNDO"); return 1;
+              case BMC_DAW_CMD_UTILITY_CANCEL: strcpy(str, "CANCEL"); return 1;
+              case BMC_DAW_CMD_UTILITY_ENTER: strcpy(str, "ENTER"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_MARKER: strcpy(str, "MARKER"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_NUDGE: strcpy(str, "NUDGE"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_CYCLE: strcpy(str, "CYCLE"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_DROP: strcpy(str, "DROP"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_REPLACE: strcpy(str, "REPLACE"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_CLICK: strcpy(str, "CLICK"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_SOLO: strcpy(str, "SOLO"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_REWIND: strcpy(str, "REWIND"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_FORWARD: strcpy(str, "FORWARD"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_STOP: strcpy(str, "STOP"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_PLAY: strcpy(str, "PLAY"); return 1;
+              case BMC_DAW_CMD_TRANSPORT_REC: strcpy(str, "REC"); return 1;
+              case BMC_DAW_CMD_CURSOR_UP: strcpy(str, "Cursor UP"); return 1;
+              case BMC_DAW_CMD_CURSOR_DOWN: strcpy(str, "Cursor DOWN"); return 1;
+              case BMC_DAW_CMD_CURSOR_LEFT: strcpy(str, "Cursor LEFT"); return 1;
+              case BMC_DAW_CMD_CURSOR_RIGHT: strcpy(str, "Cursor RIGHT"); return 1;
+              case BMC_DAW_CMD_CURSOR_ZOOM: strcpy(str, "Cursor ZOOM"); return 1;
+              case BMC_DAW_CMD_SCRUB: strcpy(str, "SCRUB"); return 1;
+              case BMC_DAW_CMD_FADER_TOUCH: strcpy(str, "FADER TOUCH"); return 1;
+              case BMC_DAW_CMD_FADER_TOUCH_MASTER: strcpy(str, "FADER TOUCH MASTER"); return 1;
+              case BMC_DAW_CMD_SMPTE: strcpy(str, "SMPTE LED"); return 1;
+              case BMC_DAW_CMD_BEATS: strcpy(str, "BEATS LED"); return 1;
+              case BMC_DAW_CMD_RUDE_SOLO: strcpy(str, "RUDE SOLO LED"); return 1;
+              case BMC_DAW_CMD_RELAY: strcpy(str, "RELAY LED"); return 1;
+              case BMC_DAW_CMD_METER_LED_PEAK: strcpy(str, "METER LED PEAK"); return 1;
+              case BMC_DAW_CMD_METER_LED_1: strcpy(str, "METER LED 1"); return 1;
+              case BMC_DAW_CMD_METER_LED_2: strcpy(str, "METER LED 2"); return 1;
+              case BMC_DAW_CMD_METER_LED_3: strcpy(str, "METER LED 3"); return 1;
+              case BMC_DAW_CMD_METER_LED_4: strcpy(str, "METER LED 4"); return 1;
+              case BMC_DAW_CMD_METER_LED_5: strcpy(str, "METER LED 5"); return 1;
+              case BMC_DAW_CMD_METER_LED_6: strcpy(str, "METER LED 6"); return 1;
+              case BMC_DAW_CMD_METER_LED_7: strcpy(str, "METER LED 7"); return 1;
+              case BMC_DAW_CMD_METER_LED_8: strcpy(str, "METER LED 8"); return 1;
+              case BMC_DAW_CMD_METER_LED_9: strcpy(str, "METER LED 9"); return 1;
+              case BMC_DAW_CMD_METER_LED_10: strcpy(str, "METER LED 10"); return 1;
+              case BMC_DAW_CMD_METER_LED_11: strcpy(str, "METER LED 11"); return 1;
+              case BMC_DAW_CMD_METER_LED_12: strcpy(str, "METER LED 12"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_1: strcpy(str, "VPOT LED 1"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_2: strcpy(str, "VPOT LED 2"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_3: strcpy(str, "VPOT LED 3"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_4: strcpy(str, "VPOT LED 4"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_5: strcpy(str, "VPOT LED 5"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_6: strcpy(str, "VPOT LED 6"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_7: strcpy(str, "VPOT LED 7"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_8: strcpy(str, "VPOT LED 8"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_9: strcpy(str, "VPOT LED 9"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_10: strcpy(str, "VPOT LED 10"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_11: strcpy(str, "VPOT LED 11"); return 1;
+              case BMC_DAW_CMD_VPOT_LED_CENTER: strcpy(str, "VPOT LED CENTERED"); return 1;
+              case BMC_DAW_CMD_PREV_MARKER: strcpy(str, "PREV MARKER"); return 1;
+              case BMC_DAW_CMD_NEXT_MARKER: strcpy(str, "NEXT MARKER"); return 1;
+              
             }
             return 0;
         }
         break;
       case 2:
-        return eventGetDawTrackField(str, fieldRequest);
+        return eventGetDawChannelField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeDawLed(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        switch(fieldRequest){
-          case 0: strcpy(str, "Action"); return 1; /* label */
-          case 1: return 0; /* min */
-          case 2: return 62; /* max */
-          case 3: /* get stored value */
-            return BMC_GET_BYTE(0, tempEvent.event);
-          case 4: /* set stored value */
-            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
-            return 1;
-          case 5: /* formatted value */
-            switch(BMC_GET_BYTE(0, tempEvent.event)){
-              case BMC_DAW_LED_CMD_REC: strcpy(str, "Ch. REC"); return 1;
-              case BMC_DAW_LED_CMD_SOLO: strcpy(str, "Ch. SOLO"); return 1;
-              case BMC_DAW_LED_CMD_MUTE: strcpy(str, "Ch. MUTE"); return 1;
-              case BMC_DAW_LED_CMD_SELECT: strcpy(str, "Ch. SELECT"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_TRACK: strcpy(str, "V-Pot Assgn TRACK"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_PAN: strcpy(str, "V-Pot Assgn PAN"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_EQ: strcpy(str, "V-Pot Assgn EQ"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_SEND: strcpy(str, "V-Pot Assgn SEND"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_PLUGIN: strcpy(str, "V-Pot Assgn PLUGIN"); return 1;
-              case BMC_DAW_LED_CMD_ASSIGN_INSTR: strcpy(str, "V-Pot Assgn INSTR"); return 1;
-              case BMC_DAW_LED_CMD_GLOBAL: strcpy(str, "GLOBAL"); return 1;
-              case BMC_DAW_LED_CMD_FLIP: strcpy(str, "FLIP"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_PLAY: strcpy(str, "PLAY"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_STOP: strcpy(str, "STOP"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_REC: strcpy(str, "REC"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_FORWARD: strcpy(str, "FORWARD"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_REWIND: strcpy(str, "REWIND"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_MARKER: strcpy(str, "MARKER"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_NUDGE: strcpy(str, "NUDGE"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_CYCLE: strcpy(str, "CYCLE"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_DROP: strcpy(str, "DROP"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_REPLACE: strcpy(str, "REPLACE"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_CLICK: strcpy(str, "CLICK"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_SOLO: strcpy(str, "SOLO"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_ZOOM: strcpy(str, "ZOOM"); return 1;
-              case BMC_DAW_LED_CMD_TRANSPORT_SCRUB: strcpy(str, "SCRUB"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_READ: strcpy(str, "READ"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_WRITE: strcpy(str, "WRITE"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_TRIM: strcpy(str, "TRIM"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_TOUCH: strcpy(str, "TOUCH"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_LATCH: strcpy(str, "LATCH"); return 1;
-              case BMC_DAW_LED_CMD_AUTOMATION_GROUP: strcpy(str, "GROUP"); return 1;
-              case BMC_DAW_LED_CMD_UTILITY_SAVE: strcpy(str, "SAVE"); return 1;
-              case BMC_DAW_LED_CMD_UTILITY_UNDO: strcpy(str, "UNDO"); return 1;
-              case BMC_DAW_LED_CMD_METER_PEAK: strcpy(str, "Ch. Meter Overload"); return 1;
-              case BMC_DAW_LED_CMD_METER_1: strcpy(str, "Ch. Meter Level 1"); return 1;
-              case BMC_DAW_LED_CMD_METER_2: strcpy(str, "Ch. Meter Level 2"); return 1;
-              case BMC_DAW_LED_CMD_METER_3: strcpy(str, "Ch. Meter Level 3"); return 1;
-              case BMC_DAW_LED_CMD_METER_4: strcpy(str, "Ch. Meter Level 4"); return 1;
-              case BMC_DAW_LED_CMD_METER_5: strcpy(str, "Ch. Meter Level 5"); return 1;
-              case BMC_DAW_LED_CMD_METER_6: strcpy(str, "Ch. Meter Level 6"); return 1;
-              case BMC_DAW_LED_CMD_METER_7: strcpy(str, "Ch. Meter Level 7"); return 1;
-              case BMC_DAW_LED_CMD_METER_8: strcpy(str, "Ch. Meter Level 8"); return 1;
-              case BMC_DAW_LED_CMD_METER_9: strcpy(str, "Ch. Meter Level 9"); return 1;
-              case BMC_DAW_LED_CMD_METER_10: strcpy(str, "Ch. Meter Level 10"); return 1;
-              case BMC_DAW_LED_CMD_METER_11: strcpy(str, "Ch. Meter Level 11"); return 1;
-              case BMC_DAW_LED_CMD_METER_12: strcpy(str, "Ch. Meter Level 12"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_1: strcpy(str, "Ch. VPot Led 1"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_2: strcpy(str, "Ch. VPot Led 2"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_3: strcpy(str, "Ch. VPot Led 3"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_4: strcpy(str, "Ch. VPot Led 4"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_5: strcpy(str, "Ch. VPot Led 5"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_6: strcpy(str, "Ch. VPot Led 6"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_7: strcpy(str, "Ch. VPot Led 7"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_8: strcpy(str, "Ch. VPot Led 8"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_9: strcpy(str, "Ch. VPot Led 9"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_10: strcpy(str, "Ch. VPot Led 10"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_11: strcpy(str, "Ch. VPot Led 11"); return 1;
-              case BMC_DAW_LED_CMD_VPOT_CENTER: strcpy(str, "Ch. VPot Led Center"); return 1;
-              case BMC_DAW_LED_CMD_SMPTE: strcpy(str, "SMPTE"); return 1;
-              case BMC_DAW_LED_CMD_BEATS: strcpy(str, "BEATS"); return 1;
-              case BMC_DAW_LED_CMD_RUDE_SOLO: strcpy(str, "RUDE SOLO"); return 1;
-              case BMC_DAW_LED_CMD_RELAY: strcpy(str, "RELAY"); return 1;
-            }
-            return 0;
-        }
-        break;
-      case 2:
-        return eventGetDawTrackField(str, fieldRequest);
-    }
-    return 0;
-  }
-  uint16_t eventBmcEventTypeDawEncoder(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        switch(fieldRequest){
-          case 0: strcpy(str, "Action"); return 1; /* label */
-          case 1: return 0; /* min */
-          case 2: return 1; /* max */
-          case 3: /* get stored value */
-            return BMC_GET_BYTE(0, tempEvent.event);
-          case 4: /* set stored value */
-            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
-            return 1;
-          case 5: /* formatted value */
-            switch(BMC_GET_BYTE(0, tempEvent.event)){
-              case BMC_DAW_ENC_CMD_VPOT: strcpy(str, "Ch. V-Pot"); return 1;
-              case BMC_DAW_ENC_CMD_FADER: strcpy(str, "Ch. Fader"); return 1;
-              case BMC_DAW_ENC_CMD_FADER_MASTER: strcpy(str, "Master Fader"); return 1;
-              case BMC_DAW_ENC_CMD_SCRUB: strcpy(str, "Jog Wheel"); return 1;
-            }
-            return 0;
-        }
-        break;
-      case 2:
-        return eventGetDawTrackField(str, fieldRequest);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeDawLed(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       switch(fieldRequest){
+  //         case 0: strcpy(str, "Action"); return 1; /* label */
+  //         case 1: return 0; /* min */
+  //         case 2: return 62; /* max */
+  //         case 3: /* get stored value */
+  //           return BMC_GET_BYTE(0, tempEvent.event);
+  //         case 4: /* set stored value */
+  //           BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+  //           return 1;
+  //         case 5: /* formatted value */
+  //           switch(BMC_GET_BYTE(0, tempEvent.event)){
+  //             case BMC_DAW_LED_CMD_REC: strcpy(str, "Ch. REC"); return 1;
+  //             case BMC_DAW_LED_CMD_SOLO: strcpy(str, "Ch. SOLO"); return 1;
+  //             case BMC_DAW_LED_CMD_MUTE: strcpy(str, "Ch. MUTE"); return 1;
+  //             case BMC_DAW_LED_CMD_SELECT: strcpy(str, "Ch. SELECT"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_TRACK: strcpy(str, "V-Pot Assgn TRACK"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_PAN: strcpy(str, "V-Pot Assgn PAN"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_EQ: strcpy(str, "V-Pot Assgn EQ"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_SEND: strcpy(str, "V-Pot Assgn SEND"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_PLUGIN: strcpy(str, "V-Pot Assgn PLUGIN"); return 1;
+  //             case BMC_DAW_LED_CMD_ASSIGN_INSTR: strcpy(str, "V-Pot Assgn INSTR"); return 1;
+  //             case BMC_DAW_LED_CMD_GLOBAL: strcpy(str, "GLOBAL"); return 1;
+  //             case BMC_DAW_LED_CMD_FLIP: strcpy(str, "FLIP"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_PLAY: strcpy(str, "PLAY"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_STOP: strcpy(str, "STOP"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_REC: strcpy(str, "REC"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_FORWARD: strcpy(str, "FORWARD"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_REWIND: strcpy(str, "REWIND"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_MARKER: strcpy(str, "MARKER"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_NUDGE: strcpy(str, "NUDGE"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_CYCLE: strcpy(str, "CYCLE"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_DROP: strcpy(str, "DROP"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_REPLACE: strcpy(str, "REPLACE"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_CLICK: strcpy(str, "CLICK"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_SOLO: strcpy(str, "SOLO"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_ZOOM: strcpy(str, "ZOOM"); return 1;
+  //             case BMC_DAW_LED_CMD_TRANSPORT_SCRUB: strcpy(str, "SCRUB"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_READ: strcpy(str, "READ"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_WRITE: strcpy(str, "WRITE"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_TRIM: strcpy(str, "TRIM"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_TOUCH: strcpy(str, "TOUCH"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_LATCH: strcpy(str, "LATCH"); return 1;
+  //             case BMC_DAW_LED_CMD_AUTOMATION_GROUP: strcpy(str, "GROUP"); return 1;
+  //             case BMC_DAW_LED_CMD_UTILITY_SAVE: strcpy(str, "SAVE"); return 1;
+  //             case BMC_DAW_LED_CMD_UTILITY_UNDO: strcpy(str, "UNDO"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_PEAK: strcpy(str, "Ch. Meter Overload"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_1: strcpy(str, "Ch. Meter Level 1"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_2: strcpy(str, "Ch. Meter Level 2"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_3: strcpy(str, "Ch. Meter Level 3"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_4: strcpy(str, "Ch. Meter Level 4"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_5: strcpy(str, "Ch. Meter Level 5"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_6: strcpy(str, "Ch. Meter Level 6"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_7: strcpy(str, "Ch. Meter Level 7"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_8: strcpy(str, "Ch. Meter Level 8"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_9: strcpy(str, "Ch. Meter Level 9"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_10: strcpy(str, "Ch. Meter Level 10"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_11: strcpy(str, "Ch. Meter Level 11"); return 1;
+  //             case BMC_DAW_LED_CMD_METER_12: strcpy(str, "Ch. Meter Level 12"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_1: strcpy(str, "Ch. VPot Led 1"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_2: strcpy(str, "Ch. VPot Led 2"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_3: strcpy(str, "Ch. VPot Led 3"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_4: strcpy(str, "Ch. VPot Led 4"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_5: strcpy(str, "Ch. VPot Led 5"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_6: strcpy(str, "Ch. VPot Led 6"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_7: strcpy(str, "Ch. VPot Led 7"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_8: strcpy(str, "Ch. VPot Led 8"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_9: strcpy(str, "Ch. VPot Led 9"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_10: strcpy(str, "Ch. VPot Led 10"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_11: strcpy(str, "Ch. VPot Led 11"); return 1;
+  //             case BMC_DAW_LED_CMD_VPOT_CENTER: strcpy(str, "Ch. VPot Led Center"); return 1;
+  //             case BMC_DAW_LED_CMD_SMPTE: strcpy(str, "SMPTE"); return 1;
+  //             case BMC_DAW_LED_CMD_BEATS: strcpy(str, "BEATS"); return 1;
+  //             case BMC_DAW_LED_CMD_RUDE_SOLO: strcpy(str, "RUDE SOLO"); return 1;
+  //             case BMC_DAW_LED_CMD_RELAY: strcpy(str, "RELAY"); return 1;
+  //           }
+  //           return 0;
+  //       }
+  //       break;
+  //     case 2:
+  //       return eventGetDawChannelField(str, fieldRequest);
+  //   }
+  //   return 0;
+  // }
+  // uint16_t eventBmcEventTypeDawEncoder(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       switch(fieldRequest){
+  //         case 0: strcpy(str, "Action"); return 1; /* label */
+  //         case 1: return 0; /* min */
+  //         case 2: return 1; /* max */
+  //         case 3: /* get stored value */
+  //           return BMC_GET_BYTE(0, tempEvent.event);
+  //         case 4: /* set stored value */
+  //           BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+  //           return 1;
+  //         case 5: /* formatted value */
+  //           switch(BMC_GET_BYTE(0, tempEvent.event)){
+  //             case BMC_DAW_ENC_CMD_VPOT: strcpy(str, "Ch. V-Pot"); return 1;
+  //             case BMC_DAW_ENC_CMD_FADER: strcpy(str, "Ch. Fader"); return 1;
+  //             case BMC_DAW_ENC_CMD_FADER_MASTER: strcpy(str, "Master Fader"); return 1;
+  //             case BMC_DAW_ENC_CMD_SCRUB: strcpy(str, "Jog Wheel"); return 1;
+  //           }
+  //           return 0;
+  //       }
+  //       break;
+  //     case 2:
+  //       return eventGetDawChannelField(str, fieldRequest);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeDawDisplay(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
         switch(fieldRequest){
-          case 0: strcpy(str, "Action"); return 1; /* label */
+          case 0: strcpy(str, "Status"); return 1; /* label */
           case 1: return 0; /* min */
           case 2: return 3; /* max */
           case 3: /* get stored value */
@@ -1971,38 +2145,38 @@ private:
         }
         break;
       case 2:
-        return eventGetDawTrackField(str, fieldRequest);
+        return eventGetDawChannelField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeDawMagicEncoder(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        switch(fieldRequest){
-          case 0: strcpy(str, "Action"); return 1; /* label */
-          case 1: return 0; /* min */
-          case 2: return 1; /* max */
-          case 3: /* get stored value */
-            return BMC_GET_BYTE(0, tempEvent.event);
-          case 4: /* set stored value */
-            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
-            return 1;
-          case 5: /* formatted value */
-            switch(BMC_GET_BYTE(0, tempEvent.event)){
-              case 0: strcpy(str, "Ch. V-Pot"); return 1;
-              case 1: strcpy(str, "Ch. Metter"); return 1;
-              case 2: strcpy(str, "Ch. Fader"); return 1;
-            }
-            return 0;
-        }
-        break;
-      case 2:
-        return eventGetDawTrackField(str, fieldRequest);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeDawMagicEncoder(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       switch(fieldRequest){
+  //         case 0: strcpy(str, "Action"); return 1; /* label */
+  //         case 1: return 0; /* min */
+  //         case 2: return 1; /* max */
+  //         case 3: /* get stored value */
+  //           return BMC_GET_BYTE(0, tempEvent.event);
+  //         case 4: /* set stored value */
+  //           BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+  //           return 1;
+  //         case 5: /* formatted value */
+  //           switch(BMC_GET_BYTE(0, tempEvent.event)){
+  //             case 0: strcpy(str, "Ch. V-Pot"); return 1;
+  //             case 1: strcpy(str, "Ch. Metter"); return 1;
+  //             case 2: strcpy(str, "Ch. Fader"); return 1;
+  //           }
+  //           return 0;
+  //       }
+  //       break;
+  //     case 2:
+  //       return eventGetDawChannelField(str, fieldRequest);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeCustomSysex(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:

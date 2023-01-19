@@ -67,8 +67,8 @@ public:
   }
 
   // change a parameter value to kemper
-  void sendSetParameter(uint8_t page, uint8_t param, uint8_t value){
-    sendSetParameter(param|(page<<8), value);
+  void sendSetParameter(uint8_t layer, uint8_t param, uint8_t value){
+    sendSetParameter(param|(layer<<8), value);
   }
   void sendSetParameter(uint16_t param, uint16_t value){
     BMCMidiMessage message;
@@ -78,8 +78,8 @@ public:
     sendSysEx(message);
   }
   // take value as a percentage from 0 to 100, non-float
-  void sendSetParameterPercentage(uint8_t page, uint8_t param, uint8_t value){
-    sendSetParameterPercentage(param|(page<<8), value);
+  void sendSetParameterPercentage(uint8_t layer, uint8_t param, uint8_t value){
+    sendSetParameterPercentage(param|(layer<<8), value);
   }
   void sendSetParameterPercentage(uint16_t param, uint8_t value){
     value = constrain(value, 0, 100);
@@ -87,8 +87,8 @@ public:
   }
 
   // Request a single parameter
-  void requestParameter(uint8_t page, uint8_t param){
-    requestParameter(param|(page<<8));
+  void requestParameter(uint8_t layer, uint8_t param){
+    requestParameter(param|(layer<<8));
   }
   // Request a single parameter
   void requestParameter(uint16_t param){
@@ -100,8 +100,8 @@ public:
 
 
   // Request a string parameter
-  void requestStringParameter(uint8_t page, uint8_t param){
-    requestStringParameter(param|(page<<8));
+  void requestStringParameter(uint8_t layer, uint8_t param){
+    requestStringParameter(param|(layer<<8));
   }
   // Request a string parameter
   void requestStringParameter(uint16_t param){
@@ -159,11 +159,11 @@ private:
       true // should it trigger MIDI Out activity
     );
   }
-  // send NRPN with page and parameter id separated
-  void sendNRPN(uint8_t page, uint8_t param, uint32_t value){
-    sendNRPN(param|(page<<8), value);
+  // send NRPN with layer and parameter id separated
+  void sendNRPN(uint8_t layer, uint8_t param, uint32_t value){
+    sendNRPN(param|(layer<<8), value);
   }
-  // send NRPN with page and parameter id encoded into 14-bits
+  // send NRPN with layer and parameter id encoded into 14-bits
   void sendNRPN(uint16_t param, uint32_t value){
     midi.sendControlChange(port, channel, 99, ((param >> 8) & 0x7F));
     midi.sendControlChange(port, channel, 98, (param & 0x7F));

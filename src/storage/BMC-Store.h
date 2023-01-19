@@ -33,8 +33,8 @@
 
   
   
-  // Page Object
-  struct __attribute__ ((packed)) bmcStorePage {
+  // Layer Object
+  struct __attribute__ ((packed)) bmcStoreLayer {
     bmcName_t name;
     #if BMC_MAX_BUTTONS > 0
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
@@ -177,7 +177,7 @@
     uint16_t crc = 0;
     uint16_t version = 0;
     bmcStoreGlobal global;
-    bmcStorePage pages[BMC_MAX_PAGES];
+    bmcStoreLayer layers[BMC_MAX_LAYERS];
   };
 
 #endif

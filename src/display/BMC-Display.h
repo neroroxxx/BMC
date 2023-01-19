@@ -168,14 +168,14 @@ public:
     }
     renderTempBanner(line1, line2);
   }
-  void renderPageBanner(){
+  void renderLayerBanner(){
     if(!allowBanner()){
       return;
     }
     char line1[33] = "";
     char line2[33] = "";
-    sprintf(line1, "Page %u", midi.globals.page+midi.globals.offset);
-    bmcName_t n = midi.globals.store.pages[midi.globals.page].name;
+    sprintf(line1, "Layer %u", midi.globals.layer+midi.globals.offset);
+    bmcName_t n = midi.globals.store.layers[midi.globals.layer].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
       strcpy(line2, midi.globals.store.global.names[n-1].name);
     }
@@ -325,12 +325,12 @@ public:
     memset(last, 0, BMC_MAX_OLED);
     clearOleds();
 #if defined(BMC_USE_DAW_LC)
-    uint16_t page = midi.globals.page;
+    uint16_t layer = midi.globals.layer;
     for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
-      if(midi.globals.store.pages[page].oled[i].events[0] == BMC_NONE){
+      if(midi.globals.store.layers[layer].oled[i].events[0] == BMC_NONE){
         continue;
       }
-      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.pages[page].oled[i].events[0]);
+      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].oled[i].events[0]);
       if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
         if(BMC_GET_BYTE(0, e.event) == 2){
           initDawChannelInfo(true, i, BMC_GET_BYTE(1, e.event));
@@ -357,12 +357,12 @@ public:
     clearIliBlocks();
 
 #if defined(BMC_USE_DAW_LC)
-    uint16_t page = midi.globals.page;
+    uint16_t layer = midi.globals.layer;
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-      if(midi.globals.store.pages[page].ili[i].events[0] == 0){
+      if(midi.globals.store.layers[layer].ili[i].events[0] == 0){
         continue;
       }
-      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.pages[page].ili[i].events[0]);
+      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].ili[i].events[0]);
       if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
         uint16_t blockW = block[i].getWidth();
         uint16_t blockH = block[i].getHeight();
@@ -434,11 +434,11 @@ public:
         dawVuOverload = 0xFF;
         dawFaderLevel[i] = 0xFF;
       }
-      if(dawVuLevel[i] != value){
+      if(dawVuLevel[i] != value || reset){
         for(int8_t e = 13 ; e --> 1 ;){
           int8_t ee = abs(e-12) + 1;
           bool l = sync.daw.controller.getMeter(i, ee)>0;
-          if(bitRead(dawVuLevelBits[i], e) != l){
+          if(bitRead(dawVuLevelBits[i], e) != l || reset){
             if(l){
               uint16_t color = BMC_ILI9341_YELLOW;
               if(ee < 6){
@@ -457,12 +457,12 @@ public:
         }
         dawVuLevel[i] = value;
       }
-      if(bitRead(dawVuOverload, i) != overload){
+      if(bitRead(dawVuOverload, i) != overload || reset){
         bitWrite(dawVuOverload, i, overload);
         uint16_t overloadColor = overload ? BMC_ILI9341_RED : BMC_ILI9341_VU_GREY;
         tft.display.fillRect(bX+BMC_ILI9341_VU_METER_X, bY, BMC_ILI9341_VU_METER_W, BMC_ILI9341_VU_METER_H, overloadColor);
       }
-      if(dawFaderLevel[i] != faderLevel){
+      if(dawFaderLevel[i] != faderLevel || reset){
         uint16_t faderX = bX + (BMC_ILI9341_VU_METER_FULL_WIDTH-BMC_ILI9341_FADER_W)-BMC_ILI9341_FADER_RIGHT_MARGIN;
         uint16_t faderY = (bY+faderLength) - faderLevel;
 
@@ -473,7 +473,7 @@ public:
         tft.display.drawFastHLine(faderX, faderY+(BMC_ILI9341_FADER_H/2), BMC_ILI9341_FADER_W, BMC_ILI9341_BLACK);
         dawFaderLevel[i] = faderLevel;
       }
-      if(dawSelectedTrack != sel){
+      if(dawSelectedTrack != sel || reset){
         tft.display.fillRect(bX, selY-4, BMC_ILI9341_VU_METER_FULL_WIDTH, 2, sel==i ? BMC_ILI9341_ORANGE : BMC_ILI9341_VU_GREY);
       }
     }
@@ -484,6 +484,7 @@ public:
     if(!allowRendering() || dawChannelsBlock==-1){
       return;
     }
+    BMC_PRINTLN("************ initDawChannels");
     updateDawChannels(true);
   }
   void updateDawChannels(bool reset=false){
@@ -507,22 +508,22 @@ public:
         dawVPotLevel[i] = 0xFF;
         dawVPotBits[i] = 0xFFFF;
       }
-      if(bitRead(dawChStates[i], 0) != rec){
+      if(bitRead(dawChStates[i], 0) != rec || reset){
         bitWrite(dawChStates[i], 0, rec);
         renderDawButton(buttonsX, buttonsY, rec, "R", BMC_ILI9341_RED);
       }
-      if(bitRead(dawChStates[i], 1) != solo){
+      if(bitRead(dawChStates[i], 1) != solo || reset){
         bitWrite(dawChStates[i], 1, solo);
         renderDawButton(buttonsX, buttonsY+20, solo, "S", BMC_ILI9341_ORANGE);
       }
-      if(bitRead(dawChStates[i], 2) != mute){
+      if(bitRead(dawChStates[i], 2) != mute || reset){
         bitWrite(dawChStates[i], 2, mute);
         renderDawButton(buttonsX, buttonsY+40, mute, "M", BMC_ILI9341_BLUE);
       }
-      if(dawVPotLevel[i] != vPotValue){
+      if(dawVPotLevel[i] != vPotValue || reset){
         for(uint8_t e = 0 ; e < 11 ; e++){
           bool l = sync.daw.controller.getVPotValue(i, e+1)>0;
-          if(bitRead(dawVPotBits[i], e) != l){
+          if(bitRead(dawVPotBits[i], e) != l || reset){
             uint16_t color = l ? BMC_ILI9341_GREEN : BMC_ILI9341_VU_GREY;
             tft.display.fillRect(bX +  BMC_ILI9341_VPOT_INDICATOR_X + (BMC_ILI9341_VPOT_INDICATOR_W*e), y+6, BMC_ILI9341_VPOT_INDICATOR_W, 4, color);
             bitWrite(dawVPotBits[i], e, l);
@@ -811,7 +812,7 @@ public:
       return;
     }
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-      uint8_t settings = midi.globals.store.pages[midi.globals.page].ili[i].settings[0];
+      uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[i].settings[0];
       block[i].clear(tft.display, settings);
     }
 #endif

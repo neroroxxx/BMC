@@ -94,10 +94,10 @@ void BMC::incomingMidi(BMCMidiMessage message){
         case BMC_NONE:
           break;
         case 1:
-#if BMC_MAX_PAGE > 127
-          setPage((bank*128) + message.getData1());
+#if BMC_MAX_LAYERS > 127
+          setLayer((bank*128) + message.getData1());
 #else
-          setPage(message.getData1());
+          setLayer(message.getData1());
 #endif
           break;
         case 2:
@@ -111,7 +111,7 @@ void BMC::incomingMidi(BMCMidiMessage message){
     } else if(message.isControlChange()){
       // if BMC is set to listen to incoming messages, MIDI CC#0 on the
       // specified channel is automatically the BANK control change
-#if BMC_MAX_PAGE > 127 || BMC_MAX_PRESETS > 127
+#if BMC_MAX_LAYERS > 127 || BMC_MAX_PRESETS > 127
       if(message.getData1() == 0){
         bank = message.getData2() > 0 ? 1 : 0;
         BMC_PRINTLN("MIDI Bank Changed", bank);

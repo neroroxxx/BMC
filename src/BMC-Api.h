@@ -39,7 +39,7 @@ public:
   void onButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.buttonDualPress = fptr;
   }
-  // triggered when a page button is pressed, released, etc.
+  // triggered when a layer button is pressed, released, etc.
   void onButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t pressType)){
     callback.buttonActivity = fptr;
   }
@@ -114,24 +114,24 @@ public:
   void onGlobalPotCustomActivity(void (*fptr)(uint16_t index, uint8_t t_value)){
     callback.globalPotCustomActivity = fptr;
   }
-  // for user defined events, includes page and global
+  // for user defined events, includes layer and global
   void onButtonsUserEvent(void (*fptr)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode)){
     callback.userEventButtons = fptr;
   }
-  // for user defined events, includes page and global encoders
+  // for user defined events, includes layer and global encoders
   void onEncodersUserEvent(void (*fptr)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode)){
     callback.userEventEncoders = fptr;
   }
-  // for user defined events, includes page and global led, pwm leds, pixels and rgb pixels
+  // for user defined events, includes layer and global led, pwm leds, pixels and rgb pixels
   void onPotsUserEvent(void (*fptr)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value)){
     callback.userEventPots = fptr;
   }
-  // for user defined events, includes page and global
+  // for user defined events, includes layer and global
   // this callback must return a byte
   // 0 will turn led off
   // 1 will turn led on, for PWM Leds the brightness will be use, Pixels the color.
   // 2 will "pulse" the led
-  // 3 will blink page and global leds, for pixels it will turn on RAINBOW and turns PWM leds to their set brightness
+  // 3 will blink layer and global leds, for pixels it will turn on RAINBOW and turns PWM leds to their set brightness
   // a value between 4 and 131 will apply only to PWM Leds, this value will have 4 substracted
   // then the remainder will be used as the Brightness of the Led, you could use this to fade a PWM led!
   // a value of 255 will be ignored, this is to avoid changing the state of the led,
@@ -155,8 +155,8 @@ public:
   void onAuxJackConnection(void (*fptr)(uint8_t n, bool state)){
     callback.auxJackConnection = fptr;
   }
-  // triggered when you change pages, also triggered when BMC runs it's first loop
-  void onPageChange(void (*fptr)(uint8_t page)){
+  // triggered when you change layers, also triggered when BMC runs it's first loop
+  void onLayerChange(void (*fptr)(uint8_t layer)){
     callback.pageChanged = fptr;
   }
   /*
@@ -503,41 +503,41 @@ public:
   }
 
   // ******************************
-  // *****        PAGES       *****
+  // *****        LAYERS       *****
   // ******************************
-  // change to a new page.
-  // if n is not a valid page number, nothing happens
-  // if n is the same as the current page, nothing happens
-  void changePage(uint8_t n){
-    setPage(n);
+  // change to a new layer.
+  // if n is not a valid layer number, nothing happens
+  // if n is the same as the current layer, nothing happens
+  void changeLayer(uint8_t n){
+    setLayer(n);
   }
-  // get the current page
-  uint8_t getCurrentPage(){
-    return getPage();
+  // get the current layer
+  uint8_t getCurrentLayer(){
+    return getLayer();
   }
-  // retrieve the name of the current page
-  bmcStoreName getPageName(){
-    return getPageName(page);
+  // retrieve the name of the current layer
+  bmcStoreName getLayerName(){
+    return getLayerName(layer);
   }
-  // retrieve the name of the a page specified by n
-  bmcStoreName getPageName(uint16_t n){
+  // retrieve the name of the a layer specified by n
+  bmcStoreName getLayerName(uint16_t n){
     bmcStoreName e;
-    if(n<BMC_MAX_PAGES){
-      //strcpy(t_string, store.pages[n].name);
-      return globals.getDeviceName(store.pages[n].name);
+    if(n<BMC_MAX_LAYERS){
+      //strcpy(t_string, store.layers[n].name);
+      return globals.getDeviceName(store.layers[n].name);
     }
     return e;
   }
-#if BMC_MAX_PAGES > 1
-  // move to the next page
-  // if endless is true and you are already on the last page, you will go to the first page
+#if BMC_MAX_LAYERS > 1
+  // move to the next layer
+  // if endless is true and you are already on the last layer, you will go to the first layer
   void pageUp(bool endless=true){
-    scrollPage(true, endless, 0, BMC_MAX_PAGES-1, 1);
+    scrollLayer(true, endless, 0, BMC_MAX_LAYERS-1, 1);
   }
-  // move to the previous page
-  // if endless is true and you are already on the first page, you will go to the last page
+  // move to the previous layer
+  // if endless is true and you are already on the first layer, you will go to the last layer
   void pageDown(bool endless=true){
-    scrollPage(false, endless, 0, BMC_MAX_PAGES-1, 1);
+    scrollLayer(false, endless, 0, BMC_MAX_LAYERS-1, 1);
   }
 #endif
 
@@ -815,20 +815,20 @@ public:
   // Get BUTTON Data
   /*
   void getButton(uint8_t t_index, bmcStoreButton& t_item){
-    getButton(page, t_index, t_item);
+    getButton(layer, t_index, t_item);
   }
   void getButton(uint8_t t_page, uint8_t t_index, bmcStoreButton& t_item){
-    if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_BUTTONS){
-      t_item = store.pages[t_page].buttons[t_index];
+    if(t_page<BMC_MAX_LAYERS && t_index<BMC_MAX_BUTTONS){
+      t_item = store.layers[t_page].buttons[t_index];
     }
   }
   #if BMC_NAME_LEN_BUTTONS > 1
     void getButtonName(uint8_t n, char* t_string){
-      getButtonName(page, n, t_string);
+      getButtonName(layer, n, t_string);
     }
     void getButtonName(uint8_t t_page, uint8_t n, char* t_string){
-      if(t_page<BMC_MAX_PAGES && n<BMC_MAX_BUTTONS){
-        strcpy(t_string, store.pages[t_page].buttons[n].name);
+      if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_BUTTONS){
+        strcpy(t_string, store.layers[t_page].buttons[n].name);
       }
     }
   #endif
@@ -888,26 +888,26 @@ public:
   // Get LED Data
   /*
   void getLed(uint8_t t_index, bmcStoreLed& t_item){
-    getLed(page, t_index, t_item);
+    getLed(layer, t_index, t_item);
   }
   void getLed(uint8_t t_page, uint8_t t_index, bmcStoreLed& t_item){
-    if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_LEDS){
-      t_item = store.pages[t_page].leds[t_index];
+    if(t_page<BMC_MAX_LAYERS && t_index<BMC_MAX_LEDS){
+      t_item = store.layers[t_page].leds[t_index];
     }
   }
   */
 
 #if BMC_NAME_LEN_LEDS > 1
   void getLedName(uint8_t t_index, char* t_string){
-    getLedName(page, t_index, t_string);
+    getLedName(layer, t_index, t_string);
   }
   void getLedName(uint8_t t_page, uint8_t t_index, char* t_string){
-    if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_LEDS){
-      strcpy(t_string, store.pages[t_page].leds[t_index].name);
+    if(t_page<BMC_MAX_LAYERS && t_index<BMC_MAX_LEDS){
+      strcpy(t_string, store.layers[t_page].leds[t_index].name);
     }
   }
 #endif
-  // used to control leds only by the sketch, no matter what page
+  // used to control leds only by the sketch, no matter what layer
   void setLedCustomState(uint16_t n, bool t_value){
     if(n < BMC_MAX_LEDS){
       globals.ledCustomState.setBit(n, t_value);
@@ -937,7 +937,7 @@ public:
     }
   #endif
   */
-  // used to control leds only by the sketch, no matter what page
+  // used to control leds only by the sketch, no matter what layer
   void setGlobalLedCustomState(uint16_t n, bool t_value){
     if(n < BMC_MAX_GLOBAL_LEDS){
       globals.globalLedCustomState.setBit(n, t_value);
@@ -957,27 +957,27 @@ public:
   // get Pixel Data
   /*
   void getPixel(uint8_t n, bmcStoreLed& t_item){
-    getPixel(page, n, t_item);
+    getPixel(layer, n, t_item);
   }
   void getPixel(uint8_t t_page, uint8_t n, bmcStoreLed& t_item){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_PIXELS){
-      t_item = store.pages[t_page].pixels[n];
+    if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_PIXELS){
+      t_item = store.layers[t_page].pixels[n];
     }
   }
   */
   /*
 #if BMC_NAME_LEN_LEDS > 1
   void getPixelName(uint8_t n, char* t_string){
-    getPixelName(page, n, t_string);
+    getPixelName(layer, n, t_string);
   }
   void getPixelName(uint8_t t_page, uint8_t n, char* t_string){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_PIXELS){
-      strcpy(t_string, store.pages[t_page].pixels[n].name);
+    if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_PIXELS){
+      strcpy(t_string, store.layers[t_page].pixels[n].name);
     }
   }
 #endif
 */
-  // used to control pixels only by the sketch, no matter what page
+  // used to control pixels only by the sketch, no matter what layer
   void setPixelCustomState(uint8_t n, uint8_t t_color, uint8_t t_brightness){
     if(n < BMC_MAX_PIXELS && t_brightness <= 15){
       pixelCustomState[n] = (t_color & 0x0F) | (t_brightness << 4);
@@ -1015,25 +1015,25 @@ public:
   // get RgbPixel Data
   /*
   void getRgbPixel(uint8_t n, bmcStoreRgbLed& t_item){
-    getRgbPixel(page, n, t_item);
+    getRgbPixel(layer, n, t_item);
   }
   void getRgbPixel(uint8_t t_page, uint8_t n, bmcStoreRgbLed& t_item){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_RGB_PIXELS){
-      t_item = store.pages[t_page].rgbPixels[n];
+    if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_RGB_PIXELS){
+      t_item = store.layers[t_page].rgbPixels[n];
     }
   }
 #if BMC_NAME_LEN_LEDS > 1
   void getRgbPixelName(uint8_t n, char* t_string){
-    getRgbPixelName(page, n, t_string);
+    getRgbPixelName(layer, n, t_string);
   }
   void getRgbPixelName(uint8_t t_page, uint8_t n, char* t_string){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_RGB_PIXELS){
-      strcpy(t_string, store.pages[t_page].rgbPixels[n].name);
+    if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_RGB_PIXELS){
+      strcpy(t_string, store.layers[t_page].rgbPixels[n].name);
     }
   }
 #endif
 */
-  // used to control rgb pixels only by the sketch, no matter what page
+  // used to control rgb pixels only by the sketch, no matter what layer
   // if the rgb pixel is set to custom this becomes it's state so your
   // sketch can have full control of it
   // set the specified color to on/off, valued values are
@@ -1060,27 +1060,27 @@ public:
 #endif
 
 #if BMC_MAX_ENCODERS > 0
-  // Get ENCODER Data on current page
+  // Get ENCODER Data on current layer
   /*
   void getEncoder(uint8_t t_index, bmcStoreEncoder& t_item){
-    getEncoder(page, t_index, t_item);
+    getEncoder(layer, t_index, t_item);
   }
 
-  // Get ENCODER Data on specified page
+  // Get ENCODER Data on specified layer
   void getEncoder(uint8_t t_page, uint8_t t_index, bmcStoreEncoder& t_item){
-    if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_ENCODERS){
-      t_item = store.pages[t_page].encoders[t_index];
+    if(t_page<BMC_MAX_LAYERS && t_index<BMC_MAX_ENCODERS){
+      t_item = store.layers[t_page].encoders[t_index];
     }
   }
   #if BMC_NAME_LEN_ENCODERS > 1
-    // get encoder name on current page passing a pointer string
+    // get encoder name on current layer passing a pointer string
     void getEncoderName(uint8_t t_index, char* t_string){
-      getEncoderName(page, t_index, t_string);
+      getEncoderName(layer, t_index, t_string);
     }
-    // get encoder name on specified page passing a pointer string
+    // get encoder name on specified layer passing a pointer string
     void getEncoderName(uint8_t t_page, uint8_t t_index, char* t_string){
-      if(t_page<BMC_MAX_PAGES && t_index<BMC_MAX_ENCODERS){
-        strcpy(t_string, store.pages[t_page].encoders[t_index].name);
+      if(t_page<BMC_MAX_LAYERS && t_index<BMC_MAX_ENCODERS){
+        strcpy(t_string, store.layers[t_page].encoders[t_index].name);
       }
     }
   #endif
@@ -1107,31 +1107,31 @@ public:
 #endif
 
 #if BMC_MAX_POTS > 0
-  // Get POT Data on current page
+  // Get POT Data on current layer
   /*
   void getPot(uint8_t n, bmcStorePot& t_item){
-    getPot(page, n, t_item);
+    getPot(layer, n, t_item);
   }
-  // Get POT Data on specified page
+  // Get POT Data on specified layer
   void getPot(uint8_t t_page, uint8_t n, bmcStorePot& t_item){
-    if(t_page<BMC_MAX_PAGES && n<BMC_MAX_POTS){
-      t_item = store.pages[t_page].pots[n];
+    if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_POTS){
+      t_item = store.layers[t_page].pots[n];
     }
   }
   #if BMC_NAME_LEN_POTS > 1
-    // get pot name on current page passing a pointer string
+    // get pot name on current layer passing a pointer string
     void getPotName(uint8_t n, char* t_string){
-      getPotName(page, n, t_string);
+      getPotName(layer, n, t_string);
     }
-    // get pot name on specified page passing a pointer string
+    // get pot name on specified layer passing a pointer string
     void getPotName(uint8_t t_page, uint8_t n, char* t_string){
-      if(t_page<BMC_MAX_PAGES && n<BMC_MAX_POTS){
-        strcpy(t_string, store.pages[t_page].pots[n].name);
+      if(t_page<BMC_MAX_LAYERS && n<BMC_MAX_POTS){
+        strcpy(t_string, store.layers[t_page].pots[n].name);
       }
     }
   #endif
   // start/stop pot calibration, pot calibration data is global
-  // so the calibration set is for that pot no matter what page you are in.
+  // so the calibration set is for that pot no matter what layer you are in.
   bool calibratePot(uint8_t n){
     potCalibration.toggle(n);
     return potCalibration.active();
@@ -1141,14 +1141,14 @@ public:
 
 #if BMC_MAX_GLOBAL_POTS > 0
 /*
-  // get global pot Data on current page
+  // get global pot Data on current layer
   void getGlobalPot(uint8_t n, bmcStorePot& t_item){
     if(n<BMC_MAX_GLOBAL_POTS){
       t_item = store.global.pots[n];
     }
   }
   #if BMC_NAME_LEN_POTS > 1
-    // get global pot name on current page passing a pointer string
+    // get global pot name on current layer passing a pointer string
     void getGlobalPotName(uint8_t n, char* t_string){
       if(n<BMC_MAX_GLOBAL_POTS){
         strcpy(t_string, store.global.pots[n].name);

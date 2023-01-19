@@ -104,15 +104,15 @@ public:
 
     switch(cmd){
       case BMC_RELAY_NO:
-        BMC_PRINTLN("BMC_RELAY_RESET...");
+        // BMC_PRINTLN("BMC_RELAY_RESET...");
         off(forced);
         break;
       case BMC_RELAY_NC:
-        BMC_PRINTLN("BMC_RELAY_SET");
+        // BMC_PRINTLN("BMC_RELAY_SET");
         on(forced);
         break;
       case BMC_RELAY_TOGGLE:
-        BMC_PRINTLN("BMC_RELAY_TOGGLE");
+        // BMC_PRINTLN("BMC_RELAY_TOGGLE");
         toggle(forced);
         break;
     }

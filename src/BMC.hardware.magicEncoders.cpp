@@ -41,25 +41,26 @@ void BMC::assignMagicEncoders(){
 #if BMC_MAX_MAGIC_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_MAGIC_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_MAGIC_ENCODER, i);
-    bmcStoreDevice <3, 3>& device = store.pages[page].magicEncoders[i];
-    bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
+    bmcStoreDevice <3, 3>& device = store.layers[layer].magicEncoders[i];
+    // bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent dataEncoder = globals.getDeviceEventType(device.events[1]);
     //bmcStoreEvent dataBtn     = globals.getDeviceEventType(device.events[2]);
     magicEncoders[i].reassign(ui.rotation);
     magicEncoders[i].setColors(device.settings[0]);
-    if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER){
-#if defined(BMC_USE_DAW_LC)
-      if(BMC_GET_BYTE(0, dataPixel.event)==0){
-        magicEncoders[i].setView(sync.daw.getVPotMode(BMC_GET_BYTE(1, dataPixel.event)));
-      } else {
-        magicEncoders[i].setView(BMC_ME_WRAP);
-      }
-#else
-      magicEncoders[i].setView(device.settings[1]);
-#endif
-    } else {
-      magicEncoders[i].setView(device.settings[1]);
-    }
+//     if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER){
+// #if defined(BMC_USE_DAW_LC)
+//       if(BMC_GET_BYTE(0, dataPixel.event)==0){
+//         magicEncoders[i].setView(sync.daw.getVPotMode(BMC_GET_BYTE(1, dataPixel.event)));
+//       } else {
+//         magicEncoders[i].setView(BMC_ME_WRAP);
+//       }
+// #else
+//       magicEncoders[i].setView(device.settings[1]);
+// #endif
+//     } else {
+      
+//     }
+    magicEncoders[i].setView(device.settings[1]);
     magicEncoders[i].setLimit(BMC_ME_LIMIT_100);
     magicEncoders[i].setBrightness(BMC_ME_BRIGHTNESS_LOW);
   }
@@ -68,25 +69,26 @@ void BMC::assignMagicEncoders(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_MAGIC_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, i);
     bmcStoreDevice <3, 3>& device = store.global.magicEncoders[i];
-    bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
+    // bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent dataEncoder = globals.getDeviceEventType(device.events[1]);
     //bmcStoreEvent dataBtn     = globals.getDeviceEventType(device.events[2]);
     globalMagicEncoders[i].reassign(ui.rotation);
     globalMagicEncoders[i].setColors(device.settings[0]);
 
-    if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER && BMC_GET_BYTE(0, dataPixel.event)==0){
-#if defined(BMC_USE_DAW_LC)
-      if(BMC_GET_BYTE(0, dataPixel.event)==0){
-        globalMagicEncoders[i].setView(sync.daw.getVPotMode(BMC_GET_BYTE(1, dataPixel.event)));
-      } else {
-        globalMagicEncoders[i].setView(BMC_ME_WRAP);
-      }
-#else
-      globalMagicEncoders[i].setView(device.settings[1]);
-#endif
-    } else {
-      globalMagicEncoders[i].setView(device.settings[1]);
-    }
+//     if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER && BMC_GET_BYTE(0, dataPixel.event)==0){
+// #if defined(BMC_USE_DAW_LC)
+//       if(BMC_GET_BYTE(0, dataPixel.event)==0){
+//         globalMagicEncoders[i].setView(sync.daw.getVPotMode(BMC_GET_BYTE(1, dataPixel.event)));
+//       } else {
+//         globalMagicEncoders[i].setView(BMC_ME_WRAP);
+//       }
+// #else
+//       globalMagicEncoders[i].setView(device.settings[1]);
+// #endif
+//     } else {
+//       globalMagicEncoders[i].setView(device.settings[1]);
+//     }
+    
     globalMagicEncoders[i].setView(device.settings[1]);
     globalMagicEncoders[i].setLimit(BMC_ME_LIMIT_100);
     globalMagicEncoders[i].setBrightness(BMC_ME_BRIGHTNESS_LOW);
@@ -97,7 +99,7 @@ void BMC::assignMagicEncoders(){
 void BMC::readMagicEncoders(){
 #if BMC_MAX_MAGIC_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_MAGIC_ENCODERS; i++){
-    bmcStoreDevice <3, 3>& device = store.pages[page].magicEncoders[i];
+    bmcStoreDevice <3, 3>& device = store.layers[layer].magicEncoders[i];
     bool hasUpdate = false;
     uint8_t ledValue = 0;
     uint8_t trigger = 0;
@@ -290,19 +292,19 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       midiProgramBankScroll(increased, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
       break;
 
-#if BMC_MAX_PAGES > 1
-    case BMC_ENCODER_EVENT_TYPE_PAGES:
-      // byteA = min Page
-      // byteB = max Page
+#if BMC_MAX_LAYERS > 1
+    case BMC_ENCODER_EVENT_TYPE_LAYER:
+      // byteA = min Layer
+      // byteB = max Layer
       tmp = getNewEncoderValue(
         mode,
-        page,
-        0, BMC_MAX_PAGES-1,
+        layer,
+        0, BMC_MAX_LAYERS-1,
         byteA, byteB,
         increased,
         BMC_GET_BYTE(3,event)
       ) & 0xFF;
-      setPage(tmp);
+      setLayer(tmp);
       break;
 #endif
 

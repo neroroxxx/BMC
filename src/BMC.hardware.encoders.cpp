@@ -41,7 +41,7 @@ void BMC::assignEncoders(){
 void BMC::readEncoders(){
 #if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
-    bmcStoreDevice <1, 1>& device = store.pages[page].encoders[i];
+    bmcStoreDevice <1, 1>& device = store.layers[layer].encoders[i];
     // GET THE PIN STATE FROM MUX
     #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
       if(encoders[i].hasMux()){
@@ -225,19 +225,19 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       midiProgramBankScroll(increased, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
       break;
 
-#if BMC_MAX_PAGES > 1
-    case BMC_ENCODER_EVENT_TYPE_PAGES:
-      // byteA = min Page
-      // byteB = max Page
+#if BMC_MAX_LAYERS > 1
+    case BMC_ENCODER_EVENT_TYPE_LAYER:
+      // byteA = min Layer
+      // byteB = max Layer
       tmp = getNewEncoderValue(
         mode,
-        page,
-        0, BMC_MAX_PAGES-1,
+        layer,
+        0, BMC_MAX_LAYERS-1,
         byteA, byteB,
         increased,
         BMC_GET_BYTE(3,event)
       ) & 0xFF;
-      setPage(tmp);
+      setLayer(tmp);
       break;
 #endif
 

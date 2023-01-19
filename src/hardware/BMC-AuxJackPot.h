@@ -62,7 +62,7 @@ public:
     calMin = t_min;
     calMax = t_max;
   }
-  // reassign the POT behaviour, used when switching pages or the editor
+  // reassign the POT behaviour, used when switching layers or the editor
   // has updated EEPROM
   void reassign(){
     reset();
@@ -172,10 +172,10 @@ public:
     // read the value of the pot mapped to range min/max
     // this reading also includes the pot's calibration
     value = readPot();
-    // this is used when a page has changed or the editor
+    // this is used when a layer has changed or the editor
     // has updated the EEPROM, the pot will then act as if it was turned
     // this is done to make sure that if the pot has a different event assigned
-    // that event is trigger as soon as a page has been changed or if the pot
+    // that event is trigger as soon as a layer has been changed or if the pot
     // was updated
     if(flags.toggleIfTrue(BMC_FLAG_AUX_JACK_POT_REASSIGNED)){
       return true;

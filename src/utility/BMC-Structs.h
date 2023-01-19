@@ -15,6 +15,7 @@ struct __attribute__ ((packed)) BMCDeviceData {
   int16_t group = 0;
   uint16_t length = 0;
   bool global = 0;
+  bool hardware = 0;
   uint8_t settings = 0;
   uint8_t events = 0;
 };
@@ -455,8 +456,8 @@ struct BMCMidiPort {
 struct BMCEditorMidiFlags {
   // Editor SysEx Message flags, just an easier way to manage them
   // bit0 -> query type         =>  0=read, 1=write
-  // bit1 -> query target       =>  0=global, 1=page
-  // bit2 -> Save to all pages  =>  if on, save the payload to all pages
+  // bit1 -> query target       =>  0=global, 1=layer
+  // bit2 -> Save to all layers  =>  if on, save the payload to all layers
   // bit3 -> Available          =>
   // bit4 -> Available          =>
   // bit5 -> Backup             =>  if on, message is intended as a backup restore
@@ -472,11 +473,11 @@ struct BMCEditorMidiFlags {
   void setWrite(bool value=true)    {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_WRITE,value);}
   bool isWrite()                    {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_WRITE);}
 
-  void setPage(bool value=true)     {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_PAGE,value);}
-  bool isPage()                     {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_PAGE);}
+  void setLayer(bool value=true)     {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_LAYER,value);}
+  bool isLayer()                     {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_LAYER);}
 
-  void setAllPages(bool value=true) {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_ALL_PAGES,value);}
-  bool isAllPages()                 {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_ALL_PAGES);}
+  void setAllLayers(bool value=true) {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_ALL_LAYERS,value);}
+  bool isAllLayers()                 {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_ALL_LAYERS);}
 
   void setBackup(bool value=true)   {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_BACKUP,value);}
   bool isBackup()                   {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_BACKUP);}

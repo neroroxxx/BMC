@@ -14,10 +14,10 @@
   4 = 0xXX device id
   5 = 0xXX flags:
     bit0 -> query type    =>  0=read, 1=write
-    bit1 -> query target  =>  0=global, 1=page
+    bit1 -> query target  =>  0=global, 1=layer
     bit2 -> confirmation  =>  0=send response, 1=send acknowledge
-  6 = 0xXX page/item number (LSB)
-  7 = 0xXX page/item number (MSB)
+  6 = 0xXX layer/item number (LSB)
+  7 = 0xXX layer/item number (MSB)
   8 = 0xXX function id
   9 = start of data
   ...
@@ -74,9 +74,9 @@ bool BMCEditor::read(){
         #endif
         return true;
       }
-      if(isPageMessage()){
-        // editor/BMC-Editor.midi.page.h
-        pageProcessMessage();
+      if(isLayerMessage()){
+        // editor/BMC-Editor.midi.layer.h
+        layerProcessMessage();
       } else {
         // editor/BMC-Editor.midi.global.h
         globalProcessMessage();

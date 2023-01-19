@@ -5,6 +5,8 @@
 #include <Wire.h>
 #include "utility/BMC-Def.h"
 
+#define BMC_ME_DEFAULT_ADDRESS 0x40
+
 #define BMC_ME_LIMIT_10  0
 #define BMC_ME_LIMIT_100 1
 
@@ -56,8 +58,8 @@
 */
 class BMCMagicEncoder {
   private:
-    uint8_t address = 0x40;
-    uint8_t i2cData[2];
+    uint8_t address = BMC_ME_DEFAULT_ADDRESS;
+    uint8_t i2cData[3];
     uint8_t limit = 100;
     uint8_t ledValue = 0;
     unsigned long timer = 0;
@@ -69,8 +71,11 @@ class BMCMagicEncoder {
       Wire.endTransmission();
     }
     void sendSettings(uint8_t cmd, uint8_t a, uint8_t b, uint8_t c){
-      i2cData[0] = (a<<4) | cmd;
-      i2cData[1] = (c<<4) | b;
+      // i2cData[0] = (a<<4) | cmd;
+      // i2cData[1] = (c<<4) | b;
+      i2cData[0] = cmd;
+      i2cData[1] = (b<<4) | a;
+      i2cData[2] = c;
       Wire.beginTransmission(address);
       Wire.write(i2cData, 2);
       Wire.endTransmission();
@@ -87,7 +92,7 @@ class BMCMagicEncoder {
       memset(i2cData, 0, 2);
     }
     bool begin(uint8_t t_address){
-      if(t_address>=0x40 && t_address<=0x50){
+      if(t_address>=BMC_ME_DEFAULT_ADDRESS && t_address<=(BMC_ME_DEFAULT_ADDRESS+16)){
         address = t_address;
       }
       Wire.begin();
@@ -107,7 +112,7 @@ class BMCMagicEncoder {
         return false;
       }
       while(Wire.available()>0){
-        Wire.read();
+        BMC_PRINTLN(">>>",Wire.read());
       }
       timer = millis();
       return true;
