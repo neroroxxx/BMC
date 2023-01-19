@@ -65,15 +65,6 @@ public:
   bool isTriggerStates(){
     return flags.read(BMC_EDITOR_FLAG_SEND_STATES);
   }
-  bmcStoreName getDeviceName(uint16_t n){
-    bmcStoreName name;
-    strcpy(name.name, "");
-    if(n==0 || n > BMC_MAX_NAMES_LIBRARY){
-      return name;
-    }
-    strcpy(name.name, store.global.names[n-1].name);
-    return name;
-  }
   void messengerSend(uint16_t status, signed long value, char* str, uint8_t len){
     if(!midi.globals.editorConnected() || connectionOngoing()){
       return;
@@ -365,91 +356,17 @@ private:
         return devicesData[i].length;
       }
     }
-    /*
-    switch(t_type){
-      case BMC_DEVICE_ID_LAYER:                  return BMC_MAX_LAYERS;
-      case BMC_DEVICE_ID_BUTTON:                return BMC_MAX_BUTTONS;
-      case BMC_DEVICE_ID_LED:                   return BMC_MAX_LEDS;
-      case BMC_DEVICE_ID_PIXEL:                 return BMC_MAX_PIXELS;
-      case BMC_DEVICE_ID_RGB_PIXEL:             return BMC_MAX_RGB_PIXELS;
-      case BMC_DEVICE_ID_POT:                   return BMC_MAX_POTS;
-      case BMC_DEVICE_ID_ENCODER:               return BMC_MAX_ENCODERS;
-      case BMC_DEVICE_ID_GLOBAL_BUTTON:         return BMC_MAX_GLOBAL_BUTTONS;
-      case BMC_DEVICE_ID_GLOBAL_ENCODER:        return BMC_MAX_GLOBAL_ENCODERS;
-      case BMC_DEVICE_ID_GLOBAL_POT:            return BMC_MAX_GLOBAL_POTS;
-      case BMC_DEVICE_ID_GLOBAL_LED:            return BMC_MAX_GLOBAL_LEDS;
-      case BMC_DEVICE_ID_GLOBAL_PIXEL:          return BMC_MAX_GLOBAL_PIXELS;
-      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:      return BMC_MAX_GLOBAL_RGB_PIXELS;
-      case BMC_DEVICE_ID_NL_RELAY:              return BMC_MAX_NL_RELAYS;
-      case BMC_DEVICE_ID_L_RELAY:               return BMC_MAX_L_RELAYS;
-      case BMC_DEVICE_ID_OLED:                  return BMC_MAX_OLED;
-      case BMC_DEVICE_ID_ILI:                   return BMC_MAX_ILI9341_BLOCKS;
-      case BMC_DEVICE_ID_PRESET:                return BMC_MAX_PRESETS;
-      case BMC_DEVICE_ID_CUSTOM_SYSEX:          return BMC_MAX_CUSTOM_SYSEX;
-      case BMC_DEVICE_ID_TRIGGER:               return BMC_MAX_TRIGGERS;
-      case BMC_DEVICE_ID_TIMED_EVENT:           return BMC_MAX_TIMED_EVENTS;
-      case BMC_DEVICE_ID_TEMPO_TO_TAP:          return BMC_MAX_TEMPO_TO_TAP;
-      case BMC_DEVICE_ID_SKETCH_BYTE:           return BMC_MAX_SKETCH_BYTES;
-      case BMC_DEVICE_ID_SETLIST:               return BMC_MAX_SETLISTS;
-      case BMC_DEVICE_ID_SETLIST_SONG:          return BMC_MAX_SETLISTS_SONGS;
-      case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return BMC_MAX_SETLISTS_SONGS_LIBRARY;
-      case BMC_DEVICE_ID_PORT_PRESET:           return 16;
-      case BMC_DEVICE_ID_PIXEL_PROGRAM:         return BMC_MAX_PIXEL_PROGRAMS;
-      case BMC_DEVICE_ID_BI_LED:                return BMC_MAX_BI_LEDS;
-      case BMC_DEVICE_ID_TRI_LED:               return BMC_MAX_TRI_LEDS;
-      case BMC_DEVICE_ID_GLOBAL_BI_LED:         return BMC_MAX_GLOBAL_BI_LEDS;
-      case BMC_DEVICE_ID_GLOBAL_TRI_LED:        return BMC_MAX_GLOBAL_TRI_LEDS;
-      case BMC_DEVICE_ID_AUX_JACK:              return BMC_MAX_AUX_JACKS;
-      case BMC_DEVICE_ID_LFO:                   return BMC_MAX_LFO;
-      case BMC_DEVICE_ID_SHORTCUTS:             return 1;
-      case BMC_DEVICE_ID_PIXEL_STRIP:           return (BMC_MAX_PIXEL_STRIP>0)?1:0;
-      case BMC_DEVICE_ID_POT_CALIBRATION:       return BMC_TOTAL_POTS_AUX_JACKS;
-      case BMC_DEVICE_ID_MAGIC_ENCODER:         return BMC_MAX_MAGIC_ENCODERS;
-      case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:  return BMC_MAX_GLOBAL_MAGIC_ENCODERS;
-    }
-    */
     return 0;
   }
-  String getDeviceName2(uint8_t t_type){
-    switch(t_type){
-      case BMC_DEVICE_ID_LAYER:                  return "Layer Name";
-      case BMC_DEVICE_ID_BUTTON:                return "Button";
-      case BMC_DEVICE_ID_LED:                   return "Led";
-      case BMC_DEVICE_ID_PIXEL:                 return "Pixel";
-      case BMC_DEVICE_ID_RGB_PIXEL:             return "RGB Pixle";
-      case BMC_DEVICE_ID_POT:                   return "Pot";
-      case BMC_DEVICE_ID_ENCODER:               return "Encoder";
-      case BMC_DEVICE_ID_GLOBAL_BUTTON:         return "Global Button";
-      case BMC_DEVICE_ID_GLOBAL_ENCODER:        return "Global Encoder";
-      case BMC_DEVICE_ID_GLOBAL_POT:            return "Global Pot";
-      case BMC_DEVICE_ID_GLOBAL_LED:            return "Global Led";
-      case BMC_DEVICE_ID_GLOBAL_PIXEL:          return "Global Pixel";
-      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:      return "Global RGB Pixel";
-      case BMC_DEVICE_ID_NL_RELAY:              return "NL Relay";
-      case BMC_DEVICE_ID_L_RELAY:               return "L Relay";
-      case BMC_DEVICE_ID_OLED:                  return "OLED";
-      case BMC_DEVICE_ID_ILI:                   return "ILI9341 Block";
-      case BMC_DEVICE_ID_PRESET:                return "Preset";
-      case BMC_DEVICE_ID_CUSTOM_SYSEX:          return "Custom SysEx";
-      case BMC_DEVICE_ID_TRIGGER:               return "Trigger";
-      case BMC_DEVICE_ID_TIMED_EVENT:           return "Timed Event";
-      case BMC_DEVICE_ID_TEMPO_TO_TAP:          return "Tempo To Tap";
-      case BMC_DEVICE_ID_SKETCH_BYTE:           return "Sketch Byte";
-      case BMC_DEVICE_ID_SETLIST:               return "SetList";
-      case BMC_DEVICE_ID_SETLIST_SONG:          return "Song";
-      case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:  return "Song Library";
-      case BMC_DEVICE_ID_PORT_PRESET:           return "Port Preset";
-      case BMC_DEVICE_ID_PIXEL_PROGRAM:         return "Pixel Program";
-      case BMC_DEVICE_ID_BI_LED:                return "Bi Led";
-      case BMC_DEVICE_ID_TRI_LED:               return "Tri Led";
-      case BMC_DEVICE_ID_GLOBAL_BI_LED:         return "Global Bi Led";
-      case BMC_DEVICE_ID_GLOBAL_TRI_LED:        return "Global Tri Led";
-      case BMC_DEVICE_ID_AUX_JACK:              return "Aux Jack";
-      case BMC_DEVICE_ID_LFO:                   return "LFO";
-      case BMC_DEVICE_ID_SHORTCUTS:             return "Shortcuts";
-      case BMC_DEVICE_ID_PIXEL_STRIP:           return "Pixel Strip";
+
+  bmcStoreName getDeviceName(uint16_t n){
+    bmcStoreName name;
+    strcpy(name.name, "");
+    if(n==0 || n > BMC_MAX_NAMES_LIBRARY){
+      return name;
     }
-    return "";
+    strcpy(name.name, store.global.names[n-1].name);
+    return name;
   }
 
   void reloadData(){
