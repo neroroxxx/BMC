@@ -304,11 +304,11 @@ public:
     }
   }
   void parseTwoDigitDisplay(uint8_t a, uint8_t b){
-    if(a > 0 && a < 64){
-      twoDigitDisplay[1] = sevDigitChars[a];
+    if(a > 0 && a <= 64){
+      twoDigitDisplay[1] = sevDigitChars[a-1];
     }
-    if(b > 0 && b < 64){
-      twoDigitDisplay[0] = sevDigitChars[b];
+    if(b > 0 && b <= 64){
+      twoDigitDisplay[0] = sevDigitChars[b-1];
     }
     // BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
   }

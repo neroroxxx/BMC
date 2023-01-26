@@ -727,7 +727,7 @@ public:
         
         break;
       case BMC_DEVICE_ID_SHORTCUTS:
-        if(index < 6)
+        if(index < 6){
           getDeviceNameFromIndex(store.global.shortcuts[index].name, str);
         }
         break;
