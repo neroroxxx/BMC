@@ -12,15 +12,15 @@
 
 #define BMC_ILI_ICON_LENGTH 14
 
+#if !defined(BMC_ILI_RESET_PIN)
+  #define BMC_ILI_RESET_PIN 255
+#endif
+
 
 class BMC_ILI9341 {
  public:
   BMC_TFT display;
-  #if defined(BMC_ILI_RESET_PIN)
-    BMC_ILI9341():display(10, 9, BMC_ILI_RESET_PIN){}
-  #else
-    BMC_ILI9341():display(10, 9){}
-  #endif
+  BMC_ILI9341():display(10, 9, BMC_ILI_RESET_PIN){}
   
   bool begin(uint8_t rotation=0){
     display.begin();

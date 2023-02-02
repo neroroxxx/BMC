@@ -724,7 +724,6 @@ public:
         if(index < 16){
           getDeviceNameFromIndex(store.global.portPresets[index].name, str);
         }
-        
         break;
       case BMC_DEVICE_ID_SHORTCUTS:
         if(index < 6){

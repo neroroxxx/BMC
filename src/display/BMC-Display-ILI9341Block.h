@@ -61,28 +61,27 @@ class BMC_ILI9341_BLOCK {
       hBound = 40;
     }
   }
-  void clear(BMC_TFT& tft, uint16_t t_settings){
+  void clear(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
     settings = t_settings;
     crc = 0;
-    //BMC_PRINTLN("block settings", settings);
-    tft.fillRect(xBound, yBound, wBound, hBound, background);
+    tft.fillRect(xBound, yBound, wBound, hBound, highlight ? color : background);
     if(bitRead(settings, 1)){
-      tft.drawRect(xBound, yBound, wBound, hBound, color);
+      tft.drawRect(xBound, yBound, wBound, hBound, highlight ? background : color);
     }
     // tft.drawRect(xBound, yBound, wBound, hBound, color);
   }
-  void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label=""){
+  void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label="", bool highlight=false){
     // add one extra character for the EOL
     uint8_t len = strlen(str)+1;
     char c[len] = "";
     strncpy(c, str, len);
-    print(tft, t_crc, c, label);
+    print(tft, t_crc, c, label, highlight);
   }
-  void print(BMC_TFT& tft, uint8_t t_crc, char* str, const char* label=""){
+  void print(BMC_TFT& tft, uint8_t t_crc, char* str, const char* label="", bool highlight=false){
     if(crc == t_crc){
       return;
     }
-    clear(tft, settings);
+    clear(tft, settings, highlight);
     // set crc after clear()
     crc = t_crc;
     BMCTools::strTrimTail(str);
@@ -91,7 +90,7 @@ class BMC_ILI9341_BLOCK {
       return;
     }
     
-    uint16_t labelYOffset = renderLabel(tft, label);
+    uint16_t labelYOffset = renderLabel(tft, label, highlight);
     uint16_t fontData = findFontSize(tft, str, labelYOffset);
     uint8_t fontHeight = fontData & 0xFF;
     uint8_t fontPadding = (fontData>>8) & 0xFF;
@@ -119,10 +118,10 @@ class BMC_ILI9341_BLOCK {
     uint16_t y = yBound + fontPadding + ((hBound - fontHeight) / 2);
 
     tft.setCursor(x, y);
-    tft.setTextColor(color);
+    tft.setTextColor(highlight ? background : color);
     tft.print(outStr);
   }
-  uint8_t renderLabel(BMC_TFT& tft, const char* t_str){
+  uint8_t renderLabel(BMC_TFT& tft, const char* t_str, bool highlight=false){
     if(hBound == 40 || !bitRead(settings, 0) || strlen(t_str) == 0){
       return 0;
     }
@@ -133,7 +132,7 @@ class BMC_ILI9341_BLOCK {
     int16_t x = xBound + ((wBound - tft.strPixelLen(str)) / 2);
     uint16_t y = yBound + 3;
     tft.setCursor(x, y);
-    tft.setTextColor(color);
+    tft.setTextColor(highlight ? background : color);
     tft.print(str);
     return 10;
   }
@@ -144,7 +143,9 @@ class BMC_ILI9341_BLOCK {
     uint8_t fontPaddingList[7] = {12, 12, 8, 8, 6, 6, 4};
     uint8_t fontHeight = 0;
     uint8_t fontPadding = 0;
+#if defined(BMC_TRIM_DISPLAY_STRINGS)
     uint16_t strWidth = 0;
+#endif
     uint16_t maxHeight = (hBound - t_labelYOffset);
     for(uint8_t i = 0 ; i < 7 ; i++){
       fontHeight = fontHeightList[i];
@@ -168,12 +169,15 @@ class BMC_ILI9341_BLOCK {
         tft.setFont(BMCLiberationSansNarrow_16);
       } else {
         break;
-      }      
+      }
+#if defined(BMC_TRIM_DISPLAY_STRINGS)
       strWidth = tft.strPixelLen(str);
+#endif
       if(fontHeight+4+(fontPadding*2) <= maxHeight && tft.strPixelLen(str) < wBound){
         break;
       }
     }
+#if defined(BMC_TRIM_DISPLAY_STRINGS)
     if(strWidth > wBound){
       // if it's more than 50% of the string doesn't fit
       // remove all spaces and vowels to shorten string
@@ -183,6 +187,7 @@ class BMC_ILI9341_BLOCK {
         // BMCTools::strShorten(str);
       }
     }
+#endif
     return fontHeight | ((fontPadding*2)<<8);
   }
   uint16_t getX(){

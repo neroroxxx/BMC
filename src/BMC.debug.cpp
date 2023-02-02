@@ -477,11 +477,11 @@ void BMC::readDebug(){
     #endif
 
     #ifdef BMC_USE_FAS
-      BMC_PRINTLN("fas",sizeof(fas),"BMCFasBlocks",sizeof(BMCFasBlocks),"BMCFasData",sizeof(BMCFasData));
+      BMC_PRINTLN("fas",sizeof(BMCFas),"BMCFasBlocks",sizeof(BMCFasBlocks),"BMCFasData",sizeof(BMCFasData));
     #endif
 
     #ifdef BMC_USE_KEMPER
-      BMC_PRINTLN("kemper",sizeof(kemper));
+      // BMC_PRINTLN("kemper",sizeof(kemper));
     #endif
 
     #if BMC_MAX_BUTTONS > 0

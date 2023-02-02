@@ -96,6 +96,19 @@ struct bmcDawChannelsInfo {
     vPotBits = 0;
   }
 };
+
+#if defined(BMC_USE_FAS)
+struct bmcDisplayFasTunerInfo {
+  int8_t index = -1;
+  bool isOled = false;
+  bool active = false;
+  void reset(){
+    index = -1;
+    isOled = false;
+  }
+};
+#endif
+
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
   int16_t pins[3] = {-1, -1, -1};
@@ -199,12 +212,14 @@ struct BMCRunTime {
 struct BMCTunerData {
   uint8_t stringNumber = 0;
   uint8_t note = 0;
+  uint8_t pitchRaw = 0;
   int pitch = 0;
   char noteName[3] = "";
 
   void reset(){
     stringNumber = 0;
     pitch = 0;
+    pitchRaw = 0;
     note = 0;
     strcpy(noteName, "");
   }

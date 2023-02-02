@@ -248,7 +248,7 @@ void BMC::update(){
 
 #ifdef BMC_USE_FAS
     sync.fas.update();
-    if(sync.fas.onnectionStateChanged()){
+    if(sync.fas.connectionStateChanged()){
       editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
     }
 #endif

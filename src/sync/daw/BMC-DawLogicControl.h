@@ -278,10 +278,10 @@ public:
         //BMC_PRINTLN("Mackie Fader", data.sysex[6], "touch sensitivity", data.sysex[7]);
         break;
       case 0x0F:
-        controller.setOffline();
-        if(callback.dawOnline){
-          callback.dawOnline(false);
-        }
+        // controller.setOffline();
+        // if(callback.dawOnline){
+        //   callback.dawOnline(false);
+        // }
         break;
       case 0x1F:
         // reset?
@@ -304,13 +304,13 @@ public:
     }
   }
   void parseTwoDigitDisplay(uint8_t a, uint8_t b){
-    if(a > 0 && a <= 64){
-      twoDigitDisplay[1] = sevDigitChars[a-1];
+    if(a > 0 && a < 63){
+      twoDigitDisplay[1] = sevDigitChars[a];
     }
-    if(b > 0 && b <= 64){
-      twoDigitDisplay[0] = sevDigitChars[b-1];
+    if(b > 0 && b < 63){
+      twoDigitDisplay[0] = sevDigitChars[b];
     }
-    // BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
+    BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
   }
   void parseLCD(BMCMidiMessage d){
     uint8_t offset = d.sysex[6];
@@ -321,7 +321,7 @@ public:
       }
       if(e < 56){
         lcd[0][e] = c;
-      } else {
+      } else if(e-56 < 57){
         lcd[1][e-56] = c;
       }
     }
@@ -786,7 +786,7 @@ public:
       0xF0, 0x00, 0x00, 0x66, BMC_DAW_DEVICE_ID, // Prefix
       // 0x14,                         // Version Reply
       BMC_DAW_VERSION_ID,              // Version Reply
-      'V', '2', '.', '5', '4',      // Version
+      'V', '2', '.', '5', '3',      // Version
       0xF7,                         // EOX
     };
     midi.sendSysEx(BMC_USB, reply, 12, true);

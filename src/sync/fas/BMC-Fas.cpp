@@ -68,7 +68,7 @@ void BMCFas::update(){
     }
     BMC_PRINTLN("--> FAS LOOPER: STOPPED");
   }
-  if(!connected()&&!syncing()){
+  if(!connected( )&& !syncing()){
     if(startSyncTimer.complete()){
       startSyncTimer.start(3000);
       sendBasicSysEx(BMC_FAS_FUNC_ID_FIRMWARE);
@@ -116,7 +116,8 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       globals.clearMidiInActivity();
       tunerData.note = message.sysex[6];
       tunerData.stringNumber = message.sysex[7];
-      tunerData.pitch = map((message.sysex[8]&0x7F), 0, 127, -63, 64);
+      tunerData.pitchRaw = message.sysex[8] & 0x7F;
+      tunerData.pitch = map(tunerData.pitchRaw, 0, 127, -63, 64);
       tunerNote(tunerData.note, tunerData.noteName);
       tunerTimeout.start(250);
 
@@ -136,23 +137,20 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       //reset tuner flags but keep state flag on
       tunerFlags.reset();
       tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
-      if(tunerData.pitch>=-4 && tunerData.pitch<=4){
-        // tuner center
-        // leave other flags off
-      } else if(tunerData.pitch<0){
+      if(tunerData.pitchRaw<62){
         tunerFlags.on(BMC_FAS_TUNER_FLAG_FLAT);
-        if(tunerData.pitch < -12){
+        if(tunerData.pitchRaw < 42){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTER);
         }
-        if(tunerData.pitch < -24){
+        if(tunerData.pitchRaw < 21){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTEST);
         }
-      } else if(tunerData.pitch>0){
+      } else if(tunerData.pitchRaw>64){
         tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARP);
-        if(tunerData.pitch > 12){
+        if(tunerData.pitchRaw > 84){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPER);
         }
-        if(tunerData.pitch > 24){
+        if(tunerData.pitchRaw > 105){
           tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPEST);
         }
       }

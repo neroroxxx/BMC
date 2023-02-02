@@ -298,6 +298,9 @@ public:
       }
     }
   }
+  void getBlockName(uint8_t id, char* str){
+    findBlockName(id, str);
+  }
   bool looperGetState(){
     return device.looper.isEnabled();
   }
@@ -406,6 +409,18 @@ public:
   void toggleTuner(){
     sendControlChange(BMC_FAS_CC_TUNER, isTunerActive()?0:127);
   }
+  // Turn tuner on
+  void tunerOn(){
+    if(!isTunerActive()){
+      sendControlChange(BMC_FAS_CC_TUNER, 127);
+    }
+  }
+  // Turn tuner off
+  void tunerOff(){
+    if(isTunerActive()){
+      sendControlChange(BMC_FAS_CC_TUNER, 0);
+    }
+  }
   // send a tap tempo cc
   void tapTempo(){
     sendControlChange(BMC_FAS_CC_TAP_TEMPO, 127);
@@ -450,6 +465,7 @@ public:
   }
   bool toggleBlockXY(uint8_t blockId){
     //return setBlockXY(blockId, false);
+    BMC_PRINTLN(">>>>>>>>>>>>>>>>>>>>>", blockId, canXY(blockId), connected());
     if(canXY(blockId) && connected()){
       setBlockXY(blockId, device.blocks.isX(blockId));
       return true;
@@ -509,7 +525,9 @@ public:
     if(device.preset!=inc){
       setPreset(inc);
     }
-
+  }
+  uint16_t getMaxPresets(){
+    return device.maxPresets;
   }
 
   uint8_t getConnectedDeviceId(){
@@ -860,7 +878,9 @@ private:
 			case 9: strcpy(str, "F#"); break;
 			case 10: strcpy(str, "G "); break;
 			case 11: strcpy(str, "G#"); break;
+      default: strcpy(str, "??"); break;
 		}
+    
 	}
   // this is the data for blocks, this is used to determine if
   // block is available on the device loaded then to either bypass/XY the block

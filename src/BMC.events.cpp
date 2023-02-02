@@ -502,49 +502,39 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       }
       break;
     case BMC_EVENT_TYPE_LAYER_SELECTED_NAME:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return false;
-        } else {
+      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-          if(layer < BMC_MAX_LAYERS){
-            bmcStoreName t = globals.getDeviceName(store.layers[layer].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
-          }
-          return false;
-#endif
+        if(layer < BMC_MAX_LAYERS){
+          bmcStoreName t = globals.getDeviceName(store.layers[layer].name);
+          display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
         }
+        return false;
+#endif
       }
       break;
 
     // PRESETS
 #if BMC_MAX_PRESETS > 0
     case BMC_EVENT_TYPE_PRESET:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            presets.scrollPreset(scroll.direction, scroll.endless, scroll.amount);
-          } else {
-            presets.setPreset(byteA);
-          }
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
           presets.scrollPreset(scroll.direction, scroll.endless, scroll.amount);
-        }
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return byteA == presets.get();
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          bmcStoreName t = presets.getPresetStr(byteA);
-          display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
-#endif
+          presets.setPreset(byteA);
         }
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        presets.scrollPreset(scroll.direction, scroll.endless, scroll.amount);
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
+      } else if(group == BMC_DEVICE_GROUP_LED){
+        return byteA == presets.get();
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        bmcStoreName t = presets.getPresetStr(byteA);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
+#endif
       }
       break;
 
@@ -613,8 +603,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           return false;
         } else {
 #if defined(BMC_HAS_DISPLAY)
-          // char alphabet[32] = BMC_ALPHABET;
-          // display.renderChar(deviceIndex, isOled, e.type, alphabet[byteA]);
           bmcStoreName t = presets.getBankStr(byteA);
           display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
 #endif
@@ -920,91 +908,347 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #endif
 #ifdef BMC_USE_FAS
     case BMC_EVENT_TYPE_FAS:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else if(group != BMC_DEVICE_GROUP_DISPLAY){
+    
+      if(group == BMC_DEVICE_GROUP_LED){
         switch(byteA){
-          case 0:  return sync.fas.connected();
-          case 1:  return sync.fas.isTunerActive();
-          case 2:  return sync.fas.tempoReceived()?BMC_PULSE_LED_EVENT:BMC_IGNORE_LED_EVENT;
-          case 3:  return sync.fas.looperPlaying();
-          case 4:  return sync.fas.looperRecording();
-          case 5:  return sync.fas.looperDubbing();
-          case 6:  return sync.fas.looperRecordingOrDubbing();
-          case 7:  return sync.fas.looperReversed();
-          case 8:  return sync.fas.looperHalf();
-          case 9:  return sync.fas.looperStoppedWithTrack();
-          case 10: return sync.fas.tunerInTune();
-          case 11: return sync.fas.tunerFlat();
-          case 12: return sync.fas.tunerFlatter();
-          case 13: return sync.fas.tunerFlattest();
-          case 14: return sync.fas.tunerSharp();
-          case 15: return sync.fas.tunerSharper();
-          case 16: return sync.fas.tunerSharpest();
+          case BMC_FAS_CMD_CONNECTION:   return sync.fas.connected();
+          case BMC_FAS_CMD_TUNER_ON:   return sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_OFF:   return !sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_TOGGLE:   return sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_IN_TUNE:   return sync.fas.tunerInTune();
+          case BMC_FAS_CMD_TUNER_FLAT:   return sync.fas.tunerFlat();
+          case BMC_FAS_CMD_TUNER_FLATTER:   return sync.fas.tunerFlatter();
+          case BMC_FAS_CMD_TUNER_FLATTEST:   return sync.fas.tunerFlattest();
+          case BMC_FAS_CMD_TUNER_SHARP:   return sync.fas.tunerSharp();
+          case BMC_FAS_CMD_TUNER_SHARPER:   return sync.fas.tunerSharper();
+          case BMC_FAS_CMD_TUNER_SHARPEST:   return sync.fas.tunerSharpest();
+          // scenes without revert
+          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
+          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
+          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
+          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
+            return sync.fas.getSceneNumber()==(byteA-BMC_FAS_CMD_SCENE_1);
+          // scenes with revert
+          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
+          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
+          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
+          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
+            return sync.fas.getSceneNumber()==(byteA-BMC_FAS_CMD_SCENE_REVERT_1);
+          case BMC_FAS_CMD_SCENE_CURRENT:
+            return 0;
+          case BMC_FAS_CMD_LOOPER_PLAY:  return sync.fas.looperPlaying();
+          case BMC_FAS_CMD_LOOPER_REC:  return sync.fas.looperRecording();
+          case BMC_FAS_CMD_LOOPER_DUB:  return sync.fas.looperDubbing();
+          case BMC_FAS_CMD_LOOPER_REV:  return sync.fas.looperReversed();
+          case BMC_FAS_CMD_LOOPER_HALF:  return sync.fas.looperHalf();
+          case BMC_FAS_CMD_LOOPER_UNDO:  return 0; // looper undo
+          case BMC_FAS_CMD_TAP:  return 0; // tap tempo
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_FAS_PRESET:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-        return sync.fas.getPresetNumber()==(event & 0xFFFF);
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        // sync.fas.presetScroll(scroll.direction, scroll.endless, 0, sync.fas.getMaxPresets());
+        switch(byteA){
+          case BMC_FAS_CMD_CONNECTION:break;
+          case BMC_FAS_CMD_TUNER_ON:
+            sync.fas.tunerOn();
+            break;
+          case BMC_FAS_CMD_TUNER_OFF:
+            sync.fas.tunerOff();
+            break;
+          case BMC_FAS_CMD_TUNER_TOGGLE:
+          case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_FLAT:
+          case BMC_FAS_CMD_TUNER_FLATTER:
+          case BMC_FAS_CMD_TUNER_FLATTEST:
+          case BMC_FAS_CMD_TUNER_SHARP:
+          case BMC_FAS_CMD_TUNER_SHARPER:
+          case BMC_FAS_CMD_TUNER_SHARPEST:
+            sync.fas.toggleTuner();
+            break;
+          // scenes without revert
+          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
+          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
+          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
+          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
+            sync.fas.sceneScroll(scroll.direction, scroll.endless, false, 0, 7);
+            break;
+          // scenes with revert
+          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
+          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
+          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
+          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
+            sync.fas.sceneScroll(scroll.direction, scroll.endless, true, 0, 7);
+            break;
+          case BMC_FAS_CMD_SCENE_CURRENT:
+            break;
+          case BMC_FAS_CMD_LOOPER_PLAY:break;
+          case BMC_FAS_CMD_LOOPER_REC:break;
+          case BMC_FAS_CMD_LOOPER_DUB:break;
+          case BMC_FAS_CMD_LOOPER_REV:break;
+          case BMC_FAS_CMD_LOOPER_HALF:break;
+          case BMC_FAS_CMD_LOOPER_UNDO:break;
+          case BMC_FAS_CMD_TAP:break;
+        }
+      } else if(group == BMC_DEVICE_GROUP_BUTTON){
+        switch(byteA){
+          case BMC_FAS_CMD_CONNECTION:
+            if(sync.fas.connected()){
+              sync.fas.disconnect();
+            } else {
+              sync.fas.connect();
+            }
+            break;
+          case BMC_FAS_CMD_TUNER_ON:
+            sync.fas.tunerOn();
+            break;
+          case BMC_FAS_CMD_TUNER_OFF:
+            sync.fas.tunerOff();
+            break;
+          case BMC_FAS_CMD_TUNER_TOGGLE:
+          case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_FLAT:
+          case BMC_FAS_CMD_TUNER_FLATTER:
+          case BMC_FAS_CMD_TUNER_FLATTEST:
+          case BMC_FAS_CMD_TUNER_SHARP:
+          case BMC_FAS_CMD_TUNER_SHARPER:
+          case BMC_FAS_CMD_TUNER_SHARPEST:
+            sync.fas.toggleTuner();
+            break;
+          // scenes without revert
+          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
+          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
+          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
+          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
+            sync.fas.setSceneNumber(byteA-BMC_FAS_CMD_SCENE_1, false);
+            break;
+          // scenes with revert
+          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
+          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
+          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
+          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
+            sync.fas.setSceneNumber(byteA-BMC_FAS_CMD_SCENE_REVERT_1, true);
+            break;
+          case BMC_FAS_CMD_SCENE_CURRENT:
+            break;
+          case BMC_FAS_CMD_LOOPER_PLAY:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_PLAY); break;
+          case BMC_FAS_CMD_LOOPER_REC:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_RECORD); break;
+          case BMC_FAS_CMD_LOOPER_DUB:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_OVERDUB); break;
+          case BMC_FAS_CMD_LOOPER_REV:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_REVERSE); break;
+          case BMC_FAS_CMD_LOOPER_HALF:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_HALF); break;
+          case BMC_FAS_CMD_LOOPER_UNDO:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_UNDO); break;
+          case BMC_FAS_CMD_TAP:  sync.fas.tapTempo(); break;
+        }
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        switch(byteA){
+          case BMC_FAS_CMD_CONNECTION:
+            display.renderText(deviceIndex, isOled, e.type, "FAS", "", sync.fas.connected());
+            break;
+          case BMC_FAS_CMD_TUNER_ON:
+          case BMC_FAS_CMD_TUNER_OFF:
+          case BMC_FAS_CMD_TUNER_TOGGLE:
+          case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_FLAT:
+          case BMC_FAS_CMD_TUNER_FLATTER:
+          case BMC_FAS_CMD_TUNER_FLATTEST:
+          case BMC_FAS_CMD_TUNER_SHARP:
+          case BMC_FAS_CMD_TUNER_SHARPER:
+          case BMC_FAS_CMD_TUNER_SHARPEST:
+            display.updateFasTuner();
+            break;
+          // scenes without revert
+          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
+          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
+          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
+          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
+            {
+              char str[8] = "";
+              bool sel = sync.fas.getSceneNumber() == (byteA-BMC_FAS_CMD_SCENE_REVERT_1);
+              sprintf(str, "S %u", (byteA-BMC_FAS_CMD_SCENE_1)+globals.offset);
+              display.renderText(deviceIndex, isOled, e.type, str, "SCENE", sel);
+            }
+            break;
+          // scenes with revert
+          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
+          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
+          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
+          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
+            {
+              char str[8] = "";
+              bool sel = sync.fas.getSceneNumber() == (byteA-BMC_FAS_CMD_SCENE_REVERT_1);
+              sprintf(str, "S %u", (byteA-BMC_FAS_CMD_SCENE_REVERT_1)+globals.offset);
+              display.renderText(deviceIndex, isOled, e.type, str, "SCENE", sel);
+            }
+            break;
+          case BMC_FAS_CMD_SCENE_CURRENT:
+            {
+              char str[8] = "";
+              sprintf(str, "S %u", sync.fas.getSceneNumber()+globals.offset);
+              display.renderText(deviceIndex, isOled, e.type, str);
+            }
+            break;
+          case BMC_FAS_CMD_LOOPER_PLAY:
+            display.renderText(deviceIndex, isOled, e.type, "PLAY","LOOPER",sync.fas.looperPlaying());
+            break;
+          case BMC_FAS_CMD_LOOPER_REC:
+            display.renderText(deviceIndex, isOled, e.type, "REC","LOOPER",sync.fas.looperRecording());
+            break;
+          case BMC_FAS_CMD_LOOPER_DUB:
+            display.renderText(deviceIndex, isOled, e.type, "DUB","LOOPER",sync.fas.looperDubbing());
+            break;
+          case BMC_FAS_CMD_LOOPER_REV:
+            display.renderText(deviceIndex, isOled, e.type, "REVERSE","LOOPER",sync.fas.looperReversed());
+            break;
+          case BMC_FAS_CMD_LOOPER_HALF:
+            display.renderText(deviceIndex, isOled, e.type, "HALF","LOOPER",sync.fas.looperHalf());
+            break;
+          case BMC_FAS_CMD_LOOPER_UNDO:
+            display.renderText(deviceIndex, isOled, e.type, "UNDO","LOOPER");
+            break;
+          case BMC_FAS_CMD_TAP:
+            display.renderText(deviceIndex, isOled, e.type, "TAP");
+            break;
+        }
+#endif
       }
       break;
     case BMC_EVENT_TYPE_FAS_SCENE:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(sync.fas.getSceneNumber(), 0, 7, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return sync.fas.getSceneNumber()==byteA;
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        if(byteB > 0){
+          if(sync.fas.getSceneNumber() != byteA){
+            sync.fas.setSceneNumber(byteA, bitRead(event, 16));
+          } else {
+            sync.fas.setSceneNumber(byteB, bitRead(event, 16));
+          }
+        } else {
+          sync.fas.setSceneNumber(byteA, bitRead(event, 16));
+        }
+      } else if(group == BMC_DEVICE_GROUP_LED){
+        return sync.fas.getSceneNumber() == byteA;
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        sync.fas.sceneScroll(scroll.direction, scroll.endless, bitRead(event, 16), 0, 7);
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+        char str[8] = "";
+        bool highlight = false;
+        // display the selected scene number
+        if(bitRead(event, 17)){
+          sprintf(str, "S %u", (sync.fas.getSceneNumber()+globals.offset));
+        } else {
+          highlight = sync.fas.getSceneNumber() == byteA;
+          sprintf(str, "S %u", (byteA+globals.offset));
+        }
+        display.renderText(deviceIndex, isOled, e.type, str, "SCENE", highlight);
+      }
+      break;
+    case BMC_EVENT_TYPE_FAS_PRESET:
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        sync.fas.setPreset(event & 0x3FF);
+      } else if(group == BMC_DEVICE_GROUP_LED){
+        return sync.fas.getPresetNumber()==(event & 0x3FF);
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        sync.fas.presetScroll(scroll.direction, scroll.endless, 0, sync.fas.getMaxPresets());
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+        char str[32] = "";
+        bool highlight = false;
+        if(bitRead(event, 16)){
+          sync.fas.getPresetName(str);
+        } else {
+          highlight = sync.fas.getPresetNumber() == (event & 0x3FF);
+          sprintf(str, "P %u", (uint16_t)((event & 0x3FF) + globals.offset));
+        }
+        display.renderText(deviceIndex, isOled, e.type, str, "PRESET", highlight);
+      }
+      break;
+    case BMC_EVENT_TYPE_FAS_PRESET_TOGGLE:
+      {
+        uint16_t current = sync.fas.getPresetNumber();
+        uint16_t a = event & 0x3FF;
+        uint16_t b = (event>>16) & 0x3FF;
+        if(group==BMC_DEVICE_GROUP_BUTTON || group == BMC_DEVICE_GROUP_ENCODER){
+          sync.fas.setPreset((current != a) ? a : b);
+        } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+          char str[11] = "";
+          sprintf(str, "P %u", ((current != a) ? a : b)+globals.offset);
+          display.renderText(deviceIndex, isOled, e.type, str, "PRESET");
         }
       }
       break;
     case BMC_EVENT_TYPE_FAS_BLOCK:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group != BMC_DEVICE_GROUP_DISPLAY){
-          bool state = false;
-          if(sync.fas.connected()){
-            if(byteA==0){ // on if bypassed
-              if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-                return map(sync.fas.isBlockBypassed(byteB), 0, 1, 0, 100);
-              }
-              state = sync.fas.isBlockBypassed(byteB);
-            } else if(byteA==1){ // on if engage
-              if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-                return map(sync.fas.isBlockEngaged(byteB), 0, 1, 0, 100);
-              }
-              state = sync.fas.isBlockEngaged(byteB);
-            } else if(byteA==2){ // on if X
-              if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-                return map(sync.fas.isBlockX(byteB), 0, 1, 0, 100);
-              }
-              state = sync.fas.isBlockX(byteB);
-            } else if(byteA==3){ // on if Y
-              if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-                return map(sync.fas.isBlockY(byteB), 0, 1, 0, 100);
-              }
-              state = sync.fas.isBlockY(byteB);
-            }
-          }
-          return state;
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(!sync.fas.connected()){
+          return 0;
         }
+        switch(byteA){
+          case 0:
+            sync.fas.setBlockBypass(byteB); // bypass block
+            break;
+          case 1:
+            sync.fas.setBlockEngage(byteB); // engage block
+            break;
+          case 2:
+            sync.fas.toggleBlockState(byteB); // toggle bypass block
+            break;
+          case 3:
+            sync.fas.setBlockX(byteB); // set block to X
+            break;
+          case 4:
+            sync.fas.setBlockY(byteB); // set block to Y
+            break;
+          case 5:
+            sync.fas.toggleBlockXY(byteB); // toggle XY block
+            break;
+        }
+        return 1;
+      } else if(group == BMC_DEVICE_GROUP_LED){
+        switch(byteA){
+          case 0:
+            return sync.fas.isBlockBypassed(byteB); // block bypass state
+          case 1:
+          case 2:
+            return sync.fas.isBlockEngaged(byteB); // block bypass state
+          case 3:
+            return sync.fas.isBlockX(byteB); // block x/y state
+          case 4:
+          case 5:
+            return sync.fas.isBlockY(byteB); // block x/y state 
+        }
+      } else if(group == BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        switch(byteA){
+          case 0:
+            return sync.fas.isBlockBypassed(byteB) ? 100 : 0; // block bypass state
+          case 1:
+          case 2:
+            return sync.fas.isBlockEngaged(byteB) ? 100 : 0; // block bypass state
+          case 3:
+            return sync.fas.isBlockX(byteB) ? 100 : 0; // block x/y state
+          case 4:
+          case 5:
+            return sync.fas.isBlockY(byteB) ? 100 : 0; // block x/y state 
+        }
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+        if(!sync.fas.connected()){
+          return 0;
+        }
+        bool blockState = sync.fas.isBlockEngaged(byteB);
+        char blockName[5] = "";
+        char blockXY[5] = "";
+        char str[10] = "";
+        
+        sync.fas.getBlockName(byteB, blockName);
+        sprintf(blockXY, "%s", sync.fas.isBlockX(byteB)?"x":"y");
+        sprintf(str, "%s %s", blockName, blockXY);
+        display.renderText(deviceIndex, isOled, e.type, str, "BLOCK", blockState);
       }
       break;
     case BMC_EVENT_TYPE_FAS_BLOCK_PARAM:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(sync.fas.getSyncedParameterValue(), 0, 65535, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
+      // if(ioType==BMC_EVENT_IO_TYPE_INPUT){
+        
+      // } else {
+      //   if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+      //     return map(sync.fas.getSyncedParameterValue(byteA, byteB), 0, 65535, 0, 100);
+      //   } else if(group != BMC_DEVICE_GROUP_DISPLAY){
           
-        }
-      }
+      //   }
+      // }
       break;
 #endif
 #ifdef BMC_USE_HELIX
