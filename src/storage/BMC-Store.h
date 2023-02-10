@@ -35,7 +35,7 @@
   
   // Layer Object
   struct __attribute__ ((packed)) bmcStoreLayer {
-    bmcName_t name;
+    bmcStoreDevice <0, BMC_MAX_LAYER_EVENTS> events[1];
     #if BMC_MAX_BUTTONS > 0
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
     #endif

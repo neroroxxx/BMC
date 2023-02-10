@@ -169,56 +169,57 @@
 #define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE	 12
 
 // main
-#define BMC_OBE_ID_GO_TO             	 1
+#define BMC_OBE_ID_GO_TO              	 1
 // main > change layer
 #define BMC_OBE_ID_CP_GO_TO_LAYER     	 2
-#define BMC_OBE_ID_CP_GO_TO_BANK     	 3
-#define BMC_OBE_ID_CP_GO_TO_PRESET   	 4
-#define BMC_OBE_ID_CP_GO_TO_SETLIST  	 5
-#define BMC_OBE_ID_CP_GO_TO_SONG     	 6
-#define BMC_OBE_ID_CP_GO_TO_PART     	 7
+#define BMC_OBE_ID_CP_GO_TO_BANK      	 3
+#define BMC_OBE_ID_CP_GO_TO_PRESET    	 4
+#define BMC_OBE_ID_CP_GO_TO_SETLIST   	 5
+#define BMC_OBE_ID_CP_GO_TO_SONG      	 6
+#define BMC_OBE_ID_CP_GO_TO_PART      	 7
 // main
-#define BMC_OBE_ID_SETTINGS          	 8
+#define BMC_OBE_ID_SETTINGS           	 8
 // main > settings
-#define BMC_OBE_ID_SETTINGS_GENERAL  	 9
+#define BMC_OBE_ID_SETTINGS_GENERAL   	 9
 // main > settings > general
-#define BMC_OBE_ID_S_BTN_HOLD_TIME   	 10
-#define BMC_OBE_ID_S_DISPLAY_OFFSET  	 11
-#define BMC_OBE_ID_S_DISPLAY_BANNERS 	 12
-#define BMC_OBE_ID_S_PREPEND_PRESET  	 13
-#define BMC_OBE_ID_S_PREPEND_BANK    	 14
-#define BMC_OBE_ID_S_DIM_LEDS        	 15
-#define BMC_OBE_ID_S_STARTUP_PRESET  	 16
-#define BMC_OBE_ID_S_TRIG_1ST_SONG   	 17
-#define BMC_OBE_ID_S_TRIG_1ST_PART   	 18
-#define BMC_OBE_ID_S_TOUCH_CALIBRATED	 19
+#define BMC_OBE_ID_S_BTN_HOLD_TIME    	 10
+#define BMC_OBE_ID_S_TYPER_CHANNEL    	 11
+#define BMC_OBE_ID_S_DISPLAY_OFFSET   	 12
+#define BMC_OBE_ID_S_DISPLAY_BANNERS  	 13
+#define BMC_OBE_ID_S_PREPEND_PRESET   	 14
+#define BMC_OBE_ID_S_PREPEND_BANK     	 15
+#define BMC_OBE_ID_S_DIM_LEDS         	 16
+#define BMC_OBE_ID_S_STARTUP_PRESET   	 17
+#define BMC_OBE_ID_S_TRIG_1ST_SONG    	 18
+#define BMC_OBE_ID_S_TRIG_1ST_PART    	 19
+#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 20
 // main > settings
-#define BMC_OBE_ID_SETTINGS_MIDI     	 20
+#define BMC_OBE_ID_SETTINGS_MIDI      	 21
 // main > settings > general
-#define BMC_OBE_ID_S_IN_CTRL         	 21
-#define BMC_OBE_ID_S_IN_CTRL_CH      	 22
-#define BMC_OBE_ID_S_IN_CTRL_ACTION  	 23
-#define BMC_OBE_ID_S_CLOCK_IN_PORT   	 24
-#define BMC_OBE_ID_S_MASTER_CLOCK    	 25
-#define BMC_OBE_ID_S_ACTIVE_SENSE    	 26
-#define BMC_OBE_ID_S_BLOCK_RT_IN     	 27
-#define BMC_OBE_ID_S_BLOCK_RT_OUT    	 28
+#define BMC_OBE_ID_S_IN_CTRL          	 22
+#define BMC_OBE_ID_S_IN_CTRL_CH       	 23
+#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 24
+#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 25
+#define BMC_OBE_ID_S_MASTER_CLOCK     	 26
+#define BMC_OBE_ID_S_ACTIVE_SENSE     	 27
+#define BMC_OBE_ID_S_BLOCK_RT_IN      	 28
+#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 29
 // main
-#define BMC_OBE_ID_GLOBAL            	 29
+#define BMC_OBE_ID_GLOBAL             	 30
 // main > global
-#define BMC_OBE_ID_GLOBAL_ITEMS      	 30
+#define BMC_OBE_ID_GLOBAL_ITEMS       	 31
 // main > global > items
-#define BMC_OBE_ID_G_ITEM_LIST       	 31
+#define BMC_OBE_ID_G_ITEM_LIST        	 32
 // main > global > items > editor
-#define BMC_OBE_ID_G_ITEM_EDIT       	 32
+#define BMC_OBE_ID_G_ITEM_EDIT        	 33
 // main
-#define BMC_OBE_ID_LAYERS             	 33
+#define BMC_OBE_ID_LAYERS             	 34
 // main > layers
-#define BMC_OBE_ID_LAYERS_ITEMS       	 34
+#define BMC_OBE_ID_LAYERS_ITEMS       	 35
 // main > layers > items
-#define BMC_OBE_ID_P_ITEM_LIST       	 35
+#define BMC_OBE_ID_P_ITEM_LIST        	 36
 // main > layers > items > editor
-#define BMC_OBE_ID_P_ITEM_EDIT       	 36
+#define BMC_OBE_ID_P_ITEM_EDIT        	 37
 
 
 class bmcRenderButton {

@@ -433,7 +433,7 @@ public:
   }
   // SCENE CONTROL, revert via CC
   bool setSceneNumber(uint8_t scene, bool revert=false){
-    if(!connected()){
+    if(!connected() || scene > 7){
       return false;
     }
     if(revert){
@@ -510,6 +510,9 @@ public:
   }
 
   void setPreset(uint16_t value){
+    if(value >= getMaxPresets()){
+      return;
+    }
     // Send CC#0
     sendControlChange(0, (value>>7) & 0x7F);
     // Send Program Change

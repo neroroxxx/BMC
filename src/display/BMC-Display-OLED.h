@@ -32,8 +32,7 @@ class BMC_OLED {
   uint8_t w = 0;
   uint8_t h = 0;
   uint8_t maxLines = 3;
-  uint8_t xShift = 0;
-  uint8_t yShift = 0;
+  int8_t selChar = -1;
   BMC_SSD1306 display;
   BMC_OLED(uint8_t _w=128, uint8_t _h=BMC_OLED_HEIGHT):display(_w, _h){
     w = _w;
@@ -63,20 +62,121 @@ class BMC_OLED {
   void setRotation(uint8_t r){
     display.setRotation(r);
   }
-  void clear(){
+  int8_t getSelChar(){
+    return selChar;
+  }
+  void setSelChar(uint8_t t_selChar){
+    selChar = t_selChar;
+  }
+  void reassign(uint8_t t_settings){
+    selChar = -1;
+    clear(t_settings);
+  }
+  void clear(uint8_t t_settings){
+    // settings
+    // bit 0 label
+    // bit 1 border
+    // bit 2 selected
+    // bit 3 use name instead of number
     display.clearDisplay();
+    if(bitRead(t_settings, 1)){
+      display.drawRect(0, 0, w, h, BMC_OLED_WHITE);
+    }
     display.display();
   }
-  void print(const char * str, uint8_t t_xShift=0, uint8_t t_yShift=0, bool highlight=false){
+  void printPC(uint8_t t_ch, uint8_t t_pc, uint8_t t_settings, bool highlight=false){
+    if(highlight){
+      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
+      display.setTextColor(BMC_OLED_BLACK);
+    } else {
+      display.clearDisplay();
+      display.setTextColor(BMC_OLED_WHITE);
+    }
+    display.setTextSize(2);
+    char str[16] = "";
+    t_ch = constrain(t_ch, 1, 16);
+    t_pc = constrain(t_pc, 0, 127);
+
+    display.setCursor(22, (h == 32) ? 16 : 28);
+    display.println("PROGRAM");
+
+    sprintf(str, "%02u", t_ch);
+    display.setCursor(0, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    sprintf(str, "%03u", t_pc);
+    display.setCursor(94, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    display.display();
+  }
+  void printCC(uint8_t t_ch, uint8_t t_cc, uint8_t t_vv, uint8_t t_settings, bool highlight=false){
+    if(highlight){
+      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
+      display.setTextColor(BMC_OLED_BLACK);
+    } else {
+      display.clearDisplay();
+      display.setTextColor(BMC_OLED_WHITE);
+    }
+    display.setTextSize(2);
+    char str[16] = "";
+    t_ch = constrain(t_ch, 1, 16);
+    t_cc = constrain(t_cc, 0, 127);
+    t_vv = constrain(t_vv, 0, 127);
+    display.setCursor(22, (h == 32) ? 16 : 28);
+    display.println("CONTROL");
+
+    sprintf(str, "%02u", t_ch);
+    display.setCursor(0, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    sprintf(str, "%03u", t_cc);
+    display.setCursor(42, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    sprintf(str, "%03u", t_vv);
+    display.setCursor(94, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    display.display();
+  }
+  void printNote(uint8_t t_ch, uint8_t t_nn, uint8_t t_vv, uint8_t t_settings, bool highlight=false){
+    if(highlight){
+      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
+      display.setTextColor(BMC_OLED_BLACK);
+    } else {
+      display.clearDisplay();
+      display.setTextColor(BMC_OLED_WHITE);
+    }
+    display.setTextSize(2);
+    char str[16] = "";
+    t_ch = constrain(t_ch, 1, 16);
+    t_nn = constrain(t_nn, 0, 127);
+    t_vv = constrain(t_vv, 0, 127);
+    display.setCursor(41, (h == 32) ? 16 : 28);
+    display.println("NOTE");
+
+    sprintf(str, "%02u", t_ch);
+    display.setCursor(0, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    sprintf(str, "%03u", t_nn);
+    display.setCursor(42, (h == 32) ? 34 : 52);
+    display.println(str);
+
+    sprintf(str, "%03u", t_vv);
+    display.setCursor(94, (h == 32) ? 34 : 52);
+    display.println(str);
+    display.display();
+  }
+  void print(const char * str, uint8_t t_settings, bool highlight=false){
     // add one extra character for the EOL
     uint8_t len = strlen(str)+1;
     char c[len] = "";
     strncpy(c, str, len);
-    print(c, t_xShift, t_yShift, highlight);
+    print(c, t_settings, highlight);
   }
-  void print(char * str, uint8_t t_xShift=0, uint8_t t_yShift=0, bool highlight=false){
-    xShift = t_xShift;
-    yShift = t_yShift;
+  void print(char * str, uint8_t t_settings, bool highlight=false){
     
     if(highlight){
       display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
@@ -170,6 +270,9 @@ class BMC_OLED {
       renderLine(str, 1, 2, (spaceIndex+1), len);
     } else {
       renderLine(str, 0, 1, 0, len);
+    }
+    if(bitRead(t_settings, 1)){
+      display.drawRect(0, 0, w, h, BMC_OLED_WHITE);
     }
     display.display();
   }
@@ -339,9 +442,13 @@ class BMC_OLED {
     }
     //display.drawRect(0, 0, w, h,BMC_OLED_WHITE);
     display.setTextSize(font);
-    display.setCursor(x+xShift, y+yShift);
+    display.setCursor(x, y);
     for(uint8_t i = start, e = 0 ; e < len ; i++, e++){
       display.print(str[i]);
+      if(selChar>=0 && selChar==i){
+        uint16_t fW = 6*font;
+        display.fillRect(x+(e*fW), y, fW, 2, BMC_OLED_WHITE);
+      }
       if(e >= len){
         break;
       }

@@ -334,7 +334,7 @@ private:
 
       case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 6; }
+        else if(request==1){ /* fields */ return 7; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return true; }
         else if(request==4){ /* name */ strcpy(str, "Program Change"); return 1;}
@@ -343,7 +343,7 @@ private:
 
       case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 7; }
+        else if(request==1){ /* fields */ return 8; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return true; }
         else if(request==4){ /* name */ strcpy(str, "Control Change"); return 1;}
@@ -377,22 +377,13 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeMidiPitchBend(str, fieldRequest, field);}
         break;
 
-      case BMC_EVENT_TYPE_MIDI_CONTROL_TOGGLE:
+      case BMC_EVENT_TYPE_PROGRAM_BANKING_SET:
         if(request==0){ /* available */ return true; }
         else if(request==1){ /* fields */ return 5; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return true; }
-        else if(request==4){ /* name */ strcpy(str, "Control Change Toggle"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeMidiControlToggle(str, fieldRequest, field);}
-        break;
-
-      case BMC_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
-        if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 6; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Program Banking Scroll"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeProgramBankingScroll(str, fieldRequest, field);}
+        else if(request==4){ /* name */ strcpy(str, "Program Banking Set"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeProgramBankingSet(str, fieldRequest, field);}
         break;
 
       case BMC_EVENT_TYPE_PROGRAM_BANKING_TRIGGER:
@@ -569,39 +560,6 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeLayer(str, fieldRequest, field);}
         break;
 
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_LAYER_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Layer # (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_LAYER_NAME:
-        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Layer Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeLayerName(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_LAYER_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Layer Name (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
       case BMC_EVENT_TYPE_PRESET:
         if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
         else if(request==1){ /* fields */ return 4; }
@@ -610,39 +568,6 @@ private:
         else if(request==4){ /* name */ strcpy(str, "Preset #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypePreset(str, fieldRequest, field);}
         break;
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PRESET_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Preset # (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PRESET_NAME:
-        if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Preset Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypePresetName(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PRESET_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Preset Name (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
 
       case BMC_EVENT_TYPE_BANK:
         if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
@@ -653,17 +578,6 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeBank(str, fieldRequest, field);}
         break;
 
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_BANK_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Bank (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
       case BMC_EVENT_TYPE_SETLIST:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
         else if(request==1){ /* fields */ return 5; }
@@ -672,39 +586,6 @@ private:
         else if(request==4){ /* name */ strcpy(str, "SetList #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeSetlist(str, fieldRequest, field);}
         break;
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SETLIST_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Number (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SETLIST_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "SetList Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeSetlistName(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SETLIST_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Name (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeSetlistSelectedName(str, fieldRequest, field);}
-        break;
-#endif
 
       case BMC_EVENT_TYPE_SONG:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
@@ -715,39 +596,6 @@ private:
         else if(request==5){ /* field */ return eventBmcEventTypeSong(str, fieldRequest, field);}
         break;
 
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SONG_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song # (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SONG_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeSongName(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_SONG_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song Name (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
       case BMC_EVENT_TYPE_PART:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
         else if(request==1){ /* fields */ return 5; }
@@ -756,39 +604,6 @@ private:
         else if(request==4){ /* name */ strcpy(str, "Song Part #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypePart(str, fieldRequest, field);}
         break;
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PART_SELECTED:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song Part # (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PART_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 1; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song Part Name"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypePartName(str, fieldRequest, field);}
-        break;
-#endif
-
-#if defined(BMC_HAS_DISPLAY)
-      case BMC_EVENT_TYPE_PART_SELECTED_NAME:
-        if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
-        else if(request==1){ /* fields */ return 0; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Song Part Name (SEL)"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
-        break;
-#endif
 
       case BMC_EVENT_TYPE_NL_RELAY:
         if(request==0){ /* available */ return BMC_MAX_NL_RELAYS > 0; }
@@ -861,7 +676,7 @@ private:
         break;
       case BMC_EVENT_TYPE_FAS_SCENE:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 4; }
+        else if(request==1){ /* fields */ return 3; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "FAS Scene"); return 1;}
@@ -874,14 +689,6 @@ private:
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "FAS Preset"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeFasPreset(str, fieldRequest, field);}
-        break;
-      case BMC_EVENT_TYPE_FAS_PRESET_TOGGLE:
-        if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 2; }
-        else if(request==2){ /* scroll */ return false; }
-        else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "FAS Preset Toggle"); return 1;}
-        else if(request==5){ /* field */ return eventBmcEventTypeFasPresetToggle(str, fieldRequest, field);}
         break;
       case BMC_EVENT_TYPE_FAS_BLOCK:
         if(request==0){ /* available */ return true; }
@@ -947,12 +754,31 @@ private:
       case 2:
         return eventGetMidiProgramField(str, fieldRequest, 1);
       case 3:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Program B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 128; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(2, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 16);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(2, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint8_t) BMC_GET_BYTE(2, tempEvent.event));
+            }
+            return 1;
+        }
+        break;
       case 4:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 5:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollDirectionField(str, fieldRequest);
       case 6:
+        return eventGetScrollLimitField(str, fieldRequest);
+      case 7:
         return eventGetPortsField(str, fieldRequest, field);
     }
     return 0;
@@ -968,12 +794,31 @@ private:
       case 3:
         return eventGetMidiControlValueField(str, fieldRequest, 2);
       case 4:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Value B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 128; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(3, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 24);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(3, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint8_t) BMC_GET_BYTE(3, tempEvent.event));
+            }
+            return 1;
+        }
+        break;
       case 5:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 6:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollDirectionField(str, fieldRequest);
       case 7:
+        return eventGetScrollLimitField(str, fieldRequest);
+      case 8:
         return eventGetPortsField(str, fieldRequest, field);
     }
     return 0;
@@ -1038,38 +883,36 @@ private:
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeMidiControlToggle(char* str, uint8_t fieldRequest, uint8_t field){
+  uint16_t eventBmcEventTypeProgramBankingSet(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
-        return eventGetMidiChannelField(str, fieldRequest, 0);
+        return eventGetField8BitValueRange(str, "Program", fieldRequest, 0, 0, 127, false);
       case 2:
-        return eventGetMidiControlField(str, fieldRequest, 1);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Program B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 128; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint8_t) BMC_GET_BYTE(1, tempEvent.event));
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetField8BitValueRange(str, "Value A", fieldRequest, 2, 0, 127, false);
-      case 4:
-        return eventGetField8BitValueRange(str, "Value B", fieldRequest, 3, 0, 127, false);
-      case 5:
-        return eventGetPortsField(str, fieldRequest, field);
-    }
-    return 0;
-  }
-  uint16_t eventBmcEventTypeProgramBankingScroll(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "Amount", fieldRequest, 0, 0, 127, false);
-      case 2:
-        return eventGetField8BitValueRange(str, "Min Program", fieldRequest, 1, 0, 127, false);
-      case 3:
-        return eventGetField8BitValueRange(str, "Max Program", fieldRequest, 2, 0, 127, false);
-      case 4:
         return eventGetScrollEnableField(str, fieldRequest);
-      case 5:
+      case 4:
         return eventGetScrollDirectionField(str, fieldRequest);
-      case 6:
+      case 5:
         return eventGetScrollLimitField(str, fieldRequest);
     }
     return 0;
@@ -2068,21 +1911,6 @@ private:
               case BMC_FAS_CMD_TUNER_SHARP:   strcpy(str, "Tuner Sharp");return 1;
               case BMC_FAS_CMD_TUNER_SHARPER:   strcpy(str, "Tuner Sharper");return 1;
               case BMC_FAS_CMD_TUNER_SHARPEST:   strcpy(str, "Tuner Sharpest");return 1;
-              // scenes without revert
-              case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
-              case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
-              case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
-              case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
-                sprintf(str, "Scene %u", (uint16_t)((BMC_GET_BYTE(0, tempEvent.event)-BMC_FAS_CMD_SCENE_1)+offset));
-                return 1;
-              // scenes with revert
-              case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
-              case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
-              case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
-              case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
-                sprintf(str, "Scene %u (Revert)", (uint16_t)((BMC_GET_BYTE(0, tempEvent.event)-BMC_FAS_CMD_SCENE_REVERT_1)+offset));
-                return 1;
-              case BMC_FAS_CMD_SCENE_CURRENT:  strcpy(str, "Current Scene");return 1;
               case BMC_FAS_CMD_LOOPER_PLAY:  strcpy(str, "Looper PLAY");return 1;
               case BMC_FAS_CMD_LOOPER_REC:  strcpy(str, "Looper REC");return 1;
               case BMC_FAS_CMD_LOOPER_DUB:  strcpy(str, "Looper DUB");return 1;
@@ -2129,8 +1957,6 @@ private:
         }
       case 3:
         return eventGetFieldYesNo(str, "Revert", fieldRequest, 16);
-      case 4:
-        return eventGetFieldYesNo(str, "Display Current Scene", fieldRequest, 17);
     }
     return 0;
   }
@@ -2141,21 +1967,41 @@ private:
       case 1:
         return eventGetField16BitValueRange(str, "Preset", fieldRequest, 0, 0, 767, true);
       case 2:
-        return eventGetFieldYesNo(str, "Display Current Preset", fieldRequest, 16);
+        {
+          uint16_t value = BMC_GET_BYTE_2(2, tempEvent.event) & 0x3FF;
+          switch(fieldRequest){
+            case 0: strcpy(str, "Preset Toggle"); return 1; /* label */
+            case 1: return 0; /* min */
+            case 2: return 768; /* max */
+            case 3: /* get stored value */
+              return value;
+              // return (tempEvent.event >> 16) & 0x3FF;
+            case 4: /* set stored value */
+              BMC_WRITE_BITS(tempEvent.event, tempValue, 0x3FF, 16);
+              return 1;
+            case 5: /* formatted value */
+              if(value == 0){
+                strcpy(str, "OFF");
+              } else {
+                sprintf(str, "%u", value+offset);
+              }
+              return 1;
+          }
+        }
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeFasPresetToggle(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField16BitValueRange(str, "Preset A", fieldRequest, 0, 0, 767, true);
-      case 2:
-        return eventGetField16BitValueRange(str, "Preset B", fieldRequest, 1, 0, 767, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeFasPresetToggle(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField16BitValueRange(str, "Preset A", fieldRequest, 0, 0, 767, true);
+  //     case 2:
+  //       return eventGetField16BitValueRange(str, "Preset B", fieldRequest, 1, 0, 767, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeFasBlock(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
@@ -2193,8 +2039,7 @@ private:
           case 3: /* get stored value */
             {
               uint8_t b = BMC_GET_BYTE(1, tempEvent.event);
-              return c
-              onstrain(b, 100, 170);
+              return constrain(b, 100, 170);
             }
           case 4: /* set stored value */
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);

@@ -23,17 +23,26 @@ private:
   uint8_t vtCount = 0;
   uint16_t vtValue = 0;
   uint16_t output = 0;
+  uint8_t chars[3] = {0,0,0};
+  uint8_t activeChar = 0;
   BMCCallbacks& callback;
   void buildOutput(){
-#if BMC_TYPER_MODE == 0
-    output = (((vtValue>>0)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>8)&0x0F);
-#else
-    output = (((vtValue>>8)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>0)&0x0F);
-#endif
+    output = (chars[0]*100)+(chars[1]*10)+chars[2];
+// #if BMC_TYPER_MODE == 0
+//     output = (((vtValue>>0)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>8)&0x0F);
+// #else
+//     output = (((vtValue>>8)&0x0F)*100) + (((vtValue>>4)&0x0F)*10) + ((vtValue>>0)&0x0F);
+// #endif
   }
 public:
   BMCTyper(BMCCallbacks& cb):callback(cb){
     flags.reset();
+  }
+  void update(){
+
+  }
+  uint8_t getSelChar(){
+    return activeChar;
   }
   // return the value to be displayed
   uint16_t getOutput(){
@@ -49,10 +58,63 @@ public:
   void setOffset(bool t_value){
     vtValue = 0;
     vtCount = 0;
-    output = 0;
     flags.write(BMC_TYPER_FLAG_DISPLAY_ZERO_OFFSET, t_value);
   }
   uint8_t cmd(uint8_t value, uint8_t autoTrigger=0){
+    if(value >= 10){
+      // 10 is clear
+      // 11 is cursor left
+      // 12 is cursor right
+      // 13 is decrease
+      // 14 is increase
+      // 15 is custom callback
+      // 16 is layer
+      // 17 is preset
+      // 18 is fas preset
+      // 19 is fas scene
+      // 20 is fas scene revert
+      if(activeChar>2){
+        activeChar = 0;
+      }
+      switch(value){
+        case 10:
+          output = 0;
+          activeChar = 0;
+          memset(chars, 0, 3);
+          break;
+        case 11:
+          activeChar = (activeChar==0) ? 2 : (activeChar-1);
+          break;
+        case 12:
+          activeChar = (activeChar>=2) ? 0 : (activeChar+1);
+          break;
+        case 13:
+          chars[activeChar] = (chars[activeChar]==0) ? 9 : (chars[activeChar]-1);
+          buildOutput();
+          break;
+        case 14:
+          chars[activeChar] = (chars[activeChar]>=9) ? 0 : (chars[activeChar]+1);
+          buildOutput();
+          break;
+      }
+
+      if(value==15 && callback.typerCustomCommand){
+        callback.typerCustomCommand(getOutput(), getRawOutput());
+      } else if(callback.typerCommand){
+        callback.typerCommand(getOutput(), getRawOutput());
+      }
+      // trigger display callback
+      return value;
+    }
+    chars[activeChar++] = value;
+    if(activeChar>2){
+      activeChar = 0;
+    }
+    buildOutput();
+    return 0;
+  }
+
+  uint8_t cmdOld(uint8_t value, uint8_t autoTrigger=0){
     if(value >= 10){
       // 10 is clear
       // 11 is custom callback

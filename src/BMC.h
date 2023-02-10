@@ -210,8 +210,6 @@ private:
   BMCMidi midi;
   // value typer object
   BMCTyper valueTyper;
-  // used for the value typer when sending PC or CC
-  uint8_t typerChannel = 1;
   // struct to hold messenger data sent between sketch and editor app
   BMCMessenger messenger;
   // editor handling all editing of the store
@@ -307,6 +305,12 @@ private:
       display.renderLayerBanner();
     #endif
 
+    bmcStoreDevice <0, BMC_MAX_LAYER_EVENTS>& device = store.layers[layer].events[0];
+    for(uint8_t i = 0 ; i < BMC_MAX_LAYER_EVENTS ; i++){
+      processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON,
+                  layer, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
+    }
+
     #if BMC_MAX_BUTTONS > 1
       dualPress.layerChanged();
     #endif
@@ -329,7 +333,7 @@ private:
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
       for(uint8_t i = 0 ; i < len ; i++){
-        processEvent(BMC_DEVICE_GROUP_PRESET, BMC_DEVICE_ID_PRESET,
+        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON,
                      t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
       }
     }

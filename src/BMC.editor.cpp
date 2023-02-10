@@ -32,6 +32,11 @@ void BMC::editorRead(){
       callback.editorConnection(globals.editorConnected());
     }
   }
+  if(editor.wasStoreCleared()){
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderStoreClearedBanner();
+    #endif
+  }
 }
 void BMC::assignStoreData(){
   // The editor has updated data in EEPROM so we need to update all Hardware and Settings

@@ -78,6 +78,9 @@ public:
         t.name[BMC_MAX_NAMES_LENGTH-1] = 0;
       }
     }
+    if(BMC_STR_MATCH(t.name, "")){
+      return getPresetStr(t_preset);
+    }
     return t;
   }
   bmcStoreName getBankStr(){

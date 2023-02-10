@@ -207,7 +207,15 @@ public:
       return presets.midi.globals.getDeviceName(presets.midi.globals.store.global.setLists[t_set].name);
     }
     bmcStoreName t;
-    sprintf(t.name, "Set # %02u", t_set+1);
+    sprintf(t.name, "Set # %02u", t_set+midi.globals.offset);
+    return t;
+  }
+  bmcStoreName getSetStr(){
+    return getSetStr(setList);
+  }
+  bmcStoreName getSetStr(uint16_t t_setList){
+    bmcStoreName t;
+    sprintf(t.name, "%u", t_setList+midi.globals.offset);
     return t;
   }
 
@@ -222,7 +230,16 @@ public:
       }
     }
     bmcStoreName t;
-    sprintf(t.name, "Song # %02u", t_song+1);
+    sprintf(t.name, "Song # %02u", t_song+midi.globals.offset);
+    return t;
+  }
+
+  bmcStoreName getSongStr(){
+    return getSongStr(song);
+  }
+  bmcStoreName getSongStr(uint16_t t_song){
+    bmcStoreName t;
+    sprintf(t.name, "%u", t_song+midi.globals.offset);
     return t;
   }
 
@@ -237,7 +254,15 @@ public:
       }
     }
     bmcStoreName t;
-    sprintf(t.name, "Part # %02u", t_part+1);
+    sprintf(t.name, "Part # %02u", t_part+midi.globals.offset);
+    return t;
+  }
+  bmcStoreName getPartStr(){
+    return getPartStr(songPart);
+  }
+  bmcStoreName getPartStr(uint16_t t_songPart){
+    bmcStoreName t;
+    sprintf(t.name, "%u", t_songPart+midi.globals.offset);
     return t;
   }
   // setlist

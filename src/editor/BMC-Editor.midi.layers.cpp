@@ -58,7 +58,7 @@ void BMCEditor::layerNameMessage(bool write){
     return;
   }
   if(write){
-    store.layers[layer].name     = incoming.get14Bits(9);
+    store.layers[layer].events[0].name = incoming.get14Bits(9);
     if(!backupActive()){
       saveLayersAndReloadData(layer);
     }
@@ -68,7 +68,7 @@ void BMCEditor::layerNameMessage(bool write){
 
   BMCMidiMessage buff;
   buff.prepareEditorMessage(port, deviceId, BMC_LAYERF_LAYER_NAME, flag, layer);
-  buff.appendToSysEx14Bits(store.layers[layer].name);
+  buff.appendToSysEx14Bits(store.layers[layer].events[0].name);
   sendToEditor(buff);
 }
 void BMCEditor::layerSendChangeMessage(bool onlyIfConnected){

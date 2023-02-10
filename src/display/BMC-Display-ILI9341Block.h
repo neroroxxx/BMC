@@ -61,9 +61,24 @@ class BMC_ILI9341_BLOCK {
       hBound = 40;
     }
   }
+  void setSelChar(uint8_t t_selChar){
+    if(t_selChar != selChar){
+      crc = 0;
+      selChar = t_selChar;
+    }
+  }
+  void reassign(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
+    selChar = -1;
+    clear(tft, t_settings, highlight);
+  }
   void clear(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
     settings = t_settings;
     crc = 0;
+    // settings
+    // bit 0 label
+    // bit 1 border
+    // bit 2 selected
+    // bit 3 use name instead of number
     tft.fillRect(xBound, yBound, wBound, hBound, highlight ? color : background);
     if(bitRead(settings, 1)){
       tft.drawRect(xBound, yBound, wBound, hBound, highlight ? background : color);
@@ -119,7 +134,29 @@ class BMC_ILI9341_BLOCK {
 
     tft.setCursor(x, y);
     tft.setTextColor(highlight ? background : color);
-    tft.print(outStr);
+    if(selChar >= 0){
+      for(uint8_t i = 0 ; i < strlen(outStr) ; i++){
+        if(selChar == i){
+          uint16_t c = highlight ? background : color;
+          if(background != BMC_ILI9341_YELLOW && color != BMC_ILI9341_YELLOW){
+            c = BMC_ILI9341_YELLOW;
+          } else if(background != BMC_ILI9341_WHITE && color != BMC_ILI9341_WHITE){
+            c = BMC_ILI9341_WHITE;
+          } else if(background != BMC_ILI9341_RED && color != BMC_ILI9341_RED){
+            c = BMC_ILI9341_RED;
+          } else if(background != BMC_ILI9341_GREEN && color != BMC_ILI9341_GREEN){
+            c = BMC_ILI9341_GREEN;
+          }
+          tft.setTextColor(c);
+          tft.print(outStr[i]);
+          tft.setTextColor(highlight ? background : color);
+          continue;
+        }
+        tft.print(outStr[i]);
+      }
+    } else {
+      tft.print(outStr);
+    }
   }
   uint8_t renderLabel(BMC_TFT& tft, const char* t_str, bool highlight=false){
     if(hBound == 40 || !bitRead(settings, 0) || strlen(t_str) == 0){
@@ -190,6 +227,79 @@ class BMC_ILI9341_BLOCK {
 #endif
     return fontHeight | ((fontPadding*2)<<8);
   }
+
+  // void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label="", bool highlight=false){
+  void printPC(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_settings, bool highlight=false){
+    printMIDI(tft, t_crc, BMC_MIDI_PROGRAM_CHANGE, t_ch, t_d1, -1, t_settings, highlight);
+  }
+  void printCC(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(tft, t_crc, BMC_MIDI_CONTROL_CHANGE, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printNote(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(tft, t_crc, BMC_MIDI_NOTE_ON, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printMIDI(BMC_TFT& tft, uint8_t t_crc, uint8_t t_type, uint8_t t_ch, uint8_t t_d1, int16_t t_d2, uint8_t t_settings, bool highlight=false){
+    if(crc == t_crc || wBound < 120){
+      return;
+    }
+
+    clear(tft, t_settings, highlight);
+    tft.setTextColor(highlight ? background : color);
+    // set crc after clear()
+    crc = t_crc;
+    
+
+    char str[16] = "";
+    t_ch = constrain(t_ch, 1, 16);
+    t_d1 = constrain(t_d1, 0, 127);
+    if(t_d2 != -1){
+      t_d2 = constrain(t_d2, 0, 127);
+    }
+    
+    uint16_t bW = (wBound/3);
+
+    switch(t_type){
+      case BMC_MIDI_PROGRAM_CHANGE:
+        strcpy(str, "PROGRAM");
+        break;
+      case BMC_MIDI_CONTROL_CHANGE:
+        strcpy(str, "CONTROL");
+        break;
+      case BMC_MIDI_NOTE_OFF:
+      case BMC_MIDI_NOTE_ON:
+        strcpy(str, "NOTE");
+        break;
+    }
+    tft.setFont(BMCLiberationSansNarrow_16);
+    
+    int16_t x = xBound + (((wBound) - tft.strPixelLen(str)) / 2);
+    uint16_t y1 = (hBound == 40) ? 2 : 16;
+    uint16_t y2 = (hBound == 40) ? 22 : 48;
+    tft.setCursor(x, yBound+y1);
+    tft.println(str);
+
+    sprintf(str, "%02u", t_ch);
+    x = xBound + ((bW - tft.strPixelLen(str)) / 2);
+    tft.setCursor(x, yBound + y2);
+    tft.println(str);
+
+    if(t_d2 < 0){
+      sprintf(str, "%03u", t_d1);
+      x = xBound+bW+bW + ((bW - tft.strPixelLen(str)) / 2);
+      tft.setCursor(x, yBound + y2);
+      tft.println(str);
+    } else {
+      sprintf(str, "%03u", t_d1);
+      x = xBound+bW + ((bW - tft.strPixelLen(str)) / 2);
+      tft.setCursor(x, yBound + y2);
+      tft.println(str);
+
+      sprintf(str, "%03u", t_d2);
+      x = xBound+bW+bW + ((bW - tft.strPixelLen(str)) / 2);
+      tft.setCursor(x, yBound + y2);
+      tft.println(str);
+    }
+  }
   uint16_t getX(){
     return xBound;
   }
@@ -219,6 +329,7 @@ class BMC_ILI9341_BLOCK {
     uint8_t blockSize = 0;
     uint8_t settings = 0;
     uint8_t crc = 0;
+    int8_t selChar = -1;
 };
 
 #endif

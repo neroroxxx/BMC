@@ -70,8 +70,12 @@ public:
   void setTotalRows(){
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_LAYER:
+        // data.totalRows = 1;
+        // break;
+      // case BMC_DEVICE_ID_LAYER_EVENT:
         data.totalRows = 1;
-        break;
+        data.totalRows += data.activeDevice.settings;
+        data.totalRows += data.activeDevice.events;
       case BMC_DEVICE_ID_EVENT:
       case BMC_DEVICE_ID_NAME:
         data.totalRows = data.activeDevice.length-1;
@@ -127,13 +131,13 @@ public:
         break;
       case BMC_DEVICE_ID_ENCODER:
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
-      case BMC_DEVICE_ID_OLED:
       case BMC_DEVICE_ID_TEMPO_TO_TAP:
         // for all devices that only have a name and single event
         data.totalRows = 2;// one for name and one for event
         break;
+      case BMC_DEVICE_ID_OLED:
       case BMC_DEVICE_ID_ILI:
-        data.totalRows = 4; 
+        data.totalRows = 6;
         break;
       case BMC_DEVICE_ID_LFO:
         data.totalRows = 1;
@@ -177,6 +181,7 @@ public:
     }
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_LAYER:
+      // case BMC_DEVICE_ID_LAYER_EVENT:
       case BMC_DEVICE_ID_NAME:
       case BMC_DEVICE_ID_SKETCH_BYTE:
       case BMC_DEVICE_ID_BUTTON:
@@ -259,11 +264,14 @@ public:
     uint16_t dIndex = data.deviceIndex-1;
     switch(data.activeDevice.id){
       case BMC_DEVICE_ID_LAYER:
-        return getLayerNameOption(index, valueType);
+        // return getLayerNameOption(index, valueType);
+        return getLayerEventOption<0,BMC_MAX_LAYER_EVENTS>(display.midi.globals.store.layers[display.midi.globals.layer].events[dIndex], index, valueType);
       case BMC_DEVICE_ID_EVENT:
         return getEventsEditor(display.midi.globals.store.global.events[dIndex], index, valueType);
       case BMC_DEVICE_ID_NAME:
         return getNamesEditor(display.midi.globals.store.global.names[dIndex], index, valueType);
+      // case BMC_DEVICE_ID_LAYER_EVENT:
+        // return getLayerEventOption<0,BMC_MAX_LAYER_EVENTS>(display.midi.globals.store.layers[display.midi.globals.layer].events[dIndex], index, valueType);
       case BMC_DEVICE_ID_SKETCH_BYTE:
         #if BMC_MAX_SKETCH_BYTES > 0
           return getSketchByteOption<0, BMC_MAX_SKETCH_BYTES, uint8_t>(display.midi.globals.store.global.sketchBytes[0], dIndex, index, valueType);
@@ -325,12 +333,13 @@ public:
         break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
-          return getSingleEventDeviceOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].oled[dIndex], index, valueType);
+          // return getSingleEventDeviceOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].oled[dIndex], index, valueType);
+          return getDisplayOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].oled[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_ILI:
         #if BMC_MAX_ILI9341_BLOCKS > 0
-          return getIliOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].ili[dIndex], index, valueType);
+          return getDisplayOption<1,1>(display.midi.globals.store.layers[display.midi.globals.layer].ili[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
@@ -1182,6 +1191,7 @@ public:
     }
     return 0;
   }
+  /*
   uint16_t getLayerNameOption(uint16_t index, uint8_t valueType=0){
     //getNameField
     strcpy(str,"");
@@ -1194,6 +1204,41 @@ public:
     }
     return 0;
   }
+
+  uint16_t getPageNameField(uint8_t valueType=0){
+    switch(valueType){
+      case BMC_OBE_DEVICE_OPT_LABEL:
+        strcpy(str, "Name");
+        return 0;
+      case BMC_OBE_DEVICE_OPT_VALUE:
+      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+        {
+          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? display.midi.globals.store.layers[display.midi.globals.layer].events[0].name : data.rowEditValue;
+          if(value==0){
+            strcpy(str, "None");
+          } else {
+            sprintf(str, "Name # %u", (value-1)+offset);
+            char nameStr[40] = "";
+            editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
+            strcat(str, nameStr);
+          }
+          return value;
+        }
+        return 0;
+      case BMC_OBE_DEVICE_OPT_MIN: return 0;
+      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
+      case BMC_OBE_DEVICE_OPT_CHANGED:
+        if(display.midi.globals.store.layers[display.midi.globals.layer].name != data.rowEditValue){
+          display.midi.globals.store.layers[display.midi.globals.layer].name = data.rowEditValue;
+          return 1;
+        }
+        return 0;
+      default:
+        return 0;
+    }
+    return 0;
+  }
+  */
 #if BMC_MAX_SKETCH_BYTES > 0
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getSketchByteOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t dIndex, uint16_t index, uint8_t valueType=0){
@@ -1231,6 +1276,21 @@ public:
     return 0;
   }
 #endif
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getLayerEventOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      default:
+        break;
+    }
+    return 0;
+  }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   uint16_t getLedOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
@@ -1240,34 +1300,6 @@ public:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
         return getLedBlinkOption<sLen,eLen,tname>(item, "Mode", 0, valueType);
-        // switch(valueType){
-        //   case BMC_OBE_DEVICE_OPT_LABEL:
-        //     strcpy(str, "Mode");
-        //     return 0;
-        //   case BMC_OBE_DEVICE_OPT_VALUE:
-        //   case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        //     {
-        //       uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? item.settings[0] : data.rowEditValue;
-        //       if(value == 0){
-        //         strcpy(str, "Solid");
-        //       } else {
-        //         sprintf(str, "Blink %u ms", value*100);
-        //       }
-        //       return value;
-        //     }
-        //     break;
-        //   case BMC_OBE_DEVICE_OPT_MIN: return 0;
-        //   case BMC_OBE_DEVICE_OPT_MAX: return 1;
-        //   case BMC_OBE_DEVICE_OPT_CHANGED:
-        //     if(item.settings[0] != data.rowEditValue){
-        //       item.settings[0] = data.rowEditValue;
-        //       return 1;
-        //     }
-        //     return 0;
-        //   default:
-        //     return 0;
-        // }
-        // break;
       case 2:
         return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
         break;
@@ -1788,13 +1820,15 @@ public:
     return 0;
   }
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
-  uint16_t getIliOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+  uint16_t getDisplayOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
     switch(optionId){
       case 0:
         return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      case 2:
         switch(valueType){
           case BMC_OBE_DEVICE_OPT_LABEL:
             strcpy(str, "Show Label");
@@ -1819,7 +1853,7 @@ public:
             return 0;
         }
         break;
-      case 2:
+      case 3:
         switch(valueType){
           case BMC_OBE_DEVICE_OPT_LABEL:
             strcpy(str, "Add Border");
@@ -1844,8 +1878,56 @@ public:
             return 0;
         }
         break;
-      case 3:
-        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      case 4:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Selected");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 2) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 2) != data.rowEditValue){
+              bitWrite(item.settings[0], 2, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+      case 5:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Names");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 3) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 3) != data.rowEditValue){
+              bitWrite(item.settings[0], 3, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+        break;
       default:
         break;
     }
@@ -1974,39 +2056,6 @@ public:
       case BMC_OBE_DEVICE_OPT_CHANGED:
         if(item.name != data.rowEditValue){
           item.name = data.rowEditValue;
-          return 1;
-        }
-        return 0;
-      default:
-        return 0;
-    }
-    return 0;
-  }
-  uint16_t getPageNameField(uint8_t valueType=0){
-    switch(valueType){
-      case BMC_OBE_DEVICE_OPT_LABEL:
-        strcpy(str, "Name");
-        return 0;
-      case BMC_OBE_DEVICE_OPT_VALUE:
-      case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
-        {
-          uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? display.midi.globals.store.layers[display.midi.globals.layer].name : data.rowEditValue;
-          if(value==0){
-            strcpy(str, "None");
-          } else {
-            sprintf(str, "Name # %u", (value-1)+offset);
-            char nameStr[40] = "";
-            editor.getDeviceNameText(data.activeDevice.id, (value-1), nameStr);
-            strcat(str, nameStr);
-          }
-          return value;
-        }
-        return 0;
-      case BMC_OBE_DEVICE_OPT_MIN: return 0;
-      case BMC_OBE_DEVICE_OPT_MAX: return BMC_MAX_NAMES_LIBRARY-1;
-      case BMC_OBE_DEVICE_OPT_CHANGED:
-        if(display.midi.globals.store.layers[display.midi.globals.layer].name != data.rowEditValue){
-          display.midi.globals.store.layers[display.midi.globals.layer].name = data.rowEditValue;
           return 1;
         }
         return 0;

@@ -22,87 +22,149 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
   uint8_t byteB = BMC_GET_BYTE(1, event);
   uint8_t byteC = BMC_GET_BYTE(2, event);
   uint8_t byteD = BMC_GET_BYTE(3, event);
+
   BMCEventScrollData scroll(e.settings, value);
+
 #if defined(BMC_HAS_DISPLAY)
-  bool isOled = deviceId == BMC_DEVICE_ID_OLED;
+  bool isOled = (deviceId == BMC_DEVICE_ID_OLED);
+  uint8_t displaySettings = 0;
+  if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if BMC_MAX_OLED > 0
+    if(deviceId == BMC_DEVICE_ID_OLED){
+      displaySettings = store.layers[layer].oled[deviceIndex].settings[0];
+    }
+#endif
+#if BMC_MAX_ILI9341_BLOCKS > 0
+    if(deviceId == BMC_DEVICE_ID_ILI){
+      displaySettings = store.layers[layer].ili[deviceIndex].settings[0];
+    }
+#endif
+  }
 #endif
   switch(e.type){
     case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            uint8_t val = midi.scrollPC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), scroll.amount, scroll.direction, scroll.endless,0,127);
-            streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), val);
-          } else {
-            midi.sendProgramChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB);
-            streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB);
-          }
-        } else if(group==BMC_DEVICE_GROUP_ENCODER){
-          uint8_t val = midi.scrollPC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), scroll.amount, scroll.direction, scroll.endless,0,127);
-          streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), val);
-        } else if(group==BMC_DEVICE_GROUP_POT){
-          midi.sendProgramChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), value);
-          streamMidi(BMC_MIDI_PROGRAM_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), value);
+    {
+      uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+      uint8_t currentPC = midi.getLocalProgram(channel);
+      uint8_t min = 0;
+      uint8_t max = 127;
+      uint8_t outVal = byteB;
+      if(byteC > 0){
+        // scrolling max or toggle enabled
+        if(max > min){
+          min = byteB;
+          max = byteC;
         }
-      } else {
-        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
-        uint8_t pc = midi.getLocalProgram(channel);
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(pc, 0, 127, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return pc == (byteB & 0x7F);
+        if(!scroll.enabled){
+          outVal = currentPC != byteB ? byteB : byteC;
         }
-        return false;
       }
+      if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
+        // if scroll is enabled or if it's an encoder use scrolling by default
+        if(scroll.enabled || group==BMC_DEVICE_GROUP_ENCODER){
+          outVal = midi.scrollPC(e.ports, channel, scroll.amount, scroll.direction, scroll.endless, min, max);
+          streamMidi(BMC_MIDI_PROGRAM_CHANGE, channel, outVal);
+        } else {
+          midi.sendProgramChange(e.ports, channel, outVal);
+          streamMidi(BMC_MIDI_PROGRAM_CHANGE, channel, outVal);
+        }
+
+      } else if(group==BMC_DEVICE_GROUP_POT){
+        midi.sendProgramChange(e.ports, channel, value);
+        streamMidi(BMC_MIDI_PROGRAM_CHANGE, channel, value);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(currentPC, 0, 127, 0, 100);
+
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        if(bitRead(displaySettings, 2)){ // selected
+          display.renderProgramChangeValue(deviceIndex, isOled, e.type, channel, currentPC, false);
+        } else {
+          display.renderProgramChangeValue(deviceIndex, isOled, e.type, channel, byteB, false);
+        }
+#endif
+
+      } else {
+        return currentPC == (byteB & 0x7F);
+      }
+    }
       break;
     case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            uint8_t val = midi.scrollCC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, scroll.amount, scroll.direction, scroll.endless,0,127);
-            streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, val);
-          } else {
-            midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-            streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-          }
-        } else if(group==BMC_DEVICE_GROUP_ENCODER){
-          uint8_t val = midi.scrollCC(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, scroll.amount, scroll.direction, scroll.endless,0,127);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, val);
-        } else if(group==BMC_DEVICE_GROUP_POT){
-          midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+    {
+      uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
+      uint8_t currentCC = midi.getLocalControl(channel, byteB);
+      uint8_t min = 0;
+      uint8_t max = 127;
+      uint8_t outVal = byteC;
+      if(byteD > 0){
+        // scrolling max or toggle enabled
+        if(max > min){
+          min = byteC;
+          max = byteD;
         }
-      } else {
-        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
-        uint8_t cc = midi.getLocalControl(channel, byteB);
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(cc, 0, 127, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return cc == (byteC & 0x7F);
+        if(!scroll.enabled){
+          outVal = currentCC != byteC ? byteC : byteD;
         }
-        return false;
       }
+      if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
+        if(scroll.enabled || group==BMC_DEVICE_GROUP_ENCODER){
+          outVal = midi.scrollCC(e.ports, channel, byteB, scroll.amount, scroll.direction, scroll.endless, min, max);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, channel, byteB, outVal);
+        } else {
+          midi.sendControlChange(e.ports, channel, byteB, outVal);
+          streamMidi(BMC_MIDI_CONTROL_CHANGE, channel, byteB, outVal);
+        }
+
+      } else if(group==BMC_DEVICE_GROUP_POT){
+        midi.sendControlChange(e.ports, channel, byteB, value);
+        streamMidi(BMC_MIDI_CONTROL_CHANGE, channel, byteB, value);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(currentCC, 0, 127, 0, 100);
+
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        if(bitRead(displaySettings, 2)){ // selected
+          display.renderControlChangeValue(deviceIndex, isOled, e.type, channel, byteB, currentCC, false);
+        } else {
+          display.renderControlChangeValue(deviceIndex, isOled, e.type, channel, byteB, byteC, false);
+        }
+#endif
+
+      } else {
+        return currentCC == (byteC & 0x7F);
+      }
+    }
       break;
     case BMC_EVENT_TYPE_MIDI_NOTE_ON:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-        } else if(group==BMC_DEVICE_GROUP_POT){
-          midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
-        }
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+        streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+
+      } else if(group==BMC_DEVICE_GROUP_POT){
+        midi.sendNoteOn(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+        streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+      display.renderNoteValue(deviceIndex, isOled, e.type, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC, false);
+#endif
       }
       break;
     case BMC_EVENT_TYPE_MIDI_NOTE_OFF:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
-        } else if(group==BMC_DEVICE_GROUP_POT){
-          midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
-        }
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+        streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+
+      } else if(group==BMC_DEVICE_GROUP_POT){
+        midi.sendNoteOff(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+        streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, value);
+
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+      display.renderNoteValue(deviceIndex, isOled, e.type, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC, false);
+#endif
       }
       break;
     case BMC_EVENT_TYPE_MIDI_PITCH_BEND:
@@ -144,77 +206,100 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
             midi.setLocalPitch(channel, 0);
           }
         } 
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "PITCH");
+#endif
       }
       break;
     case BMC_EVENT_TYPE_MIDI_AFTER_TOUCH_POLY:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         midi.sendAfterTouchPoly(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
         streamMidi(BMC_MIDI_AFTER_TOUCH_POLY, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "A.T. POLY");
+#endif
       }
       return false;
     case BMC_EVENT_TYPE_MIDI_AFTER_TOUCH:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         midi.sendAfterTouch(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
         streamMidi(BMC_MIDI_AFTER_TOUCH, BMC_TO_MIDI_CHANNEL(byteA), byteB, byteC);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "A.T.");
+#endif
       }
       return false;
-    case BMC_EVENT_TYPE_MIDI_CONTROL_TOGGLE:
-      {
-        uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
-        uint8_t currentValue = midi.getLocalControl(channel, byteB);
-        if(byteC==byteD){
-          byteC = 0;
-          byteD = 127;
+    case BMC_EVENT_TYPE_PROGRAM_BANKING_SET:
+    {
+      uint8_t min = 0;
+      uint8_t max = 127;
+      uint8_t outVal = byteB;
+      if(byteC > 0){
+        // scrolling max or toggle enabled
+        if(max > min){
+          min = byteB;
+          max = byteC;
         }
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          currentValue = (currentValue == byteC) ? byteD : byteC;
-          midi.sendControlChange(e.ports, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
-          streamMidi(BMC_MIDI_CONTROL_CHANGE, BMC_TO_MIDI_CHANNEL(byteA), byteB, currentValue);
-        } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(currentValue, 0, 127, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          uint8_t c = byteC;
-          if(byteD > byteC){
-            c = byteD;
-          }
-          return currentValue == (c & 0x7F);
+        if(!scroll.enabled){
+          outVal = programBank != byteB ? byteB : byteC;
         }
       }
-      break;
-    case BMC_EVENT_TYPE_PROGRAM_BANKING_SCROLL:
       if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
-        midiProgramBankScroll(scroll.direction, scroll.endless, scroll.amount, byteB, byteC);
+        if(scroll.enabled || group==BMC_DEVICE_GROUP_ENCODER){
+          midiProgramBankScroll(scroll.direction, scroll.endless, scroll.amount, byteB, byteC);
+        } else {
+          programBank = outVal;
+        }
+
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        if(bitRead(displaySettings, 2)){ // selected
+          display.renderNumber(deviceIndex, isOled, e.type, programBank, "%03u", "PROGRAM");
+        } else {
+          display.renderNumber(deviceIndex, isOled, e.type, byteB, "%03u", "PROGRAM");
+        }
+#endif
+
       }
+    }
       break;
     case BMC_EVENT_TYPE_PROGRAM_BANKING_TRIGGER:
-      if(group==BMC_DEVICE_GROUP_BUTTON){
+      if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
         midiProgramBankTrigger(BMC_TO_MIDI_CHANNEL(byteA), e.ports);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "TRIGGER");
+#endif
+
       }
       break;
     case BMC_EVENT_TYPE_MIDI_REAL_TIME_BLOCK:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          if(byteA==0){
-            if(byteB >= 2){
-              midi.toggleRealTimeBlockInput();
-            } else {
-              midi.setRealTimeBlockInput(byteB==1);
-            }
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        if(byteA==0){
+          if(byteB >= 2){
+            midi.toggleRealTimeBlockInput();
           } else {
-            if(byteB>=2){
-              midi.toggleRealTimeBlockOutput();
-            } else {
-              midi.setRealTimeBlockOutput(byteB==1);
-            }
+            midi.setRealTimeBlockInput(byteB==1);
+          }
+        } else {
+          if(byteB>=2){
+            midi.toggleRealTimeBlockOutput();
+          } else {
+            midi.setRealTimeBlockOutput(byteB==1);
           }
         }
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "R.T. BLOCK");
+#endif
       } else {
-        if(group != BMC_DEVICE_GROUP_DISPLAY){
-          if(byteA==0){
-            return !midi.getRealTimeBlockInput();
-          }
-          return !midi.getRealTimeBlockOutput();
+        if(byteA==0){
+          return !midi.getRealTimeBlockInput();
         }
+        return !midi.getRealTimeBlockOutput();
       }
       break;
     case BMC_EVENT_TYPE_BANK_LSB_PROGRAM:
@@ -222,6 +307,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
         midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
         midi.sendProgramChange(e.ports, channel, byteC & 0x7F);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "LSB PGM");
+#endif
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_PROGRAM:
@@ -229,6 +318,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
         midi.sendControlChange(e.ports, channel, 32, byteB & 0x7F);
         midi.sendProgramChange(e.ports, channel, byteC & 0x7F);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "MSB PGM");
+#endif
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_LSB:
@@ -236,6 +329,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         uint8_t channel = BMC_TO_MIDI_CHANNEL(byteA);
         midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
         midi.sendControlChange(e.ports, channel, 32, byteC & 0x7F);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "MSB LSB");
+#endif
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_LSB_PROGRAM:
@@ -244,12 +341,20 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         midi.sendControlChange(e.ports, channel, 0, byteB & 0x7F);
         midi.sendControlChange(e.ports, channel, 32, byteC & 0x7F);
         midi.sendProgramChange(e.ports, channel, byteD & 0x7F);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "MSB LSB PGM");
+#endif
       }
       break;
     // SYSTEM
     case BMC_EVENT_TYPE_SYSTEM_ACTIVE_SENSE:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         midiActiveSense.command(byteA);
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "ACTIVE SENSE", "",midiActiveSense.active());
+#endif
       } else {
         return midiActiveSense.active();
       }
@@ -259,9 +364,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         midiClock.setBpm(BMC_GET_BYTE_2(0, event));
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        char str[4] = "";
-        sprintf(str, "%u", midiClock.getBpm());
-        display.renderText(deviceIndex, isOled, e.type, str, "BPM");
+        display.renderNumber(deviceIndex, isOled, e.type, midiClock.getBpm(), "%u", "BPM");
 #endif
       } else {
         return BMC_IGNORE_LED_EVENT;
@@ -270,18 +373,92 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
     case BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         midiClock.tap();
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "TAP");
+#endif
       } else {
         return BMC_IGNORE_LED_EVENT;
       }
       break;
     case BMC_EVENT_TYPE_SYSTEM_STATUS:
       if(group == BMC_DEVICE_GROUP_LED){
-        return handleStatusLedEvent(byteA);
+        // return handleStatusLedEvent(byteA);
+        switch(byteA){
+          case BMC_LED_STATUS_ALWAYS_ON:
+            return true;
+          case BMC_LED_STATUS_BMC:
+            return flags.read(BMC_FLAGS_STATUS_LED);
+          case BMC_LED_STATUS_EDITOR_CONNECTED:
+            return globals.editorConnected();
+          case BMC_LED_STATUS_HOST_CONNECTED:
+            return globals.hostConnected();
+          case BMC_LED_STATUS_BLE_CONNECTED:
+            return globals.bleConnected();
+          case BMC_LED_STATUS_ACTIVE_SENSE_SENDING:
+            return midiActiveSense.active();
+          case BMC_LED_STATUS_ACTIVE_SENSE_READING:
+            return midiActiveSense.reading();
+          case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_INPUT:
+            return !midi.getRealTimeBlockInput();
+          case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_OUTPUT:
+            return !midi.getRealTimeBlockOutput();
+          case BMC_LED_STATUS_STOPWATCH_ACTIVE:
+            return (stopwatch.getState() == 1);
+          case BMC_LED_STATUS_STOPWATCH_STATE:
+            return (stopwatch.getState() > 0);
+          case BMC_LED_STATUS_STOPWATCH_COMPLETE:
+            return (stopwatch.getState() == 2);
+        }
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        switch(byteA){
+          case BMC_LED_STATUS_ALWAYS_ON:
+          case BMC_LED_STATUS_BMC:
+            display.renderText(deviceIndex, isOled, e.type, "BMC");
+            return 1;
+          case BMC_LED_STATUS_EDITOR_CONNECTED:
+            display.renderText(deviceIndex, isOled, e.type, "EDITOR","STATUS",globals.editorConnected());
+            return 1;
+          case BMC_LED_STATUS_HOST_CONNECTED:
+            display.renderText(deviceIndex, isOled, e.type, "HOST","STATUS",globals.hostConnected());
+            return 1;
+          case BMC_LED_STATUS_BLE_CONNECTED:
+            display.renderText(deviceIndex, isOled, e.type, "BLE","STATUS",globals.bleConnected());
+            return 1;
+          case BMC_LED_STATUS_ACTIVE_SENSE_SENDING:
+            display.renderText(deviceIndex, isOled, e.type, "A.S. SEND","STATUS", midiActiveSense.active());
+            return 1;
+          case BMC_LED_STATUS_ACTIVE_SENSE_READING:
+            display.renderText(deviceIndex, isOled, e.type, "A.S. READ","STATUS", midiActiveSense.reading());
+            return 1;
+          case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_INPUT:
+            display.renderText(deviceIndex, isOled, e.type, "R.T. IN","STATUS", midi.getRealTimeBlockInput());
+            return 1;
+          case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_OUTPUT:
+            display.renderText(deviceIndex, isOled, e.type, "R.T. OUT","STATUS", midi.getRealTimeBlockOutput());
+            return 1;
+          case BMC_LED_STATUS_STOPWATCH_ACTIVE:
+          case BMC_LED_STATUS_STOPWATCH_STATE:
+          case BMC_LED_STATUS_STOPWATCH_COMPLETE:
+          {
+            char str[6] = "";
+            sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
+            display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
+          }
+            return 1;
+        }
+#endif
       }
       break;
     case BMC_EVENT_TYPE_SYSTEM_MIDI_ACTIVITY:
       if(group == BMC_DEVICE_GROUP_LED){
         return globals.hasMidiActivity(byteA) ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "MIDI IO");
+#endif
+
       }
       break;
     case BMC_EVENT_TYPE_SYSTEM_SAVE_EEPROM:
@@ -290,17 +467,49 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         if(callback.storeUpdated){
           callback.storeUpdated();
         }
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        display.renderText(deviceIndex, isOled, e.type, "SAVE EEPROM");
+#endif
+
       }
       break;
 #if defined(BMC_USE_ON_BOARD_EDITOR)
     case BMC_EVENT_TYPE_SYSTEM_MENU:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          obe.menuCommand(byteA);
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
-          uint8_t menCmd = scroll.direction ? BMC_MENU_NEXT : BMC_MENU_PREV;
-          obe.menuCommand(menCmd, true);
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        obe.menuCommand(byteA);
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        uint8_t menCmd = scroll.direction ? BMC_MENU_NEXT : BMC_MENU_PREV;
+        obe.menuCommand(menCmd, true);
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        switch(byteA){
+          case BMC_MENU_TOGGLE:
+            display.renderText(deviceIndex, isOled, e.type, "TOGGLE");
+            return 1;
+          case BMC_MENU_SELECT:
+            display.renderText(deviceIndex, isOled, e.type, "SELECT");
+            return 1;
+          case BMC_MENU_BACK:
+            display.renderText(deviceIndex, isOled, e.type, "BACK");
+            return 1;
+          case BMC_MENU_PREV:
+            display.renderText(deviceIndex, isOled, e.type, "PREV");
+            return 1;
+          case BMC_MENU_NEXT:
+            display.renderText(deviceIndex, isOled, e.type, "NEXT");
+            return 1;
+          case BMC_MENU_SHIFT:
+            display.renderText(deviceIndex, isOled, e.type, "SHIFT");
+            return 1;
+          case BMC_MENU_CANCEL:
+            display.renderText(deviceIndex, isOled, e.type, "CANCEL");
+            return 1;
+          case BMC_MENU_SAVE:
+            display.renderText(deviceIndex, isOled, e.type, "SAVE");
+            return 1;
         }
+#endif
       }
       break;
 #endif
@@ -308,48 +517,104 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       if(group == BMC_DEVICE_GROUP_BUTTON){
         uint8_t cmd = valueTyper.cmd(byteA, byteB);
         if(cmd > 10){// cmd 10 is Clear
-          if(cmd==12){// layer
-            setLayer(valueTyper.getRawOutput());
-          } else if(cmd==13){// preset
+          // HANDLED BY TYPER CLASS
+          // 10 is clear
+          // 11 is cursor left
+          // 12 is cursor right
+          // 13 is decrease
+          // 14 is increase
+          // 15 is custom callback
+
+          // HANDLED HERE
+          // 16 is layer
+          // 17 is preset
+          // 18 is fas preset
+          // 19 is fas scene
+          // 20 is fas scene revert
+
+          switch(cmd){
+            case 16:
+              setLayer(valueTyper.getRawOutput());
+              break;
 #if BMC_MAX_PRESETS > 0
-            presets.set(valueTyper.getRawOutput());
+            case 17:
+              presets.set(valueTyper.getRawOutput());
+              break;
 #endif
-          } else if(cmd==14){// fas preset
 #if defined(BMC_USE_FAS)
-            sync.fas.setPreset(valueTyper.getRawOutput());
+            case 18:
+              sync.fas.setPreset(valueTyper.getRawOutput());
+              break;
+            case 19:
+              sync.fas.setSceneNumber(valueTyper.getRawOutput(), false);
+              break;
+            case 20:
+              sync.fas.setSceneNumber(valueTyper.getRawOutput(), true);
+              break;
 #endif
-          } else if(cmd==15){// fas scene
-#if defined(BMC_USE_FAS)
-            sync.fas.setSceneNumber(valueTyper.getRawOutput(), false);
-#endif
-          } else if(cmd==16){// fas scene revert
-#if defined(BMC_USE_FAS)
-            sync.fas.setSceneNumber(valueTyper.getRawOutput(), true);
-#endif
-          } else if(cmd==17){// set typer channel for midi modes
-              // channel
-            uint8_t ch = valueTyper.getRawOutput();
-            if(ch>=0 && ch<=15){
-              typerChannel = ch+1;
-            }
-          } else if(cmd==18){
-            // program
-            uint8_t pc = valueTyper.getRawOutput();
-            midi.sendProgramChange(e.ports, typerChannel, pc);
-            streamMidiProgram(typerChannel, pc);
-          } else if(cmd==19){
-            // control 0 value
-            uint8_t val = valueTyper.getRawOutput();
-            midi.sendControlChange(e.ports, typerChannel, 0, val);
-            streamMidiControl(typerChannel, 0, val);
-          } else if(cmd==20){
-            // control toggle
-            uint8_t cc = valueTyper.getRawOutput();
-            uint8_t val = midi.toggleCC(e.ports, typerChannel, cc);
-            midi.sendControlChange(e.ports, typerChannel, cc, val);
-            streamMidiControl(typerChannel, cc, val);
+            case 21:
+              {
+                // program
+                uint8_t pc = valueTyper.getOutput();
+                if(pc <= 127){
+                  uint8_t channel = settings.getTyperChannel();
+                  channel = BMC_TO_MIDI_CHANNEL(channel);
+                  midi.sendProgramChange(e.ports, channel, pc);
+                  streamMidiProgram(channel, pc);
+                }
+              }
+              break;
+            case 22:
+              {
+                // control toggle
+                uint8_t cc = valueTyper.getOutput();
+                if(cc <= 127){
+                  uint8_t channel = settings.getTyperChannel();
+                  channel = BMC_TO_MIDI_CHANNEL(channel);
+                  uint8_t val = midi.toggleCC(e.ports, channel, cc);
+                  midi.sendControlChange(e.ports, channel, cc, val);
+                  streamMidiControl(channel, cc, val);
+                }
+              }
+              break;
           }
         }
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        char str[16] = "";
+        uint8_t cmd = byteA;
+        if(bitRead(displaySettings, 3)){ // Name
+          if(cmd < 10){
+            sprintf(str, "%u", cmd);
+          } else {
+            switch(cmd){
+              case 10: strcpy(str, "CLEAR"); break;
+              case 11: strcpy(str, "<"); break;
+              case 12: strcpy(str, ">"); break;
+              case 13: strcpy(str, "DEC"); break;
+              case 14: strcpy(str, "INC"); break;
+              case 15: strcpy(str, "CUSTOM"); break;
+              case 16: strcpy(str, "LAYER"); break;
+  #if BMC_MAX_PRESETS > 0
+              case 17: strcpy(str, "PRESET"); break;
+  #endif
+  #if defined(BMC_USE_FAS)
+              case 18: strcpy(str, "FAS PRESET"); break;
+
+              case 19:
+              case 20: strcpy(str, "FAS SCENE"); break;
+  #endif
+              case 21: strcpy(str, "PROGRAM"); break;
+              case 22: strcpy(str, "CONTROL"); break;
+            }
+          }
+        } else {
+          sprintf(str, "%03u", valueTyper.getOutput());
+          display.setSelChar(deviceIndex, isOled, valueTyper.getSelChar());
+        }
+        display.renderText(deviceIndex, isOled, e.type, str, "TYPER");
+        
+#endif
       }
       break;
 #ifdef BMC_MIDI_BLE_ENABLED
@@ -357,28 +622,30 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         midi.disconnectBLE();
       } else {
-        if(group != BMC_DEVICE_GROUP_DISPLAY){
+        if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+          display.renderText(deviceIndex, isOled, e.type, "BLE","STATUS",globals.bleConnected());
+#endif
+        } else {
           return globals.bleConnected();
         }
       }
       break;
 #endif
     case BMC_EVENT_TYPE_SYSTEM_STOPWATCH:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          stopwatchCmd(byteA, byteB, byteC, byteD);
-        }
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        stopwatchCmd(byteA, byteB, byteC, byteD);
+
+      } else if(group != BMC_DEVICE_GROUP_DISPLAY){
+        return (stopwatch.getState() == 1);
+
       } else {
-        if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (stopwatch.getState() == 1);
-        } else {
 #if defined(BMC_HAS_DISPLAY)
-          char str[6] = "";
-          sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
-          display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
+        char str[6] = "";
+        sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
+        display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
 #endif
         }
-      }
       break;
     case BMC_EVENT_TYPE_SYSTEM_LFO:
       if(group == BMC_DEVICE_GROUP_BUTTON && byteA < BMC_MAX_LFO){
@@ -394,127 +661,85 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
     // SKETCH BYTES
     case BMC_EVENT_TYPE_SKETCH_BYTE:
 #if BMC_MAX_SKETCH_BYTES > 0
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group==BMC_DEVICE_GROUP_BUTTON){
-          byteA = constrain(byteA, 0, BMC_MAX_SKETCH_BYTES);
-          BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
-          uint8_t tmp = getSketchByte(byteA);
-          if(scroll.enabled){
-            BMCScroller <uint8_t> scroller(data.min, data.max);
-            tmp = scroller.scroll(data.step, scroll.direction, scroll.endless, tmp, data.min, data.max);
-          } else {
-            tmp = constrain(byteB, data.min, data.max);
-          }
-          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
-          setSketchByte(byteA, tmp);
-          if(callback.storeUpdated){
-            callback.storeUpdated();
-          }
-        } else if(group==BMC_DEVICE_GROUP_ENCODER){
-          byteA = constrain(byteA, 0, BMC_MAX_SKETCH_BYTES);
-          BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
-          uint8_t tmp = getSketchByte(byteA);
+      if(byteA >= BMC_MAX_SKETCH_BYTES){
+        return 0;
+      }
+      if(group==BMC_DEVICE_GROUP_BUTTON){
+        BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
+        uint8_t tmp = getSketchByte(byteA);
+        if(scroll.enabled){
           BMCScroller <uint8_t> scroller(data.min, data.max);
           tmp = scroller.scroll(data.step, scroll.direction, scroll.endless, tmp, data.min, data.max);
-          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
-          setSketchByte(byteA, tmp);
-          if(callback.storeUpdated){
-            callback.storeUpdated();
-          }
+        } else {
+          tmp = constrain(byteB, data.min, data.max);
         }
-      } else {
-        return false;
+        streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
+        setSketchByte(byteA, tmp);
+        if(callback.storeUpdated){
+          callback.storeUpdated();
+        }
+      } else if(group==BMC_DEVICE_GROUP_ENCODER){
+        BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
+        uint8_t tmp = getSketchByte(byteA);
+        BMCScroller <uint8_t> scroller(data.min, data.max);
+        tmp = scroller.scroll(data.step, scroll.direction, scroll.endless, tmp, data.min, data.max);
+        streamToSketch(BMC_DEVICE_ID_SKETCH_BYTE, tmp, data.name);
+        setSketchByte(byteA, tmp);
+        if(callback.storeUpdated){
+          callback.storeUpdated();
+        }
+      } else if(group==BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        char str[26] = "";
+        BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
+        BMCTools::getSketchByteFormat(str, byteA, getSketchByte(byteA));
+        // getSketchByteFormat(char* str, uint8_t n, uint8_t value)
+        display.renderText(deviceIndex, isOled, e.type, str, data.name);
+#endif
       }
 #endif
       break;
 
     // LAYERS
     case BMC_EVENT_TYPE_LAYER:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            scrollLayer(scroll.direction, scroll.endless, scroll.amount);
-          } else {
-            setLayer(byteA);
-          }
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
           scrollLayer(scroll.direction, scroll.endless, scroll.amount);
-        }
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (event & 0x3FFF) == layer;
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          #if BMC_MAX_LAYERS < 10
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%01u", "LAYER");
-          #elif BMC_MAX_LAYERS < 100
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%02u", "LAYER");
-          #else
-            display.renderNumber(deviceIndex, isOled, e.type, (uint16_t)((event & 0x3FFF)+globals.offset), "%03u", "LAYER");
-          #endif
-          return false;
-#endif
+          setLayer(byteA);
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_LAYER_NAME:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        return false;
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (event & 0x3FFF) == layer;
-        } else {
-#if defined(BMC_HAS_DISPLAY)
-          uint16_t pageN = (event & 0x3FFF);
-          if(pageN < BMC_MAX_LAYERS){
-            bmcStoreName t = globals.getDeviceName(store.layers[pageN].name);
-            display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
-          }
-          return false;
-#endif
-        }
-      }
-      break;
-    case BMC_EVENT_TYPE_LAYER_SELECTED:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return false;
-        } else {
-#if defined(BMC_HAS_DISPLAY)
-          #if BMC_MAX_LAYERS < 10
-            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%01u", "LAYER");
-          #elif BMC_MAX_LAYERS < 100
-            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%02u", "LAYER");
-          #else
-            display.renderNumber(deviceIndex, isOled, e.type, layer+globals.offset, "%02u", "LAYER");
-          #endif
-          return false;
-#endif
-        }
-      }
-      break;
-    case BMC_EVENT_TYPE_LAYER_SELECTED_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        if(layer < BMC_MAX_LAYERS){
-          bmcStoreName t = globals.getDeviceName(store.layers[layer].name);
-          display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
-        }
-        return false;
-#endif
-      }
-      break;
 
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        scrollLayer(scroll.direction, scroll.endless, scroll.amount);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(layer, 0, BMC_MAX_LAYERS-1, 0, 100);
+
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+        
+#if defined(BMC_HAS_DISPLAY)
+        uint16_t selLayer = (event & 0x3FFF);
+        bool highlight = layer==(event & 0x3FFF);
+        if(bitRead(displaySettings, 2)){ // selected
+          selLayer = layer;
+          highlight = false;
+        }
+        if(selLayer < BMC_MAX_LAYERS){
+          if(bitRead(displaySettings, 3)){ // name
+            bmcStoreName t = globals.getDeviceName(store.layers[selLayer].events[0].name);
+            if(BMC_STR_MATCH(t.name, "")){
+              sprintf(t.name, "L %u", selLayer+globals.offset);
+            }
+            display.renderText(deviceIndex, isOled, e.type, t.name, "LAYER");
+          } else {
+            display.renderNumber(deviceIndex, isOled, e.type, selLayer+globals.offset, "%u", "LAYER", highlight);
+          }
+        }
+#endif        
+      } else {
+        return (event & 0x3FFF) == layer;
+      }
+      break;
     // PRESETS
 #if BMC_MAX_PRESETS > 0
     case BMC_EVENT_TYPE_PRESET:
@@ -524,89 +749,52 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
         } else {
           presets.setPreset(byteA);
         }
+
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
         presets.scrollPreset(scroll.direction, scroll.endless, scroll.amount);
+
       } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
         return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_LED){
+
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+
+#if defined(BMC_HAS_DISPLAY)
+        if(byteA < BMC_MAX_PRESETS){
+          bmcStoreName t;
+          if(bitRead(displaySettings, 3)){ // name
+            t = (bitRead(displaySettings, 2)) ? presets.getName() : presets.getName(byteA);
+          } else {
+            t = (bitRead(displaySettings, 2)) ? presets.getPresetStr() : presets.getPresetStr(byteA);
+          }
+          display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
+        }
+#endif
+      } else {
         return byteA == presets.get();
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = presets.getPresetStr(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
-#endif
-      }
-      break;
-
-    case BMC_EVENT_TYPE_PRESET_SELECTED:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = presets.getPresetStr();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_PRESET_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = presets.getName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
-
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_PRESET_SELECTED_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(presets.get(), 0, BMC_MAX_PRESETS_PER_BANK-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = presets.getName();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PRESET");
-#endif
       }
       break;
     case BMC_EVENT_TYPE_BANK:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            presets.scrollBank(scroll.direction, scroll.endless, scroll.amount);
-          } else {
-            presets.setBank(byteA);
-          }
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
           presets.scrollBank(scroll.direction, scroll.endless, scroll.amount);
-        }
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(presets.getBank(), 0, BMC_MAX_PRESET_BANKS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return byteA == presets.getBank();
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          bmcStoreName t = presets.getBankStr();
-          display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
-#endif
+          presets.setBank(byteA);
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_BANK_SELECTED:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        //
+
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        presets.scrollBank(scroll.direction, scroll.endless, scroll.amount);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(presets.getBank(), 0, BMC_MAX_PRESET_BANKS-1, 0, 100);
+        
+      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+        bmcStoreName t = (bitRead(displaySettings, 2)) ? presets.getBankStr() : presets.getBankStr(byteA);
+        display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
+#endif
       } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(presets.getBank(), 0, BMC_MAX_PRESET_BANKS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return false;
-        } else {
-#if defined(BMC_HAS_DISPLAY)
-          bmcStoreName t = presets.getBankStr(byteA);
-          display.renderText(deviceIndex, isOled, e.type, t.name, "BANK");
-#endif
-        }
+        return byteA == presets.getBank();
+
       }
       break;
 #endif
@@ -614,113 +802,66 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #if BMC_MAX_SETLISTS > 0
     // SETLISTS
     case BMC_EVENT_TYPE_SETLIST:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            setLists.scrollSet(scroll.direction, scroll.endless, scroll.amount);
-          } else {
-            setLists.set(byteA);
-          }
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
           setLists.scrollSet(scroll.direction, scroll.endless, scroll.amount);
-        }
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (byteA == setLists.get());
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "SET");
-#endif
+          setLists.set(byteA);
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_SETLIST_SELECTED:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
+
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        setLists.scrollSet(scroll.direction, scroll.endless, scroll.amount);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
+        
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.get()+globals.offset, "%02u", "SET");
+        if(byteA < BMC_MAX_SETLISTS){
+          bmcStoreName t;
+          if(bitRead(displaySettings, 3)){ // display name
+            t = (bitRead(displaySettings, 2)) ? setLists.getSetName() : setLists.getSetName(byteA);
+          } else { // display number
+            t = (bitRead(displaySettings, 2)) ? setLists.getSetStr() : setLists.getSetStr(byteA);
+          }
+          display.renderText(deviceIndex, isOled, e.type, t.name, "SET");
+        }
 #endif
-      }
-      break;
-    case BMC_EVENT_TYPE_SETLIST_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getSetName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name, "SET");
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_SETLIST_SELECTED_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.get(), 0, BMC_MAX_SETLISTS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getSetName();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "SET");
-#endif
+      } else {
+        return (byteA == setLists.get());
       }
       break;
     case BMC_EVENT_TYPE_SONG:
-      if(ioType==BMC_EVENT_IO_TYPE_INPUT){
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          if(scroll.enabled){
-            setLists.scrollSong(scroll.direction, scroll.endless, scroll.amount);
-          } else {
-            setLists.setSong(byteA);
-          }
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+      if(group == BMC_DEVICE_GROUP_BUTTON){
+        if(scroll.enabled){
           setLists.scrollSong(scroll.direction, scroll.endless, scroll.amount);
-        }
-      } else {
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (byteA == setLists.getSong());
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "SONG");
-#endif
+          setLists.setSong(byteA);
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_SONG_SELECTED:
-        if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
-        } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.getSong()+globals.offset, "%02u", "SONG");
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_SONG_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
+
+      } else if(group == BMC_DEVICE_GROUP_ENCODER){
+        setLists.scrollSong(scroll.direction, scroll.endless, scroll.amount);
+
+      } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
+        return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
+        
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getSongName(byteA);
-        display.renderText(deviceIndex, isOled, e.type, t.name, "SONG");
+        if(byteA < BMC_MAX_SETLISTS_SONGS){
+          bmcStoreName t;
+          if(bitRead(displaySettings, 3)){ // display name
+            t = (bitRead(displaySettings, 2)) ? setLists.getSongName() : setLists.getSongName(byteA);
+          } else { // display number
+            t = (bitRead(displaySettings, 2)) ? setLists.getSongStr() : setLists.getSongStr(byteA);
+          }
+          display.renderText(deviceIndex, isOled, e.type, t.name, "SONG");
+        }
 #endif
+      } else {
+        return (byteA == setLists.getSong());
+
       }
       break;
-
-
-    case BMC_EVENT_TYPE_SONG_SELECTED_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.getSong(), 0, BMC_MAX_SETLISTS_SONGS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getSongName();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "SONG");
-#endif
-      }
-      break;
-
-
     case BMC_EVENT_TYPE_PART:
       if(ioType==BMC_EVENT_IO_TYPE_INPUT){
         if(group == BMC_DEVICE_GROUP_BUTTON){
@@ -735,42 +876,22 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
       } else {
         if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
           return map(setLists.getPart(), 0, BMC_MAX_SETLISTS_SONG_PARTS-1, 0, 100);
-        } else if(group != BMC_DEVICE_GROUP_DISPLAY){
-          return (byteA == setLists.getPart());
+
+        } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+          if(byteA < BMC_MAX_SETLISTS_SONG_PARTS){
+            bmcStoreName t;
+            if(bitRead(displaySettings, 3)){ // display name
+              t = (bitRead(displaySettings, 2)) ? setLists.getPartName() : setLists.getPartName(byteA);
+            } else { // display number
+              t = (bitRead(displaySettings, 2)) ? setLists.getPartStr() : setLists.getPartStr(byteA);
+            }
+            display.renderText(deviceIndex, isOled, e.type, t.name, "PART");
+          }
+#endif
         } else {
-#if defined(BMC_HAS_DISPLAY)
-          display.renderNumber(deviceIndex, isOled, e.type, byteA+globals.offset, "%02u", "PART");
-#endif
+          return (byteA == setLists.getPart());
         }
-      }
-      break;
-    case BMC_EVENT_TYPE_PART_SELECTED:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(setLists.getPart(), 0, BMC_MAX_SETLISTS_SONG_PARTS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        display.renderNumber(deviceIndex, isOled, e.type, setLists.getPart()+globals.offset, "%02u", "PART");
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_PART_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-          return map(setLists.getPart(), 0, BMC_MAX_SETLISTS_SONG_PARTS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getPartName();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PART");
-#endif
-      }
-      break;
-    case BMC_EVENT_TYPE_PART_SELECTED_NAME:
-      if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
-        return map(setLists.getPart(), 0, BMC_MAX_SETLISTS_SONG_PARTS-1, 0, 100);
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        bmcStoreName t = setLists.getPartName();
-        display.renderText(deviceIndex, isOled, e.type, t.name, "PART");
-#endif
       }
       break;
 #endif
@@ -869,8 +990,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           #endif
         } else if(byteA == 2){
           display.updateDawChannelInfo(byteB);
-          // bmcStoreName t = sync.daw.getLcdTrackName(byteB);
-          // display.renderText(deviceIndex, isOled, e.type, t.name);
         } else if(byteA == 3){
           char str[3] = "";
           sync.daw.getTwoDigitDisplay(str);
@@ -908,7 +1027,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
 #endif
 #ifdef BMC_USE_FAS
     case BMC_EVENT_TYPE_FAS:
-    
       if(group == BMC_DEVICE_GROUP_LED){
         switch(byteA){
           case BMC_FAS_CMD_CONNECTION:   return sync.fas.connected();
@@ -922,20 +1040,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           case BMC_FAS_CMD_TUNER_SHARP:   return sync.fas.tunerSharp();
           case BMC_FAS_CMD_TUNER_SHARPER:   return sync.fas.tunerSharper();
           case BMC_FAS_CMD_TUNER_SHARPEST:   return sync.fas.tunerSharpest();
-          // scenes without revert
-          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
-          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
-          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
-          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
-            return sync.fas.getSceneNumber()==(byteA-BMC_FAS_CMD_SCENE_1);
-          // scenes with revert
-          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
-          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
-          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
-          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
-            return sync.fas.getSceneNumber()==(byteA-BMC_FAS_CMD_SCENE_REVERT_1);
-          case BMC_FAS_CMD_SCENE_CURRENT:
-            return 0;
           case BMC_FAS_CMD_LOOPER_PLAY:  return sync.fas.looperPlaying();
           case BMC_FAS_CMD_LOOPER_REC:  return sync.fas.looperRecording();
           case BMC_FAS_CMD_LOOPER_DUB:  return sync.fas.looperDubbing();
@@ -963,22 +1067,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           case BMC_FAS_CMD_TUNER_SHARPER:
           case BMC_FAS_CMD_TUNER_SHARPEST:
             sync.fas.toggleTuner();
-            break;
-          // scenes without revert
-          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
-          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
-          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
-          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
-            sync.fas.sceneScroll(scroll.direction, scroll.endless, false, 0, 7);
-            break;
-          // scenes with revert
-          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
-          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
-          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
-          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
-            sync.fas.sceneScroll(scroll.direction, scroll.endless, true, 0, 7);
-            break;
-          case BMC_FAS_CMD_SCENE_CURRENT:
             break;
           case BMC_FAS_CMD_LOOPER_PLAY:break;
           case BMC_FAS_CMD_LOOPER_REC:break;
@@ -1013,22 +1101,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           case BMC_FAS_CMD_TUNER_SHARPEST:
             sync.fas.toggleTuner();
             break;
-          // scenes without revert
-          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
-          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
-          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
-          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
-            sync.fas.setSceneNumber(byteA-BMC_FAS_CMD_SCENE_1, false);
-            break;
-          // scenes with revert
-          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
-          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
-          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
-          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
-            sync.fas.setSceneNumber(byteA-BMC_FAS_CMD_SCENE_REVERT_1, true);
-            break;
-          case BMC_FAS_CMD_SCENE_CURRENT:
-            break;
           case BMC_FAS_CMD_LOOPER_PLAY:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_PLAY); break;
           case BMC_FAS_CMD_LOOPER_REC:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_RECORD); break;
           case BMC_FAS_CMD_LOOPER_DUB:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_OVERDUB); break;
@@ -1054,37 +1126,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           case BMC_FAS_CMD_TUNER_SHARPER:
           case BMC_FAS_CMD_TUNER_SHARPEST:
             display.updateFasTuner();
-            break;
-          // scenes without revert
-          case BMC_FAS_CMD_SCENE_1: case BMC_FAS_CMD_SCENE_2:
-          case BMC_FAS_CMD_SCENE_3: case BMC_FAS_CMD_SCENE_4:
-          case BMC_FAS_CMD_SCENE_5: case BMC_FAS_CMD_SCENE_6:
-          case BMC_FAS_CMD_SCENE_7: case BMC_FAS_CMD_SCENE_8:
-            {
-              char str[8] = "";
-              bool sel = sync.fas.getSceneNumber() == (byteA-BMC_FAS_CMD_SCENE_REVERT_1);
-              sprintf(str, "S %u", (byteA-BMC_FAS_CMD_SCENE_1)+globals.offset);
-              display.renderText(deviceIndex, isOled, e.type, str, "SCENE", sel);
-            }
-            break;
-          // scenes with revert
-          case BMC_FAS_CMD_SCENE_REVERT_1: case BMC_FAS_CMD_SCENE_REVERT_2:
-          case BMC_FAS_CMD_SCENE_REVERT_3: case BMC_FAS_CMD_SCENE_REVERT_4:
-          case BMC_FAS_CMD_SCENE_REVERT_5: case BMC_FAS_CMD_SCENE_REVERT_6:
-          case BMC_FAS_CMD_SCENE_REVERT_7: case BMC_FAS_CMD_SCENE_REVERT_8:
-            {
-              char str[8] = "";
-              bool sel = sync.fas.getSceneNumber() == (byteA-BMC_FAS_CMD_SCENE_REVERT_1);
-              sprintf(str, "S %u", (byteA-BMC_FAS_CMD_SCENE_REVERT_1)+globals.offset);
-              display.renderText(deviceIndex, isOled, e.type, str, "SCENE", sel);
-            }
-            break;
-          case BMC_FAS_CMD_SCENE_CURRENT:
-            {
-              char str[8] = "";
-              sprintf(str, "S %u", sync.fas.getSceneNumber()+globals.offset);
-              display.renderText(deviceIndex, isOled, e.type, str);
-            }
             break;
           case BMC_FAS_CMD_LOOPER_PLAY:
             display.renderText(deviceIndex, isOled, e.type, "PLAY","LOOPER",sync.fas.looperPlaying());
@@ -1117,59 +1158,67 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
           if(sync.fas.getSceneNumber() != byteA){
             sync.fas.setSceneNumber(byteA, bitRead(event, 16));
           } else {
-            sync.fas.setSceneNumber(byteB, bitRead(event, 16));
+            sync.fas.setSceneNumber(byteB-1, bitRead(event, 16));
           }
         } else {
           sync.fas.setSceneNumber(byteA, bitRead(event, 16));
         }
-      } else if(group == BMC_DEVICE_GROUP_LED){
-        return sync.fas.getSceneNumber() == byteA;
+
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
         sync.fas.sceneScroll(scroll.direction, scroll.endless, bitRead(event, 16), 0, 7);
+
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
         char str[8] = "";
-        bool highlight = false;
+        bool highlight = sync.fas.getSceneNumber() == byteA;
         // display the selected scene number
-        if(bitRead(event, 17)){
+        if(bitRead(displaySettings, 2)){ // selected
+          highlight = true;
           sprintf(str, "S %u", (sync.fas.getSceneNumber()+globals.offset));
         } else {
-          highlight = sync.fas.getSceneNumber() == byteA;
+          
           sprintf(str, "S %u", (byteA+globals.offset));
         }
         display.renderText(deviceIndex, isOled, e.type, str, "SCENE", highlight);
+      } else {
+        return sync.fas.getSceneNumber() == byteA;
       }
+#endif
       break;
     case BMC_EVENT_TYPE_FAS_PRESET:
       if(group==BMC_DEVICE_GROUP_BUTTON){
         sync.fas.setPreset(event & 0x3FF);
-      } else if(group == BMC_DEVICE_GROUP_LED){
-        return sync.fas.getPresetNumber()==(event & 0x3FF);
+        
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
         sync.fas.presetScroll(scroll.direction, scroll.endless, 0, sync.fas.getMaxPresets());
+
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
         char str[32] = "";
-        bool highlight = false;
-        if(bitRead(event, 16)){
-          sync.fas.getPresetName(str);
+        uint16_t p1 = BMC_GET_BYTE_2(0, event) & 0x3FF;
+        uint16_t p2 = BMC_GET_BYTE_2(2, event) & 0x3FF;
+        bool highlight = sync.fas.getPresetNumber() == p1;
+        if(p2 > 0){
+          // if p2 is more than 0 we are in toggle mode
+          highlight = false;
+          uint16_t current = sync.fas.getPresetNumber();
+          sprintf(str, "P %u", ((current != p1) ? p1 : (p2-1))+globals.offset);
         } else {
-          highlight = sync.fas.getPresetNumber() == (event & 0x3FF);
-          sprintf(str, "P %u", (uint16_t)((event & 0x3FF) + globals.offset));
+          if(bitRead(displaySettings, 2)){ // selected
+            highlight = true;
+            if(bitRead(displaySettings, 3)){ // name
+              sync.fas.getPresetName(str);
+            } else {
+              sprintf(str, "P %u", sync.fas.getPresetNumber() + globals.offset);
+            }
+          } else {
+            sprintf(str, "P %u", (uint16_t)(p1 + globals.offset));
+          }
         }
         display.renderText(deviceIndex, isOled, e.type, str, "PRESET", highlight);
-      }
-      break;
-    case BMC_EVENT_TYPE_FAS_PRESET_TOGGLE:
-      {
-        uint16_t current = sync.fas.getPresetNumber();
-        uint16_t a = event & 0x3FF;
-        uint16_t b = (event>>16) & 0x3FF;
-        if(group==BMC_DEVICE_GROUP_BUTTON || group == BMC_DEVICE_GROUP_ENCODER){
-          sync.fas.setPreset((current != a) ? a : b);
-        } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-          char str[11] = "";
-          sprintf(str, "P %u", ((current != a) ? a : b)+globals.offset);
-          display.renderText(deviceIndex, isOled, e.type, str, "PRESET");
-        }
+#endif
+      } else {
+        return sync.fas.getPresetNumber()==(event & 0x3FF);
       }
       break;
     case BMC_EVENT_TYPE_FAS_BLOCK:

@@ -524,7 +524,7 @@ public:
     bmcStoreName e;
     if(n<BMC_MAX_LAYERS){
       //strcpy(t_string, store.layers[n].name);
-      return globals.getDeviceName(store.layers[n].name);
+      return globals.getDeviceName(store.layers[n].events[0].name);
     }
     return e;
   }

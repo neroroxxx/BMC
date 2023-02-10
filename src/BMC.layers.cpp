@@ -12,9 +12,9 @@ void BMC::setLayer(uint8_t t_layer, bool reassignSettings, bool forced){
   if(t_layer >= BMC_MAX_LAYERS && !forced){
     return;
   }
-  if(layer!=t_layer && !forced){
+  if(layer != t_layer && !forced){
     flags.write(BMC_FLAGS_LAYER_CHANGED, true);
-    bmcStoreName e = globals.getDeviceName(store.layers[layer].name);
+    bmcStoreName e = globals.getDeviceName(store.layers[layer].events[0].name);
     streamToSketch(BMC_DEVICE_ID_LAYER, t_layer, e.name);
   }
   layer = t_layer;

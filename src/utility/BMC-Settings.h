@@ -63,6 +63,7 @@
         bits 00-03  Buttons Threshold
         bits 04-04  Trigger first song
         bits 05-05  Trigger first song part
+        bits 06-09  Typer Channel
 
       [3]: *Reserved for future updates*
       [4]: *Reserved for future updates*
@@ -407,6 +408,12 @@ public:
   }
   void setSetListTriggerFirstSongPart(uint8_t value){
     bitWrite(settings.data[2], value, 5);
+  }
+  uint8_t getTyperChannel(){
+    return (settings.data[2]>>6) & 0x0F;
+  }
+  void setTyperChannel(uint8_t value){
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 6); //0-3
   }
   // tft touch calibration
   float getTouchTftCalibration(uint8_t n){

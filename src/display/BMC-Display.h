@@ -175,12 +175,21 @@ public:
     char line1[33] = "";
     char line2[33] = "";
     sprintf(line1, "Layer %u", midi.globals.layer+midi.globals.offset);
-    bmcName_t n = midi.globals.store.layers[midi.globals.layer].name;
+    bmcName_t n = midi.globals.store.layers[midi.globals.layer].events[0].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
       strcpy(line2, midi.globals.store.global.names[n-1].name);
     }
     renderTempBanner(line1, line2);
   }
+  void renderStoreClearedBanner(){
+    if(!allowBanner()){
+      return;
+    }
+    char line1[33] = "BMC";
+    char line2[33] = "EEPROM ERASED";
+    renderTempBanner(line1, line2);
+  }
+  
   void renderPresetBanner(){
     if(!allowBanner()){
       return;
@@ -427,7 +436,7 @@ public:
           case BMC_FAS_CMD_TUNER_SHARPER:
           case BMC_FAS_CMD_TUNER_SHARPEST:
             // only works with blocks of 80 pixels height and 128+ wide blocks
-            if(blockW >= 120){
+            if(block[i].getWidth() >= 120){
               initFasTuner(false, i);
             }
             break;
@@ -846,17 +855,6 @@ public:
 #endif
 
 
-
-
-
-
-
-
-
-
-
-
-
 #if defined(BMC_USE_FAS)
   // available to both oled and ili displays
   void initFasTuner(bool isOled, uint8_t n){
@@ -910,7 +908,7 @@ public:
       renderFasTunerIli(fasTuner.index, false);
     #endif
   }
-  #if BMC_MAX_OLED > 0
+#if BMC_MAX_OLED > 0
   void renderFasTunerOled(uint8_t index, bool reset=false){
     bool show = false;
     BMCTunerData currentTuner;
@@ -918,7 +916,6 @@ public:
     // set where y will be, for 128x32 display start at 0.
     // for 128x64 start at 16
     uint16_t y = BMC_OLED_HEIGHT==32 ? 0 : 16;
-    
 
     #if BMC_MAX_OLED > 1
       selectMux(index);
@@ -931,11 +928,6 @@ public:
       if(!fasTuner.active){
         // Display the word Tuner
         renderText(index, true, BMC_EVENT_TYPE_FAS, "Tuner");
-        // oled[index].display.setTextSize(2);
-        // oled[index].display.setTextColor(BMC_OLED_WHITE);
-        // oled[index].display.setCursor(20, y+16);
-        // oled[index].display.print(currentTuner.noteName);
-        // oled[index].display.display();
         return;
       } else {
         // clear the word "tuner" from the currently displayed buffer
@@ -948,7 +940,6 @@ public:
       return;
     }
     if(currentTuner.pitchRaw != tunerData.pitchRaw || reset){
-      // BMC_PRINTLN(">>>>>>>>> tuner display index", index);
       uint8_t pitch = map(tunerData.pitchRaw, 0, 127, 8, 120);
       uint8_t pitch2 = map(currentTuner.pitchRaw, 0, 127, 8, 120);
       if(currentTuner.pitchRaw <= 64){
@@ -967,7 +958,6 @@ public:
       oled[index].display.drawRect(0, y+16, 128, 16, BMC_OLED_WHITE);
       show = true;
     }
-
     if(currentTuner.note != tunerData.note || reset){
       oled[index].display.fillRect(0, y, 24, 16, BMC_OLED_BLACK);
       oled[index].display.setTextSize(2);
@@ -976,7 +966,6 @@ public:
       oled[index].display.print(currentTuner.noteName);
       show = true;
     }
-
     if(currentTuner.stringNumber != tunerData.stringNumber || reset){
       oled[index].display.fillRect(116, y, 12, 16, BMC_OLED_BLACK);
       oled[index].display.setTextSize(2);
@@ -985,37 +974,97 @@ public:
       oled[index].display.print(currentTuner.stringNumber+midi.globals.offset);
       show = true;
     }
-
-    
-
     tunerData = currentTuner;
     if(show){
       oled[index].display.display();
     }
   }
-  #endif
-  #if BMC_MAX_ILI9341_BLOCKS > 0
-  void renderFasTunerIli(uint8_t n, bool reset=false){
+#endif
+#if BMC_MAX_ILI9341_BLOCKS > 0
+  void renderFasTunerIli(uint8_t index, bool reset=false){
     if(!allowRendering()){
       return;
     }
-    
+    BMCTunerData currentTuner;
+    sync.fas.getTunerData(currentTuner);
+    // set where y will be, for 128x32 display start at 0.
+    // for 128x64 start at 16
+    uint16_t x = block[index].getX();
+    uint16_t y = block[index].getY();
+    uint16_t w = block[index].getWidth();
+    uint16_t h = block[index].getHeight();
+
+    uint16_t y1 = y + (h == 40 ? 4 : 14);
+    uint16_t y2 = y + (h == 40 ? 24 : 46);
+    uint16_t triW = (h == 40 ? 14 : 20);
+    uint16_t triH = (h == 40 ? 12 : 18);
+    uint16_t triSpace = 8;
+    uint16_t half = (w / 2);
+
+    if(fasTuner.active != sync.fas.isTunerActive()){
+      fasTuner.active = sync.fas.isTunerActive();
+      tunerData.reset();
+      tft.display.fillRect(x, y, w, h, BMC_ILI9341_BLACK);
+      if(!fasTuner.active){
+        // Display the word Tuner
+        renderText(index, false, BMC_EVENT_TYPE_FAS, "Tuner");
+        return;
+      } else {
+        // clear the word "tuner" from the currently displayed buffer
+        renderText(index, false, BMC_EVENT_TYPE_FAS, "");
+        reset = true;
+      }
+    }
+    if(!fasTuner.active){
+      renderText(index, false, BMC_EVENT_TYPE_FAS, "Tuner");
+      return;
+    }
+    if(currentTuner.pitchRaw != tunerData.pitchRaw || reset){
+      uint16_t pitch = map(tunerData.pitchRaw, 0, 127, 12, w-12);
+      uint16_t pitch2 = map(currentTuner.pitchRaw, 0, 127, 12, w-12);
+      if(currentTuner.pitchRaw <= 64){
+        tft.display.fillTriangle(x+(half-(triW+triSpace)), y1, x+(half-(triW+triSpace)), y1+triH, x+(half-triSpace), y1+(triH/2), BMC_ILI9341_RED);
+      } else {
+        tft.display.fillTriangle(x+(half-(triW+triSpace)), y1, x+(half-(triW+triSpace)), y1+triH, x+(half-triSpace), y1+(triH/2), BMC_ILI9341_BLACK);
+      }
+      if(currentTuner.pitchRaw >= 62){
+        tft.display.fillTriangle(x+(half+(triW+triSpace)), y1, x+(half+(triW+triSpace)), y1+triH, x+(half+triSpace), y1+(triH/2), BMC_ILI9341_RED);
+      } else {
+        tft.display.fillTriangle(x+(half+(triW+triSpace)), y1, x+(half+(triW+triSpace)), y1+triH, x+(half+triSpace), y1+(triH/2), BMC_ILI9341_BLACK);
+      }
+      tft.display.fillCircle(x+pitch, y2+8, 6, BMC_ILI9341_BLACK);
+      tft.display.fillCircle(x+pitch2, y2+8, 6, BMC_ILI9341_GREEN);
+      tft.display.drawFastVLine(x+half, 0, h, BMC_ILI9341_WHITE);
+      tft.display.drawRect(x+2, y2, w-4, 16, BMC_ILI9341_WHITE);
+    }
+    if(currentTuner.note != tunerData.note || reset){
+      tft.display.setFont(BMCLiberationSansNarrow_16);
+      tft.display.fillRect(x+2, y1, 34, 16, BMC_ILI9341_BLACK);
+
+      tft.display.setCursor(x+4, y1);
+      tft.display.setTextColor(BMC_ILI9341_BLACK);
+      tft.display.print(tunerData.noteName);
+
+      tft.display.setCursor(x+4, y1);
+      tft.display.setTextColor(BMC_ILI9341_WHITE);
+      tft.display.print(currentTuner.noteName);
+    }
+    if(currentTuner.stringNumber != tunerData.stringNumber || reset){
+      tft.display.setFont(BMCLiberationSansNarrow_16);
+      tft.display.fillRect(x+(w-18), y1, 18, 16, BMC_ILI9341_BLACK);
+
+      tft.display.setCursor(x+(w-16), y1);
+      tft.display.setTextColor(BMC_ILI9341_BLACK);
+      tft.display.print(tunerData.stringNumber+midi.globals.offset);
+
+      tft.display.setCursor(x+(w-16), y1);
+      tft.display.setTextColor(BMC_ILI9341_WHITE);
+      tft.display.print(currentTuner.stringNumber+midi.globals.offset);
+    }
+    tunerData = currentTuner;
   }
 #endif
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-  
 
   void clearAll(){
     clearOleds();
@@ -1027,8 +1076,8 @@ public:
   #if BMC_MAX_OLED > 1
       selectMux(i);
   #endif
-      oled[i].display.clearDisplay();
-      oled[i].display.display();
+      uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[i].settings[0];
+      oled[i].reassign(settings);
     }
 #endif
   }
@@ -1039,7 +1088,7 @@ public:
     }
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
       uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[i].settings[0];
-      block[i].clear(tft.display, settings);
+      block[i].reassign(tft.display, settings);
     }
 #endif
   }
@@ -1153,7 +1202,24 @@ void renderText(uint8_t n, bool isOled, uint8_t type, const char* str, const cha
   strncpy(c, str, len);
   renderText(n, isOled, type, c, label, highlight);
 }
+void setSelChar(uint8_t n, bool isOled, uint8_t selChar){
+  #if BMC_MAX_OLED > 0
+    if(isOled){
+      if(selChar != oled[n].getSelChar()){
+        last[n] = 0;
+        oled[n].setSelChar(selChar);
+      }
+      return;
+    }
+  #endif 
 
+
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!isOled){
+      block[n].setSelChar(selChar);
+    }
+  #endif
+}
 void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* label="", bool highlight=false){
 #if BMC_MAX_OLED > 1
   if(isOled){
@@ -1169,7 +1235,8 @@ void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* l
     if(isOled){
       if(last[n] != crc){
         last[n] = crc;
-        oled[n].print(str, 0, 0, highlight);
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
+        oled[n].print(str, settings, highlight);
       }
       return;
     }
@@ -1183,8 +1250,99 @@ void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* l
       }
     }
   #endif
-
 }
+
+void renderProgramChangeValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t pc, bool highlight=false){
+#if BMC_MAX_OLED > 1
+  if(isOled){
+    selectMux(n);
+  }
+#endif
+
+  char str[12] = "";
+  sprintf(str, "PC%u/%u", ch, pc);
+  uint8_t crc = checkLast(type, str)+highlight;
+  #if BMC_MAX_OLED > 0
+    if(isOled){
+      if(last[n] != crc){
+        last[n] = crc;
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
+        oled[n].printPC(ch, pc, settings, highlight);
+      }
+      return;
+    }
+  #endif
+  
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!isOled){
+      if(allowRendering()){
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
+        block[n].printPC(tft.display, crc, ch, pc, settings, highlight);
+      }
+    }
+  #endif
+}
+void renderControlChangeValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t cc, uint8_t vv, bool highlight=false){
+#if BMC_MAX_OLED > 1
+  if(isOled){
+    selectMux(n);
+  }
+#endif
+
+  char str[16] = "";
+  sprintf(str, "CC%u/%u/%u", ch, cc, vv);
+  uint8_t crc = checkLast(type, str)+highlight;
+  #if BMC_MAX_OLED > 0
+    if(isOled){
+      if(last[n] != crc){
+        last[n] = crc;
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
+        oled[n].printCC(ch, cc, vv, settings, highlight);
+      }
+      return;
+    }
+  #endif 
+
+
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!isOled){
+      if(allowRendering()){
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
+        block[n].printCC(tft.display, crc, ch, cc, vv, settings, highlight);
+      }
+    }
+  #endif
+}
+void renderNoteValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t nn, uint8_t vv, bool highlight=false){
+#if BMC_MAX_OLED > 1
+  if(isOled){
+    selectMux(n);
+  }
+#endif
+  char str[16] = "";
+  sprintf(str, "NN%u/%u/%u", ch, nn, vv);
+  uint8_t crc = checkLast(type, str)+highlight;
+#if BMC_MAX_OLED > 0
+    if(isOled){
+      if(last[n] != crc){
+        last[n] = crc;
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
+        oled[n].printNote(ch, nn, vv, settings, highlight);
+      }
+      return;
+    }
+#endif
+#if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!isOled){
+      if(allowRendering()){
+        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
+        block[n].printNote(tft.display, crc, ch, nn, vv, settings, highlight);
+      }
+    }
+#endif
+}
+
+
 
 
 

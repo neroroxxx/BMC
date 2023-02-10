@@ -38,6 +38,7 @@
 #define BMC_EDITOR_FLAG_BACKUP_COMPLETE             	 15
 #define BMC_EDITOR_FLAG_BACKUP_CANCELED             	 16
 #define BMC_EDITOR_FLAG_SEND_STATES                 	 17
+#define BMC_EDITOR_FLAG_EEPROM_ERASED                  18
 
 
 class BMCEditor {
@@ -57,8 +58,9 @@ public:
   void reloadPreviouslySavedStore(){
     getStore();
   }
-
-
+  bool wasStoreCleared(){
+    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EEPROM_ERASED);
+  }
   void triggerStates(){
     flags.on(BMC_EDITOR_FLAG_SEND_STATES);
   }
@@ -504,7 +506,8 @@ public:
     switch(deviceType){
       case BMC_DEVICE_ID_LAYER:
         if(index < BMC_MAX_LAYERS){
-          getDeviceNameFromIndex(store.layers[index].name, str);
+          // getDeviceNameFromIndex(store.layers[index].name, str);
+          getDeviceNameFromIndex(store.layers[midi.globals.layer].events[0].name, str);
         }
         break;
       case BMC_DEVICE_ID_EVENT:
@@ -771,7 +774,7 @@ public:
     }
   }
   const BMCDeviceData devicesData[40] = {
-    {BMC_DEVICE_ID_LAYER, "Layer Name", -1, BMC_MAX_LAYERS, false, false, 0, 0},
+    {BMC_DEVICE_ID_LAYER, "Layer", -1, 1, false, false, 0, BMC_MAX_LAYER_EVENTS},
     {BMC_DEVICE_ID_EVENT, "Event", -1, BMC_MAX_EVENTS_LIBRARY, true, false, 0, 0},
     {BMC_DEVICE_ID_NAME, "Name", -1, BMC_MAX_NAMES_LIBRARY, true, false, 0, 0},
     #if BMC_MAX_BUTTONS > 0
@@ -915,7 +918,7 @@ public:
     #endif
 
     {BMC_DEVICE_ID_PORT_PRESET, "Port Preset", -1, 16, true, false, 0, 1},
-    {BMC_DEVICE_ID_SHORTCUTS, "Shortcuts", -1, 1, true, false, 0, 6},
+    {BMC_DEVICE_ID_SHORTCUTS, "Shortcuts", -1, 1, true, false, 0, 6}
   };
   uint8_t devicesDataLength = 5;
 
@@ -1586,6 +1589,7 @@ private:
       BMC_WARN_FOOT;
       // clear the current store in RAM by setting all bytes to 0
       memset(&store,0,sizeof(bmcStore));
+      flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
       // add the CRC
       store.crc = (BMC_CRC); // update the CRC
       store.version = (BMC_VERSION); // update the library version

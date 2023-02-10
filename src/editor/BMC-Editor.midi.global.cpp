@@ -217,18 +217,22 @@ void BMCEditor::incomingMessageDevice(bool write){
     }
     switch(deviceType){
       case BMC_DEVICE_ID_LAYER:
-        // write new data and save, starts at byte 13
-        if(!backupActive()){
-          store.layers[index].name = incoming.get14Bits(13);
-          saveLayersAndReloadData(layer);
-        } else {
-          if(index<BMC_MAX_LAYERS){
-            uint16_t e = incoming.get14Bits(13);
-            if(e > BMC_MAX_NAMES_LIBRARY){
-              e = 0;
-            }
-            store.layers[index].name = e;
-          }
+      //   // write new data and save, starts at byte 13
+      //   if(!backupActive()){
+      //     store.layers[index].name = incoming.get14Bits(13);
+      //     saveLayersAndReloadData(layer);
+      //   } else {
+      //     if(index<BMC_MAX_LAYERS){
+      //       uint16_t e = incoming.get14Bits(13);
+      //       if(e > BMC_MAX_NAMES_LIBRARY){
+      //         e = 0;
+      //       }
+      //       store.layers[index].name = e;
+      //     }
+      //   }
+      //   break;
+        for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+          incomingMessageDeviceWrite<0,BMC_MAX_LAYER_EVENTS>(store.layers[p].events[index], index, p);
         }
         break;
       case BMC_DEVICE_ID_BUTTON:
@@ -571,9 +575,11 @@ void BMCEditor::incomingMessageDevice(bool write){
   buff.appendToSysEx14Bits(maxDevices);
   switch(deviceType){
     case BMC_DEVICE_ID_LAYER:
-      //BMC_PRINTLN("BMC_DEVICE_ID_LAYER");
       // layer names only include the name
-      buff.appendToSysEx14Bits(store.layers[index].name);
+      // buff.appendToSysEx14Bits(store.layers[index].name);
+      // break;
+      deviceResponseData <0, BMC_MAX_LAYER_EVENTS>
+      (store.layers[layer].events[index], buff, index, deviceType);
       break;
     case BMC_DEVICE_ID_BUTTON:
       #if BMC_MAX_BUTTONS > 0
@@ -1124,6 +1130,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_PIXEL_STRIP);
     buff.appendToSysEx7Bits(BMC_MAX_MAGIC_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_MAGIC_ENCODERS);
+    buff.appendToSysEx7Bits(BMC_MAX_LAYER_EVENTS);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_DEVICE_NAME){
     String name = BMC_DEVICE_NAME;

@@ -792,8 +792,8 @@ private:
   BMCOBEData data;
   BMCOBEDevices devicesEditor;
   BMCFlags <uint8_t> flags;
-  const uint16_t totalMenuItems = 36;
-  const BMCOBEMenuItem items[36] = {
+  const uint16_t totalMenuItems = 37;
+  const BMCOBEMenuItem items[37] = {
     {{0}, BMC_OBE_ID_GO_TO, "Go To", BMC_OBE_MENU_LIST},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_LAYER, "Layer", BMC_OBE_EDIT_LIST, 0, BMC_MAX_LAYERS-1, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_BANK, "Bank", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESET_BANKS-1):0, 1},
@@ -804,6 +804,7 @@ private:
     {{0}, BMC_OBE_ID_SETTINGS, "Settings", BMC_OBE_MENU_LIST},
       {{1,1}, BMC_OBE_ID_SETTINGS_GENERAL, "General", BMC_OBE_MENU_LIST},
         {{2,1,0}, BMC_OBE_ID_S_BTN_HOLD_TIME, "Button Hold Time", BMC_OBE_EDIT_LIST, 0, 15, 1},
+        {{2,1,0}, BMC_OBE_ID_S_TYPER_CHANNEL, "Typer Channel", BMC_OBE_EDIT_LIST, 0, 15, 1},
         {{2,1,0}, BMC_OBE_ID_S_DISPLAY_OFFSET, "Display Offset to 0", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_S_DISPLAY_BANNERS, "Display Banner", BMC_OBE_EDIT_LIST, 0, 3, 1},
         {{2,1,0}, BMC_OBE_ID_S_PREPEND_PRESET, "Prepend Preset", BMC_OBE_EDIT_LIST, 0, 1, 1},
@@ -858,6 +859,14 @@ private:
           display.midi.globals.settings.setButtonHoldThreshold(value);
         }
         sprintf(str, "%u ms", (value+2)*250);
+        return value;
+      case BMC_OBE_ID_S_TYPER_CHANNEL:
+        originalValue = display.midi.globals.settings.getTyperChannel();
+        value = (!active) ? originalValue : value;
+        if(setValue && setChangesMade(originalValue, value)){
+          display.midi.globals.settings.setTyperChannel(value);
+        }
+        sprintf(str, "%u", value+1);
         return value;
       case BMC_OBE_ID_S_DISPLAY_OFFSET:
         originalValue = display.midi.globals.settings.getDisplayOffset();
