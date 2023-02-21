@@ -41,27 +41,29 @@ void BMC::readAuxJacks(){
       }
     }
   }
-  for(uint8_t i = 0; i < BMC_MAX_AUX_JACKS; i++){
-    bmcStoreDevice <2, 3>& device = store.global.auxJacks[i];
-    auxJacks[i].update();
-    globals.auxJackStates.setBit(i, auxJacks[i].isConnected());
-    uint8_t cmd = auxJacks[i].read();
+  for(uint8_t index = 0; index < BMC_MAX_AUX_JACKS; index++){
+    bmcStoreDevice <2, 3>& device = store.global.auxJacks[index];
+    auxJacks[index].update();
+    globals.auxJackStates.setBit(index, auxJacks[index].isConnected());
+    uint8_t cmd = auxJacks[index].read();
     if(cmd==0){
       continue;
     }
-    if(cmd == 1){ //pot
-      uint8_t value = auxJacks[i].getPotValue();
-      processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
-    } else {
-      if(cmd == 2){
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, i, BMC_EVENT_IO_TYPE_INPUT, device.events[1]);
-      } else if(cmd == 3){
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, i, BMC_EVENT_IO_TYPE_INPUT, device.events[2]);
-      }
-    }
-    /*
 
-    */
+    if(cmd == 1){ // pot
+      processEvent(BMC_DEVICE_GROUP_POT,
+                    BMC_DEVICE_ID_POT,
+                    index,
+                    device.events[0],
+                    auxJacks[index].getPotValue()
+                  );
+    } else if(cmd <= 3){ // buttons
+      processEvent(BMC_DEVICE_GROUP_BUTTON,
+                    BMC_DEVICE_ID_BUTTON,
+                    index,
+                    device.events[cmd-1]
+                  );
+    }
   }
   if(globals.auxJackStates.hasChanged() || editor.isTriggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_AUX_JACK);

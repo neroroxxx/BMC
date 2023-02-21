@@ -15,7 +15,11 @@
     for(uint8_t index = 0, n=tempoToTap.available(); index < n; index++){
       if(tempoToTap.isReady(index)){
         bmcStoreDevice <1, 1>& device = store.global.tempoToTap[index];
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_TEMPO_TO_TAP, index, BMC_EVENT_IO_TYPE_INPUT, device.events[0]);
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
+                      BMC_DEVICE_ID_TEMPO_TO_TAP,
+                      index,
+                      device.events[0]
+                    );
       }
     }
   }

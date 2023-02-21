@@ -91,12 +91,20 @@ public:
     }
     resetTempEventData();
   }
-
-
+  uint16_t constrainValue(uint16_t value, uint16_t t_min, uint16_t t_max){
+    if(value < t_min){
+      return t_min;
+    }
+    if(value > t_max){
+      return t_max;
+    }
+    return value;
+  }
   uint16_t setNextFieldValue(uint8_t fieldN){
     uint16_t min = getData(5, fieldN, 1);
     uint16_t max = getData(5, fieldN, 2);
     tempValue = getData(5, fieldN, 3);
+    tempValue = constrainValue(tempValue, min, max);
     if(!hasCustomScrollFieldValue(true, fieldN)){
       if(tempValue < max){
         tempValue++;
@@ -111,6 +119,7 @@ public:
     uint16_t min = getData(5, fieldN, 1);
     uint16_t max = getData(5, fieldN, 2);
     tempValue = getData(5, fieldN, 3);
+    tempValue = constrainValue(tempValue, min, max);
     if(!hasCustomScrollFieldValue(false, fieldN)){
       if(tempValue > min){
         tempValue--;
@@ -210,13 +219,27 @@ private:
     return 0;
   }
   uint16_t eventGetScrollEnableField(char* str, uint8_t request){
-    return eventGetFieldYesNo(str, "Scroll Enable", request, 0);
+    return eventGetSettingsFieldYesNo(str, "Scroll Enable", request, 0);
   }
   uint16_t eventGetScrollDirectionField(char* str, uint8_t request){
-    return eventGetFieldYesNo(str, "Scroll Up", request, 1);
+    // return eventGetSettingsFieldYesNo(str, "Scroll Up", request, 1);
+    uint8_t value = bitRead(tempEvent.settings, 1);
+    switch(request){
+      case 0: strcpy(str, "Scroll Direction"); return 1; /* label */
+      case 1: return 0; /* min */
+      case 2: return 1; /* max */
+      case 3: return value; /* get stored value */
+      case 4: /* set stored value */
+        bitWrite(tempEvent.settings, 1, tempValue);
+        return 1;
+      case 5: /* formatted value */
+        strcpy(str, (value == 0) ? "Down" : "Up");
+        return 1;
+    }
+    return 0;
   }
-  uint16_t eventGetScrollLimitField(char* str, uint8_t request){
-    return eventGetFieldYesNo(str, "Scroll Endlessly", request, 2);
+  uint16_t eventGetScrollWrapField(char* str, uint8_t request){
+    return eventGetSettingsFieldYesNo(str, "Scroll Wrap", request, 2);
   }
   uint16_t eventGetDawChannelField(char* str, uint8_t request){
     uint8_t value = BMC_GET_BYTE(1, tempEvent.event);
@@ -294,7 +317,7 @@ private:
     }
     return 0;
   }
-  uint16_t eventGetFieldYesNo(char* str, const char* str2, uint8_t request, uint8_t bitPos){
+  uint16_t eventGetSettingsFieldYesNo(char* str, const char* str2, uint8_t request, uint8_t bitPos){
     uint8_t value = bitRead(tempEvent.settings, bitPos);
     switch(request){
       case 0: strcpy(str, str2); return 1; /* label */
@@ -303,6 +326,22 @@ private:
       case 3: return value; /* get stored value */
       case 4: /* set stored value */
         bitWrite(tempEvent.settings, bitPos, tempValue);
+        return 1;
+      case 5: /* formatted value */
+        strcpy(str, (value == 0) ? "No" : "Yes");
+        return 1;
+    }
+    return 0;
+  }
+  uint16_t eventGetFieldYesNo(char* str, const char* str2, uint8_t request, uint8_t bitPos){
+    uint8_t value = bitRead(tempEvent.event, bitPos);
+    switch(request){
+      case 0: strcpy(str, str2); return 1; /* label */
+      case 1: return 0; /* min */
+      case 2: return 1; /* max */
+      case 3: return value; /* get stored value */
+      case 4: /* set stored value */
+        bitWrite(tempEvent.event, bitPos, tempValue);
         return 1;
       case 5: /* formatted value */
         strcpy(str, (value == 0) ? "No" : "Yes");
@@ -671,12 +710,12 @@ private:
         else if(request==1){ /* fields */ return 1; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "FAS Command/Status"); return 1;}
+        else if(request==4){ /* name */ strcpy(str, "FAS Cmd/Status"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeFasCommand(str, fieldRequest, field);}
         break;
       case BMC_EVENT_TYPE_FAS_SCENE:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 3; }
+        else if(request==1){ /* fields */ return 6; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "FAS Scene"); return 1;}
@@ -684,7 +723,7 @@ private:
         break;
       case BMC_EVENT_TYPE_FAS_PRESET:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 2; }
+        else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "FAS Preset"); return 1;}
@@ -697,6 +736,36 @@ private:
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "FAS Block"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeFasBlock(str, fieldRequest, field);}
+        break;
+#endif
+
+#if defined(BMC_USE_HELIX)
+      case BMC_EVENT_TYPE_HELIX:
+        if(request==0){ /* available */ return true; }
+        else if(request==1){ /* fields */ return 6; }
+        else if(request==2){ /* scroll */ return true; }
+        else if(request==3){ /* ports */ return false; }
+        else if(request==4){ /* name */ strcpy(str, "Helix Cmd/Status"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeHelixCommand(str, fieldRequest, field);}
+        break;
+#endif
+
+#if defined(BMC_USE_BEATBUDDY)
+      case BMC_EVENT_TYPE_BEATBUDDY:
+        if(request==0){ /* available */ return true; }
+        else if(request==1){ /* fields */ return 5; }
+        else if(request==2){ /* scroll */ return true; }
+        else if(request==3){ /* ports */ return false; }
+        else if(request==4){ /* name */ strcpy(str, "Beatbuddy Cmd/Status"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeBeatbuddyCommand(str, fieldRequest, field);}
+        break;
+      case BMC_EVENT_TYPE_BEATBUDDY_BPM:
+        if(request==0){ /* available */ return true; }
+        else if(request==1){ /* fields */ return 4; }
+        else if(request==2){ /* scroll */ return true; }
+        else if(request==3){ /* ports */ return false; }
+        else if(request==4){ /* name */ strcpy(str, "Beatbuddy BPM"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeBeatbuddyBpm(str, fieldRequest, field);}
         break;
 #endif
 
@@ -777,7 +846,7 @@ private:
       case 5:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 6:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
       case 7:
         return eventGetPortsField(str, fieldRequest, field);
     }
@@ -817,7 +886,7 @@ private:
       case 6:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 7:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
       case 8:
         return eventGetPortsField(str, fieldRequest, field);
     }
@@ -913,7 +982,7 @@ private:
       case 4:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 5:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1373,7 +1442,7 @@ private:
       case 4:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 5:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1388,7 +1457,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1412,7 +1481,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1436,7 +1505,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1451,7 +1520,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
       case 5:
         return eventGetPortsField(str, fieldRequest, field);
     }
@@ -1486,7 +1555,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
       case 5:
         return eventGetPortsField(str, fieldRequest, field);
     }
@@ -1512,7 +1581,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
       case 5:
         return eventGetPortsField(str, fieldRequest, field);
     }
@@ -1735,7 +1804,7 @@ private:
         return eventNameField(str, fieldRequest, field);
       case 1:
         switch(fieldRequest){
-          case 0: strcpy(str, "Command/Status"); return 1; /* label */
+          case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
           case 2: return 99; /* max */
           case 3: /* get stored value */
@@ -1890,7 +1959,7 @@ private:
         return eventNameField(str, fieldRequest, field);
       case 1:
         switch(fieldRequest){
-          case 0: strcpy(str, "Command/Status"); return 1; /* label */
+          case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
           case 2: return BMC_FAS_CMD_TAP; /* max */
           case 3: /* get stored value */
@@ -1937,12 +2006,12 @@ private:
           case 1: return 0; /* min */
           case 2: return 8; /* max */
           case 3: /* get stored value */
-            return BMC_GET_BYTE(0, tempEvent.event);
+            return BMC_GET_BYTE(1, tempEvent.event);
           case 4: /* set stored value */
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
             return 1;
           case 5: /* formatted value */
-            switch(BMC_GET_BYTE(0, tempEvent.event)){
+            switch(BMC_GET_BYTE(1, tempEvent.event)){
               case 0:
                 strcpy(str, "OFF");
                 return 1;
@@ -1950,13 +2019,19 @@ private:
               case 3: case 4:
               case 5: case 6:
               case 7: case 8:
-                sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(0, tempEvent.event)-1)+offset));
+                sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
                 return 1;
             }
             return 0;
         }
       case 3:
         return eventGetFieldYesNo(str, "Revert", fieldRequest, 16);
+      case 4:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 5:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 6:
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -1983,32 +2058,27 @@ private:
               if(value == 0){
                 strcpy(str, "OFF");
               } else {
-                sprintf(str, "%u", value+offset);
+                sprintf(str, "%u", (value-1)+offset);
               }
               return 1;
           }
         }
+      case 3:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 4:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 5:
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  // uint16_t eventBmcEventTypeFasPresetToggle(char* str, uint8_t fieldRequest, uint8_t field){
-  //   switch(field){
-  //     case 0:
-  //       return eventNameField(str, fieldRequest, field);
-  //     case 1:
-  //       return eventGetField16BitValueRange(str, "Preset A", fieldRequest, 0, 0, 767, true);
-  //     case 2:
-  //       return eventGetField16BitValueRange(str, "Preset B", fieldRequest, 1, 0, 767, true);
-  //   }
-  //   return 0;
-  // }
   uint16_t eventBmcEventTypeFasBlock(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
         switch(fieldRequest){
-          case 0: strcpy(str, "Command/Status"); return 1; /* label */
+          case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
           case 2: return 5; /* max */
           case 3: /* get stored value */
@@ -2045,82 +2115,263 @@ private:
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
             return 1;
           case 5: /* formatted value */
-            switch(BMC_GET_BYTE(1, tempEvent.event)){
-              case 100: strcpy(str, "CPR"); return 1;
-              case 101: strcpy(str, "CPR"); return 1;
-              case 102: strcpy(str, "GEQ"); return 1;
-              case 103: strcpy(str, "GEQ"); return 1;
-              case 104: strcpy(str, "PEQ"); return 1;
-              case 105: strcpy(str, "PEQ"); return 1;
-              case 106: strcpy(str, "AMP"); return 1;
-              case 107: strcpy(str, "AMP"); return 1;
-              case 108: strcpy(str, "CAB"); return 1;
-              case 109: strcpy(str, "CAB"); return 1;
-              case 110: strcpy(str, "REV"); return 1;
-              case 111: strcpy(str, "REV"); return 1;
-              case 112: strcpy(str, "DLY"); return 1;
-              case 113: strcpy(str, "DLY"); return 1;
-              case 114: strcpy(str, "MTD"); return 1;
-              case 115: strcpy(str, "MTD"); return 1;
-              case 116: strcpy(str, "CHO"); return 1;
-              case 117: strcpy(str, "CHO"); return 1;
-              case 118: strcpy(str, "FLG"); return 1;
-              case 119: strcpy(str, "FLG"); return 1;
-              case 120: strcpy(str, "ROT"); return 1;
-              case 121: strcpy(str, "ROT"); return 1;
-              case 122: strcpy(str, "PHA"); return 1;
-              case 123: strcpy(str, "PHA"); return 1;
-              case 124: strcpy(str, "WAH"); return 1;
-              case 125: strcpy(str, "WAH"); return 1;
-              case 126: strcpy(str, "FRM"); return 1;
-              case 127: strcpy(str, "VOL"); return 1;
-              case 128: strcpy(str, "TRM"); return 1;
-              case 129: strcpy(str, "TRM"); return 1;
-              case 130: strcpy(str, "PIT"); return 1;
-              case 131: strcpy(str, "FIL"); return 1;
-              case 132: strcpy(str, "FIL"); return 1;
-              case 133: strcpy(str, "DRV"); return 1;
-              case 134: strcpy(str, "DRV"); return 1;
-              case 135: strcpy(str, "ENH"); return 1;
-              case 136: strcpy(str, "FXL"); return 1;
-              case 137: strcpy(str, "MIX"); return 1;
-              case 138: strcpy(str, "MIX"); return 1;
-              case 139: strcpy(str, "ING"); return 1;
-              case 140: strcpy(str, "OUT"); return 1;
-              case 141: strcpy(str, "CTR"); return 1;
-              case 142: strcpy(str, "SND"); return 1;
-              case 143: strcpy(str, "RTN"); return 1;
-              case 144: strcpy(str, "SYN"); return 1;
-              case 145: strcpy(str, "SYN"); return 1;
-              case 146: strcpy(str, "VOC"); return 1;
-              case 147: strcpy(str, "MGT"); return 1;
-              case 148: strcpy(str, "XVR"); return 1;
-              case 149: strcpy(str, "XVR"); return 1;
-              case 150: strcpy(str, "GTE"); return 1;
-              case 151: strcpy(str, "GTE"); return 1;
-              case 152: strcpy(str, "RNG"); return 1;
-              case 153: strcpy(str, "PIT"); return 1;
-              case 154: strcpy(str, "MBC"); return 1;
-              case 155: strcpy(str, "MBC"); return 1;
-              case 156: strcpy(str, "QCH"); return 1;
-              case 157: strcpy(str, "QCH"); return 1;
-              case 158: strcpy(str, "RES"); return 1;
-              case 159: strcpy(str, "RES"); return 1;
-              case 160: strcpy(str, "GEQ"); return 1;
-              case 161: strcpy(str, "GEQ"); return 1;
-              case 162: strcpy(str, "PEQ"); return 1;
-              case 163: strcpy(str, "PEQ"); return 1;
-              case 164: strcpy(str, "FIL"); return 1;
-              case 165: strcpy(str, "FIL"); return 1;
-              case 166: strcpy(str, "VOL"); return 1;
-              case 167: strcpy(str, "VOL"); return 1;
-              case 168: strcpy(str, "VOL"); return 1;
-              case 169: strcpy(str, "LPR"); return 1;
-              case 170: strcpy(str, "TMA"); return 1;
+            {
+              uint8_t b = BMC_GET_BYTE(1, tempEvent.event);
+              b = constrain(b, 100, 170);
+              switch(b){
+                case 100: strcpy(str, "CPR"); return 1;
+                case 101: strcpy(str, "CPR 2"); return 1;
+                case 102: strcpy(str, "GEQ"); return 1;
+                case 103: strcpy(str, "GEQ 2"); return 1;
+                case 104: strcpy(str, "PEQ"); return 1;
+                case 105: strcpy(str, "PEQ 2"); return 1;
+                case 106: strcpy(str, "AMP"); return 1;
+                case 107: strcpy(str, "AMP 2"); return 1;
+                case 108: strcpy(str, "CAB"); return 1;
+                case 109: strcpy(str, "CAB 2"); return 1;
+                case 110: strcpy(str, "REV"); return 1;
+                case 111: strcpy(str, "REV 2"); return 1;
+                case 112: strcpy(str, "DLY"); return 1;
+                case 113: strcpy(str, "DLY 2"); return 1;
+                case 114: strcpy(str, "MTD"); return 1;
+                case 115: strcpy(str, "MTD 2"); return 1;
+                case 116: strcpy(str, "CHO"); return 1;
+                case 117: strcpy(str, "CHO 2"); return 1;
+                case 118: strcpy(str, "FLG"); return 1;
+                case 119: strcpy(str, "FLG 2"); return 1;
+                case 120: strcpy(str, "ROT"); return 1;
+                case 121: strcpy(str, "ROT 2"); return 1;
+                case 122: strcpy(str, "PHA"); return 1;
+                case 123: strcpy(str, "PHA 2"); return 1;
+                case 124: strcpy(str, "WAH"); return 1;
+                case 125: strcpy(str, "WAH 2"); return 1;
+                case 126: strcpy(str, "FRM"); return 1;
+                case 127: strcpy(str, "VOL"); return 1;
+                case 128: strcpy(str, "TRM"); return 1;
+                case 129: strcpy(str, "TRM 2"); return 1;
+                case 130: strcpy(str, "PIT"); return 1;
+                case 131: strcpy(str, "FIL"); return 1;
+                case 132: strcpy(str, "FIL 2"); return 1;
+                case 133: strcpy(str, "DRV"); return 1;
+                case 134: strcpy(str, "DRV 2"); return 1;
+                case 135: strcpy(str, "ENH"); return 1;
+                case 136: strcpy(str, "FXL"); return 1;
+                case 137: strcpy(str, "MIX"); return 1;
+                case 138: strcpy(str, "MIX 2"); return 1;
+                case 139: strcpy(str, "ING not used"); return 1;
+                case 140: strcpy(str, "OUT not used"); return 1;
+                case 141: strcpy(str, "CTR not used"); return 1;
+                case 142: strcpy(str, "SND not used"); return 1;
+                case 143: strcpy(str, "RTN not used"); return 1;
+                case 144: strcpy(str, "SYN"); return 1;
+                case 145: strcpy(str, "SYN 2"); return 1;
+                case 146: strcpy(str, "VOC"); return 1;
+                case 147: strcpy(str, "MGT"); return 1;
+                case 148: strcpy(str, "XVR"); return 1;
+                case 149: strcpy(str, "XVR 2"); return 1;
+                case 150: strcpy(str, "GTE"); return 1;
+                case 151: strcpy(str, "GTE 2"); return 1;
+                case 152: strcpy(str, "RNG"); return 1;
+                case 153: strcpy(str, "PIT 2"); return 1;
+                case 154: strcpy(str, "MBC"); return 1;
+                case 155: strcpy(str, "MBC 2"); return 1;
+                case 156: strcpy(str, "QCH"); return 1;
+                case 157: strcpy(str, "QCH 2"); return 1;
+                case 158: strcpy(str, "RES"); return 1;
+                case 159: strcpy(str, "RES2"); return 1;
+                case 160: strcpy(str, "GEQ 3"); return 1;
+                case 161: strcpy(str, "GEQ 4"); return 1;
+                case 162: strcpy(str, "PEQ 3"); return 1;
+                case 163: strcpy(str, "PEQ 4"); return 1;
+                case 164: strcpy(str, "FIL 3"); return 1;
+                case 165: strcpy(str, "FIL 4"); return 1;
+                case 166: strcpy(str, "VOL 2"); return 1;
+                case 167: strcpy(str, "VOL 3"); return 1;
+                case 168: strcpy(str, "VOL 4"); return 1;
+                case 169: strcpy(str, "LPR"); return 1;
+                case 170: strcpy(str, "TMA"); return 1;
+              }
+            }
+            
+            return 0;
+        }
+        break;
+    }
+    return 0;
+  }
+  uint16_t eventBmcEventTypeHelixCommand(char* str, uint8_t fieldRequest, uint8_t field){
+    switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        switch(fieldRequest){
+          case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_FAS_CMD_TAP; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(0, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+            return 1;
+          case 5: /* formatted value */
+            switch(BMC_GET_BYTE(0, tempEvent.event)){
+              case BMC_HELIX_CMD_TAP:   strcpy(str, "Tap");return 1;
+              case BMC_HELIX_CMD_TUNER:   strcpy(str, "Tuner");return 1;
+              case BMC_HELIX_CMD_SNAPSHOT:   strcpy(str, "Snapshot");return 1;
+              case BMC_HELIX_CMD_SNAPSHOT_TOGGLE:   strcpy(str, "Snapshot Toggle");return 1;
             }
             return 0;
         }
         break;
+      case 2:
+        return eventGetField8BitValueRange(str, "Snapshot", fieldRequest, 1, 0, 7, true);
+      case 3:
+        switch(fieldRequest){
+          case 0: strcpy(str, "Snapshot B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 8; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(2, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 16);
+            return 1;
+          case 5: /* formatted value */
+            switch(BMC_GET_BYTE(2, tempEvent.event)){
+              case 0:
+                strcpy(str, "OFF");
+                return 1;
+              case 1: case 2:
+              case 3: case 4:
+              case 5: case 6:
+              case 7: case 8:
+                sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(2, tempEvent.event)-1)+offset));
+                return 1;
+            }
+            return 0;
+        }
+        break;
+      case 4:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 5:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 6:
+        return eventGetScrollWrapField(str, fieldRequest);
+    }
+    return 0;
+  }
+  uint16_t eventBmcEventTypeBeatbuddyCommand(char* str, uint8_t fieldRequest, uint8_t field){
+    switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        switch(fieldRequest){
+          case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_BEATBUDDY_CMD_TRANS_NEXT; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(0, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+            return 1;
+          case 5: /* formatted value */
+          {
+            uint8_t d = BMC_GET_BYTE(0, tempEvent.event);
+            if(d>=BMC_BEATBUDDY_CMD_TRANS_PART_1 && d<=BMC_BEATBUDDY_CMD_TRANS_PART_125){
+              sprintf(str,"Part %u",(d-BMC_BEATBUDDY_CMD_TRANS_PART_1)+offset);
+              return 1;
+            }
+            switch(d){
+              case BMC_BEATBUDDY_CMD_START: strcpy(str, "Start"); return 1;
+              case BMC_BEATBUDDY_CMD_STOP: strcpy(str, "Stop"); return 1;
+              case BMC_BEATBUDDY_CMD_BPM_DEC: strcpy(str, "BPM Dec"); return 1;
+              case BMC_BEATBUDDY_CMD_BPM_INC: strcpy(str, "BPM Inc"); return 1;
+              case BMC_BEATBUDDY_CMD_PAUSE: strcpy(str, "Pause"); return 1;
+              case BMC_BEATBUDDY_CMD_UNPAUSE: strcpy(str, "Unpause"); return 1;
+              case BMC_BEATBUDDY_CMD_PAUSE_TOGGLE: strcpy(str, "Pause Toggle"); return 1;
+              case BMC_BEATBUDDY_CMD_DRUM_FILL: strcpy(str, "Drum Fill"); return 1;
+              case BMC_BEATBUDDY_CMD_TAP: strcpy(str, "Tap"); return 1;
+              case BMC_BEATBUDDY_CMD_OUTRO: strcpy(str, "Outtro"); return 1;
+              case BMC_BEATBUDDY_CMD_MIX_VOL: strcpy(str, "Mix Vol"); return 1;
+              case BMC_BEATBUDDY_CMD_HP_VOL: strcpy(str, "HP Vol"); return 1;
+              case BMC_BEATBUDDY_CMD_ACCENT_HIT: strcpy(str, "Accent Hit"); return 1;
+              case BMC_BEATBUDDY_CMD_DRUMSET_SELECT: strcpy(str, "Drumset Sel"); return 1;
+              case BMC_BEATBUDDY_CMD_NORMAL_TIME: strcpy(str, "Normal Time"); return 1;
+              case BMC_BEATBUDDY_CMD_HALF_TIME: strcpy(str, "Half Time"); return 1;
+              case BMC_BEATBUDDY_CMD_HALF_TIME_TOGGLE: strcpy(str, "Half Time Tggle"); return 1;
+              case BMC_BEATBUDDY_CMD_DOUBLE_TIME: strcpy(str, "Double Time"); return 1;
+              case BMC_BEATBUDDY_CMD_DOUBLE_TIME_TOGGLE: strcpy(str, "Dble Time Tggle"); return 1;
+              case BMC_BEATBUDDY_CMD_FOLDER_ENTER: strcpy(str, "Folder Enter"); return 1;
+              case BMC_BEATBUDDY_CMD_SONG_SCROLL_DOWN: strcpy(str, "Song Scroll Down"); return 1;
+              case BMC_BEATBUDDY_CMD_SONG_SCROLL_UP: strcpy(str, "Song Scroll Up"); return 1;
+              case BMC_BEATBUDDY_CMD_TRANS_END: strcpy(str, "Trans End"); return 1;
+              case BMC_BEATBUDDY_CMD_TRANS_PREV: strcpy(str, "Trans Prev"); return 1;
+              case BMC_BEATBUDDY_CMD_TRANS_NEXT: strcpy(str, "Trans Next"); return 1;
+            }
+            return 1;
+          }
+            
+          case 6: /* scroll value down */
+            if(tempValue == 21){
+              tempValue = 100;
+            } else if (tempValue == BMC_BEATBUDDY_CMD_TRANS_NEXT){
+              tempValue = 0;
+            } else {
+              tempValue++;
+            }
+            return 1;
+          case 7: /* scroll value up */
+            if(tempValue == 100){
+              tempValue = 21;
+            } else if (tempValue == 0){
+              tempValue = BMC_BEATBUDDY_CMD_TRANS_NEXT;
+            } else {
+              tempValue--;
+            }
+            return 1;
+        }
+        break;
+      case 2:
+        return eventGetField8BitValueRange(str, "Data", fieldRequest, 1, 0, 127, false);
+      case 3:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 4:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 5:
+        return eventGetScrollWrapField(str, fieldRequest);
+    }
+    return 0;
+  }
+  uint16_t eventBmcEventTypeBeatbuddyBpm(char* str, uint8_t fieldRequest, uint8_t field){
+    switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        switch(fieldRequest){
+          case 0: strcpy(str, "BPM"); return 1; /* label */
+          case 1: return 40; /* min */
+          case 2: return 300; /* max */
+          case 3: /* get stored value */
+            {
+              uint16_t value = BMC_GET_BYTE_2(0, tempEvent.event);
+              return constrain(value, 40, 300);
+            }
+          case 4: /* set stored value */
+            tempEvent.event = tempValue;
+            return 1;
+          case 5: /* formatted value */
+            {
+              uint16_t value = BMC_GET_BYTE_2(0, tempEvent.event);
+              value = constrain(value, 40, 300);
+              sprintf(str, "%u", value);
+              return 1;
+            }
+        }
+      case 2:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 3:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 4:
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
@@ -2167,7 +2418,7 @@ private:
       case 3:
         return eventGetScrollDirectionField(str, fieldRequest);
       case 4:
-        return eventGetScrollLimitField(str, fieldRequest);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }

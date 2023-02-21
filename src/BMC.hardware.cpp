@@ -125,36 +125,23 @@ void BMC::readHardware(){
   mux.update();
 #endif
 
-/*
-#if BMC_MAX_AUX_JACKS > 0
-  uint8_t _auxJacksStates = auxJacksStates;
-  for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
-    bool state = auxJacks.isConnected(i);
-    if(auxJacks.update(i)){
-      if(callback.auxJackConnection){
-        callback.auxJackConnection(i, state);
-      }
-    }
-    bitWrite(_auxJacksStates, i, state);
-  }
-  if(_auxJacksStates != auxJacksStates){
-    auxJacksStates = _auxJacksStates;
-    editor.utilitySendAuxJackActivity(auxJacksStates);
-  }
-#endif
-*/
-
 #if BMC_MAX_OLED > 0
-  for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
-    uint16_t eventIndex = store.layers[layer].oled[i].events[0];
-    processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+  for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
+    processEvent(BMC_DEVICE_GROUP_DISPLAY,
+                  BMC_DEVICE_ID_OLED,
+                  index,
+                  store.layers[layer].oled[index].events[0]
+                  );
   }
 #endif
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
-  for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-    uint16_t eventIndex = store.layers[layer].ili[i].events[0];
-    processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, i, BMC_EVENT_IO_TYPE_OUTPUT, eventIndex);
+  for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
+    processEvent(BMC_DEVICE_GROUP_DISPLAY,
+                  BMC_DEVICE_ID_ILI,
+                  index,
+                  store.layers[layer].ili[index].events[0]
+                  );
   }
 #endif
 
@@ -201,6 +188,32 @@ void BMC::readHardware(){
   readAuxJacks();
 #endif
 
+}
+// just used when EEPROM is erased, blinks first of each led type
+void BMC::controlFirstLed(bool t_value){
+  #if BMC_MAX_LEDS > 0
+    leds[0].overrideState(t_value);
+  #endif
+
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    globalLeds[0].overrideState(t_value);
+  #endif
+
+  #if BMC_MAX_PIXELS > 0
+    pixels.setState(0, t_value?255:0);
+  #endif
+
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    globalPixels.setGlobalState(0, t_value?255:0);
+  #endif
+
+  #if BMC_MAX_RGB_PIXELS > 0
+    pixels.setStateRgb(0, 0, t_value);
+  #endif
+
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    pixels.setStateGlobalRgb(0, 0, t_value);
+  #endif
 }
 uint8_t BMC::parseMidiEventType(uint8_t t_type){
   // this code will take an event type from buttons, encoders, leds, pots

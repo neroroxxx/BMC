@@ -248,27 +248,16 @@ void BMC::assignLeds(){
 #endif
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void BMC::readLeds(){
   bool blinkState = ledBlinkerTimer.complete();
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     bmcStoreDevice <1, 1>& device = store.layers[layer].leds[i];
-    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_LED, i,
-                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                  BMC_DEVICE_ID_LED,
+                                  i,
+                                  device.events[0]
+                                );
     if(state<=1){
       leds[i].setState(state);
     } else if(state==2){
@@ -297,10 +286,12 @@ void BMC::readLeds(){
 
 #if BMC_MAX_GLOBAL_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
-    // handleLedEvent() @ BMC.hardware.ledEvents.cpp
     bmcStoreDevice <1, 1>& device = store.global.leds[i];
-    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_LED, i,
-                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                  BMC_DEVICE_ID_GLOBAL_LED,
+                                  i,
+                                  device.events[0]
+                                );
     if(state<=1){
       globalLeds[i].setState(state);
     } else if(state==2){
@@ -327,8 +318,11 @@ void BMC::readLeds(){
   for(uint16_t i = 0; i < BMC_MAX_BI_LEDS; i++){
     bmcStoreDevice <2, 2>& device = store.layers[layer].biLeds[i];
     for(uint16_t e = (i*2), u = 0; u < 2; e++, u++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_BI_LED, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_BI_LED,
+                                    i,
+                                    device.events[u]
+                                  );
       if(state<=1){
         biLeds[e].setState(state);
       } else if(state==2){
@@ -363,8 +357,11 @@ void BMC::readLeds(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BI_LEDS; i++){
     bmcStoreDevice <2, 2>& device = store.global.biLeds[i];
     for(uint16_t e = (i*2), u = 0; u < 2; e++, u++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_BI_LED, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_GLOBAL_BI_LED,
+                                    i,
+                                    device.events[u]
+                                  );
       if(state<=1){
         globalBiLeds[e].setState(state);
       } else if(state==2){
@@ -396,8 +393,11 @@ void BMC::readLeds(){
   for(uint16_t i = 0; i < BMC_MAX_TRI_LEDS; i++){
     bmcStoreDevice <3, 3>& device = store.layers[layer].triLeds[i];
     for(uint16_t e = (i*3), u = 0; u < 3; e++, u++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_TRI_LED, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_TRI_LED,
+                                    i,
+                                    device.events[u]
+                                  );
       if(state<=1){
         triLeds[e].setState(state);
       } else if(state==2){
@@ -434,8 +434,11 @@ void BMC::readLeds(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_TRI_LEDS; i++){
     bmcStoreDevice <3, 3>& device = store.global.triLeds[i];
     for(uint16_t e = (i*3), u = 0; u < 3; e++, u++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_TRI_LED, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[u]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_GLOBAL_TRI_LED,
+                                    i,
+                                    device.events[u]
+                                  );
       if(state<=1){
         globalTriLeds[e].setState(state);
       } else if(state==2){

@@ -84,7 +84,12 @@ void BMC::readPots(){
     if(pots[i].update()){
       sendData = true;
       uint8_t value = pots[i].getValue();
-      processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
+      processEvent(BMC_DEVICE_GROUP_POT,
+                    BMC_DEVICE_ID_POT,
+                    i,
+                    device.events[0],
+                    value
+                  );
       // HANDLE CALLBACKS
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.potCustomActivity){
@@ -130,7 +135,12 @@ void BMC::readPots(){
     if(globalPots[i].update()){
       sendData = true;
       uint8_t value = globalPots[i].getValue();
-      processEvent(BMC_DEVICE_GROUP_POT, BMC_DEVICE_ID_GLOBAL_POT, i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], value);
+      processEvent(BMC_DEVICE_GROUP_POT,
+                    BMC_DEVICE_ID_GLOBAL_POT,
+                    i,
+                    device.events[0],
+                    value
+                  );
       // HANDLE CALLBACKS
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalPotCustomActivity){
@@ -151,7 +161,11 @@ void BMC::potParseToeSwitch(BMCPot& pot){
   if(!pot.toeSwitchAvailable()){
     return;
   }
-  processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON, 0, BMC_EVENT_IO_TYPE_INPUT, pot.toeSwitchGetEvent());
+  processEvent(BMC_DEVICE_GROUP_BUTTON,
+                BMC_DEVICE_ID_BUTTON,
+                0,
+                pot.toeSwitchGetEvent()
+              );
 }
 /*
 void BMC::handlePot(bmcStorePot& data, uint8_t value){

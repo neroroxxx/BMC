@@ -9,6 +9,24 @@
 #define BMC_STRUCT_H
 #include <Arduino.h>
 
+
+/*
+  eventPacket.group = 0;
+  eventPacket.deviceId = 0;
+  eventPacket.deviceIndex = 0;
+  eventPacket.ioType = 0;
+  eventPacket.eventIndex = 0;
+  eventPacket.value = 0;
+*/
+struct __attribute__ ((packed)) bmcEventPacket {
+  uint8_t group = 0;
+  uint8_t deviceId = 0;
+  uint16_t deviceIndex = 0;
+  uint8_t ioType = 0;
+  uint16_t eventIndex = 0;
+  uint8_t value = 0;
+};
+
 struct __attribute__ ((packed)) BMCDeviceData {
   uint8_t id = 0;
   char label[19] = "";
@@ -127,10 +145,13 @@ struct BMCEventScrollData {
   bool direction = false;
   bool endless = true;
   uint8_t amount = 1;
-  BMCEventScrollData(uint8_t settings, uint8_t ticks){
+  BMCEventScrollData(uint8_t settings, uint8_t ticks, bool forceEnable=false){
     enabled = bitRead(settings, 0);
     direction = bitRead(settings, 1);
     endless = bitRead(settings, 2);
+    if(forceEnable){
+      enabled = true;
+    }
     if(ticks > 0){
       direction = bitRead(ticks, 7);
     }

@@ -134,31 +134,21 @@ void BMC::readButtons(){
 }
 
 template <uint8_t sLen, uint8_t eLen>
-void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device,
-                  uint8_t deviceType, uint16_t index, uint8_t t_trigger){
-  //bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.layers[layer].buttons[index];
+void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device, uint8_t deviceType,
+                        uint16_t index, uint8_t t_trigger){
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
     uint8_t type = data.type;
     uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
-/*
-#ifdef BMC_USE_DAW_LC
-    if(type==BMC_EVENT_TYPE_DAW_COMMAND &&
-      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
-      uint8_t cmd = BMC_GET_BYTE(0, data.event);
-      uint8_t ch = BMC_GET_BYTE(1, data.event);
-      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        sync.daw.sendButtonCommand(cmd, ch, false);
-      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        sync.daw.sendButtonCommand(cmd, ch, true);
-      }
-    }
-#endif
-*/
     if(type == BMC_NONE || trigger == BMC_NONE){
       continue;
     }
-    processEvent(BMC_DEVICE_GROUP_BUTTON, deviceType, index, BMC_EVENT_IO_TYPE_INPUT, device.events[e]);
+    processEvent(BMC_DEVICE_GROUP_BUTTON,
+                  deviceType,
+                  index,
+                  device.events[e]
+                );
+
     /*
     if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
       callback.buttonsCustomActivity(index, e, data.ports);
@@ -170,37 +160,6 @@ void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device,
 }
 
 #endif
-/*
-#if BMC_MAX_GLOBAL_BUTTONS > 0
-void BMC::handleGlobalButton(uint16_t index, uint8_t t_trigger){
-  bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.global.buttons[index];
-  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
-    uint8_t type = data.type;
-    uint8_t trigger = (device.settings[e] & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
-
-#ifdef BMC_USE_DAW_LC
-    if(type==BMC_EVENT_TYPE_DAW_COMMAND &&
-      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
-      uint8_t cmd = BMC_GET_BYTE(0, data.event);
-      uint8_t ch = BMC_GET_BYTE(1, data.event);
-      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        sync.daw.sendButtonCommand(cmd, ch, false);
-      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        sync.daw.sendButtonCommand(cmd, ch, true);
-      }
-    }
-#endif
-    if(trigger == BMC_NONE || type == BMC_NONE){
-      continue;
-    }
-    processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_GLOBAL_BUTTON, index, BMC_EVENT_IO_TYPE_INPUT, device.events[e]);
-  }
-}
-#endif
-*/
-
-
 
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0

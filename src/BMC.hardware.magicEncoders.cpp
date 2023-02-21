@@ -107,8 +107,10 @@ void BMC::readMagicEncoders(){
     bool increased = false;
     if(device.events[0] != BMC_NONE){
       ledValue = processEvent(BMC_DEVICE_GROUP_MAGIC_ENCODER, 
-                              BMC_DEVICE_ID_MAGIC_ENCODER, i,
-                              BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+                                BMC_DEVICE_ID_MAGIC_ENCODER,
+                                i,
+                                device.events[0]
+                              );
       hasUpdate = magicEncoders[i].setValue(ledValue);
       if(hasUpdate){
         BMC_PRINTLN("hasUpdate", ledValue);
@@ -120,12 +122,19 @@ void BMC::readMagicEncoders(){
       ticks = magicEncoders[i].getTicks();
       increased = magicEncoders[i].increased();
       if(trigger != BMC_NONE && trigger==(device.settings[2] & 0x0F)){
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_MAGIC_ENCODER, 
-                    i, BMC_EVENT_IO_TYPE_INPUT, device.events[2]);
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
+                      BMC_DEVICE_ID_MAGIC_ENCODER,
+                      i,
+                      device.events[2]
+                    );
       }
       if(ticks > 0){
-        processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_MAGIC_ENCODER,
-                    i, BMC_EVENT_IO_TYPE_INPUT, device.events[1],  increased<<7 | ticks);
+        processEvent(BMC_DEVICE_GROUP_ENCODER,
+                      BMC_DEVICE_ID_MAGIC_ENCODER,
+                      i,
+                      device.events[1],
+                      (increased<<7 | ticks)
+                    );
       }
     }
     if(hasUpdate || editor.isTriggerStates()){
@@ -145,8 +154,10 @@ void BMC::readMagicEncoders(){
     bool increased = 0;
     if(device.events[0] != BMC_NONE){
       ledValue = processEvent(BMC_DEVICE_GROUP_MAGIC_ENCODER, 
-                              BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, i,
-                              BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+                                BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER,
+                                i,
+                                device.events[0]
+                              );
       hasUpdate = globalMagicEncoders[i].setValue(ledValue);
     }
     if(globalMagicEncoders[i].update(2)){
@@ -155,13 +166,20 @@ void BMC::readMagicEncoders(){
       ticks = globalMagicEncoders[i].getTicks();
       increased = globalMagicEncoders[i].increased();
       if(trigger != BMC_NONE && trigger==(device.settings[2] & 0x0F)){
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, 
-                    i, BMC_EVENT_IO_TYPE_INPUT, device.events[2]);
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
+                      BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER,
+                      i,
+                      device.events[2]
+                    );
       }
       if(ticks > 0){
         bmcStoreEvent data = globals.getDeviceEventType(device.events[1]);
-        processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER,
-                    i, BMC_EVENT_IO_TYPE_INPUT, device.events[1],  increased<<7 | ticks);
+        processEvent(BMC_DEVICE_GROUP_ENCODER,
+                      BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER,
+                      i,
+                      device.events[1],
+                      (increased<<7 | ticks)
+                    );
       }
     }
     if(hasUpdate || editor.isTriggerStates()){

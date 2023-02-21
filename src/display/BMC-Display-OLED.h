@@ -84,7 +84,16 @@ class BMC_OLED {
     }
     display.display();
   }
-  void printPC(uint8_t t_ch, uint8_t t_pc, uint8_t t_settings, bool highlight=false){
+  void printPC(uint8_t t_ch, uint8_t t_d1, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_PROGRAM_CHANGE, t_ch, t_d1, -1, t_settings, highlight);
+  }
+  void printCC(uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_CONTROL_CHANGE, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printNote(uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_NOTE_ON, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printMIDI(uint8_t t_type, uint8_t t_ch, uint8_t t_d1, int16_t t_d2, uint8_t t_settings, bool highlight=false){
     if(highlight){
       display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
       display.setTextColor(BMC_OLED_BLACK);
@@ -92,82 +101,63 @@ class BMC_OLED {
       display.clearDisplay();
       display.setTextColor(BMC_OLED_WHITE);
     }
-    display.setTextSize(2);
-    char str[16] = "";
+
+    char strChTitle[4] = "CH";
+    char strD1Title[4] = "";
+    char strD2Title[4] = "";
+    char strCH[4] = "";
+    char strD1[4] = "";
+    char strD2[4] = "";
+
     t_ch = constrain(t_ch, 1, 16);
-    t_pc = constrain(t_pc, 0, 127);
+    t_d1 = constrain(t_d1, 0, 127);
+    sprintf(strCH, "%02u", t_ch);
+    sprintf(strD1, "%03u", t_d1);
+    if(t_d2 != -1){
+      t_d2 = constrain(t_d2, 0, 127);
+      sprintf(strD2, "%03u", t_d2);
+    }
 
-    display.setCursor(22, (h == 32) ? 16 : 28);
-    display.println("PROGRAM");
+    uint16_t t_wBound = 128;
+    uint16_t bW = (t_wBound/3);
+    uint16_t y1 = (h == 32) ? 16 : 28;
+    uint16_t y2 = (h == 32) ? 34 : 52;
 
-    sprintf(str, "%02u", t_ch);
-    display.setCursor(0, (h == 32) ? 34 : 52);
-    display.println(str);
+    switch(t_type){
+      case BMC_MIDI_PROGRAM_CHANGE:
+        strcpy(strD1Title, "PC");
+        bW = (t_wBound/2);
+        break;
+      case BMC_MIDI_CONTROL_CHANGE:
+        strcpy(strD1Title, "CC");
+        strcpy(strD2Title, "VAL");
+        break;
+      case BMC_MIDI_NOTE_OFF:
+      case BMC_MIDI_NOTE_ON:
+        strcpy(strD1Title, "NO");
+        strcpy(strD2Title, "VEL");
+        break;
+    }
 
-    sprintf(str, "%03u", t_pc);
-    display.setCursor(94, (h == 32) ? 34 : 52);
-    display.println(str);
-
+    display.setTextSize(2);
+    printMidiLabelAndValue(strChTitle, strCH, y1, y2, bW, 0);
+    if(t_d2 < 0){
+      printMidiLabelAndValue(strD1Title, strD1, y1, y2, bW, bW);
+    } else {
+      printMidiLabelAndValue(strD1Title, strD1, y1, y2, bW, bW);
+      printMidiLabelAndValue(strD2Title, strD2, y1, y2, bW, bW*2);
+    }
     display.display();
   }
-  void printCC(uint8_t t_ch, uint8_t t_cc, uint8_t t_vv, uint8_t t_settings, bool highlight=false){
-    if(highlight){
-      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
-      display.setTextColor(BMC_OLED_BLACK);
-    } else {
-      display.clearDisplay();
-      display.setTextColor(BMC_OLED_WHITE);
-    }
-    display.setTextSize(2);
-    char str[16] = "";
-    t_ch = constrain(t_ch, 1, 16);
-    t_cc = constrain(t_cc, 0, 127);
-    t_vv = constrain(t_vv, 0, 127);
-    display.setCursor(22, (h == 32) ? 16 : 28);
-    display.println("CONTROL");
 
-    sprintf(str, "%02u", t_ch);
-    display.setCursor(0, (h == 32) ? 34 : 52);
-    display.println(str);
-
-    sprintf(str, "%03u", t_cc);
-    display.setCursor(42, (h == 32) ? 34 : 52);
-    display.println(str);
-
-    sprintf(str, "%03u", t_vv);
-    display.setCursor(94, (h == 32) ? 34 : 52);
-    display.println(str);
-
-    display.display();
-  }
-  void printNote(uint8_t t_ch, uint8_t t_nn, uint8_t t_vv, uint8_t t_settings, bool highlight=false){
-    if(highlight){
-      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
-      display.setTextColor(BMC_OLED_BLACK);
-    } else {
-      display.clearDisplay();
-      display.setTextColor(BMC_OLED_WHITE);
-    }
-    display.setTextSize(2);
-    char str[16] = "";
-    t_ch = constrain(t_ch, 1, 16);
-    t_nn = constrain(t_nn, 0, 127);
-    t_vv = constrain(t_vv, 0, 127);
-    display.setCursor(41, (h == 32) ? 16 : 28);
-    display.println("NOTE");
-
-    sprintf(str, "%02u", t_ch);
-    display.setCursor(0, (h == 32) ? 34 : 52);
-    display.println(str);
-
-    sprintf(str, "%03u", t_nn);
-    display.setCursor(42, (h == 32) ? 34 : 52);
-    display.println(str);
-
-    sprintf(str, "%03u", t_vv);
-    display.setCursor(94, (h == 32) ? 34 : 52);
-    display.println(str);
-    display.display();
+  void printMidiLabelAndValue(char * t_label, char * t_value, uint8_t y1, uint8_t y2, uint16_t bW, uint16_t bW2){
+    uint16_t x = bW2 + ((bW - (strlen(t_label)*12)) / 2);
+    display.setCursor(x, y1);
+    display.println(t_label);
+    
+    x = bW2 + ((bW - (strlen(t_value)*12)) / 2);
+    display.setCursor(x, y2);
+    display.println(t_value);
   }
   void print(const char * str, uint8_t t_settings, bool highlight=false){
     // add one extra character for the EOL
@@ -309,6 +299,14 @@ class BMC_OLED {
   }
   void printIcon(uint8_t n, int8_t n2=-1){
     drawIcon(n, n2, true);
+  }
+  void drawHorizontalMeter(uint8_t t_value, uint16_t t_w, uint16_t t_min, uint16_t t_max, uint16_t t_x, uint16_t t_y){
+    uint16_t width = t_w - 4;
+    uint16_t height = 8;
+    uint16_t fill = map(t_value, t_min, t_max, 0, width-4);
+    display.drawRect(t_x, t_y, width, height, BMC_OLED_WHITE);
+    display.drawRect(t_x+1, t_y+1, width-2, height-2, BMC_OLED_BLACK);
+    display.drawRect(t_x+2, t_y+2, fill, height-4, BMC_OLED_WHITE);
   }
   void printHorizontalMeter(uint8_t value){
     uint8_t y         = (h == 64) ? 10 :  0;

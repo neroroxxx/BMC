@@ -8,8 +8,9 @@
 
 // these are used for all LEDs and Pixels
 #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
+/*
 uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
-  /*
+  
   // ledType
   // 0 = layer led (BMC_LED_TYPE_LAYER)
   // 1 = global led (BMC_LED_TYPE_GLOBAL)
@@ -299,117 +300,10 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
       }
       break;
   }
-  */
+  
   return BMC_OFF_LED_EVENT;
+  // return true if the status is matched
 }
+*/
 
-// return true if the status is matched
-
-
-#ifdef BMC_USE_BEATBUDDY
-  bool BMC::handleBeatBuddyLedEvent(uint8_t status, uint8_t data){
-    switch(status){
-      case BMC_LED_BEATBUDDY_SYNC:
-        return sync.beatBuddy.inSync();
-      case BMC_LED_BEATBUDDY_PLAYING:
-        return sync.beatBuddy.isPlaying();
-      case BMC_LED_BEATBUDDY_PART:
-        return sync.beatBuddy.isSongPart(data);
-      case BMC_LED_BEATBUDDY_HALF_TIME:
-        return sync.beatBuddy.isHalfTime();
-      case BMC_LED_BEATBUDDY_DOUBLE_TIME:
-        return sync.beatBuddy.isDoubleTime();
-    }
-    return false;
-  }
-#endif
-
-void BMC::handleClockLeds(){
-
-#if BMC_MAX_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
-    bmcStoreDevice <1, 1>& device = store.layers[layer].leds[index];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    // first bit is always the "blink" state
-    if(BMCTools::isMidiClockLedEvent(data.type)){
-      // last 4 bits are always the color
-      leds[index].pulse();
-    }
-
-    //bmcStoreLed& item = store.layers[layer].leds[index];
-    //if(BMCTools::isMidiClockLedEvent(item.event)){
-      //leds[index].pulse();
-    //}
-  }
-#endif
-
-#if BMC_MAX_GLOBAL_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
-    bmcStoreDevice <1, 1>& device = store.global.leds[index];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    // first bit is always the "blink" state
-    if(BMCTools::isMidiClockLedEvent(data.type)){
-      // last 4 bits are always the color
-      globalLeds[index].pulse();
-    }
-  }
-#endif
-
-
-#if BMC_MAX_PIXELS > 0
-  for(uint8_t index = 0; index < BMC_MAX_PIXELS; index++){
-    bmcStoreDevice <1, 1>& device = store.layers[layer].pixels[index];
-    bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    // first bit is always the "blink" state
-    if(BMCTools::isMidiClockLedEvent(data.type)){
-      // last 4 bits are always the color
-      pixels.pulse(index, device.settings[0]);
-    }
-  }
-#endif
-
-#if BMC_MAX_RGB_PIXELS > 0
-  for(uint8_t index = 0; index < BMC_MAX_RGB_PIXELS; index++){
-
-    bmcStoreDevice <1, 3>& device = store.layers[layer].rgbPixels[index];
-    for(uint8_t e = 0; e < 3; e++){
-      bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
-      // first bit is always the "blink" state
-      if(BMCTools::isMidiClockLedEvent(data.type)){
-        // last 4 bits are always the color
-        pixels.pulseRgb(index, e);
-      }
-    }
-  }
-#endif
-
-}
-
-
-// just used when EEPROM is erased, blinks first of each led type
-void BMC::controlFirstLed(bool t_value){
-  #if BMC_MAX_LEDS > 0
-    leds[0].overrideState(t_value);
-  #endif
-
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLeds[0].overrideState(t_value);
-  #endif
-
-  #if BMC_MAX_PIXELS > 0
-    pixels.setState(0, t_value?255:0);
-  #endif
-
-  #if BMC_MAX_GLOBAL_PIXELS > 0
-    globalPixels.setGlobalState(0, t_value?255:0);
-  #endif
-
-  #if BMC_MAX_RGB_PIXELS > 0
-    pixels.setStateRgb(0, 0, t_value);
-  #endif
-
-  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
-    pixels.setStateGlobalRgb(0, 0, t_value);
-  #endif
-}
 #endif

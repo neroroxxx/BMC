@@ -21,7 +21,6 @@ void BMC::setupEncoders(){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
     globalEncoders[i].begin(ui.pins[0], ui.pins[1]);
   }
-  //assignGlobalEncoders();
 #endif
 }
 
@@ -53,10 +52,13 @@ void BMC::readEncoders(){
     if(encoders[i].update()){
       bool increased = encoders[i].increased();
       uint8_t ticks = encoders[i].getTicks();
-      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-      //handleEncoder(pageData.encoders[i], increased, ticks);
-      processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_ENCODER,
-                  i, BMC_EVENT_IO_TYPE_INPUT, device.events[0],  increased<<7 | ticks);
+      processEvent(BMC_DEVICE_GROUP_ENCODER,
+                  BMC_DEVICE_ID_ENCODER,
+                  i,
+                  device.events[0],
+                  increased<<7 | ticks
+                  );
+
       //uint32_t event = pageData.encoders[i].event;
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.encoderCustomActivity){
@@ -84,12 +86,13 @@ void BMC::readEncoders(){
     if(globalEncoders[i].update()){
       bool increased = globalEncoders[i].increased();
       uint8_t ticks = globalEncoders[i].getTicks();
-      //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-      
-      processEvent(BMC_DEVICE_GROUP_ENCODER, BMC_DEVICE_ID_GLOBAL_ENCODER,
-                    i, BMC_EVENT_IO_TYPE_INPUT, device.events[0], increased<<7 | ticks);
+      processEvent(BMC_DEVICE_GROUP_ENCODER,
+                  BMC_DEVICE_ID_GLOBAL_ENCODER,
+                  i,
+                  device.events[0],
+                  increased<<7 | ticks
+                  );
 
-      
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
         callback.globalEncoderCustomActivity(i, increased, ticks);

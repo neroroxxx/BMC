@@ -426,7 +426,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_DAW_DISPLAY             	 37
 #define BMC_EVENT_TYPE_BEATBUDDY               	 38
 #define BMC_EVENT_TYPE_BEATBUDDY_BPM           	 39
-#define BMC_EVENT_TYPE_BEATBUDDY_FOLDER        	 40
+// #define BMC_EVENT_TYPE_BEATBUDDY_FOLDER        	 40
 #define BMC_EVENT_TYPE_FAS                     	 41
 #define BMC_EVENT_TYPE_FAS_SCENE               	 42
 #define BMC_EVENT_TYPE_FAS_PRESET              	 43

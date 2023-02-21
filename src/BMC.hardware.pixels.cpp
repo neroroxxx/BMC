@@ -80,8 +80,11 @@ void BMC::readPixels(){
   for(uint16_t i = 0; i < BMC_MAX_PIXELS; i++){
     bmcStoreDevice <1, 1>& device = store.layers[layer].pixels[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL, i,
-                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                  BMC_DEVICE_ID_PIXEL,
+                                  i,
+                                  device.events[0]
+                                );
     uint8_t color = device.settings[0];
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){
@@ -108,8 +111,11 @@ void BMC::readPixels(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_PIXELS; i++){
     bmcStoreDevice <1, 1>& device = store.global.pixels[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_PIXEL, i,
-                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                  BMC_DEVICE_ID_GLOBAL_PIXEL,
+                                  i,
+                                  device.events[0]
+                                );
     uint8_t color = device.settings[0];
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){
@@ -136,8 +142,11 @@ void BMC::readPixels(){
   for(uint16_t i = 0; i < BMC_MAX_RGB_PIXELS; i++){
     bmcStoreDevice <1, 3>& device = store.layers[layer].rgbPixels[i];
     for(uint8_t e = 0; e < 3; e++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_RGB_PIXEL, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[e]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_RGB_PIXEL,
+                                    i,
+                                    device.events[e]
+                                  );
       if(state<=1){
         pixels.setStateRgb(i, e, state);
       } else if(state==2){
@@ -155,8 +164,11 @@ void BMC::readPixels(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_RGB_PIXELS; i++){
     bmcStoreDevice <1, 3>& device = store.global.rgbPixels[i];
     for(uint8_t e = 0; e < 3; e++){
-      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, i,
-                                  BMC_EVENT_IO_TYPE_OUTPUT, device.events[e]);
+      uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                    BMC_DEVICE_ID_GLOBAL_RGB_PIXEL,
+                                    i,
+                                    device.events[e]
+                                  );
       if(state<=1){
         pixels.setStateGlobalRgb(i, e, state);
       } else if(state==2){
@@ -174,8 +186,11 @@ void BMC::readPixels(){
   for(uint16_t i = 0; i < 1; i++){
     bmcStoreDevice <1, 1>& device = store.layers[layer].pixelStrip[i];
     bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED, BMC_DEVICE_ID_PIXEL_STRIP, i,
-                                BMC_EVENT_IO_TYPE_OUTPUT, device.events[0]);
+    uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
+                                  BMC_DEVICE_ID_PIXEL_STRIP,
+                                  i,
+                                  device.events[0]
+                                );
     uint8_t color = device.settings[0];
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){

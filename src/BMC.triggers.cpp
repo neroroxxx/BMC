@@ -14,7 +14,11 @@
     for(uint8_t index = 0, n=triggers.available(); index < n; index++){
       if(triggers.isValidTrigger(index)){
         bmcStoreDevice <1, 2>& device = store.global.triggers[index];
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_TRIGGER, index, BMC_EVENT_IO_TYPE_INPUT, device.events[1]);
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
+                      BMC_DEVICE_ID_TRIGGER,
+                      index,
+                      device.events[1]
+                    );
       }
     }
   }

@@ -83,7 +83,14 @@ class BMC_ILI9341_BLOCK {
     if(bitRead(settings, 1)){
       tft.drawRect(xBound, yBound, wBound, hBound, highlight ? background : color);
     }
-    // tft.drawRect(xBound, yBound, wBound, hBound, color);
+  }
+  void drawHorizontalMeter(BMC_TFT& tft, uint8_t t_value, uint16_t t_w, uint16_t t_min, uint16_t t_max, uint16_t t_x, uint16_t t_y){
+    uint16_t width = t_w - 4;
+    uint16_t height = 8;
+    uint16_t fill = map(t_value, t_min, t_max, 0, width-4);
+    tft.drawRect(t_x, t_y, width, height, color);
+    tft.drawRect(t_x+1, t_y+1, width-2, height-2, background);
+    tft.drawRect(t_x+2, t_y+2, fill, height-4, color);
   }
   void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label="", bool highlight=false){
     // add one extra character for the EOL
@@ -227,8 +234,6 @@ class BMC_ILI9341_BLOCK {
 #endif
     return fontHeight | ((fontPadding*2)<<8);
   }
-
-  // void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label="", bool highlight=false){
   void printPC(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_settings, bool highlight=false){
     printMIDI(tft, t_crc, BMC_MIDI_PROGRAM_CHANGE, t_ch, t_d1, -1, t_settings, highlight);
   }
@@ -242,63 +247,67 @@ class BMC_ILI9341_BLOCK {
     if(crc == t_crc || wBound < 120){
       return;
     }
-
     clear(tft, t_settings, highlight);
     tft.setTextColor(highlight ? background : color);
     // set crc after clear()
     crc = t_crc;
-    
+    char strChTitle[4] = "CH";
+    char strD1Title[4] = "";
+    char strD2Title[4] = "";
+    char strCH[4] = "";
+    char strD1[4] = "";
+    char strD2[4] = "";
 
-    char str[16] = "";
     t_ch = constrain(t_ch, 1, 16);
     t_d1 = constrain(t_d1, 0, 127);
+    sprintf(strCH, "%02u", t_ch);
+    sprintf(strD1, "%03u", t_d1);
     if(t_d2 != -1){
       t_d2 = constrain(t_d2, 0, 127);
+      sprintf(strD2, "%03u", t_d2);
     }
-    
-    uint16_t bW = (wBound/3);
+    // wBound kept at 120 pixels instead of block width
+    uint16_t t_wBound = 120;
+    uint16_t bW = (t_wBound/3);
+    uint16_t y1 = (hBound == 40) ? 2 : 16;
+    uint16_t y2 = (hBound == 40) ? 22 : 48;
 
     switch(t_type){
       case BMC_MIDI_PROGRAM_CHANGE:
-        strcpy(str, "PROGRAM");
+        strcpy(strD1Title, "PC");
+        bW = (t_wBound/2);
         break;
       case BMC_MIDI_CONTROL_CHANGE:
-        strcpy(str, "CONTROL");
+        strcpy(strD1Title, "CC");
+        strcpy(strD2Title, "VAL");
         break;
       case BMC_MIDI_NOTE_OFF:
       case BMC_MIDI_NOTE_ON:
-        strcpy(str, "NOTE");
+        strcpy(strD1Title, "NO");
+        strcpy(strD2Title, "VEL");
         break;
     }
     tft.setFont(BMCLiberationSansNarrow_16);
-    
-    int16_t x = xBound + (((wBound) - tft.strPixelLen(str)) / 2);
-    uint16_t y1 = (hBound == 40) ? 2 : 16;
-    uint16_t y2 = (hBound == 40) ? 22 : 48;
-    tft.setCursor(x, yBound+y1);
-    tft.println(str);
-
-    sprintf(str, "%02u", t_ch);
-    x = xBound + ((bW - tft.strPixelLen(str)) / 2);
-    tft.setCursor(x, yBound + y2);
-    tft.println(str);
-
+    printMidiLabelAndValue(tft, strChTitle, strCH, y1, y2, bW, 0);
     if(t_d2 < 0){
-      sprintf(str, "%03u", t_d1);
-      x = xBound+bW+bW + ((bW - tft.strPixelLen(str)) / 2);
-      tft.setCursor(x, yBound + y2);
-      tft.println(str);
+      printMidiLabelAndValue(tft, strD1Title, strD1, y1, y2, bW, bW);
     } else {
-      sprintf(str, "%03u", t_d1);
-      x = xBound+bW + ((bW - tft.strPixelLen(str)) / 2);
-      tft.setCursor(x, yBound + y2);
-      tft.println(str);
-
-      sprintf(str, "%03u", t_d2);
-      x = xBound+bW+bW + ((bW - tft.strPixelLen(str)) / 2);
-      tft.setCursor(x, yBound + y2);
-      tft.println(str);
+      printMidiLabelAndValue(tft, strD1Title, strD1, y1, y2, bW, bW);
+      printMidiLabelAndValue(tft, strD2Title, strD2, y1, y2, bW, bW*2);
     }
+  }
+  void printMidiLabelAndValue(BMC_TFT& tft, char * t_label, char * t_value, uint8_t y1, uint8_t y2, uint16_t bW, uint16_t bW2){
+    uint16_t centered = wBound-120;
+    if(centered > 0){
+      centered /= 2; 
+    }
+    uint16_t x = xBound+bW2 + ((bW - tft.strPixelLen(t_label)) / 2);
+    tft.setCursor(centered+x, yBound + y1);
+    tft.println(t_label);
+    
+    x = xBound+bW2 + ((bW - tft.strPixelLen(t_value)) / 2);
+    tft.setCursor(centered+x, yBound + y2);
+    tft.println(t_value);
   }
   uint16_t getX(){
     return xBound;

@@ -307,8 +307,11 @@ private:
 
     bmcStoreDevice <0, BMC_MAX_LAYER_EVENTS>& device = store.layers[layer].events[0];
     for(uint8_t i = 0 ; i < BMC_MAX_LAYER_EVENTS ; i++){
-      processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON,
-                  layer, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
+      processEvent(BMC_DEVICE_GROUP_BUTTON,
+                    BMC_DEVICE_ID_BUTTON,
+                    layer,
+                    device.events[i]
+                  );
     }
 
     #if BMC_MAX_BUTTONS > 1
@@ -333,8 +336,11 @@ private:
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
       for(uint8_t i = 0 ; i < len ; i++){
-        processEvent(BMC_DEVICE_GROUP_BUTTON, BMC_DEVICE_ID_BUTTON,
-                     t_preset, BMC_EVENT_IO_TYPE_INPUT, device.events[i]);
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
+                      BMC_DEVICE_ID_BUTTON,
+                      t_preset,
+                      device.events[i]
+                    );
       }
     }
     editor.utilitySendPreset(presets.getBank(), presets.get());
@@ -418,9 +424,14 @@ private:
   bool layerChangedPeek();
 
   // code @ BMC.events.cpp
-  uint8_t processEvent(uint8_t group, uint8_t deviceId, uint8_t deviceIndex,
-                       uint8_t ioType, uint16_t event, uint8_t value=0);
-  uint8_t handleStatusLedEvent(uint8_t status);
+  uint8_t processEvent(uint8_t group,
+                        uint8_t deviceId,
+                        uint16_t deviceIndex,
+                        uint16_t event,
+                        uint8_t value=0
+                      );
+  void handleClockLeds();
+  
 
   // EDITOR
   //BMC.editor.cpp
@@ -452,6 +463,7 @@ private:
   void setupHardware();
   void readHardware();
   void assignHardware();
+  void controlFirstLed(bool t_value);
   uint8_t parseMidiEventType(uint8_t t_type);
   uint8_t parseUserEventType(uint8_t t_type);
 
@@ -478,38 +490,25 @@ private:
   #endif //#if (BMC_PIXELS_PORT > 0) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0)
 
 
-  uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);
-
-  void handleClockLeds();
-  void controlFirstLed(bool t_value);
-  #if defined(BMC_USE_BEATBUDDY)
-    bool handleBeatBuddyLedEvent(uint8_t status, uint8_t data);
-  #endif //#ifdef BMC_USE_BEATBUDDY
+  // uint8_t handleLedEvent(uint8_t index, uint32_t data, uint8_t ledType);
 
   // code @ BMC.hardware.leds.cpp
   #if BMC_MAX_LEDS > 0
     BMCLed leds[BMC_MAX_LEDS];
-
   #endif //#if BMC_MAX_LEDS > 0
-
   #if BMC_MAX_GLOBAL_LEDS > 0
     BMCLed globalLeds[BMC_MAX_GLOBAL_LEDS];
   #endif //if BMC_MAX_GLOBAL_LEDS > 0
-
   // code @ BMC.hardware.leds.cpp
   #if BMC_MAX_BI_LEDS > 0
     BMCLed biLeds[BMC_MAX_BI_LEDS*2];
   #endif //#if BMC_MAX_BI_LEDS > 0
-
   #if BMC_MAX_GLOBAL_BI_LEDS > 0
     BMCLed globalBiLeds[BMC_MAX_GLOBAL_BI_LEDS*2];
   #endif //if BMC_MAX_GLOBAL_BI_LEDS > 0
-
-  // code @ BMC.hardware.leds.cpp
   #if BMC_MAX_TRI_LEDS > 0
     BMCLed triLeds[BMC_MAX_TRI_LEDS*3];
   #endif //#if BMC_MAX_TRI_LEDS > 0
-
   #if BMC_MAX_GLOBAL_TRI_LEDS > 0
     BMCLed globalTriLeds[BMC_MAX_GLOBAL_TRI_LEDS*3];
   #endif //if BMC_MAX_GLOBAL_TRI_LEDS > 0
