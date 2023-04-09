@@ -11,6 +11,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
   if(eventIndex == 0 || eventIndex > BMC_MAX_EVENTS_LIBRARY){
     return false;
   }
+  
   bmcStoreEvent& e = store.global.events[eventIndex-1];
   if(e.type==BMC_NONE){
     return false;
@@ -56,7 +57,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           max = byteC;
         }
         if(!scroll.enabled){
-          outVal = currentPC != byteB ? byteB : byteC;
+          outVal = currentPC != byteB ? byteB : (byteC-1);
         }
       }
       if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
@@ -104,7 +105,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           max = byteD;
         }
         if(!scroll.enabled){
-          outVal = currentCC != byteC ? byteC : byteD;
+          outVal = currentCC != byteC ? byteC : (byteD-1);
         }
       }
       if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
@@ -1024,7 +1025,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         sync.daw.sendButtonCommand(byteA, byteB, false);
 
       } else if(group == BMC_DEVICE_GROUP_LED){
-
+        
         return sync.daw.getLedState(byteA, byteB);
 
       } else if(group == BMC_DEVICE_GROUP_ENCODER){

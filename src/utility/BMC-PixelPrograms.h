@@ -15,7 +15,7 @@
 
 class BMCPixelPrograms {
 private:
-  MCMidi& midi;
+  BMCMidi& midi;
   BMCFlags <uint8_t> flags;
   uint8_t program = 0;
   uint8_t currentItem = 0;

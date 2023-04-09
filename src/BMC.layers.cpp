@@ -31,7 +31,7 @@ void BMC::setLayer(uint8_t t_layer, bool reassignSettings, bool forced){
   #if defined(BMC_HAS_HARDWARE)
     assignHardware();
   #endif
-
+  
   #if defined(BMC_HAS_DISPLAY)
     display.reassign();
   #endif
@@ -43,9 +43,9 @@ void BMC::setLayer(uint8_t t_layer, bool reassignSettings, bool forced){
   if(callback.pageChanged){
     callback.pageChanged(layer);
   }
+  
   if(flags.read(BMC_FLAGS_LAYER_CHANGED) && editor.connected()){
     editor.triggerStates();
-    
   }
 };
 bool BMC::layerChanged(){

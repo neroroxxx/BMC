@@ -29,56 +29,6 @@ class BMC_ILI9341 {
     display.setTextWrap(false);
     renderSplashScreen();
     return true;
-
-
-    char str[20] = "";
-    uint8_t height = 0;
-    uint8_t yOffset = 0;
-    while(1){
-      for(uint8_t i=0;i<7;i++){
-        display.fillScreen(BMC_ILI9341_BLACK);
-        sprintf(str,"%u `AQqgyTWt", i);
-        if(i == 0){
-          display.setFont(BMCLiberationSansNarrow_48);
-          height = 48;
-          yOffset = 12;
-        } else if(i == 1){
-          display.setFont(BMCLiberationSansNarrow_40);
-          height = 40;
-          yOffset = 12;
-        } else if(i == 2){
-          display.setFont(BMCLiberationSansNarrow_32);
-          height = 32;
-          yOffset = 8;
-        } else if(i == 3){
-          display.setFont(BMCLiberationSansNarrow_28);
-          height = 28;
-          yOffset = 8;
-        } else if(i == 4){
-          display.setFont(BMCLiberationSansNarrow_24);
-          height = 24;
-          yOffset = 6;
-        } else if(i == 5){
-          display.setFont(BMCLiberationSansNarrow_20);
-          height = 20;
-          yOffset = 6;
-        } else if(i == 6){
-          display.setFont(BMCLiberationSansNarrow_16);
-          height = 16;
-          yOffset = 4;
-        } else {
-          break;
-        }
-        
-        display.setTextColor(BMC_ILI9341_WHITE);
-        display.drawRect(0, 0, 320, height+(yOffset*2), BMC_ILI9341_RED);
-        display.drawRect(0, yOffset, 320, height, BMC_ILI9341_GREEN);
-        display.setCursor(0, yOffset);
-        display.print(str);
-        
-        delay(2000);
-      }
-    }
   }
   void renderSplashScreen(){
     uint16_t yBase = BMC_TFT_SIZE == 1 ? 0 : 40;

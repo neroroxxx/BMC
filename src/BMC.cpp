@@ -10,11 +10,13 @@
 BMC::BMC():
   settings(store.global.settings),
   globals(store, settings),
+  layer(globals.layer),
   midi(callback, globals),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
+
   #if BMC_MAX_PRESETS > 0
     ,presets(midi)
   #endif
@@ -42,20 +44,6 @@ BMC::BMC():
     ,timedEvents(midi)
   #endif
 
-  #if defined(BMC_HAS_DISPLAY)
-    ,display(midi
-    #if defined(BMC_USE_SYNC)
-      ,sync
-    #endif
-    )
-  #endif
-
-  #if defined(BMC_USE_ON_BOARD_EDITOR)
-    ,obe(editor, display)
-  #endif
-
-    ,layer(globals.layer)
-
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
@@ -68,6 +56,20 @@ BMC::BMC():
   #endif
   #ifdef BMC_DEBUG
     ,serialMonitor()
+  #endif
+
+
+
+  #if defined(BMC_HAS_DISPLAY)
+    ,display(midi
+    #if defined(BMC_USE_SYNC)
+      ,sync
+    #endif
+    )
+  #endif
+
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    ,obe(editor, display)
   #endif
 {
   // nothing here
@@ -401,7 +403,7 @@ void BMC::update(){
     //globals.resetCPU();
     oneSecondTimer = 0;
   }
-  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 100){
+  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 150){
     flags.off(BMC_FLAGS_STATUS_LED);
     heartbeat = 0;
   }

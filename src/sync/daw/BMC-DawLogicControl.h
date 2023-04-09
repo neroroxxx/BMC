@@ -51,6 +51,7 @@ public:
     memset(lcd[1], 0, 57);
   }
   void update(){
+    // return;
     controller.update();
     if(delayTimer.complete()){
       sendButtonCommand(delayCmd, delayCh, true);
@@ -96,10 +97,11 @@ public:
       return false;
     }
     if(d.isSysEx()){
-      if(d.sysex[1]==0 && d.sysex[2]==0 && d.sysex[3]==0x66 && d.sysex[4]==BMC_DAW_DEVICE_ID){
+      if(d.size()>=7 && d.sysex[1]==0 && d.sysex[2]==0 && d.sysex[3]==0x66 && d.sysex[4]==BMC_DAW_DEVICE_ID){
         incomingSysEx(d);
         return true;
       }
+      return false;
     }
     if(!controller.isOnline()){
       return false;
@@ -253,7 +255,9 @@ public:
         break;
       case 0x11:
         // 2-digit seven segment display, write multiple digits
-        parseTwoDigitDisplay(d.sysex[6], d.sysex[7]);
+        if(d.size()>8){
+          parseTwoDigitDisplay(d.sysex[6], d.sysex[7]);
+        }
         break;
       case 0x12:
         // 56x2 display
@@ -310,7 +314,6 @@ public:
     if(b > 0 && b < 63){
       twoDigitDisplay[0] = sevDigitChars[b];
     }
-    BMC_PRINTLN("twoDigitDisplay", twoDigitDisplay);
   }
   void parseLCD(BMCMidiMessage d){
     uint8_t offset = d.sysex[6];

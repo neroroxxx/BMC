@@ -417,6 +417,9 @@ private:
     #ifdef BMC_DEBUG
       debugFlags.reset();
     #endif
+    offset = 0;
+    layer = 0;
+    bpm = 120;
     loopsPerSecond = 0;
     lastLoopsPerSecond = 0;
   }

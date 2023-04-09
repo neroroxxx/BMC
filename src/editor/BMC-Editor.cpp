@@ -126,7 +126,7 @@ void BMCEditor::setLayer(uint8_t layer){
   }
 }
 uint8_t BMCEditor::getLayer(){
-  return layer;
+  return this->layer;
 }
 
 

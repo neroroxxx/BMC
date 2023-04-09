@@ -198,6 +198,7 @@ private:
   BMCSettings settings;
   // BMC data that holds flags and global variables
   BMCGlobals globals;
+  uint8_t & layer;
   // hold all callbacks for BMC
   BMCCallbacks callback;
   // it holds a reference to store.global.settings
@@ -218,6 +219,8 @@ private:
   BMCMidiClock midiClock;
   // handles active sense
   BMCMidiActiveSense midiActiveSense;
+
+  
 
 #if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
   BMCTimer encoderFixTimer;
@@ -258,17 +261,7 @@ private:
     void readTimedEvent();
 #endif
 
-#if defined(BMC_HAS_DISPLAY)
-    BMCDisplay display;
-#endif
-
-#if defined(BMC_USE_ON_BOARD_EDITOR)
-    BMCOBE obe;
-    // BMCIliSelector iliSelector;
-#endif
   unsigned long heartbeat = 0;
-
-  uint8_t & layer;
   uint8_t programBank = 0;
 
 #if BMC_MAX_LAYERS > 127 || BMC_MAX_PRESETS > 127
@@ -668,6 +661,15 @@ private:
   void debugStartTiming(uint8_t n, bool t_micros=false);
   unsigned long debugStopTiming(uint8_t n, bool t_micros=false);
   unsigned long getTiming(uint8_t n, bool t_micros=false);
+#endif
+
+#if defined(BMC_HAS_DISPLAY)
+    BMCDisplay display;
+#endif
+
+#if defined(BMC_USE_ON_BOARD_EDITOR)
+    BMCOBE obe;
+    // BMCIliSelector iliSelector;
 #endif
 
   // code @ BMC.sketchStream.cpp

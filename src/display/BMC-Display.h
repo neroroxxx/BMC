@@ -339,7 +339,9 @@ public:
       if(midi.globals.store.layers[layer].oled[i].events[0] == BMC_NONE){
         continue;
       }
+#if defined(BMC_USE_DAW_LC) || defined(BMC_USE_FAS)
       bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].oled[i].events[0]);
+#endif
 #if defined(BMC_USE_DAW_LC)
       if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
         if(BMC_GET_BYTE(0, e.event) == 2){
@@ -387,8 +389,8 @@ public:
     memset(dawFaderLevel, 0, 8);
     memset(dawChStates, 0, 8);
   #endif
+    
     clearIliBlocks();
-
 
     uint16_t layer = midi.globals.layer;
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
@@ -447,7 +449,7 @@ public:
 #endif
   }
   void reassign(){
-
+    BMC_PRINTLN("display reassign()");
     for(uint8_t i=0;i<9;i++){
 #if defined(BMC_USE_DAW_LC)
       chInfo[i].reset();
@@ -459,6 +461,7 @@ public:
 
     reassignOleds();
     reassignIliBlocks();
+    BMC_PRINTLN("display reassign() done +++++++++++++");
   }
 
 #if defined(BMC_USE_DAW_LC)
@@ -468,9 +471,15 @@ public:
       return;
     }
     BMC_PRINTLN("************ initDawMeters");
+    uint16_t x = block[dawMetersBlock].getX();
+    uint16_t y = block[dawMetersBlock].getY();
+    uint16_t w = block[dawMetersBlock].getWidth();
+    uint16_t h = block[dawMetersBlock].getHeight();
+    tft.display.fillRect(x, y, w, h, BMC_ILI9341_BLACK);
     updateDawMeters(true);
   }
   void updateDawMeters(bool reset=false){
+    // return;
     if(!allowRendering() || dawMetersBlock == -1){
       return;
     }
@@ -541,13 +550,21 @@ public:
   }
 
   void initDawChannels(){
-    if(!allowRendering() || dawChannelsBlock==-1){
+    if(!allowRendering() || dawChannelsBlock == -1){
       return;
     }
     BMC_PRINTLN("************ initDawChannels");
+    // make background black
+    uint16_t x = block[dawChannelsBlock].getX();
+    uint16_t y = block[dawChannelsBlock].getY();
+    uint16_t w = block[dawChannelsBlock].getWidth();
+    uint16_t h = block[dawChannelsBlock].getHeight();
+    tft.display.fillRect(x, y, w, h, BMC_ILI9341_BLACK);
+
     updateDawChannels(true);
   }
   void updateDawChannels(bool reset=false){
+    // return;
     if(!allowRendering() || dawChannelsBlock==-1){
       return;
     }
@@ -1092,8 +1109,10 @@ public:
     }
 #endif
   }
-
   void update(){
+    if(BMC_IS_ODD(millis())){
+      //BMC_PRINTLN(midi.globals.layer);
+    }
 #if BMC_MAX_ILI9341_BLOCKS > 0
   #if defined(BMC_HAS_TOUCH_SCREEN)
     touchCommand = 0;
@@ -1456,7 +1475,7 @@ private:
 #if BMC_MAX_OLED > 1
   void selectMux(uint8_t n){
 #if defined(BMC_OLED_USER_DEFINED_PORTS)
-    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_OLED, i);
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_OLED, n);
     n = ui.other2;// mux port
     //n = BMCBuildData::getOledDisplayPosition(n, 4);
 
