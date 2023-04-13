@@ -20,11 +20,11 @@ void BMC::readMidi(){
   incomingMidi(midi.read());// Read the USB MIDI Port
 
   #ifdef BMC_USB_HOST_ENABLED
-    incomingMidi(midi.readHost());// Read the USB Host MIDI Port
+    incomingMidi(midi.readHost()); // Read the USB Host MIDI Port
   #endif
 
   #ifdef BMC_MIDI_BLE_ENABLED
-    incomingMidi(midi.readBle());// Read the BLE MIDI Port
+    incomingMidi(midi.readBle()); // Read the BLE MIDI Port
   #endif
 
   #if defined(BMC_MIDI_SERIAL_A_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_A)

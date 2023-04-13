@@ -37,6 +37,15 @@ void BMC::editorRead(){
       display.renderStoreClearedBanner();
     #endif
   }
+  if(editor.getImportStateChanged()){
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      if(editor.importIsActive()){
+        display.renderImportBanner();
+      } else {
+        display.closeBanner();
+      }
+    #endif
+  }
 }
 void BMC::assignStoreData(){
   // The editor has updated data in EEPROM so we need to update all Hardware and Settings

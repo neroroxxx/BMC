@@ -106,8 +106,10 @@ public:
     if(!controller.isOnline()){
       return false;
     }
+
     uint8_t c = d.getData1();
     uint8_t v = d.getData2();
+    
     if(d.isControlChange()){
       if(c>=0x30 && c<=0x37){ // v-select
         uint8_t ch = (c-0x30);
@@ -232,7 +234,7 @@ public:
         }
       }
     }
-    return false;
+    return true;
   }
   void incomingSysEx(BMCMidiMessage d){
     switch(d.sysex[5]){

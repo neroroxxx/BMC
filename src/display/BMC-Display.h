@@ -162,6 +162,9 @@ public:
       block[i].begin(i);
     }
   }
+  void closeBanner(){
+    tempTimer.start(1);
+  }
   void renderUnavailableBanner(const char* line1, const char* line2){
     if(!allowBanner()){
       return;
@@ -189,7 +192,16 @@ public:
     char line2[33] = "EEPROM ERASED";
     renderTempBanner(line1, line2);
   }
-  
+  void renderImportBanner(){
+    #if defined(BMC_USE_ON_BOARD_EDITOR)
+      if(midi.globals.onBoardEditorActive()){
+        return;
+      }
+    #endif
+    char line1[33] = "BMC";
+    char line2[33] = "Import in Progress";
+    renderTempBanner(line1, line2, false);
+  }
   void renderPresetBanner(){
     if(!allowBanner()){
       return;
@@ -278,14 +290,14 @@ public:
 #endif
     return (midi.globals.settings.getDisplayBannerTimeout()>0);
   }
-  void renderTempBanner(const char* line1, const char* line2){
+  void renderTempBanner(const char* line1, const char* line2, bool timeout=true){
     char s1[strlen(line1)] = "";
     char s2[strlen(line2)] = "";
     strcpy(s1, line1);
     strcpy(s2, line2);
-    renderTempBanner(s1, s2);
+    renderTempBanner(s1, s2, timeout);
   }
-  void renderTempBanner(char* line1, char* line2){
+  void renderTempBanner(char* line1, char* line2, bool timeout=true){
     midi.globals.setDisplayRenderDisable(true);
     
     tft.display.fillRect(0, BMC_DISPLAY_BANNER_Y, BMC_TFT_WIDTH, 120, BMC_ILI9341_BLACK);
@@ -310,7 +322,9 @@ public:
     // draw frame last
     tft.display.drawRect(0, BMC_DISPLAY_BANNER_Y, BMC_TFT_WIDTH, 120, 0xfe60);
     tft.display.drawRect(1, BMC_DISPLAY_BANNER_Y+1, BMC_TFT_WIDTH-2, 118, 0xfe60);
-    tempTimer.start(midi.globals.settings.getDisplayBannerTimeout()*500);
+    if(timeout){
+      tempTimer.start(midi.globals.settings.getDisplayBannerTimeout()*500);
+    }
   }
 #endif
 

@@ -835,19 +835,19 @@ struct BMCLogicControlData {
   uint32_t states = 0;
   uint8_t states2 = 0;
   int16_t masterVolume = 0;
-  BMCLogicControlChannel channel[8];
+  BMCLogicControlChannel channel[9];
 
   void reset(){
     flags = 0;
     selected = 0;
     states = 0;
-    for(uint8_t i=0;i<9;i++){
+    for(uint8_t i = 0 ; i < 9 ; i++){
       channel[i].reset();
     }
   }
 
   void update(){
-    for(uint8_t i=0;i<9;i++){
+    for(uint8_t i = 0 ; i < 9 ; i++){
       channel[i].update();
     }
   }

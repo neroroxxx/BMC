@@ -85,6 +85,7 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
+#if defined(BMC_FAS3)
 // for Axe Fx 3
 #define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
 #define BMC_FAS_FUNC_ID_FIRMWARE              0x08
@@ -100,6 +101,7 @@
 #define BMC_FAS_FUNC_ID_SET_PRESET_NUMBER     0x3C
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
+#endif
 
 class BMCFas {
 private:

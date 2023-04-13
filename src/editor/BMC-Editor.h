@@ -37,8 +37,9 @@
 #define BMC_EDITOR_FLAG_BACKUP_STARTED              	 14
 #define BMC_EDITOR_FLAG_BACKUP_COMPLETE             	 15
 #define BMC_EDITOR_FLAG_BACKUP_CANCELED             	 16
-#define BMC_EDITOR_FLAG_SEND_STATES                 	 17
-#define BMC_EDITOR_FLAG_EEPROM_ERASED                  18
+#define BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE            17
+#define BMC_EDITOR_FLAG_SEND_STATES                 	 18
+#define BMC_EDITOR_FLAG_EEPROM_ERASED                  19
 
 
 class BMCEditor {
@@ -248,6 +249,12 @@ public:
     }
   }
 #endif
+  bool getImportStateChanged(){
+    return flags.toggleIfTrue(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
+  }
+  bool importIsActive(){
+    return midi.globals.editorConnected() && flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE);
+  }
 
 
 private:
@@ -298,6 +305,7 @@ private:
       BMC_INFO("Backup Started");
       flags.on(BMC_EDITOR_FLAG_BACKUP_ACTIVE);
       flags.on(BMC_EDITOR_FLAG_BACKUP_STARTED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
     }
@@ -310,6 +318,7 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.on(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
       #if BMC_MAX_LFO > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED);
       #endif
@@ -332,6 +341,7 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.off(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.on(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
       getStore();
       reloadData();
     }
@@ -351,6 +361,7 @@ private:
     }
     return 0;
   }
+  
 
   uint16_t checkIfHardwareAvailable(uint8_t t_type){
     for(uint8_t i = 0 ; i < devicesDataLength ; i++){

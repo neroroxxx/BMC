@@ -35,6 +35,7 @@ void BMCFas::update(){
     }
     return;
   }
+
   if(connected()){
     // if connected
     if(connectionLost.complete()){
@@ -45,7 +46,7 @@ void BMCFas::update(){
         BMC_PRINTLN("No response from FAS, connection lost...");
         disconnect();
       } else {
-        // in this case we waited for 3 seconds for a new message to be received
+        // in this case we waited for 5 seconds for a new message to be received
         // so we'll turn this flag on to wait for a new message one last time
         flags.on(BMC_FAS_FLAG_CONNECTION_LOST);
         sendBasicSysEx(BMC_FAS_FUNC_ID_CPU);
@@ -68,7 +69,7 @@ void BMCFas::update(){
     }
     BMC_PRINTLN("--> FAS LOOPER: STOPPED");
   }
-  if(!connected( )&& !syncing()){
+  if(!connected()&& !syncing()){
     if(startSyncTimer.complete()){
       startSyncTimer.start(3000);
       sendBasicSysEx(BMC_FAS_FUNC_ID_FIRMWARE);
@@ -107,8 +108,8 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       }
       flags.on(BMC_FAS_FLAG_TEMPO_RECEIVED);
       globals.clearMidiInActivity();
-    }
       return true;
+    }
     case BMC_FAS_FUNC_ID_TUNER_INFO:{
       if(!connected() || !isFractMessage(message, 10)){
         return false;
