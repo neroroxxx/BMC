@@ -47,7 +47,7 @@ public:
         return;
       }
       uint8_t bytes[length];
-      memset(bytes, 0, length);
+      memset(bytes, 0, sizeof(bytes[0])*length);
       for(uint8_t i=0;i<deviceA.settings[0];i++){
         bytes[i] = deviceA.events[i] & 0x7F;
       }

@@ -483,7 +483,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case BMC_LED_STATUS_STOPWATCH_STATE:
           case BMC_LED_STATUS_STOPWATCH_COMPLETE:
           {
-            char str[6] = "";
+            char str[13] = "";
             sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
             display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
           }
@@ -682,7 +682,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        char str[6] = "";
+        char str[13] = "";
         sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
         display.renderText(deviceIndex, isOled, e.type, str, "STOPWATCH");
 #endif
@@ -705,7 +705,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         }
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        char str[6] = "";
+        char str[10] = "";
         sprintf(str, "LFO %u", byteA+globals.offset);
         display.renderText(deviceIndex, isOled, e.type, str, "", lfo[byteA].isEnabled());
 #endif
@@ -995,7 +995,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        char str[6] = "";
+        char str[13] = "";
         if(auxJacks[byteA].isPotMode()){
           sprintf(str, "Exp %u", byteA+globals.offset);
         } else {
@@ -1287,24 +1287,25 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
     case BMC_EVENT_TYPE_FAS:
       if(group == BMC_DEVICE_GROUP_LED){
         switch(byteA){
-          case BMC_FAS_CMD_CONNECTION:   return sync.fas.connected();
-          case BMC_FAS_CMD_TUNER_ON:   return sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_OFF:   return !sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_TOGGLE:   return sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_IN_TUNE:   return sync.fas.tunerInTune();
-          case BMC_FAS_CMD_TUNER_FLAT:   return sync.fas.tunerFlat();
-          case BMC_FAS_CMD_TUNER_FLATTER:   return sync.fas.tunerFlatter();
-          case BMC_FAS_CMD_TUNER_FLATTEST:   return sync.fas.tunerFlattest();
-          case BMC_FAS_CMD_TUNER_SHARP:   return sync.fas.tunerSharp();
-          case BMC_FAS_CMD_TUNER_SHARPER:   return sync.fas.tunerSharper();
-          case BMC_FAS_CMD_TUNER_SHARPEST:   return sync.fas.tunerSharpest();
-          case BMC_FAS_CMD_LOOPER_PLAY:  return sync.fas.looperPlaying();
-          case BMC_FAS_CMD_LOOPER_REC:  return sync.fas.looperRecording();
-          case BMC_FAS_CMD_LOOPER_DUB:  return sync.fas.looperDubbing();
-          case BMC_FAS_CMD_LOOPER_REV:  return sync.fas.looperReversed();
-          case BMC_FAS_CMD_LOOPER_HALF:  return sync.fas.looperHalf();
-          case BMC_FAS_CMD_LOOPER_UNDO:  return 0; // looper undo
-          case BMC_FAS_CMD_TAP:  return 0; // tap tempo
+          case BMC_FAS_CMD_CONNECTION:          return sync.fas.connected();
+          case BMC_FAS_CMD_TUNER_ON:            return sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_OFF:           return !sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_TOGGLE:        return sync.fas.isTunerActive();
+          case BMC_FAS_CMD_TUNER_IN_TUNE:       return sync.fas.tunerInTune();
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:   return sync.fas.tunerOutOfTune();
+          case BMC_FAS_CMD_TUNER_FLAT:          return sync.fas.tunerFlat();
+          case BMC_FAS_CMD_TUNER_FLATTER:       return sync.fas.tunerFlatter();
+          case BMC_FAS_CMD_TUNER_FLATTEST:      return sync.fas.tunerFlattest();
+          case BMC_FAS_CMD_TUNER_SHARP:         return sync.fas.tunerSharp();
+          case BMC_FAS_CMD_TUNER_SHARPER:       return sync.fas.tunerSharper();
+          case BMC_FAS_CMD_TUNER_SHARPEST:      return sync.fas.tunerSharpest();
+          case BMC_FAS_CMD_LOOPER_PLAY:         return sync.fas.looperPlaying();
+          case BMC_FAS_CMD_LOOPER_REC:          return sync.fas.looperRecording();
+          case BMC_FAS_CMD_LOOPER_DUB:          return sync.fas.looperDubbing();
+          case BMC_FAS_CMD_LOOPER_REV:          return sync.fas.looperReversed();
+          case BMC_FAS_CMD_LOOPER_HALF:         return sync.fas.looperHalf();
+          case BMC_FAS_CMD_LOOPER_UNDO:         return 0; // looper undo
+          case BMC_FAS_CMD_TAP:                 return 0; // tap tempo
         }
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
         switch(byteA){
@@ -1317,6 +1318,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
             break;
           case BMC_FAS_CMD_TUNER_TOGGLE:
           case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:
           case BMC_FAS_CMD_TUNER_FLAT:
           case BMC_FAS_CMD_TUNER_FLATTER:
           case BMC_FAS_CMD_TUNER_FLATTEST:
@@ -1343,6 +1345,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
             break;
           case BMC_FAS_CMD_TUNER_TOGGLE:
           case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:
           case BMC_FAS_CMD_TUNER_FLAT:
           case BMC_FAS_CMD_TUNER_FLATTER:
           case BMC_FAS_CMD_TUNER_FLATTEST:
@@ -1369,6 +1372,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case BMC_FAS_CMD_TUNER_OFF:
           case BMC_FAS_CMD_TUNER_TOGGLE:
           case BMC_FAS_CMD_TUNER_IN_TUNE:
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:
           case BMC_FAS_CMD_TUNER_FLAT:
           case BMC_FAS_CMD_TUNER_FLATTER:
           case BMC_FAS_CMD_TUNER_FLATTEST:
@@ -1419,7 +1423,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        char str[8] = "";
+        char str[12] = "";
         bool highlight = sync.fas.getSceneNumber() == byteA;
         // display the selected scene number
         if(bitRead(displaySettings, 2)){ // selected

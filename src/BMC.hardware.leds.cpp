@@ -309,9 +309,11 @@ void BMC::readLeds(){
     }
   #endif
   }
+
   if(globals.globalLedStates.hasChanged() || editor.isTriggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_LED);
   }
+  
 #endif
 
 #if BMC_MAX_BI_LEDS > 0

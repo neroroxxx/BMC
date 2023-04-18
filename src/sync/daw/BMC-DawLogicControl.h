@@ -47,8 +47,8 @@ public:
   global(t_global),
   callback(t_callback)
   {
-    memset(lcd[0], 0, 57);
-    memset(lcd[1], 0, 57);
+    memset(lcd[0], 0, sizeof(lcd[0])*57);
+    memset(lcd[1], 0, sizeof(lcd[0])*57);
   }
   void update(){
     // return;
@@ -454,6 +454,7 @@ public:
       case BMC_DAW_CMD_BEATS:                 return controller.getBeats();
       case BMC_DAW_CMD_RUDE_SOLO:             return controller.getRudeSolo();
       case BMC_DAW_CMD_RELAY:                 return controller.getRelay();
+      case BMC_DAW_CMD_SYNCED:                return controller.isOnline();
     }
     return false;
   }

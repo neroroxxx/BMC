@@ -1,6 +1,6 @@
 /*
 See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2022 RoxXxtar.com
+Copyright (c) 2023 RoxXxtar.com
 See BMC Documentation for License
 See LICENSE file in the project root for full license information.
 */
@@ -6328,7 +6328,7 @@ static BMCSketchByteData getSketchByteData(uint8_t index){
     sprintf(defaultName,"Byte %01u",(uint8_t)index);
   }
   BMCSketchByteData buffer;
-  strcpy(buffer.name, defaultName);
+  strcpy(buffer.name,defaultName);
   buffer.initialValue = 0;
   buffer.min = 0;
   buffer.max = 255;
@@ -7129,10 +7129,23 @@ static bool isMuxInAnalogPin(uint8_t n){
 #endif
   return false;
 }
-// MUX IN ANALOG
 static bool isMuxInAnalogPinIndex(uint8_t n){
 #if BMC_MAX_MUX_IN_ANALOG > 0
   return (n>=(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT) && n<(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG));
+#endif
+  return false;
+}
+
+// MUX IN KEYPAD
+static bool isMuxInKeypadPin(uint8_t n){
+#if BMC_MAX_MUX_IN_KEYPAD > 0
+  return (n>=(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG) && n<(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG+BMC_MAX_MUX_IN_KEYPAD));
+#endif
+  return false;
+}
+static bool isMuxInKeypadPinIndex(uint8_t n){
+#if BMC_MAX_MUX_IN_KEYPAD > 0
+  return (n>=(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG) && n<(BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG+BMC_MAX_MUX_IN_KEYPAD));
 #endif
   return false;
 }

@@ -11,7 +11,7 @@
 
 
   // BMC Event Object for BMC 2.0
-  struct __attribute__ ((packed)) bmcStoreEvent {
+  struct bmcStoreEvent {
     bmcName_t name = 0;
     uint8_t settings = 0;
     uint8_t type = 0;
@@ -19,13 +19,13 @@
     uint32_t event = 0;
   };
   // BMC Name Object for BMC 2.0
-  struct __attribute__ ((packed)) bmcStoreName {
+  struct bmcStoreName {
     char name[BMC_MAX_NAMES_LENGTH] = "";
   };
 
   // BMC Device Object for BMC 2.0
   template <uint8_t sLen, uint8_t eLen, typename T=bmcEvent_t>
-  struct __attribute__ ((packed)) bmcStoreDevice {
+  struct bmcStoreDevice {
     bmcName_t name = 0;
     uint8_t settings[sLen];
     T events[eLen];
@@ -34,7 +34,7 @@
   
   
   // Layer Object
-  struct __attribute__ ((packed)) bmcStoreLayer {
+  struct bmcStoreLayer {
     bmcStoreDevice <0, BMC_MAX_LAYER_EVENTS> events[1];
     #if BMC_MAX_BUTTONS > 0
       bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
@@ -74,7 +74,7 @@
     #endif
   };
 
-  struct __attribute__ ((packed)) bmcStoreTouchSettings {
+  struct bmcStoreTouchSettings {
     float xM = 0.0;
     float xC = 0.0;
     float yM = 0.0;
@@ -82,7 +82,7 @@
   };
 
  // Settings object
-  struct __attribute__ ((packed)) bmcStoreGlobalSettings {
+  struct bmcStoreGlobalSettings {
     uint32_t flags = 0;
     uint32_t data[8];
     uint16_t routing[7];
@@ -92,14 +92,14 @@
     #endif
   };
   // Pot Calibration, part of the global object
-  struct __attribute__ ((packed)) bmcStoreGlobalPotCalibration {
+  struct bmcStoreGlobalPotCalibration {
     uint16_t min = 0;
     uint16_t max = 1023;
   };
   // DO NOT CHANGE THIS ORDER!!!!!!!!!
   // This order is used to read/write from EEPROM to speed up the process
   // specially when using i2c.
-  struct __attribute__ ((packed)) bmcStoreGlobal {
+  struct bmcStoreGlobal {
     bmcStoreGlobalSettings settings;
     bmcStoreEvent events[BMC_MAX_EVENTS_LIBRARY];
     bmcStoreName names[BMC_MAX_NAMES_LIBRARY];
@@ -173,7 +173,7 @@
       bmcStoreDevice <2, 1> timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };
-  struct __attribute__ ((packed)) bmcStore {
+  struct bmcStore {
     uint16_t crc = 0;
     uint16_t version = 0;
     bmcStoreGlobal global;

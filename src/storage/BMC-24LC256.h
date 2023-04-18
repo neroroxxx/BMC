@@ -161,7 +161,7 @@ class BMC24LC256
           BMC_PRINTLN("This may take a few seconds");
           uint8_t chunk = 64;
           uint8_t data[chunk];
-          memset(data,0,chunk);
+          memset(data, 0, chunk);
           for(uint32_t a = 0; a <= _totalCapacity; a += chunk){
             write(a, data, chunk);
 #ifdef BMC_DEBUG

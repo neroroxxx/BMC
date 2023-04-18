@@ -169,7 +169,7 @@ struct BMCBitStates {
   uint16_t value[((len >> 4) & 0x0F)+1];
   bool updated = false;
   BMCBitStates(){
-    memset(value, 0 , ((len >> 4) & 0x0F)+1);
+    memset(value, 0 , (((len >> 4) & 0x0F)+1)*sizeof(uint16_t));
   }
   uint8_t getLength(){
     return ((len >> 4) & 0x0F)+1;
@@ -666,7 +666,7 @@ struct BMCMidiTimeSignature {
 struct BMCLogicControlChannelVU {
   // bits 0=overload, 1=changed
   BMCFlags <uint8_t> flags;
-  BMCEndlessTimer meterDecayTimer;
+  // BMCEndlessTimer meterDecayTimer;
   uint8_t meter = 0;
   uint8_t lastPeak = 0;
   void reset(){
@@ -676,13 +676,13 @@ struct BMCLogicControlChannelVU {
   }
 
   BMCLogicControlChannelVU(){
-    meterDecayTimer.start(300);
+    // meterDecayTimer.start(300);
   }
   void update(){
-    if(meter>0 && meterDecayTimer){
-      meter--;
-      flags.on(1);
-    }
+    // if(meter>0 && meterDecayTimer){
+    //   meter--;
+    //   flags.on(1);
+    // }
   }
   bool hasChanged(){
     return flags.toggleIfTrue(1);
@@ -704,7 +704,7 @@ struct BMCLogicControlChannelVU {
   }
   void setMeter(uint8_t value){
     if(assignMeterValue(value)){
-      meterDecayTimer.restart();
+      // meterDecayTimer.restart();
     }
   }
   bool assignMeterValue(uint8_t value){
@@ -713,17 +713,21 @@ struct BMCLogicControlChannelVU {
         break;
       case 0x0E:
         // set the overload
-        if(!flags.read(0)){flags.on(1);}
+        if(!flags.read(0)){
+          flags.on(1);
+        }
         flags.on(0);
         return true;
       case 0x0F:
         // remove the overload
-        if(flags.read(0)){flags.on(1);}
+        if(flags.read(0)){
+          flags.on(1);
+        }
         flags.off(0);
         return true;
       default:
         // get the last peak state
-        if(value != lastPeak){
+        if(value != meter){
           meter = value;
           flags.on(1);
         }

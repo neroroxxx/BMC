@@ -318,6 +318,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MUX_IN_ANALOG_CHIPSET_74HC4067 2
 #define BMC_MUX_IN_ANALOG_CHIPSET_74HC4051 3
 
+#define BMC_MUX_IN_KEYPAD 1
+
 #define BMC_ALPHABET {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f'}
 
 // Check that all pins in Config are set properly
@@ -1080,7 +1082,10 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_FAS_CMD_LOOPER_REV    	 14
 #define BMC_FAS_CMD_LOOPER_HALF   	 15
 #define BMC_FAS_CMD_LOOPER_UNDO   	 16
-#define BMC_FAS_CMD_TAP           	 17
+#define BMC_FAS_CMD_TUNER_OUT_OF_TUNE 17
+// keep BMC_FAS_CMD_TAP last, it is used
+// as the length of events in the onboard editor
+#define BMC_FAS_CMD_TAP           	 18
 
 
 #define BMC_FAS_LOOPER_STATE_RECORDING 0
@@ -1467,6 +1472,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_DAW_CMD_VPOT_LED_CENTER   	 97
 #define BMC_DAW_CMD_PREV_MARKER   	     98
 #define BMC_DAW_CMD_NEXT_MARKER   	     99
+#define BMC_DAW_CMD_SYNCED             	 100
 
 
 // **********************************

@@ -81,9 +81,9 @@ public:
     #endif
   {
     #if BMC_MAX_OLED > 0
-    memset(last, 0, BMC_MAX_OLED);
+    memset(last, 0, sizeof(last[0])*BMC_MAX_OLED);
     #endif
-    begin();
+    // begin();
   }
   void begin(){
     BMC_PRINTLN("BMCDisplay::begin()");
@@ -93,14 +93,22 @@ public:
     dawMetersBlock = -1;
     dawVuOverload = 0;
     dawSelectedTrack = -1;
-    memset(dawVPotLevel, 0, 8);
-    memset(dawVPotBits, 0, 8);
-    memset(dawVuLevel, 0, 8);
-    memset(dawVuLevelBits, 0, 8);
-    memset(dawFaderLevel, 0, 8);
-    
-    memset(dawChStates, 0, 8);
+    // memset(dawVPotLevel, 0, 8);
+    // memset(dawVPotBits, 0, 8);
+    // memset(dawVuLevel, 0, 8);
+    // memset(dawVuLevelBits, 0, 8);
+    // memset(dawFaderLevel, 0, 8);
+    // memset(dawChStates, 0, 8);
+
+    memset(dawVPotLevel, 0, sizeof(dawVPotLevel[0])*8);
+    memset(dawVPotBits, 0, sizeof(dawVPotBits[0])*8);
+    memset(dawVuLevel, 0, sizeof(dawVuLevel[0])*8);
+    memset(dawVuLevelBits, 0, sizeof(dawVuLevelBits[0])*8);
+    memset(dawFaderLevel, 0, sizeof(dawFaderLevel[0])*8);
+    memset(dawChStates, 0, sizeof(dawChStates[0])*8);
+
 #endif
+
 #if BMC_MAX_OLED > 0
     initOled();
 #endif
@@ -108,7 +116,7 @@ public:
 #if BMC_MAX_ILI9341_BLOCKS > 0
     initILI9341();
 #endif
-    delay(500);
+    delay(50);
   }
 
 #if BMC_MAX_ILI9341_BLOCKS > 0
@@ -291,8 +299,8 @@ public:
     return (midi.globals.settings.getDisplayBannerTimeout()>0);
   }
   void renderTempBanner(const char* line1, const char* line2, bool timeout=true){
-    char s1[strlen(line1)] = "";
-    char s2[strlen(line2)] = "";
+    char s1[strlen(line1)+1] = "";
+    char s2[strlen(line2)+1] = "";
     strcpy(s1, line1);
     strcpy(s2, line2);
     renderTempBanner(s1, s2, timeout);
@@ -330,6 +338,7 @@ public:
 
 #if BMC_MAX_OLED > 0
   void initOled(){
+    
     #if BMC_MAX_OLED > 1
       Wire.begin();
     #endif
@@ -345,7 +354,7 @@ public:
 #endif
   void reassignOleds(){
 #if BMC_MAX_OLED > 0
-    memset(last, 0, BMC_MAX_OLED);
+    memset(last, 0, sizeof(last[0])*BMC_MAX_OLED);
     clearOleds();
 
     uint16_t layer = midi.globals.layer;
@@ -356,6 +365,7 @@ public:
 #if defined(BMC_USE_DAW_LC) || defined(BMC_USE_FAS)
       bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].oled[i].events[0]);
 #endif
+
 #if defined(BMC_USE_DAW_LC)
       if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
         if(BMC_GET_BYTE(0, e.event) == 2){
@@ -364,6 +374,7 @@ public:
         }
       }
 #endif
+
 #if defined(BMC_USE_FAS)
       if(e.type == BMC_EVENT_TYPE_FAS){
         switch(BMC_GET_BYTE(0, e.event)){
@@ -377,7 +388,6 @@ public:
           case BMC_FAS_CMD_TUNER_SHARP:
           case BMC_FAS_CMD_TUNER_SHARPER:
           case BMC_FAS_CMD_TUNER_SHARPEST:
-            BMC_PRINTLN(">>>>>>>>>>>>> assign OLED", i, "To FAS TUNER");
             initFasTuner(true, i);
             break;
         }
@@ -396,12 +406,19 @@ public:
     dawMetersBlock = -1;
     dawVuOverload = 0;
     dawSelectedTrack = -1;
-    memset(dawVPotLevel, 0, 8);
-    memset(dawVPotBits, 0, 8);
-    memset(dawVuLevel, 0, 8);
-    memset(dawVuLevelBits, 0, 8);
-    memset(dawFaderLevel, 0, 8);
-    memset(dawChStates, 0, 8);
+    // memset(dawVPotLevel, 0, 8);
+    // memset(dawVPotBits, 0, 8);
+    // memset(dawVuLevel, 0, 8);
+    // memset(dawVuLevelBits, 0, 8);
+    // memset(dawFaderLevel, 0, 8);
+    // memset(dawChStates, 0, 8);
+
+    memset(dawVPotLevel, 0, sizeof(dawVPotLevel[0])*8);
+    memset(dawVPotBits, 0, sizeof(dawVPotBits[0])*8);
+    memset(dawVuLevel, 0, sizeof(dawVuLevel[0])*8);
+    memset(dawVuLevelBits, 0, sizeof(dawVuLevelBits[0])*8);
+    memset(dawFaderLevel, 0, sizeof(dawFaderLevel[0])*8);
+    memset(dawChStates, 0, sizeof(dawChStates[0])*8);
   #endif
     
     clearIliBlocks();
@@ -475,7 +492,6 @@ public:
 
     reassignOleds();
     reassignIliBlocks();
-    BMC_PRINTLN("display reassign() done +++++++++++++");
   }
 
 #if defined(BMC_USE_DAW_LC)
@@ -701,6 +717,8 @@ public:
     uint8_t index = chInfo[n].index;
     uint8_t vPotValue = sync.daw.controller.getVPot(channel);
     uint8_t vuValue = sync.daw.controller.getMeter(channel);
+    bool small = (BMC_OLED_HEIGHT==32);
+    // uint16_t y = BMC_OLED_HEIGHT==32 ? 0 : 16;
     bmcStoreName t = sync.daw.getLcdTrackName(channel);
     bmcStoreName t2 = sync.daw.getLcdTrackValue(channel);
     BMCTools::strTrim(t.name);
@@ -719,51 +737,65 @@ public:
       vuValue = 255;
       chInfo[n].vPotBits = 0xFFFF;
       chInfo[n].vuBits = 0xFFFF;
-      oled[index].display.fillRect(0, 0, 128, 64, BMC_OLED_BLACK);
-      oled[index].display.drawRect(25, 56, 101, 8, BMC_OLED_WHITE);
+      oled[index].display.fillRect(0, 0, 128, BMC_OLED_HEIGHT, BMC_OLED_BLACK);
+      oled[index].display.fillRect(25, (small ? 24 : 56), 101, 8, BMC_OLED_WHITE);
+      oled[index].display.fillRect(71, (small ? 26 : 58), 9, 4, BMC_OLED_WHITE);
     }
+    // track name
     if(!BMC_STR_MATCH(t.name, chInfo[n].name)){
       strcpy(chInfo[n].name, t.name);
-      uint16_t x = (105-((strlen(t.name)*18)-3))/2;
-      oled[index].display.fillRect(23, 1, 105, 24, BMC_OLED_BLACK);
-      oled[index].display.setCursor(x+23, 27);
-      oled[index].display.setTextSize(3);
+      uint8_t fontSize = small ? 2 : 3;
+      uint16_t x = (105-((strlen(t.name)*(6*fontSize))-fontSize))/2;
+      oled[index].display.fillRect(23, 1, 105, (fontSize * 8), BMC_OLED_BLACK);
+      oled[index].display.setCursor(x+23, (fontSize * 8)+fontSize);
+      oled[index].display.setTextSize(fontSize);
       oled[index].display.setTextColor(BMC_OLED_WHITE);
       oled[index].display.setTextWrap(false);
       oled[index].display.print(t.name);
       show = true;
     }
+    // channel value
     if(!BMC_STR_MATCH(t2.name, chInfo[n].value)){
       strcpy(chInfo[n].value, t2.name);
-      uint16_t x = (82-((strlen(t2.name)*12)-2))/2;
-      oled[index].display.fillRect(35, 31, 82, 16, BMC_OLED_BLACK);
-      oled[index].display.setCursor(x+35, 47);
-      oled[index].display.setTextSize(2);
-      oled[index].display.setTextColor(BMC_OLED_WHITE);
-      oled[index].display.setTextWrap(false);
-      oled[index].display.print(t2.name);
-      show = true;
+      if(!small){
+        uint16_t x = (82-((strlen(t2.name)*12)-2))/2;
+        oled[index].display.fillRect(35, 31, 82, 16, BMC_OLED_BLACK);
+        oled[index].display.setCursor(x+35, 47);
+        oled[index].display.setTextSize(2);
+        oled[index].display.setTextColor(BMC_OLED_WHITE);
+        oled[index].display.setTextWrap(false);
+        oled[index].display.print(t2.name);
+        show = true;
+      }
     }
+    // Meter
     if(vuValue != chInfo[n].vuValue){
       chInfo[n].vuValue = vuValue;
       for(int8_t e = 13 ; e --> 1 ;){
         int8_t ee = abs(e-12) + 1;
+        // int8_t ee = abs((12-e)+ 1);
         bool v = sync.daw.controller.getMeter(channel, ee)>0;
         if(bitRead(chInfo[n].vuBits, e) != v){
           bitWrite(chInfo[n].vuBits, e, v);
-          oled[index].display.fillRect(2, (e*5), 12, 4, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          if(!small){
+            oled[index].display.fillRect(2, (e*5), 12, 4, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          } else {
+            oled[index].display.fillRect(2, (e*2)+6, 12, 2, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          }
+          show = true;
         }
       }
-      show = true;
     }
+    // vPot
     if(vPotValue != chInfo[n].vPotLevel){
       chInfo[n].vPotLevel = vPotValue;
-      oled[index].display.drawRect(25, 56, 101, 8, BMC_OLED_WHITE);
+      // oled[index].display.drawRect(25, (small ? 24 : 56), 101, 8, BMC_OLED_WHITE);
+      // oled[index].display.fillRect(71, (small ? 26 : 58), 9, 4, BMC_OLED_WHITE);
       for(uint8_t e = 0 ; e < 11 ; e++){
         bool l = sync.daw.controller.getVPotValue(channel, e+1)>0;
         if(bitRead(chInfo[n].vPotBits, e) != l){
           bitWrite(chInfo[n].vPotBits, e, l);
-          oled[index].display.fillRect(26+(e*9), 58, 9, 4, l ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          oled[index].display.fillRect(26+(e*9), (small ? 26 : 58), 9, 4, l ? BMC_OLED_WHITE : BMC_OLED_BLACK);
         }
       }
       show = true;
@@ -1124,9 +1156,6 @@ public:
 #endif
   }
   void update(){
-    if(BMC_IS_ODD(millis())){
-      //BMC_PRINTLN(midi.globals.layer);
-    }
 #if BMC_MAX_ILI9341_BLOCKS > 0
   #if defined(BMC_HAS_TOUCH_SCREEN)
     touchCommand = 0;
@@ -1212,7 +1241,7 @@ public:
 #endif
 
 void renderNumber(uint8_t n, bool isOled, uint8_t type, uint16_t value, const char * format, const char* label="", bool highlight=false){
-  char str[6] = "";
+  char str[10] = "";
   if(value<10){
     sprintf(str, "%01u", value);
   } else if(value<100){
@@ -1230,9 +1259,9 @@ void renderChar(uint8_t n, bool isOled, uint8_t type, char str){
   renderText(n, isOled, type, c);
 }
 void renderText(uint8_t n, bool isOled, uint8_t type, const char* str, const char* label="", bool highlight=false){
-  uint8_t len = strlen(str)+1;
-  char c[len] = "";
-  strncpy(c, str, len);
+  char c[strlen(str)+1] = "";
+  // strncpy(c, str, len-1);
+  strcpy(c, str);
   renderText(n, isOled, type, c, label, highlight);
 }
 void setSelChar(uint8_t n, bool isOled, uint8_t selChar){

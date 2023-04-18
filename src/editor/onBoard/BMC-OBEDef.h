@@ -724,11 +724,19 @@ class BMCOBEData {
     }
   }
   void reset(){
-    memset(level, 0, BMC_OBE_MAX_LEVELS);
-    memset(lastRowPage, 0, BMC_OBE_MAX_LEVELS);
-    //memset(lastMaxRowPages, 0, BMC_OBE_MAX_LEVELS);
-    memset(lastActiveRow, 0, BMC_OBE_MAX_LEVELS);
-    memset(visibleRowId, 0, BMC_OBE_ROWS_PER_PAGE);
+    // memset(level, 0, BMC_OBE_MAX_LEVELS);
+    // memset(lastRowPage, 0, BMC_OBE_MAX_LEVELS);
+    // //memset(lastMaxRowPages, 0, BMC_OBE_MAX_LEVELS);
+    // memset(lastActiveRow, 0, BMC_OBE_MAX_LEVELS);
+    // memset(visibleRowId, 0, BMC_OBE_ROWS_PER_PAGE);
+
+    memset(level, 0, sizeof(level[0])*BMC_OBE_MAX_LEVELS);
+    memset(lastRowPage, 0, sizeof(lastRowPage[0])*BMC_OBE_MAX_LEVELS);
+    //memset(lastMaxRowPages, 0, sizeof(lastMaxRowPages[0])*BMC_OBE_MAX_LEVELS);
+    memset(lastActiveRow, 0, sizeof(lastActiveRow[0])*BMC_OBE_MAX_LEVELS);
+    memset(visibleRowId, 0, sizeof(visibleRowId[0])*BMC_OBE_ROWS_PER_PAGE);
+
+
     visibleRowIdLength = 0;
     eventEditorEditMode = false;
     rowEditValue = 0;

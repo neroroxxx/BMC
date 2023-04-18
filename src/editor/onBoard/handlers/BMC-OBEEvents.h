@@ -1806,7 +1806,7 @@ private:
         switch(fieldRequest){
           case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return 99; /* max */
+          case 2: return BMC_DAW_SYNCED; /* max */
           case 3: /* get stored value */
             return BMC_GET_BYTE(0, tempEvent.event);
           case 4: /* set stored value */
@@ -1914,6 +1914,7 @@ private:
               case BMC_DAW_CMD_VPOT_LED_CENTER: strcpy(str, "VPOT LED CENTERED"); return 1;
               case BMC_DAW_CMD_PREV_MARKER: strcpy(str, "PREV MARKER"); return 1;
               case BMC_DAW_CMD_NEXT_MARKER: strcpy(str, "NEXT MARKER"); return 1;
+              case BMC_DAW_CMD_SYNCED: strcpy(str, "SYNCED"); return 1;
               
             }
             return 0;
@@ -1974,6 +1975,7 @@ private:
               case BMC_FAS_CMD_TUNER_OFF:   strcpy(str, "Tuner Off");return 1;
               case BMC_FAS_CMD_TUNER_TOGGLE:   strcpy(str, "Tuner Toggle");return 1;
               case BMC_FAS_CMD_TUNER_IN_TUNE:   strcpy(str, "Tuner In Tune");return 1;
+              case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:   strcpy(str, "Tuner Out of Tune");return 1;
               case BMC_FAS_CMD_TUNER_FLAT:   strcpy(str, "Tuner Flat");return 1;
               case BMC_FAS_CMD_TUNER_FLATTER:   strcpy(str, "Tuner Flatter");return 1;
               case BMC_FAS_CMD_TUNER_FLATTEST:   strcpy(str, "Tuner Flattest");return 1;

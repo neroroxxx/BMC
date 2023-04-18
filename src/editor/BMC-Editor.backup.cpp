@@ -77,7 +77,7 @@ void BMCEditor::backupNameMessage(uint16_t t_minLength){
     if(incoming.size() == (nameLength + t_minLength)){
       bmcStoreName& item = store.global.names[index];
       // set all the name characters all to 0
-      memset(item.name, 0, BMC_MAX_NAMES_LENGTH);
+      memset(item.name, 0, sizeof(item.name)*BMC_MAX_NAMES_LENGTH);
       // if the length we received is higher than the compiled length,
       // set it to the compiled length
       if(nameLength > BMC_MAX_NAMES_LENGTH){

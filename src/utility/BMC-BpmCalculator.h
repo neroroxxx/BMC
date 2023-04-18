@@ -126,7 +126,8 @@ private:
   void reset(){
     ticks = 0;
     bpmAvgSize = 0;
-    memset(bpmAvg,0,BMC_BPM_AVERAGE);
+    // memset(bpmAvg, 0, BMC_BPM_AVERAGE);
+    memset(bpmAvg, 0, sizeof(bpmAvg[0]) * BMC_BPM_AVERAGE);
     timer.stop();
     flags.reset();
   }

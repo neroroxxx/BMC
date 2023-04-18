@@ -169,6 +169,9 @@ public:
   bool tunerInTune(){
     return isTunerActive() && (!tunerFlat() && !tunerSharp());
   }
+  bool tunerOutOfTune(){
+    return isTunerActive() && (tunerFlat() || tunerSharp());
+  }
   bool tunerFlat(){
     return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLAT);
   }

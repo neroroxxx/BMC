@@ -692,5 +692,6 @@ private:
 // this include the API class which handles all the actual calls other than
 #include "BMC-Api.h"
 #define BMC_DEFAULT() BMCApi bmc = BMCApi();
+// #define BMC_DEFAULT() BMC bmc = BMC();
 
 #endif

@@ -21,6 +21,7 @@ BMCEditor::BMCEditor(bmcStore& t_store,
   incoming.reset();
 }
 void BMCEditor::begin(){
+  
   flags.reset();
   // see getStore() in BMC-Editor.h
   flags.on(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP);

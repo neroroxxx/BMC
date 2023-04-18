@@ -9,16 +9,29 @@ See LICENSE file in the project root for full license information.
 #define BMC_CONFIG_CHECK_PINS_H
 
 
-#ifndef BMC_MAX_LAYERS
-  #define BMC_MAX_LAYERS 1
+#ifndef BMC_MAX_PAGES
+  #define BMC_MAX_PAGES 1
+#endif
+
+
+#ifndef BMC_MAX_MUX_GPIO
+  #define BMC_MAX_MUX_GPIO 0
 #endif
 
 #ifndef BMC_MAX_MUX_IN
   #define BMC_MAX_MUX_IN 0
 #endif
 
+#ifndef BMC_MAX_MUX_OUT
+  #define BMC_MAX_MUX_OUT 0
+#endif
+
 #ifndef BMC_MAX_MUX_IN_ANALOG
   #define BMC_MAX_MUX_IN_ANALOG 0
+#endif
+
+#ifndef BMC_MAX_MUX_IN_KEYPAD
+  #define BMC_MAX_MUX_IN_KEYPAD 0
 #endif
 
 #ifndef BMC_MAX_BUTTON_EVENTS

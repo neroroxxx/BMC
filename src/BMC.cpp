@@ -23,11 +23,9 @@ BMC::BMC():
   #if BMC_MAX_SETLISTS > 0
     ,setLists(presets)
   #endif
-
   #if defined(BMC_USE_SYNC)
     ,sync(midi, midiClock, callback)
   #endif
-
   #if BMC_MAX_CUSTOM_SYSEX > 0
     ,customSysEx(midi)
   #endif
@@ -43,7 +41,6 @@ BMC::BMC():
   #if BMC_MAX_TIMED_EVENTS > 0
     ,timedEvents(midi)
   #endif
-
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
@@ -57,9 +54,6 @@ BMC::BMC():
   #ifdef BMC_DEBUG
     ,serialMonitor()
   #endif
-
-
-
   #if defined(BMC_HAS_DISPLAY)
     ,display(midi
     #if defined(BMC_USE_SYNC)
@@ -78,6 +72,9 @@ BMC::BMC():
 void BMC::begin(){
   BMC_PRINTLN("BMC::begin");
   // keep this order
+  #if defined(BMC_HAS_DISPLAY)
+    display.begin();
+  #endif
   
   #ifdef BMC_DEBUG
     setupDebug();

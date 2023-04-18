@@ -169,7 +169,7 @@ class BMC_ILI9341_BLOCK {
     if(hBound == 40 || !bitRead(settings, 0) || strlen(t_str) == 0){
       return 0;
     }
-    char str[strlen(t_str)] = "";
+    char str[strlen(t_str)+1] = "";
     strcpy(str, t_str);
     tft.setFont(Arial_9_Bold);
     

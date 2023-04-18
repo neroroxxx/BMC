@@ -252,8 +252,16 @@
     #error "BMC supports up to 127 Analog Mux Pins"
   #endif
 
-  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT)>64
-    #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN & BMC_MAX_MUX_OUT"
+
+  #ifndef BMC_MAX_MUX_IN_KEYPAD
+    #define BMC_MAX_MUX_IN_KEYPAD 0
+  #endif
+  #if BMC_MAX_MUX_IN_KEYPAD > 64
+    #error "BMC supports up to 64 Mux In Keypad Pins"
+  #endif
+
+  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_KEYPAD)>64
+    #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_KEYPAD"
   #endif
 
   #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)>127
