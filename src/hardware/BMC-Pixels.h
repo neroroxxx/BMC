@@ -669,7 +669,7 @@ private:
       pulseTimer[n].stop();
       currentColor[n] = 0;
     }
-    memset(rgbPulseReset, 0, BMC_MAX_RGB_PIXELS);
+    memset(rgbPulseReset, 0, sizeof(rgbPulseReset[0])*BMC_MAX_RGB_PIXELS);
 #endif
 
     if(showPixels){

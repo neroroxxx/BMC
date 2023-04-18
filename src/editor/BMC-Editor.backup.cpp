@@ -118,7 +118,7 @@ void BMCEditor::backupGlobalPreset(uint16_t t_minLength){
         item.length = BMC_MAX_PRESET_ITEMS;
       }
       // set all bytes in the event array to 0
-      memset(item.events, 0, BMC_MAX_PRESET_ITEMS);
+      memset(item.events, 0, sizeof(item.events[0])*BMC_MAX_PRESET_ITEMS);
       // e is the offset where we start in the sysex array
       // it will be used to keep track of where we are and for the
       // name if it's compiled
@@ -190,7 +190,7 @@ void BMCEditor::backupGlobalSetList(uint16_t t_minLength){
         item.length = BMC_MAX_SETLISTS_SONGS;
       }
       // set all bytes in the event array to 0
-      memset(item.songs, 0, BMC_MAX_SETLISTS_SONGS);
+      memset(item.songs, 0, sizeof(item.songs[0])*BMC_MAX_SETLISTS_SONGS);
       // e is the offset where we start in the sysex array
       // it will be used to keep track of where we are and for the
       // name if it's compiled
@@ -356,7 +356,7 @@ void BMCEditor::backupPixelProgram(uint16_t t_minLength){
       item.length = 8;
     }
     // set all bytes in the event array to 0
-    memset(item.events, 0, 8);
+    memset(item.events, 0, sizeof(item.events[0])*8);
     for(uint8_t i = 0, e = 10; i < 8 ; i++, e+=2){
       item.events[i] = incoming.get8Bits(e);
     }

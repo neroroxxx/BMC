@@ -836,7 +836,8 @@ private:
       BMC_PRINTLN("EEPROM Store",address,"is being Erased.");
       BMC_WARN_FOOT;
       // clear the current store in RAM by setting all bytes to 0
-      memset(&store,0,sizeof(bmcStore));
+      // memset(&store,0,sizeof(bmcStore));
+      store = {};
       // add the CRC
       store.crc = (BMC_CRC); // update the CRC
       store.version = (BMC_VERSION); // update the library version

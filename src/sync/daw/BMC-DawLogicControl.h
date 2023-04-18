@@ -31,8 +31,8 @@ public:
   global(t_global),
   callback(t_callback)
   {
-    memset(lcd[0], 0, 57);
-    memset(lcd[1], 0, 57);
+    memset(lcd[0], 0, sizeof(lcd[0][0])*57);
+    memset(lcd[0], 0, sizeof(lcd[0][1])*57);
   }
   void update(){
     controller.update();

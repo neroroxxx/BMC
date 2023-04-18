@@ -43,7 +43,7 @@ public:
       BMC_PRINTLN("You must read the chip with your sketch and use bmc.setMuxInAnalogValue(pin, value) to set the values of the pins used.");
       BMC_PRINTLN("BMC will handle smoothing the analog values, make sure these are 10-bits.");
       BMC_PRINTLN("");
-      memset(values, 0, BMC_MAX_MUX_IN_ANALOG);
+      memset(values, 0, sizeof(values[0])*BMC_MAX_MUX_IN_ANALOG);
 #else
       mux.begin();
       delay(10);

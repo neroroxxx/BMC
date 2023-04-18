@@ -64,9 +64,9 @@ struct BMCFasBlockStates {
     bitWrite(xy[a], b, t_isY);
   }
   void reset(){
-    memset(loaded, 0, 9);
-    memset(state, 0, 9);
-    memset(xy, 0, 9);
+    memset(loaded, 0, sizeof(loaded[0])*9);
+    memset(state, 0, sizeof(state[0])*9);
+    memset(xy, 0, sizeof(xy[0])*9);
     crc = 0;
     // blocks 139, 140, and 141 are always available they are:
     // 139 Input Noise Gate

@@ -388,7 +388,7 @@ struct BMCMessenger {
   uint8_t strLen = 0;
   char string[33];
   void reset(){
-    memset(string, 0, strLen);
+    memset(string, 0, sizeof(string[0])*strLen);
     status = 0;
     value = 0;
     strLen = 0;

@@ -64,7 +64,7 @@ class BMCSerialBle {
 public:
   BMCSerialBle(BMCGlobals& t_globals):
     globals(t_globals){
-    memset(txBuffer,0,BMC_BLE_MIDI_TX_BUFFER_SIZE);
+    memset(txBuffer, 0, sizeof(txBuffer[0])*BMC_BLE_MIDI_TX_BUFFER_SIZE);
     txTimestamps = 1;
   }
   operator bool(){

@@ -878,7 +878,7 @@ void BMCEditor::globalPreset(bool write){
       item.length = BMC_MAX_PRESET_ITEMS;
     }
     uint8_t e = 10;
-    memset(item.events, 0, BMC_MAX_PRESET_ITEMS);
+    memset(item.events, 0, sizeof(item.events[0])*BMC_MAX_PRESET_ITEMS);
     for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
       item.events[i] = (bmcLibrary_t) incoming.get14Bits(e);
       if(item.events[i] >= BMC_MAX_LIBRARY){
@@ -990,7 +990,7 @@ void BMCEditor::globalSetList(bool write){
       item.length = BMC_MAX_SETLISTS_SONGS;
     }
     uint8_t e = 10;
-    memset(item.songs, 0, BMC_MAX_SETLISTS_SONGS);
+    memset(item.songs, 0, sizeof(item.songs[0])*BMC_MAX_SETLISTS_SONGS);
     for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
       item.songs[i] = (bmcPreset_t) incoming.get14Bits(e);
       if(item.songs[i] >= BMC_MAX_PRESETS){
@@ -1276,7 +1276,7 @@ void BMCEditor::globalPixelProgram(bool write){
     if(item.length > 8){
       item.length = 8;
     }
-    memset(item.events, 0, 8);
+    memset(item.events, 0, sizeof(item.events[0])*8);
     for(uint8_t i = 0, e = 10 ; i < 8 ; i++, e += 2){
       item.events[i] = incoming.get8Bits(e);
     }

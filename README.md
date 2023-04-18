@@ -6,6 +6,8 @@
 
 # BMC the Badass MIDI Controller For Teensy 3.x & 4.x!
 
+***Version 1.7.3 Supports Teensyduino 1.58, previous version will not compile without modifications***
+
 ***Version 1.5.0 Now includes Logic Control Support, make your own DAW MIDI Controller!***
 
 ***Version 1.2.0 Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***

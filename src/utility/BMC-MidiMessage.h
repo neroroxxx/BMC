@@ -37,7 +37,7 @@ struct BMCMidiMessage {
   void setSource(uint8_t t_port)      { setPort(t_port); }
   // reset all data in the struct
   void reset(uint8_t sourcePortBit=0){
-    memset(sysex, 0, BMC_MIDI_SYSEX_SIZE);
+    memset(sysex, 0, sizeof(sysex[0])*BMC_MIDI_SYSEX_SIZE);
     setStatus(0);
     setChannel(0);
     setData1(0);

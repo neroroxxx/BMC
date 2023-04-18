@@ -348,7 +348,7 @@ public:
 
     BMC_PRINTLN("    BMC_MAX_MUX_IN_ANALOG", BMC_MAX_MUX_IN_ANALOG);
 
-    memset(values, 0, BMC_MAX_MUX_IN_ANALOG);
+    memset(values, 0, sizeof(values[0])*BMC_MAX_MUX_IN_ANALOG);
 
     for(uint8_t i = 0, n = totalMux ; i < n ; i++){
       // set the signal pins that will read an analog signal from the mux

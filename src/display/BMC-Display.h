@@ -44,13 +44,13 @@ public:
     dawMetersBlock = -1;
     dawVuOverload = 0;
     dawSelectedTrack = -1;
-    memset(dawVPotLevel, 0, 8);
-    memset(dawVPotBits, 0, 8);
-    memset(dawVuLevel, 0, 8);
-    memset(dawVuLevelBits, 0, 8);
-    memset(dawChStates, 0, 8);
+    memset(dawVPotLevel, 0, sizeof(dawVPotLevel[0])*8);
+    memset(dawVPotBits, 0, sizeof(dawVPotBits[0])*8);
+    memset(dawVuLevel, 0, sizeof(dawVuLevel[0])*8);
+    memset(dawVuLevelBits, 0, sizeof(dawVuLevelBits[0])*8);
+    memset(dawChStates, 0, sizeof(dawChStates[0])*8);
     for(uint8_t i=0;i<8;i++){
-      memset(dawChName[i], 0, 8);
+      memset(dawChName[i], 0, sizeof(dawChName[0][0])*8);
     }
 #endif
 #if BMC_MAX_OLED > 0
@@ -105,13 +105,14 @@ public:
       dawMetersBlock = -1;
       dawVuOverload = 0;
       dawSelectedTrack = -1;
-      memset(dawVPotLevel, 0, 8);
-      memset(dawVPotBits, 0, 8);
-      memset(dawVuLevel, 0, 8);
-      memset(dawVuLevelBits, 0, 8);
-      memset(dawChStates, 0, 8);
+
+      memset(dawVPotLevel, 0, sizeof(dawVPotLevel[0])*8);
+      memset(dawVPotBits, 0, sizeof(dawVPotBits[0])*8);
+      memset(dawVuLevel, 0, sizeof(dawVuLevel[0])*8);
+      memset(dawVuLevelBits, 0, sizeof(dawVuLevelBits[0])*8);
+      memset(dawChStates, 0, sizeof(dawChStates[0])*8);
       for(uint8_t i=0;i<8;i++){
-        memset(dawChName[i], 0, 8);
+        memset(dawChName[i], 0, sizeof(dawChName[0][0])*8);
       }
 #endif
 

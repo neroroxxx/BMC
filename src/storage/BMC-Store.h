@@ -14,7 +14,7 @@
   typedef uint8_t bmcEvent_t;
   typedef uint8_t bmcName_t;
   // BMC Event Object for BMC 2.0
-  struct __attribute__ ((packed)) bmcStoreEvent {
+  struct bmcStoreEvent {
     bmcName_t name = 0;
     uint8_t settings = 0;
     uint8_t ports = 0;
@@ -23,7 +23,7 @@
 
   // BMC Device Object for BMC 2.0
   template <uint8_t sLen=1, uint8_t eLen=1>
-  struct __attribute__ ((packed)) bmcStoreDevice {
+  struct bmcStoreDevice {
     bmcName_t name = 0;
     uint8_t settings[sLen];
     bmcEvent_t events[eLen];
@@ -31,12 +31,12 @@
 
   // BMC Name Object for BMC 2.0
   template <uint8_t len=1>
-  struct __attribute__ ((packed)) bmcStoreName {
+  struct bmcStoreName {
     char name[len] = "";
   };
 
 
-  struct __attribute__ ((packed)) bmcNewStore {
+  struct bmcNewStore {
     bmcStoreEvent events[16];
     bmcStoreName <16> names[16];
     bmcStoreDevice <1, 4> buttons[2];
@@ -48,20 +48,20 @@
 */
 
   // Button Event Object
-  struct __attribute__ ((packed)) bmcStoreButtonEvent {
+  struct bmcStoreButtonEvent {
     uint8_t mode = 0;
     uint8_t ports = 0;
     uint32_t event = 0;
   };
   // Button Object
-  struct __attribute__ ((packed)) bmcStoreButton {
+  struct bmcStoreButton {
     bmcStoreButtonEvent events[BMC_MAX_BUTTON_EVENTS];
     #if BMC_NAME_LEN_BUTTONS> 1
       char name[BMC_NAME_LEN_BUTTONS] = "";
     #endif
   };
   // Potentiometer object
-  struct __attribute__ ((packed)) bmcStorePot {
+  struct bmcStorePot {
     uint8_t ports = 0;
     uint32_t event = 0;
     #if defined(BMC_USE_POT_TOE_SWITCH)
@@ -73,7 +73,7 @@
     #endif
   };
   // Encoder object
-  struct __attribute__ ((packed)) bmcStoreEncoder {
+  struct bmcStoreEncoder {
     uint8_t mode = 0;
     uint8_t ports = 0;
     uint32_t event = 0;
@@ -82,14 +82,14 @@
     #endif
   };
   // Led object, used by page leds, pwm leds, global Leds & pixels
-  struct __attribute__ ((packed)) bmcStoreLed {
+  struct bmcStoreLed {
     uint32_t event = 0;
     #if BMC_NAME_LEN_LEDS > 1
       char name[BMC_NAME_LEN_LEDS] = "";
     #endif
   };
   // RGB Led object, used by RGB Pixel maybe in the future by others
-  struct __attribute__ ((packed)) bmcStoreRgbLed {
+  struct bmcStoreRgbLed {
     uint32_t red = 0;
     uint32_t green = 0;
     uint32_t blue = 0;
@@ -98,24 +98,24 @@
     #endif
   };
   // OLED
-  struct __attribute__ ((packed)) bmcStoreOled {
+  struct bmcStoreOled {
     uint8_t type = 0;
     uint8_t value = 0;
   };
   // ILI
-  struct __attribute__ ((packed)) bmcStoreIliBlock {
+  struct bmcStoreIliBlock {
     uint8_t type = 0;
     uint8_t value = 0;
   };
   // Non-Latching Relay object
-  struct __attribute__ ((packed)) bmcStoreGlobalRelay {
+  struct bmcStoreGlobalRelay {
     uint32_t event = 0;
     #if BMC_NAME_LEN_RELAYS > 1
       char name[BMC_NAME_LEN_RELAYS] = "";
     #endif
   };
   // Page Object
-  struct __attribute__ ((packed)) bmcStorePage {
+  struct bmcStorePage {
     #if BMC_MAX_BUTTONS > 0
       bmcStoreButton   buttons[BMC_MAX_BUTTONS];
     #endif
@@ -149,20 +149,20 @@
   };
 
   // String Library object BMC_MAX_STRING_LIBRARY
-  struct __attribute__ ((packed)) bmcStoreGlobalStringLibrary {
+  struct bmcStoreGlobalStringLibrary {
 #if BMC_MAX_STRING_LIBRARY > 0
     char name[BMC_NAME_LEN_STRING_LIBRARY] = "";
 #endif
   };
   // Library object
-  struct __attribute__ ((packed)) bmcStoreGlobalLibrary {
+  struct bmcStoreGlobalLibrary {
     uint32_t event = 0;
     #if BMC_NAME_LEN_LIBRARY > 1
       char name[BMC_NAME_LEN_LIBRARY] = "";
     #endif
   };
   // Presets object
-  struct __attribute__ ((packed)) bmcStoreGlobalPresets {
+  struct bmcStoreGlobalPresets {
     uint8_t length = 0;
     bmcLibrary_t events[BMC_MAX_PRESET_ITEMS];
     #if BMC_NAME_LEN_PRESETS > 1
@@ -170,7 +170,7 @@
     #endif
   };
   // SetList Song object
-  struct __attribute__ ((packed)) bmcStoreGlobalSetListSongPart {
+  struct bmcStoreGlobalSetListSongPart {
     uint8_t length = 0;
     bmcPreset_t preset = 0;
     #if BMC_NAME_LEN_SETLIST_SONG_PART > 1
@@ -179,7 +179,7 @@
   };
   // SetList Song object
   //BMC_MAX_SETLISTS_SONGS_LIBRARY
-  struct __attribute__ ((packed)) bmcStoreGlobalSetListSong {
+  struct bmcStoreGlobalSetListSong {
     uint8_t settings = 0;
     uint8_t length = 0;
     bmcStoreGlobalSetListSongPart parts[BMC_MAX_SETLISTS_SONG_PARTS];
@@ -188,7 +188,7 @@
     #endif
   };
   // SetList object
-  struct __attribute__ ((packed)) bmcStoreGlobalSetList {
+  struct bmcStoreGlobalSetList {
     uint8_t length = 0;
     bmcPreset_t songs[BMC_MAX_SETLISTS_SONGS];
     #if BMC_NAME_LEN_SETLISTS > 1
@@ -196,40 +196,40 @@
     #endif
   };
   // Custom SysEx object
-  struct __attribute__ ((packed)) bmcStoreGlobalCustomSysEx {
+  struct bmcStoreGlobalCustomSysEx {
     uint8_t length = 0;
     uint8_t event[16];
   };
   // Triggers, part of the global object
-  struct __attribute__ ((packed)) bmcStoreGlobalTriggers {
+  struct bmcStoreGlobalTriggers {
     uint32_t event = 0;
     uint32_t source = 0;
   };
   // Pot Calibration, part of the global object
-  struct __attribute__ ((packed)) bmcStoreGlobalPotCalibration {
+  struct bmcStoreGlobalPotCalibration {
     uint16_t min = 0;
     uint16_t max = 1023;
   };
   // Tempo To Tap object
-  struct __attribute__ ((packed)) bmcStoreGlobalTempoToTap {
+  struct bmcStoreGlobalTempoToTap {
     uint32_t event = 0;
   };
   // Port Presets
-  struct __attribute__ ((packed)) bmcStorePortPresets {
+  struct bmcStorePortPresets {
     uint8_t preset[16];
   };
   // Pixel Programs
-  struct __attribute__ ((packed)) bmcStorePixelPrograms {
+  struct bmcStorePixelPrograms {
     uint8_t length = 0;
     uint8_t events[8];
   };
   // Timed Events
-  struct __attribute__ ((packed)) bmcStoreGlobalTimedEvents {
+  struct bmcStoreGlobalTimedEvents {
     uint32_t event = 0;
     uint32_t timeout = 0;
   };
   // Settings object
-  struct __attribute__ ((packed)) bmcStoreGlobalSettings {
+  struct bmcStoreGlobalSettings {
     uint32_t flags = 0;
     uint32_t data[8];
     uint16_t routing[7];
@@ -237,7 +237,7 @@
   // DO NOT CHANGE THIS ORDER!!!!!!!!!
   // This order is used to read/write from EEPROM to speed up the process
   // specially when using i2c.
-  struct __attribute__ ((packed)) bmcStoreGlobal {
+  struct bmcStoreGlobal {
     bmcStoreGlobalSettings settings;
     #if BMC_MAX_SKETCH_BYTES > 0
       uint8_t sketchBytes[BMC_MAX_SKETCH_BYTES];
@@ -295,7 +295,7 @@
       bmcStoreGlobalTimedEvents timedEvents[BMC_MAX_TIMED_EVENTS];
     #endif
   };
-  struct __attribute__ ((packed)) bmcStore {
+  struct bmcStore {
     uint16_t crc = 0;
     uint16_t version = 0;
     bmcStoreGlobal global;

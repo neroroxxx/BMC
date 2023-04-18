@@ -47,7 +47,7 @@ public:
         return;
       }
       uint8_t bytes[length];
-      memset(bytes,0,length);
+      memset(bytes, 0, sizeof(bytes[0])*length);
       for(uint8_t i=0;i<a.length;i++){
         bytes[i] = a.event[i] & 0x7F;
       }
