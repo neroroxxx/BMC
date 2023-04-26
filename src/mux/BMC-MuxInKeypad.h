@@ -11,17 +11,13 @@
 
 #if defined(BMC_MAX_MUX_IN_KEYPAD) && BMC_MAX_MUX_IN_KEYPAD > 0
 
-// BMC_MAX_MUX_IN_KEYPAD_ROW_PINS
-// BMC_MAX_MUX_IN_KEYPAD_COL_PINS
-
-// BMC_MAX_MUX_IN_KEYPAD_ROWS
-// BMC_MAX_MUX_IN_KEYPAD_COLS
+#define BMC_MAX_MUX_IN_KEYPAD_STATES (((BMC_MAX_MUX_IN_KEYPAD>>3)&0x1F)+1)
 
 class BMCMuxInKeypad {
 private:
   uint8_t rowPins[BMC_MAX_MUX_IN_KEYPAD_ROWS] = BMC_MAX_MUX_IN_KEYPAD_ROW_PINS;
   uint8_t colPins[BMC_MAX_MUX_IN_KEYPAD_COLS] = BMC_MAX_MUX_IN_KEYPAD_COL_PINS;
-  bool states[(BMC_MAX_MUX_IN_KEYPAD>>4)];
+  uint8_t states[BMC_MAX_MUX_IN_KEYPAD_STATES];
   uint8_t parsePinNumber(uint8_t t_pin){
     t_pin -= (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG);
     return constrain(t_pin, 0, (BMC_MAX_MUX_IN_KEYPAD-1));
@@ -54,29 +50,31 @@ public:
       }
     }
     for(uint8_t i = 0 ; i < BMC_MAX_MUX_IN_KEYPAD_ROWS ; i++){
-      pin_mode(rowPins[i], INPUT_PULLUP);
+      pinMode(rowPins[i], INPUT_PULLUP);
     }
     for(uint8_t i = 0 ; i < BMC_MAX_MUX_IN_KEYPAD_COLS ; i++){
-      pin_mode(rowPins[i], INPUT_PULLUP);
+      pinMode(colPins[i], INPUT_PULLUP);
     }
   }
   void update(){
-    for(uint8_t i = 0, pin=0; i < BMC_MAX_MUX_IN_KEYPAD_COLS; i++, pin++){
-      pin_mode(colPins[i], OUTPUT);
+    uint8_t pin = 0;
+    for(uint8_t i = 0; i < BMC_MAX_MUX_IN_KEYPAD_COLS; i++){
+      pinMode(colPins[i], OUTPUT);
       digitalWrite(colPins[i], LOW);
       for(int e = 0; e < BMC_MAX_MUX_IN_KEYPAD_ROWS; e++){
-        bitWrite(states[pin>>4], e, digitalRead(rowPins[e])==LOW);
-      }
-      pin_mode(colPins[i], INPUT_PULLUP);
+        pin = i + (e*BMC_MAX_MUX_IN_KEYPAD_COLS);
+        bitWrite(states[(pin>>3)&0x1F], (pin & 0x07), digitalRead(rowPins[e]));
+      }      
+      pinMode(colPins[i], INPUT_PULLUP);
     }
   }
   bool getPinValue(uint8_t t_pin){
     t_pin = parsePinNumber(t_pin);
-    return bitRead(states[t_pin>>4], (t_pin&0x0F));
+    return bitRead(states[(t_pin>>3)&0x1F], (t_pin&0x07));
   }
   void setPinValues(uint8_t t_pin, bool t_value){
     t_pin = parsePinNumber(t_pin);
-    bitWrite(states[t_pin>>4], (t_pin&0x0F), t_value);
+    bitWrite(states[(t_pin>>3)&0x1F], (t_pin&0x07), t_value);
   }
 };
 #endif

@@ -607,7 +607,7 @@ public:
   }
   // an Endless SOS of all LEDs, use for stopping BMC
   static void sos(){
-    // while(1);
+    while(1);
     /*
     #if BMC_TOTAL_LEDS == 0
       while(1);

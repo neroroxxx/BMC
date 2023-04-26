@@ -68,7 +68,7 @@ void BMC::readButtons(){
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
     bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.layers[layer].buttons[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
@@ -101,7 +101,7 @@ void BMC::readButtons(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.global.buttons[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
     #endif
 

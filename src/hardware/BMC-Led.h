@@ -60,7 +60,7 @@ public:
       );
       BMC_HALT();
     }
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     // all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
     // BMC will group them in this order MUX_IN then MUX_IN_ANALOG
     // so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
@@ -107,9 +107,9 @@ public:
     return pin;
   }
 
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
   uint8_t getMuxPin(){
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       return pin-64;
     }
@@ -141,7 +141,7 @@ public:
   // at startup or if the editor is triggering a test of the LED
   // the LED will return to it's state before the test began
   void test(bool t_init=false){
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.on(BMC_FLAG_LED_MUX_TESTING);
       return;
@@ -296,10 +296,10 @@ public:
   }
 private:
   uint8_t pin = 255;
-#if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
-  BMCFlags <uint8_t> flags;
-#else
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
   BMCFlags <uint16_t> flags;
+#else
+  BMCFlags <uint8_t> flags;
 #endif
   // used to handle blink speed
   uint8_t blinkerSpeed = 0;
@@ -318,10 +318,10 @@ private:
     bool userPwmOffValue = flags.read(BMC_FLAG_LED_USE_OFF_VALUE);
     bool blinkerState = flags.read(BMC_FLAG_LED_BLINKER_STATE);
 
-    #if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
-      flags.reset();
-    #else
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       flags.reset((1 << BMC_FLAG_LED_MUX));
+    #else
+      flags.reset();
     #endif
 
     flags.write(BMC_FLAG_LED_IS_PWM, isPWM);
@@ -338,7 +338,7 @@ private:
     t_value = !t_value;
 #endif
 
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.write(BMC_FLAG_LED_MUX_VALUE, t_value);
       return;

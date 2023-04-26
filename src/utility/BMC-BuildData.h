@@ -7103,6 +7103,7 @@ static bool isMuxInPin(uint8_t n){
     return true;
   }
 #endif
+
 #if BMC_MAX_MUX_IN > 0
   return (n>=64+BMC_MAX_MUX_GPIO && n<(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN));
 #endif
@@ -7149,5 +7150,14 @@ static bool isMuxInKeypadPinIndex(uint8_t n){
 #endif
   return false;
 }
+
+// MUX INPUT
+static bool isMuxInputPin(uint8_t n){
+  if(isMuxInPin(n)){return true;}
+  if(isMuxInAnalogPin(n)){return true;}
+  if(isMuxInKeypadPin(n)){return true;}
+  return false;
+}
+
 };
 #endif

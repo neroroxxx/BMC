@@ -256,16 +256,9 @@
   #ifndef BMC_MAX_MUX_IN_KEYPAD
     #define BMC_MAX_MUX_IN_KEYPAD 0
   #endif
+
   #if BMC_MAX_MUX_IN_KEYPAD > 64
     #error "BMC supports up to 64 Mux In Keypad Pins"
-  #endif
-
-  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_KEYPAD)>64
-    #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_KEYPAD"
-  #endif
-
-  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)>127
-    #error "BMC supports a maximum of 127 Mux Pins total, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_ANALOG"
   #endif
 
   #if BMC_MAX_MUX_IN > 0 && (BMC_MAX_BUTTONS==0 && BMC_MAX_ENCODERS==0 && BMC_MAX_GLOBAL_BUTTONS==0 && BMC_MAX_GLOBAL_ENCODERS==0)
@@ -293,11 +286,33 @@
     #define BMC_MUX_IN_CHIPSET 0
   #endif
 
-  #define BMC_TOTAL_MUX_PINS (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG)
+  // #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_KEYPAD)>64
+    // #error "BMC supports a maximum of 64 Mux Digital Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT & BMC_MAX_MUX_IN_KEYPAD"
+  // #endif
 
-  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG) > 0
+  #if (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG+BMC_MAX_MUX_IN_KEYPAD)>190
+    #error "BMC supports a maximum of 190 Combined Mux Pins, that inclues a sum of BMC_MAX_MUX_GPIO, BMC_MAX_MUX_IN, BMC_MAX_MUX_OUT, BMC_MAX_MUX_IN_ANALOG & BMC_MAX_MUX_IN_KEYPAD"
+  #endif
+
+  #define BMC_TOTAL_MUX_PINS (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_OUT+BMC_MAX_MUX_IN_ANALOG+BMC_MAX_MUX_IN_KEYPAD)
+  #define BMC_TOTAL_MUX_INPUT_PINS (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN+BMC_MAX_MUX_IN_ANALOG+BMC_MAX_MUX_IN_KEYPAD)
+  #define BMC_TOTAL_MUX_OUTPUT_PINS (BMC_MAX_MUX_GPIO+BMC_MAX_MUX_OUT)
+
+  #if BMC_TOTAL_MUX_PINS > 0
     #define BMC_MUX_AVAILABLE
   #endif
+
+  #if BMC_TOTAL_MUX_INPUT_PINS > 0
+    #define BMC_MUX_INPUTS_AVAILABLE
+  #endif
+
+  #if BMC_TOTAL_MUX_OUTPUT_PINS > 0
+    #define BMC_MUX_OUTPUTS_AVAILABLE
+  #endif
+
+
+
+
 
   #if defined(BMC_USE_TIME) && !defined(BMC_TIME_ADJUST)
     #define BMC_TIME_ADJUST 20
@@ -309,27 +324,8 @@
   #endif
 
   
-  /*
-  availablePortsData[availablePorts++] = BMC_MIDI_PORT_USB_BIT;
-		#if defined(BMC_MIDI_SERIAL_A_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_A_BIT;
-    #endif
-    #if defined(BMC_MIDI_SERIAL_B_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_B_BIT;
-    #endif
-    #if defined(BMC_MIDI_SERIAL_C_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_C_BIT;
-    #endif
-    #if defined(BMC_MIDI_SERIAL_D_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_SERIAL_D_BIT;
-    #endif
-		#if defined(BMC_USB_HOST_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_HOST_BIT;
-    #endif
-		#if defined(BMC_MIDI_BLE_ENABLED)
-      availablePortsData[availablePorts++] = BMC_MIDI_PORT_BLE_BIT;
-    #endif
-  */
+
+  
 
   #if defined(BMC_USE_MIDI_SERIAL_A) && defined(BMC_MIDI_SERIAL_IO_A)
     #define BMC_MIDI_SERIAL_A_ENABLED

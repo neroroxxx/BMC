@@ -23,7 +23,7 @@ void BMC::setupLeds(){
       leds[i].test(true);
     #endif
 
-    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       if(leds[i].muxTesting()){
         mux.testDigital(leds[i].getMuxPin());
       }
@@ -45,7 +45,7 @@ void BMC::setupLeds(){
       globalLeds[i].test(true);
     #endif
 
-    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       if(globalLeds[i].muxTesting()){
         mux.testDigital(globalLeds[i].getMuxPin());
       }
@@ -64,7 +64,7 @@ void BMC::setupLeds(){
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
         biLeds[e].test(true);
       #endif
-      #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+      #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
         if(biLeds[e].muxTesting()){
           mux.testDigital(biLeds[e].getMuxPin());
         }
@@ -84,7 +84,7 @@ void BMC::setupLeds(){
       #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
         globalBiLeds[e].test(true);
       #endif
-      #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+      #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
         if(globalBiLeds[e].muxTesting()){
           mux.testDigital(globalBiLeds[e].getMuxPin());
         }
@@ -104,7 +104,7 @@ void BMC::setupLeds(){
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
         triLeds[e].test(true);
       #endif
-      #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+      #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
         if(triLeds[e].muxTesting()){
           mux.testDigital(triLeds[e].getMuxPin());
         }
@@ -124,7 +124,7 @@ void BMC::setupLeds(){
       #if !defined(BMC_NO_GLOBAL_LED_TEST_AT_LAUNCH)
         globalTriLeds[e].test(true);
       #endif
-      #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+      #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
         if(globalTriLeds[e].muxTesting()){
           mux.testDigital(globalTriLeds[e].getMuxPin());
         }
@@ -271,7 +271,7 @@ void BMC::readLeds(){
     }
     globals.ledStates.setBit(i, leds[i].update(blinkState));
 
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     mux.writeDigital(leds[i].getMuxPin(), leds[i].getMuxState());
     if(leds[i].muxTesting()){
       mux.testDigital(leds[i].getMuxPin());
@@ -302,7 +302,7 @@ void BMC::readLeds(){
     }
     globals.globalLedStates.setBit(i, globalLeds[i].update(blinkState));
 
-  #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+  #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     mux.writeDigital(globalLeds[i].getMuxPin(), globalLeds[i].getMuxState());
     if(globalLeds[i].muxTesting()){
       mux.testDigital(globalLeds[i].getMuxPin());
@@ -338,7 +338,7 @@ void BMC::readLeds(){
       }
       globals.biLedStates[u].setBit(i, biLeds[e].update(blinkState));
 
-  #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+  #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       mux.writeDigital(biLeds[e].getMuxPin(), biLeds[e].getMuxState());
       if(biLeds[e].muxTesting()){
         mux.testDigital(biLeds[e].getMuxPin());
@@ -374,7 +374,7 @@ void BMC::readLeds(){
       }
       globals.globalBiLedStates[u].setBit(i, globalBiLeds[e].update(blinkState));
 
-    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       mux.writeDigital(globalBiLeds[e].getMuxPin(), globalBiLeds[e].getMuxState());
       if(globalBiLeds[e].muxTesting()){
         mux.testDigital(globalBiLeds[e].getMuxPin());
@@ -413,7 +413,7 @@ void BMC::readLeds(){
       }
       globals.triLedStates[u].setBit(i, triLeds[e].update(blinkState));
 
-  #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+  #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       mux.writeDigital(triLeds[e].getMuxPin(), triLeds[e].getMuxState());
       if(triLeds[e].muxTesting()){
         mux.testDigital(triLeds[e].getMuxPin());
@@ -451,7 +451,7 @@ void BMC::readLeds(){
       }
       globals.globalTriLedStates[u].setBit(i, globalTriLeds[e].update(blinkState));
 
-    #if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       mux.writeDigital(globalTriLeds[e].getMuxPin(), globalTriLeds[e].getMuxState());
       if(globalTriLeds[e].muxTesting()){
         mux.testDigital(globalTriLeds[e].getMuxPin());

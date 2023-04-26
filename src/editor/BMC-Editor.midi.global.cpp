@@ -1066,6 +1066,9 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if defined(BMC_TFT_SIZE) && BMC_TFT_SIZE != 1
       bitWrite(buildData, 22, 1);
     #endif
+    #if BMC_OLED_HEIGHT==32
+      bitWrite(buildData, 23, 1);
+    #endif
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);

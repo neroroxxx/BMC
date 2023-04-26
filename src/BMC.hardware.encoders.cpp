@@ -42,7 +42,7 @@ void BMC::readEncoders(){
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
     bmcStoreDevice <1, 1>& device = store.layers[layer].encoders[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       if(encoders[i].hasMux()){
         encoders[i].setMuxValue(0, mux.readDigital(encoders[i].getMuxPin(0)));
         encoders[i].setMuxValue(1, mux.readDigital(encoders[i].getMuxPin(1)));
@@ -76,7 +76,7 @@ void BMC::readEncoders(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
     bmcStoreDevice <1, 1>& device = store.global.encoders[i];
     // GET THE PIN STATE FROM MUX
-  #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+  #if defined(BMC_MUX_INPUTS_AVAILABLE)
     if(globalEncoders[i].hasMux()){
       globalEncoders[i].setMuxValue(0, mux.readDigital(globalEncoders[i].getMuxPin(0)));
       globalEncoders[i].setMuxValue(1, mux.readDigital(globalEncoders[i].getMuxPin(1)));
