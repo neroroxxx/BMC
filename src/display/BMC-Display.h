@@ -311,7 +311,7 @@ public:
     tft.display.fillRect(0, BMC_DISPLAY_BANNER_Y, BMC_TFT_WIDTH, 120, BMC_ILI9341_BLACK);
     tft.display.setFont(BMCLiberationSansNarrow_40_Bold);
     
-    uint16_t x = (BMC_TFT_WIDTH - tft.display.strPixelLen(line1))/2;
+    uint16_t x = (BMC_TFT_WIDTH - BMC_TFT_STR_LEN(tft.display, line1))/2;
     x = x < 4 ? 4 : x;
     // 2 lines of text, divide display height by 3 and add half the font height
     tft.display.setTextColor(0xfe60);
@@ -320,7 +320,7 @@ public:
     // line 2
     if(strlen(line2) > 0){
       tft.display.setFont(BMCLiberationSansNarrow_24);
-      x = (BMC_TFT_WIDTH - tft.display.strPixelLen(line2))/2;
+      x = (BMC_TFT_WIDTH - BMC_TFT_STR_LEN(tft.display, line2))/2;
       x = x < 4 ? 4 : x;
       // 2 lines of text, divide display height by 3 and add half the font height
       tft.display.setTextColor(BMC_ILI9341_WHITE);
@@ -654,7 +654,7 @@ public:
     if(!value){
       tft.display.drawRect(x, y, buttonWidth, buttonHeight, BMC_ILI9341_VU_GREY);
     }
-    uint16_t w = tft.display.strPixelLen(str);
+    uint16_t w = BMC_TFT_STR_LEN(tft.display, str);
     tft.display.setCursor(x + ((buttonWidth - w)/2), y+((buttonHeight-12)/2));
     tft.display.print(str);
   }
@@ -843,10 +843,10 @@ public:
     if(!BMC_STR_MATCH(t.name, chInfo[n].name)){
       strcpy(chInfo[n].name, t.name);
       tft.display.setFont(BMCLiberationSansNarrow_20_Bold);
-      uint16_t bX = 20+(txtArea-tft.display.strPixelLen(t.name))/2;
-      while(tft.display.strPixelLen(t.name) >= (w-20)){
+      uint16_t bX = 20+(txtArea-BMC_TFT_STR_LEN(tft.display, t.name))/2;
+      while(BMC_TFT_STR_LEN(tft.display, t.name) >= (w-20)){
         t.name[strlen(t.name)-1] = 0;
-        bX = 20+((w-20)-tft.display.strPixelLen(t.name))/2;
+        bX = 20+((w-20)-BMC_TFT_STR_LEN(tft.display, t.name))/2;
       }
       tft.display.fillRect(x+20, y+1, txtArea, 30, BMC_ILI9341_BLACK);
       tft.display.setCursor(x+bX, y+3);
@@ -857,7 +857,7 @@ public:
     if(!BMC_STR_MATCH(t2.name, chInfo[n].value)){
       strcpy(chInfo[n].value, t2.name);
       tft.display.setFont(BMCLiberationSansNarrow_16);
-      uint16_t bX = 20+(txtArea-tft.display.strPixelLen(t2.name))/2;
+      uint16_t bX = 20+(txtArea-BMC_TFT_STR_LEN(tft.display, t2.name))/2;
       tft.display.fillRect(x+20, y+31, txtArea, 30, BMC_ILI9341_BLACK);
       tft.display.setCursor(x+bX, y+40);
       tft.display.setTextColor(BMC_ILI9341_GRAY_22);

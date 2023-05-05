@@ -32,7 +32,7 @@
   #error "BMC_MUX_IN_74HC165_DATA is not a valid pin"
 #endif
 
-#define BMC_MUX_IN_74HC165_1MS_READ
+// #define BMC_MUX_IN_74HC165_1MS_READ
 
 
 #define BMC_MUX_IN_74HC165_DELAY 5
@@ -42,35 +42,17 @@
   #define BMC_MAX_MUX_IN 64
 #endif
 
-#if BMC_MAX_MUX_IN >= 1 && BMC_MAX_MUX_IN <= 8
+
+#if BMC_MAX_MUX_IN == 1
   #define BMC_MUX_IN_CHIP_COUNT 1
-  #define BMC_MUX_IN_CHIP_STATES 4
-#elif BMC_MAX_MUX_IN >= 9 && BMC_MAX_MUX_IN <= 16
-  #define BMC_MUX_IN_CHIP_COUNT 2
-  #define BMC_MUX_IN_CHIP_STATES 4
-#elif BMC_MAX_MUX_IN >= 17 && BMC_MAX_MUX_IN <= 24
-  #define BMC_MUX_IN_CHIP_COUNT 3
-  #define BMC_MUX_IN_CHIP_STATES 4
-#elif BMC_MAX_MUX_IN >= 25 && BMC_MAX_MUX_IN <= 32
-  #define BMC_MUX_IN_CHIP_COUNT 4
-  #define BMC_MUX_IN_CHIP_STATES 4
-#elif BMC_MAX_MUX_IN >= 33 && BMC_MAX_MUX_IN <= 40
-  #define BMC_MUX_IN_CHIP_COUNT 5
-  #define BMC_MUX_IN_CHIP_STATES 8
-#elif BMC_MAX_MUX_IN >= 41 && BMC_MAX_MUX_IN <= 48
-  #define BMC_MUX_IN_CHIP_COUNT 6
-  #define BMC_MUX_IN_CHIP_STATES 8
-#elif BMC_MAX_MUX_IN >= 49 && BMC_MAX_MUX_IN <= 56
-  #define BMC_MUX_IN_CHIP_COUNT 7
-  #define BMC_MUX_IN_CHIP_STATES 8
-#elif BMC_MAX_MUX_IN >= 57 && BMC_MAX_MUX_IN <= 64
-  #define BMC_MUX_IN_CHIP_COUNT 8
-  #define BMC_MUX_IN_CHIP_STATES 8
+#else
+  #define BMC_MUX_IN_CHIP_COUNT (((BMC_MAX_MUX_IN - 1) >> 3) + 1)
 #endif
+
 
 class BMCMuxIn74HC165 {
 private:
-  uint8_t states[BMC_MUX_IN_CHIP_STATES];
+  uint8_t states[BMC_MUX_IN_CHIP_COUNT];
 
 public:
   BMCMuxIn74HC165(){}
@@ -88,70 +70,23 @@ public:
     digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, LOW);
     delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
     digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, HIGH);
-
     for(uint8_t mux = 0; mux < BMC_MUX_IN_CHIP_COUNT; mux++){
       for(int i = 7; i >= 0; i--){
         uint8_t bit = digitalReadFast(BMC_MUX_IN_74HC165_DATA);
         bitWrite(states[mux], i, bit);
-
         digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, HIGH);
         delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
         digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, LOW);
       }
     }
   }
-
-  void update2(){
-    // set load pin
-    digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, LOW);
-    delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
-    digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, HIGH);
-    // total number of 74HC165 chips, each chip has 8 inputs and we have to
-    // read all even if you aren't using all pins.
-    uint8_t total = (ceil(BMC_MAX_MUX_IN/8.0) * 8);
-    for(uint8_t mux = 0, n=total/8; mux < n; mux++){
-      for(int i = 7, bitN = ((mux + 1) * 8); i >= 0; i--, bitN--){
-        uint8_t bit = digitalReadFast(BMC_MUX_IN_74HC165_DATA);
-        #if BMC_MAX_MUX_IN > 32
-          if(bitN>=32){
-            // states2 starting with bit 0 so remove 33 from the value
-            bitWrite(states[1], bitN-33, bit);
-          } else {
-            bitWrite(states[0], bitN-1, bit);
-          }
-        #else
-          bitWrite(states[0], bitN-1, bit);
-        #endif
-
-        digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, HIGH);
-        delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
-        digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, LOW);
-      }
+  bool readPin(uint16_t t_pin){
+    if(t_pin >= BMC_MAX_MUX_IN){
+      return false;
     }
+    return bitRead(states[t_pin>>3], t_pin & 0x07);
   }
 
-  uint32_t read1To32(){
-    return (states[3]<<24)|(states[2]<<16)|(states[1]<<8)|states[0];
-  }
-
-#if BMC_MAX_MUX_IN > 32
-  uint32_t read33To64(){
-    return (states[7]<<24)|(states[6]<<16)|(states[5]<<8)|states[4];
-  }
-#endif
-
-#if BMC_MAX_MUX_IN > 32
-  uint32_t read(uint8_t n=0){
-    if(n==0){
-      return read1To32();
-    }
-    return read33To64();
-  }
-#else
-  uint32_t read(){
-    return read1To32();
-  }
-#endif
 };
 #endif
 #endif

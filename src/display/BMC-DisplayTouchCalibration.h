@@ -175,7 +175,7 @@ public:
     }
     char buff[strlen(str)+1] = "";
     strcpy(buff, str);
-    int16_t textWidth = tft.strPixelLen(buff);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     int16_t x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
     tft.setCursor(x, y);
@@ -187,7 +187,7 @@ public:
     tft.fillRect(x, y, width, height, background);
     tft.setTextColor(color);
     tft.setFont(BMCLiberationSansNarrow_16);
-    int16_t textWidth = tft.strPixelLen(buff);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     uint16_t textX = (width-textWidth) / 2;
     textX = (textX < 0) ? 0 : textX;
     tft.setCursor(x+textX, y+10);

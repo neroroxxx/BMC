@@ -75,7 +75,7 @@ public:
       if(songHasPart(songPart)){
         partEmpty(false);
         uint16_t value = presets.midi.globals.store.global.songLibrary[songInLibrary].events[songPart];
-        presets.set(value);
+        presets.setByIndex(value);
       } else {
         partEmpty(true);
       }
@@ -128,27 +128,27 @@ public:
     }
     return 0;
   }
-  void scrollSet(bool t_up, bool t_endless, uint8_t t_amount, bool firstSong=true){
+  void scrollSet(bool t_direction, bool t_wrap, uint8_t t_amount, bool firstSong=true){
     uint8_t t_max = BMC_MAX_SETLISTS-1;
     //uint8_t t_max = presets.midi.globals.store.global.setLists[n].settings[0];
     BMCScroller <uint8_t> scroller(0, t_max);
-    set(scroller.scroll(t_amount, t_up, t_endless, setList, 0, t_max), firstSong);
+    set(scroller.scroll(t_amount, t_direction, t_wrap, setList, 0, t_max), firstSong);
   }
-  void scrollSong(bool t_up, bool t_endless, uint8_t t_amount){
+  void scrollSong(bool t_direction, bool t_wrap, uint8_t t_amount){
     uint8_t len = presets.midi.globals.store.global.setLists[setList].settings[0];
 
     if(len > 1){
       //uint8_t t_max = BMC_MAX_SETLISTS_SONGS-1;
       uint8_t t_max = presets.midi.globals.store.global.setLists[setList].settings[0]-1;
       BMCScroller <uint8_t> scroller(0, t_max);
-      setSong(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
+      setSong(scroller.scroll(t_amount, t_direction, t_wrap, song, 0, t_max));
     }
   }
-  void scrollPart(bool t_up, bool t_endless, uint8_t t_amount){
+  void scrollPart(bool t_direction, bool t_wrap, uint8_t t_amount){
     //uint8_t t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
     uint8_t t_max = presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0]-1;
     BMCScroller <uint8_t> scroller(0, t_max);
-    setPart(scroller.scroll(t_amount, t_up, t_endless, song, 0, t_max));
+    setPart(scroller.scroll(t_amount, t_direction, t_wrap, song, 0, t_max));
   }
   bool autoTriggerFirstSong(){
     return presets.midi.globals.settings.getSetListTriggerFirstSong();

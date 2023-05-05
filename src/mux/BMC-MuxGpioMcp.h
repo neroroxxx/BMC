@@ -24,29 +24,47 @@
 #define BMC_MCP2301X_IO 0x12
 
 
-#define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1}
-#define BMC_MUX_GPIO_CHIP_COUNT 1
 
-#if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
-  #undef BMC_MUX_GPIO_CHIP_COUNT
-  #define BMC_MUX_GPIO_CHIP_COUNT 2
-  #undef BMC_MUX_GPIO_CHIP_ADDR
-  #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2}
+// #define BMC_MUX_GPIO_CHIP_COUNT 1
 
-  #if defined(BMC_MUX_GPIO_ADDR_3) && BMC_MAX_MUX_GPIO > 32
-    #undef BMC_MUX_GPIO_CHIP_COUNT
-    #define BMC_MUX_GPIO_CHIP_COUNT 3
-    #undef BMC_MUX_GPIO_CHIP_ADDR
-    #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3}
-
-    #if defined(BMC_MUX_GPIO_ADDR_4) && BMC_MAX_MUX_GPIO > 48
-      #undef BMC_MUX_GPIO_CHIP_COUNT
-      #define BMC_MUX_GPIO_CHIP_COUNT 4
-      #undef BMC_MUX_GPIO_CHIP_ADDR
-      #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3, BMC_MUX_GPIO_ADDR_4}
-    #endif
-  #endif
+#if BMC_MAX_MUX_GPIO == 1
+  #define BMC_MUX_GPIO_CHIP_COUNT 1
+#else
+  #define BMC_MUX_GPIO_CHIP_COUNT ((BMC_MAX_MUX_GPIO-1) >> 3)+1
 #endif
+
+// #if BMC_MUX_GPIO_CHIP_COUNT == 1
+//   #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1}
+// #elif BMC_MUX_GPIO_CHIP_COUNT == 2
+//   #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2}
+// #elif BMC_MUX_GPIO_CHIP_COUNT == 3
+//   #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3}
+// #elif BMC_MUX_GPIO_CHIP_COUNT == 4
+//   #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3, BMC_MUX_GPIO_ADDR_4}
+// #endif
+
+
+
+// #if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
+//   #undef BMC_MUX_GPIO_CHIP_COUNT
+//   #define BMC_MUX_GPIO_CHIP_COUNT 2
+//   #undef BMC_MUX_GPIO_CHIP_ADDR
+//   #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2}
+
+//   #if defined(BMC_MUX_GPIO_ADDR_3) && BMC_MAX_MUX_GPIO > 32
+//     #undef BMC_MUX_GPIO_CHIP_COUNT
+//     #define BMC_MUX_GPIO_CHIP_COUNT 3
+//     #undef BMC_MUX_GPIO_CHIP_ADDR
+//     #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3}
+
+//     #if defined(BMC_MUX_GPIO_ADDR_4) && BMC_MAX_MUX_GPIO > 48
+//       #undef BMC_MUX_GPIO_CHIP_COUNT
+//       #define BMC_MUX_GPIO_CHIP_COUNT 4
+//       #undef BMC_MUX_GPIO_CHIP_ADDR
+//       #define BMC_MUX_GPIO_CHIP_ADDR {BMC_MUX_GPIO_ADDR_1, BMC_MUX_GPIO_ADDR_2, BMC_MUX_GPIO_ADDR_3, BMC_MUX_GPIO_ADDR_4}
+//     #endif
+//   #endif
+// #endif
 
 
 
@@ -142,8 +160,10 @@ public:
       return;
     }
     t_pin -= 64;
-    uint8_t mux = (uint8_t) (t_pin/16);
-    uint8_t pin = t_pin-(mux*16);
+    // uint8_t mux = (uint8_t) (t_pin/16);
+    // uint8_t pin = t_pin-(mux*16);
+    uint8_t mux = (t_pin >> 4);
+    uint8_t pin = t_pin & 0x0F;
     if(t_mode==OUTPUT){
       bitWrite(pinDirection[mux], pin, 0);
       bitWrite(states[mux], pin, 0);
@@ -167,10 +187,13 @@ public:
   }
   bool readPin(uint8_t t_pin){
     if(t_pin<BMC_MAX_MUX_GPIO){
-      uint8_t mux = (uint8_t) (t_pin/16);
-      uint8_t pin = t_pin-(mux*16);
+      // uint8_t mux = (uint8_t) (t_pin/16);
+      // uint8_t pin = t_pin-(mux*16);
+      // // we can read inputs and outputs
+      // return bitRead(states[mux], pin);
+      
       // we can read inputs and outputs
-      return bitRead(states[mux], pin);
+      return bitRead(states[t_pin>>4], t_pin & 0x0F);
     }
     return false;
   }
@@ -178,8 +201,10 @@ public:
     if(t_pin>=BMC_MAX_MUX_GPIO){
       return;
     }
-    uint8_t mux = (uint8_t) (t_pin/16);
-    uint8_t pin = t_pin-(mux*16);
+    // uint8_t mux = (uint8_t) (t_pin/16);
+    // uint8_t pin = t_pin-(mux*16);
+    uint8_t mux = (t_pin >> 4);
+    uint8_t pin = t_pin & 0x0F;
     // check if pin is an output pin, we don't write to input pins.
     if(bitRead(pinDirection[mux], pin) == 0){
       // prepare to update a mux pin on the next update
@@ -210,18 +235,38 @@ public:
     if(t_pin>=BMC_MAX_MUX_GPIO){
       return false;
     }
-    uint8_t mux = (uint8_t) (t_pin/16);
-    uint8_t pin = t_pin-(mux*16);
-    return bitRead(states[mux], pin);
+    // uint8_t mux = (uint8_t) (t_pin/16);
+    // uint8_t pin = t_pin-(mux*16);
+    // return bitRead(states[mux], pin);
+    return bitRead(states[t_pin>>4], t_pin & 0x0F);
   }
 
 private:
   BMCFlags <uint8_t> flags;
-  const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = BMC_MUX_GPIO_CHIP_ADDR;
+
+  // const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = BMC_MUX_GPIO_CHIP_ADDR;
+    const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = {
+      BMC_MUX_GPIO_ADDR_1
+  #if BMC_MUX_GPIO_CHIP_COUNT == 2
+      ,BMC_MUX_GPIO_ADDR_2
+  #endif
+  #if BMC_MUX_GPIO_CHIP_COUNT == 3
+      ,BMC_MUX_GPIO_ADDR_3
+  #endif
+  #if BMC_MUX_GPIO_CHIP_COUNT == 4
+      ,BMC_MUX_GPIO_ADDR_4
+  #endif
+    };
+
+
   uint16_t states[BMC_MUX_GPIO_CHIP_COUNT];
   uint16_t pinDirection[BMC_MUX_GPIO_CHIP_COUNT];
 
   void readAllPins(){
+    for(uint8_t i=0;i<BMC_MUX_GPIO_CHIP_COUNT;i++){
+      states[i] = readPins(addrList[i]);
+    }
+    /*
     states[0] = readPins(BMC_MUX_GPIO_ADDR_1);
 
     #if defined(BMC_MUX_GPIO_ADDR_2) && BMC_MAX_MUX_GPIO > 16
@@ -235,6 +280,7 @@ private:
         states[3] = readPins(BMC_MUX_GPIO_ADDR_4);
       #endif
     #endif
+    */
   }
   void writeData(uint8_t t_chipAddr, uint8_t t_reg, uint8_t t_value){
     Wire.beginTransmission(t_chipAddr);

@@ -239,7 +239,7 @@ class bmcRenderButton {
     return getCenteredX(tft, str, w);
   }
   uint16_t getCenteredX(BMC_TFT& tft, char * buff, uint16_t w){
-    int16_t textWidth = tft.strPixelLen(buff);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     int16_t x = (w-textWidth) / 2;
     return (x < 0) ? 0 : x;
   }

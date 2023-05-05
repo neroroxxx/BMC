@@ -947,6 +947,8 @@
   #define BMC_TFT_SIZE 2
 #endif
 
+
+
 // BMC_TFT_TYPE == 0  >>> 2.8" (320x240 ILI9341)
 // BMC_TFT_TYPE == 1  >>> 3.2" (320x240 ILI9341)
 // BMC_TFT_TYPE == 2  >>> 3.5" (480x320 ILI9488)

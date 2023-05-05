@@ -323,7 +323,9 @@ void BMC::readLeds(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_BI_LED,
                                     i,
-                                    device.events[u]
+                                    device.events[u],
+                                    0,
+                                    u
                                   );
       if(state<=1){
         biLeds[e].setState(state);
@@ -362,7 +364,9 @@ void BMC::readLeds(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_GLOBAL_BI_LED,
                                     i,
-                                    device.events[u]
+                                    device.events[u],
+                                    0,
+                                    u
                                   );
       if(state<=1){
         globalBiLeds[e].setState(state);
@@ -398,7 +402,9 @@ void BMC::readLeds(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_TRI_LED,
                                     i,
-                                    device.events[u]
+                                    device.events[u],
+                                    0,
+                                    u
                                   );
       if(state<=1){
         triLeds[e].setState(state);
@@ -439,7 +445,9 @@ void BMC::readLeds(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_GLOBAL_TRI_LED,
                                     i,
-                                    device.events[u]
+                                    device.events[u],
+                                    0,
+                                    u
                                   );
       if(state<=1){
         globalTriLeds[e].setState(state);

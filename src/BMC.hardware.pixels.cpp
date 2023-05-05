@@ -145,7 +145,9 @@ void BMC::readPixels(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_RGB_PIXEL,
                                     i,
-                                    device.events[e]
+                                    device.events[e],
+                                    0,
+                                    e
                                   );
       if(state<=1){
         pixels.setStateRgb(i, e, state);
@@ -167,7 +169,9 @@ void BMC::readPixels(){
       uint8_t state = processEvent(BMC_DEVICE_GROUP_LED,
                                     BMC_DEVICE_ID_GLOBAL_RGB_PIXEL,
                                     i,
-                                    device.events[e]
+                                    device.events[e],
+                                    0,
+                                    e
                                   );
       if(state<=1){
         pixels.setStateGlobalRgb(i, e, state);

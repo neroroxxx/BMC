@@ -102,9 +102,9 @@ void BMC::incomingMidi(BMCMidiMessage message){
           break;
         case 2:
 #if BMC_MAX_PRESETS > 127
-          //presets.set((uint16_t) ((bank*128) + message.getData1()));
+          //presets.setByIndex((uint16_t) ((bank*128) + message.getData1()));
 #elif BMC_MAX_PRESETS > 0
-          //presets.set(message.getData1());
+          //presets.setByIndex(message.getData1());
 #endif
           break;
       }

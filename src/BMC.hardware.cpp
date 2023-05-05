@@ -232,9 +232,9 @@ uint8_t BMC::parseMidiEventType(uint8_t t_type){
   return (t_type > 0x7F && t_type < 0xF0) ? (t_type & 0xF0) : t_type;
 }
 
-uint8_t BMC::parseUserEventType(uint8_t t_type){
-  if(t_type<BMC_BUTTON_EVENT_TYPE_USER_1){
-    return 0;
-  }
-  return parseMidiEventType(t_type)-BMC_BUTTON_EVENT_TYPE_USER_1;
-}
+// uint8_t BMC::parseUserEventType(uint8_t t_type){
+//   if(t_type<BMC_BUTTON_EVENT_TYPE_USER_1){
+//     return 0;
+//   }
+//   return parseMidiEventType(t_type)-BMC_BUTTON_EVENT_TYPE_USER_1;
+// }

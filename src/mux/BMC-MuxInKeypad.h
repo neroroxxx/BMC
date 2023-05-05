@@ -11,7 +11,8 @@
 
 #if defined(BMC_MAX_MUX_IN_KEYPAD) && BMC_MAX_MUX_IN_KEYPAD > 0
 
-#define BMC_MAX_MUX_IN_KEYPAD_STATES (((BMC_MAX_MUX_IN_KEYPAD>>3)&0x1F)+1)
+// #define BMC_MAX_MUX_IN_KEYPAD_STATES (((BMC_MAX_MUX_IN_KEYPAD>>3)&0x1F)+1)
+#define BMC_MAX_MUX_IN_KEYPAD_STATES (((BMC_MAX_MUX_IN_KEYPAD>>3)-1)+1)
 
 class BMCMuxInKeypad {
 private:
@@ -63,18 +64,20 @@ public:
       digitalWrite(colPins[i], LOW);
       for(int e = 0; e < BMC_MAX_MUX_IN_KEYPAD_ROWS; e++){
         pin = i + (e*BMC_MAX_MUX_IN_KEYPAD_COLS);
-        bitWrite(states[(pin>>3)&0x1F], (pin & 0x07), digitalRead(rowPins[e]));
+        bitWrite(states[pin>>3], pin & 0x07, digitalRead(rowPins[e]));
       }      
       pinMode(colPins[i], INPUT_PULLUP);
     }
   }
-  bool getPinValue(uint8_t t_pin){
+  bool readPin(uint8_t t_pin){
     t_pin = parsePinNumber(t_pin);
-    return bitRead(states[(t_pin>>3)&0x1F], (t_pin&0x07));
+    if(t_pin >= BMC_MAX_MUX_IN_KEYPAD){
+      return false;
+    }
+    return bitRead(states[t_pin>>3], t_pin & 0x07);
   }
-  void setPinValues(uint8_t t_pin, bool t_value){
-    t_pin = parsePinNumber(t_pin);
-    bitWrite(states[(t_pin>>3)&0x1F], (t_pin&0x07), t_value);
+  bool getPinValue(uint8_t t_pin){
+    return readPin(t_pin);
   }
 };
 #endif

@@ -421,7 +421,8 @@ private:
                         uint8_t deviceId,
                         uint16_t deviceIndex,
                         uint16_t event,
-                        uint8_t value=0
+                        uint8_t value=0,
+                        uint8_t dat=0
                       );
   void handleClockLeds();
   
@@ -458,7 +459,7 @@ private:
   void assignHardware();
   void controlFirstLed(bool t_value);
   uint8_t parseMidiEventType(uint8_t t_type);
-  uint8_t parseUserEventType(uint8_t t_type);
+  // uint8_t parseUserEventType(uint8_t t_type);
 
 #if defined(BMC_MUX_AVAILABLE)
   BMCMux mux;
@@ -470,13 +471,6 @@ private:
   #if BMC_TOTAL_PIXELS > 0
     // pixels holds both standard pixels and rgb pixels
     BMCPixels pixels = BMCPixels(globals);
-    #if BMC_MAX_PIXELS > 0
-      uint8_t pixelCustomState[BMC_MAX_PIXELS];
-    #endif //#if BMC_MAX_PIXELS > 0
-
-    #if BMC_MAX_RGB_PIXELS > 0
-      uint8_t rgbPixelCustomState[BMC_MAX_RGB_PIXELS];
-    #endif //#if BMC_MAX_RGB_PIXELS > 0
     void setupPixels();
     void assignPixels();
     void readPixels();

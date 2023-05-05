@@ -404,7 +404,7 @@ public:
   }
   void printRowValue(uint16_t y, bool activeItem, char * str){
     // uint16_t x = getCenteredX(str);
-    int16_t textWidth = tft.strPixelLen(str);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, str);
     int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
     x = (x < 0) ? 0 : x-6;
     //x += (BMC_OBE_SIDEBAR_WIDTH*3);
@@ -1264,7 +1264,7 @@ private:
     return getCenteredX(str);
   }
   uint16_t getCenteredX(char * buff){
-    int16_t textWidth = tft.strPixelLen(buff);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     int16_t x = (BMC_OBE_W-textWidth) / 2;
     return (x < 0) ? 0 : x;
   }

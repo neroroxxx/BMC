@@ -170,7 +170,7 @@ void BMC::update(){
       // send the startup Preset if any
       if(settings.getStartupPreset() > 0){
         delay(1);
-        presets.set(settings.getStartupPreset()-1);
+        presets.setByIndex(settings.getStartupPreset()-1);
       }
       #if BMC_MAX_SETLISTS > 0
         // set the first setlist and trigger it's first song and part

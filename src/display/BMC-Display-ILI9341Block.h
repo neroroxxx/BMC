@@ -15,6 +15,7 @@
 #define BMC_ILI_FONT_LG BMCLiberationSansNarrow_40
 #define BMC_ILI_FONT_XL BMCLiberationSansNarrow_48
 
+
 // BMCLiberationMono_24;
 // BMCLiberationMono_28;
 // BMCLiberationMono_32;
@@ -123,7 +124,7 @@ class BMC_ILI9341_BLOCK {
     
     for(uint8_t i = 0 ; i < len ; i++){
       outStr[i] = str[i];
-      uint16_t lineWidth = tft.strPixelLen(outStr);
+      uint16_t lineWidth = BMC_TFT_STR_LEN(tft, outStr);
       if(lineWidth > wBound){
         if(outStr[i] == 32 && i > 0){
           outStr[i-1] = 0;
@@ -136,7 +137,7 @@ class BMC_ILI9341_BLOCK {
     fontHeight += (fontPadding*2);
     fontPadding += labelYOffset;
 
-    int16_t x = xBound + ((wBound - tft.strPixelLen(outStr)) / 2);
+    int16_t x = xBound + ((wBound - BMC_TFT_STR_LEN(tft, outStr)) / 2);
     uint16_t y = yBound + fontPadding + ((hBound - fontHeight) / 2);
 
     tft.setCursor(x, y);
@@ -173,7 +174,7 @@ class BMC_ILI9341_BLOCK {
     strcpy(str, t_str);
     tft.setFont(Arial_9_Bold);
     
-    int16_t x = xBound + ((wBound - tft.strPixelLen(str)) / 2);
+    int16_t x = xBound + ((wBound - BMC_TFT_STR_LEN(tft, str)) / 2);
     uint16_t y = yBound + 3;
     tft.setCursor(x, y);
     tft.setTextColor(highlight ? background : color);
@@ -215,9 +216,9 @@ class BMC_ILI9341_BLOCK {
         break;
       }
 #if defined(BMC_TRIM_DISPLAY_STRINGS)
-      strWidth = tft.strPixelLen(str);
+      strWidth = BMC_TFT_STR_LEN(tft, str);
 #endif
-      if(fontHeight+4+(fontPadding*2) <= maxHeight && tft.strPixelLen(str) < wBound){
+      if(fontHeight+4+(fontPadding*2) <= maxHeight && BMC_TFT_STR_LEN(tft, str) < wBound){
         break;
       }
     }
@@ -301,11 +302,11 @@ class BMC_ILI9341_BLOCK {
     if(centered > 0){
       centered /= 2; 
     }
-    uint16_t x = xBound+bW2 + ((bW - tft.strPixelLen(t_label)) / 2);
+    uint16_t x = xBound+bW2 + ((bW - BMC_TFT_STR_LEN(tft, t_label)) / 2);
     tft.setCursor(centered+x, yBound + y1);
     tft.println(t_label);
     
-    x = xBound+bW2 + ((bW - tft.strPixelLen(t_value)) / 2);
+    x = xBound+bW2 + ((bW - BMC_TFT_STR_LEN(tft, t_value)) / 2);
     tft.setCursor(centered+x, yBound + y2);
     tft.println(t_value);
   }

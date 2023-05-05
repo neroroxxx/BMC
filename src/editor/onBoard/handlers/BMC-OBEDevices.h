@@ -847,7 +847,7 @@ public:
     tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
   }
   void renderEventsEditorRowValue(uint16_t y, bool activeItem, char * str){
-    int16_t textWidth = tft.strPixelLen(str);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, str);
     int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
     x = (x < 0) ? 0 : x-6;
     tft.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
@@ -1096,7 +1096,7 @@ public:
     sprintf(buff, "Char %u of %u", charIndex+offset, BMC_MAX_NAMES_LENGTH-1);
     tft.setTextColor(BMC_ILI9341_WHITE);
     tft.setFont(BMCLiberationSansNarrow_18);
-    int16_t textWidth = tft.strPixelLen(buff);
+    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     int16_t x = (BMC_OBE_W-textWidth) / 2;
     tft.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
     tft.print(buff);

@@ -670,6 +670,15 @@ private:
         else if(request==4){ /* name */ strcpy(str, "Aux Jack State"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeAuxJack(str, fieldRequest, field);}
         break;
+        
+      case BMC_EVENT_TYPE_CUSTOM:
+        if(request==0){ /* available */ return true; }
+        else if(request==1){ /* fields */ return 1; }
+        else if(request==2){ /* scroll */ return false; }
+        else if(request==3){ /* ports */ return false; }
+        else if(request==4){ /* name */ strcpy(str, "Custom"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeCustom(str, fieldRequest, field);}
+        break;
 
 #if defined(BMC_HAS_DISPLAY)
       case BMC_EVENT_TYPE_DEVICE_NAME:
@@ -1680,6 +1689,15 @@ private:
     }
     return 0;
   }
+  uint16_t eventBmcEventTypeCustom(char* str, uint8_t fieldRequest, uint8_t field){
+    switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        return eventGetField8BitValueRange(str, "ID", fieldRequest, 0, 0, 255, true);
+    }
+    return 0;
+  }
   uint16_t eventBmcEventTypeDeviceName(char* str, uint8_t fieldRequest, uint8_t field){
     uint16_t len = 0;
     for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
@@ -1806,7 +1824,7 @@ private:
         switch(fieldRequest){
           case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return BMC_DAW_SYNCED; /* max */
+          case 2: return BMC_DAW_CMD_SYNCED; /* max */
           case 3: /* get stored value */
             return BMC_GET_BYTE(0, tempEvent.event);
           case 4: /* set stored value */

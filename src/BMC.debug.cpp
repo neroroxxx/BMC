@@ -541,6 +541,7 @@ void BMC::readDebug(){
 }
 void BMC::printBoardInfo(){
   BMC_PRINTLN("Device Name:", BMC_DEVICE_NAME);
+  BMC_PRINTLN("Compiled with Teensyduino", TEENSYDUINO);  
   BMC_PRINTLNNS("Teensy ", BMC_TEENSY_MODEL_STR," @ ",F_CPU/1000000.0,"MHz (",F_CPU,")");
   BMC_PRINTLN("RAM:", BMC_TEENSY_RAM_SIZE,"Bytes");
   BMC_PRINTLN("EEPROM:", BMC_TEENSY_EEPROM_SIZE,"Bytes");

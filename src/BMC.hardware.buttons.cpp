@@ -146,7 +146,9 @@ void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device, uint8_t deviceType,
     processEvent(BMC_DEVICE_GROUP_BUTTON,
                   deviceType,
                   index,
-                  device.events[e]
+                  device.events[e],
+                  0,
+                  trigger
                 );
 
     /*

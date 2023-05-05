@@ -29,34 +29,34 @@ public:
     timedEventCustom = 0;
 #endif
 
+    customActivity = 0;
+
     buttonDualPress = 0;
-    buttonActivity = 0;
-    encoderActivity = 0;
-    potActivity = 0;
-    ledsActivity = 0;
-    globalLedsActivity = 0;
-    pixelsActivity = 0;
-    rgbPixelsActivity = 0;
-
-
     globalButtonDualPress = 0;
-    globalButtonActivity = 0;
-    globalEncoderActivity = 0;
-    globalPotActivity = 0;
 
-    buttonsCustomActivity = 0;
-    encoderCustomActivity = 0;
-    potCustomActivity = 0;
-    globalButtonsCustomActivity = 0;
-    globalEncoderCustomActivity = 0;
-    globalPotCustomActivity = 0;
+    // buttonActivity = 0;
+    // encoderActivity = 0;
+    // potActivity = 0;
+    // ledsActivity = 0;
+    // globalLedsActivity = 0;
+    // pixelsActivity = 0;
+    // rgbPixelsActivity = 0;
+    // globalButtonActivity = 0;
+    // globalEncoderActivity = 0;
+    // globalPotActivity = 0;
+    // buttonsCustomActivity = 0;
+    // encoderCustomActivity = 0;
+    // potCustomActivity = 0;
+    // globalButtonsCustomActivity = 0;
+    // globalEncoderCustomActivity = 0;
+    // globalPotCustomActivity = 0;
 
     // for user defined events
-    userEventButtons = 0;
-    userEventEncoders = 0;
-    userEventPots = 0;
-    userEventLeds = 0;
-    userEventRelays = 0;
+    // userEventButtons = 0;
+    // userEventEncoders = 0;
+    // userEventPots = 0;
+    // userEventLeds = 0;
+    // userEventRelays = 0;
 
     auxJackConnection = 0;
     midiTriggerReceived = 0;
@@ -147,33 +147,33 @@ public:
   void (*timedEventCustom)(uint8_t id, uint8_t a, uint8_t b, uint8_t c);
 #endif
 
+  bool (*customActivity)(uint8_t deviceType, uint16_t deviceIndex, uint8_t id, uint8_t dat1, uint8_t dat2);
+
   void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
-  void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
-  void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
-  void (*potActivity)(uint16_t index, uint8_t value);
-  void (*ledsActivity)(uint32_t states);
-  void (*globalLedsActivity)(uint32_t states);
-  void (*pixelsActivity)(uint32_t states);
-  void (*rgbPixelsActivity)(uint32_t states);
-
   void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
-  void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
-  void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
-  void (*globalPotActivity)(uint16_t index, uint8_t value);
 
 
-  void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
-  void (*encoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
-  void (*potCustomActivity)(uint16_t index, uint8_t t_value);
-  void (*globalButtonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
-  void (*globalEncoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
-  void (*globalPotCustomActivity)(uint16_t index, uint8_t t_value);
-
-  void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
-  void (*userEventEncoders)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
-  void (*userEventPots)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value);
-  uint8_t (*userEventLeds)(uint8_t n, uint32_t event, uint8_t ledType);
-  uint8_t (*userEventRelays)(uint8_t n, uint32_t event);
+  // void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  // void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  // void (*potActivity)(uint16_t index, uint8_t value);
+  // void (*ledsActivity)(uint32_t states);
+  // void (*globalLedsActivity)(uint32_t states);
+  // void (*pixelsActivity)(uint32_t states);
+  // void (*rgbPixelsActivity)(uint32_t states);
+  // void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  // void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  // void (*globalPotActivity)(uint16_t index, uint8_t value);
+  // void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  // void (*encoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  // void (*potCustomActivity)(uint16_t index, uint8_t t_value);
+  // void (*globalButtonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  // void (*globalEncoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  // void (*globalPotCustomActivity)(uint16_t index, uint8_t t_value);
+  // void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
+  // void (*userEventEncoders)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
+  // void (*userEventPots)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value);
+  // uint8_t (*userEventLeds)(uint8_t n, uint32_t event, uint8_t ledType);
+  // uint8_t (*userEventRelays)(uint8_t n, uint32_t event);
 
   void (*auxJackConnection)(uint8_t n, bool state);
 

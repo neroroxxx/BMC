@@ -22,7 +22,7 @@ public:
             preset(midi.globals.preset)
   {
   }
-  void set(uint16_t t_presetAndBank, bool forced=false){
+  void setByIndex(uint16_t t_presetAndBank, bool forced=false){
     uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
     uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
     set(t_bank, t_preset, forced);
@@ -46,17 +46,17 @@ public:
       BMC_PRINTLN("Switch Preset, Bank:", t_bank, "Preset:", t_preset, "presetIndex:", presetIndex);
     }
   }
-  uint8_t scrollPreset(bool direction, bool endless, uint8_t amount=1){
+  uint8_t scrollPreset(bool t_direction, bool t_wrap, uint8_t amount=1){
     amount = (amount >= BMC_MAX_PRESETS_PER_BANK || amount==0) ? 1 : amount;
     BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESETS_PER_BANK-1);
-    uint8_t value = scroller.scroll(amount, direction, endless, preset, 0, BMC_MAX_PRESETS_PER_BANK-1);
+    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, preset, 0, BMC_MAX_PRESETS_PER_BANK-1);
     set(bank, value);
     return value;
   }
-  uint8_t scrollBank(bool direction, bool endless, uint8_t amount=1){
+  uint8_t scrollBank(bool t_direction, bool t_wrap, uint8_t amount=1){
     amount = (amount >= BMC_MAX_PRESET_BANKS || amount==0) ? 1 : amount;
     BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESET_BANKS-1);
-    uint8_t value = scroller.scroll(amount, direction, endless, bank, 0, BMC_MAX_PRESET_BANKS-1);
+    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, bank, 0, BMC_MAX_PRESET_BANKS-1);
     set(value, preset);
     return value;
   }

@@ -177,19 +177,25 @@
     #error "BMC_MUX_IN_ANALOG_74HC40XX_BIT3 is not a valid pin"
   #endif
 
-  #if BMC_MAX_MUX_IN_ANALOG > 80
-    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 6
-  #elif BMC_MAX_MUX_IN_ANALOG > 64
-    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 5
-  #elif BMC_MAX_MUX_IN_ANALOG > 48
-    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 4
-  #elif BMC_MAX_MUX_IN_ANALOG > 32
-    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 3
-  #elif BMC_MAX_MUX_IN_ANALOG > 16
-    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 2
-  #else
+  #if BMC_MAX_MUX_IN_ANALOG == 1
     #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 1
+  #else
+    #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT (((BMC_MAX_MUX_IN_ANALOG-1)>>4)+1)
   #endif
+
+  // #if BMC_MAX_MUX_IN_ANALOG > 80
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 6
+  // #elif BMC_MAX_MUX_IN_ANALOG > 64
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 5
+  // #elif BMC_MAX_MUX_IN_ANALOG > 48
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 4
+  // #elif BMC_MAX_MUX_IN_ANALOG > 32
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 3
+  // #elif BMC_MAX_MUX_IN_ANALOG > 16
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 2
+  // #else
+  //   #define BMC_MUX_IN_ANALOG_74HC40XX_COUNT 1
+  // #endif
 
 
   #if BMC_MAX_MUX_IN_ANALOG > 16
@@ -203,6 +209,12 @@
 
 #elif BMC_MUX_IN_ANALOG_CHIPSET == BMC_MUX_IN_ANALOG_CHIPSET_74HC4051
 
+  #if BMC_MAX_MUX_IN_ANALOG == 1
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 1
+  #else
+    #define BMC_MUX_IN_ANALOG_74HC4051_COUNT (((BMC_MAX_MUX_IN_ANALOG-1)>>3)+1)
+  #endif
+/*
   #if BMC_MAX_MUX_IN_ANALOG > 88
     #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 12
   #elif BMC_MAX_MUX_IN_ANALOG > 80
@@ -228,7 +240,7 @@
   #else
     #define BMC_MUX_IN_ANALOG_74HC4051_COUNT 1
   #endif
-
+*/
   #if BMC_MAX_MUX_IN_ANALOG > 8
     #define BMC_MAX_MUX_IN_ANALOG_LAST 8
   #else
@@ -348,7 +360,7 @@ public:
 
     BMC_PRINTLN("    BMC_MAX_MUX_IN_ANALOG", BMC_MAX_MUX_IN_ANALOG);
 
-    memset(values, 0, BMC_MAX_MUX_IN_ANALOG);
+    memset(values, 0, sizeof(values[0])*BMC_MAX_MUX_IN_ANALOG);
 
     for(uint8_t i = 0, n = totalMux ; i < n ; i++){
       // set the signal pins that will read an analog signal from the mux
@@ -382,11 +394,14 @@ public:
       timer.start(BMC_MUX_IN_ANALOG_74HC40XX_DELAY);
     }
   }
-  uint16_t read(uint8_t n){
+  uint16_t readPin(uint8_t n){
     if(n < BMC_MAX_MUX_IN_ANALOG){
       return values[n];
     }
     return 0;
+  }
+  uint16_t read(uint8_t n){
+    return readPin(n);
   }
 };
 #endif

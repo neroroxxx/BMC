@@ -7,7 +7,8 @@
 #include <BMC.h>
 
 uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, 
-                          uint16_t deviceIndex, uint16_t eventIndex, uint8_t value){
+                          uint16_t deviceIndex, uint16_t eventIndex, 
+                          uint8_t value, uint8_t dat){
   if(eventIndex == 0 || eventIndex > BMC_MAX_EVENTS_LIBRARY){
     return false;
   }
@@ -579,7 +580,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
               break;
 #if BMC_MAX_PRESETS > 0
             case 17:
-              presets.set(valueTyper.getRawOutput());
+              presets.setByIndex(valueTyper.getRawOutput());
               break;
 #endif
 #if defined(BMC_USE_FAS)
@@ -1606,6 +1607,29 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       }
       break;
 #endif
+    case BMC_EVENT_TYPE_CUSTOM:
+      if(callback.customActivity){
+        // this function only works for hardware except relays and displays
+        if(group == BMC_DEVICE_GROUP_BUTTON){
+          // dat1 has the press type
+          // dat2 is unused
+          callback.customActivity(deviceId, deviceIndex, byteA, dat, 0);
+        } else if(group == BMC_DEVICE_GROUP_ENCODER){
+          // dat1 has the direction
+          // dat2 has the number of ticks
+          callback.customActivity(deviceId, deviceIndex, byteA, bitRead(value, 7), value & 0x7F);
+        } else if(group == BMC_DEVICE_GROUP_POT){
+          // dat1 has the pot value
+          callback.customActivity(deviceId, deviceIndex, byteA, value, 0);
+        } else if(group == BMC_DEVICE_GROUP_LED){
+          // for rgb pixles dat1 is the color index, 0=r, 1=g, 2=b
+          // same applies to bi and tri leds, where dat is the index of the color
+          // for leds and pixels this function must return true or false, where
+          // true will turn (and keep) the led on and false will turn it off
+          return callback.customActivity(deviceId, deviceIndex, byteA, dat, 0);
+        }
+      }
+      break;
   }
   return BMC_OFF_LED_EVENT;
 }

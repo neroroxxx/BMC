@@ -39,7 +39,7 @@ class BMC_ILI9341 {
     
     char str[20] = "BMC";
     display.setFont(Arial_32_Bold);
-    int16_t textWidth = display.strPixelLen(str);
+    int16_t textWidth = BMC_TFT_STR_LEN(display, str);
     int16_t x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
     display.setTextColor(BMC_ILI9341_ORANGE);
@@ -48,7 +48,7 @@ class BMC_ILI9341 {
 
     sprintf(str, "Version %u.%u.%u", BMC_VERSION_MAJ, BMC_VERSION_MIN, BMC_VERSION_PATCH);
     display.setFont(Arial_16);
-    textWidth = display.strPixelLen(str);
+    textWidth = BMC_TFT_STR_LEN(display, str);
     x = (BMC_TFT_WIDTH-textWidth) / 2;
     x = (x < 0) ? 0 : x;
     display.setTextColor(BMC_ILI9341_GRAY_18);
