@@ -4,11 +4,10 @@
 
 [Official BMC Website >> RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)
 
-# BMC the Badass MIDI Controller For Teensy 3.x & 4.x!
+# BMC 2.0 is Here!
+## BMC the Badass MIDI Controller For Teensy 3.x, 4.x & Teensy Micromod!
 
-***Version 1.5.0 Now includes Logic Control Support, make your own DAW MIDI Controller!***
-
-***Version 1.2.0 Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
+***BMC 2.0 is NOT compatible with previous versions of BMC, BMC 2.0 is a major re-write and re-architectured of the core, if you have a device with a previous version of BMC you will need to create a new config file. For more info on what's changed and why see:***
 
 **PLEASE READ THIS DOCUMENT FIRST, SPECIALLY THE [INSTALLATION](#installation) REQUIREMENTS FOR THE LIBRARY, BMC REQUIRES TEENSYDUINO AND THE BMC FOR TEENSY BOARDS TO BE INSTALLED.**
 
@@ -16,46 +15,65 @@
 
 ### Get BMC updates on Facebook [https://www.facebook.com/badassmidi](https://www.facebook.com/badassmidi)
 
-
-BMC is an all-in-one Scalable MIDI Controller library with a companion Desktop/Browser Editor App specifically designed for the Arduino-Compatible **Teensy** development Boards. BMC allows you to build your own MIDI Controllers with a mixed number of Buttons/Leds/Encoders/Pots/Relays etc with only a few lines of code!
-
-BMC is only available for Teensy 3.2, 3.5, 3.6, 4.0, 4.1, support for Teensy LC is no longer available due to RAM usage.
-
-**If you have any experience with HUI control and would like to help me implement it's functionality in BMC please email me at [https://www.RoxXxtar.com/contact](https://www.roxxxtar.com/contact)**
-
-## [BMC DOCUMENTATION](docs/README.md)
-
 ***You can access they web-based editor at [https://www.RoxXxtar.com/bmc](https://www.roxxxtar.com/bmc)***
 
+***The editor app runs on Google Chrome and requires internet access the first time, after that you can instal the app on your computer as a chrome app***
+
+---
+
+
+# Introduction
+
+The Badass MIDI Controller (BMC) Library is an all in one MIDI Controller library specifically designed for the Teensy Platform with a Companion dedicated Desktop Editor App!
+
+With BMC you can use Buttons/Footswitches, Rotary Encoders, Potentiometers/Expression Pedals, Leds, WS2812 Addressable Leds, Relays, OLED displays and the ILI9341 Touch Displays along with the ability to edit all their functions using a customizable desktop app.
+
+BMC was designed to allow you to build your Hardware MIDI Controller powered by a Teensy and then easily customize your firmware to fit your hardware, what's more is that you can easily edit your firmware using a Graphic User Interface (GUI) within the Editor App, allowing you to make modifications to your hardware like changing the pin used for a button or adding new hardware like more buttons or more leds, etc without having to write new code.
+
+With BMC you actually don't have to write any code or even be a seasoned programmer, everything is taken care of it by the firmware using a configuration file that you can create on the desktop app. For more experienced programmers BMC does have an API to allow to write your own code into your sketch and feed from BMC.
+
+BMC 2.0 is compatible with the Following Teensy Models:
+* Teensy Micromod
+* Teensy 4.1
+* Teensy 4.0
+* Teensy 3.6
+* Teensy 3.5
+* Teensy 3.2
+
+Some of BMC's key Features Include:
+
+* **USB and USB Host MIDI** BMC leverages Teensy's USB MIDI to communicate with the editor app and also to control MIDI apps on your computer, in addition Teensy boards with USB Host support (Teensy 4.x, Micromod and Teensy 3.6) can use the host usb to send/receive MIDI.
+
+* **4 Serial MIDI Ports** you can have up to 4 independent Standard/Legacy MIDI Ports.
+
+* **Automatic Handling of EEPROM** either using the built-in EEPROM, SD Card (on boards that have it) or with a 24LC256 i2c EEPROM Chip. EEPROM is where all editable data lives.
+
+* **Automatic Handling of Reading and Controlling all basic hardware** in other words, if you want to add footswitches you don't have to write any of the code to read the footswitch, BMC will do all of it just stomp away!
+
+* **Sync** BMC can sync to your Fractal Axe FX II or AX8, Logic Pro and more.
+
+---
+
+## DOCUMENTATION
+As you can imagine this is a very large and ambitious project and requires a lot of documentation, the editor app has a ton of info about the events for buttons, leds, etc built-in and the library also has lots of comments in the code.
+
+For better management all BMC Documentation has been moved to [https://www.roxxxtar.com/bmc](https://www.roxxxtar.com/bmc)
+
+---
+
+## The Editor App
 ![BMC Editor App](images/bmc-editor-preview.jpg)
 
+---
 
 ## Support BMC Development
 To support BMC Development you can can buy products from the BMC Shop @ [BadassMIDI.com](http://www.badassmidi.com)
 
-### Meet MIDI CHIP
-MIDI CHIP is a tiny board meassuring at 0.7" x 0.85" with a MIDI Input and Output Circuit ready to drop into any BMC project. It includes all the circuitry needed for Serial MIDI Communication including an Optocoupler Isolated  Input and a Buffered Output and 5v or 3.3v Operation!
-[![Meet MIDI CHIP](images/midi-chip-all-in-one-midi-io-board.jpg)](https://www.roxxxtar.com/bmc-shop)
-
+---
 
 **Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
 
-The goal of BMC is to let you build a MIDI Controller without having to worry about writing a ton of code by using all the power already available within the Teensy platform, all the code to support hardware, MIDI, Data Storage & Editor Communication is already part of the library.
-
-BMC utilizes a Configuration File which contains all the pre-processors that tell the library what features to compile, the Config file can be created manually or better yet it can be created using the Editor Apps GUI making it really easy to get started.
-
-As this is the initial release of BMC this basic documentation below will grow and get better over time and if it's a little confusing I apologize in advance. Keep in mind tho, I've been using multiple BMC foot controllers over the last year for live shows without any issues so the library has been VERY solid. Also because there are SO MANY combinations of hardware I haven't been able to test every single combination (as in 5 Relays + 52 buttons + 1 PWM led, etc.) however i'm constantly making new devices and also testing on breadboards and so far so good.
-
-My advice to you is to start with a breadboard and your teensy since you likely already have those, then test all the hardware you want to use. As far as the best teensy for your purposes I usually base it on the size of the enclosure I will be using. The Teensy 3.6 has been my go to for any larger project since they have the SD card holder (no need to use the internal EEPROM or a 24LC256) plus you get TONS of pins and tons of FLASH/RAM however it's larger and it's not as easy to fit in a commonly available enclousure, in which case the new king of the block is the Teensy 4.0 so for tighter fits thats you best bet, BMC will run great on a 3.2 as well
-
-* [3rd Party Dependencies](#3rd-party-dependencies)
-* [Compatible Boards](#compatible-boards)
-* [Hardware Limits](#hardware-limits)
-* [Installation Instructions](#installation)
-* [Coding](#coding)
-* [Library File Structure](#library-file-structure)
-* [About BMC](#about-bmc)
-* [Documentation](docs/README.md)
+---
 
 ## 3rd Party Dependencies
 BMC will use many libraries included with Teensyduino, however, here are some of the 3rd party libraries it uses.
@@ -66,76 +84,12 @@ BMC will use many libraries included with Teensyduino, however, here are some of
 * BLEPeripheral Library for nRF8001 (download at [https://github.com/neroroxxx/arduino-BLEPeripheral](https://github.com/neroroxxx/arduino-BLEPeripheral), you must instal from this url as it's a modified version of the library.)
 * Source code has comments with credits if the code comes from another library, if I missed any please let me know.
 
-## Compatible Boards
-I haven't had a chance to test BMC on all Teensy boards out there only the Teensy 3.2/3.6/4.0/4.1 however the Editor and Library are compatible with the boards below even tho they are not tested, If you have those boards please let me know how they work with BMC!
-
-***Teensy LC is no longer supported as it doesn't have enough Flash to hold BMC + Debugging, this makes it very difficult to ensure compatibility.***
-
-|Board             |Compatible  |Tested      |
-|------------------|------------|------------|
-|Teensy LC         |No         |No          |
-|Teensy 3.2        |Yes         |Yes         |
-|Teensy 3.5        |Yes         |No          |
-|Teensy 3.6        |Yes         |Yes         |
-|Teensy 4.0        |Yes         |Yes         |
-|Teensy 4.1        |Yes         |Yes         |
-|Teensy MicroMod   |Yes         |Yes         |
-
-
-BMC includes support for:
-* **Buttons** *(momentary/non-latching switches)*
-* **Leds** *(standard, Bi-Color and/or RGB Leds)*
-* **Pixels** *(WS2812/NeoPixels)*
-* **Rotary Encoders**
-* **Potentiometers/Expression** Pedals
-* **Relays** *(latching and non-latching)*
-* Up to 7 MIDI IO Ports that can be used simultaneously
-* **Port Routing/Soft-thru** across all ports
-* **MIDI Clock** *(Master/Slave)*
-* **MIDI Active Sense** *(Master/Slave)*
-* **MIDI Triggers**/Translation
-* **Custom System Exclusive** Messages
-* **Library** of MIDI Messages *(that can be assigned across BMC)*
-* **Presets** of Library Messages
-* Tempo To Tap *(send timed MIDI CC based on BPM)*
-* Some built-in Beatbuddy and Helix support
-* Some built-in Axe FX II and AX8 support
-* **Messenger** *(send strings back and forth between editor and sketch)*
-* **String Library** *(editable array of strings to be used in sketch)*
-* **SetList**
-* up to 64 Mux inputs/outputs using the MCP23017, MCP23018, 74HC165, 74HC595, 74HC4067 and/or 74HC4051
-* Lots More!
-
-## Hardware Limits
-Hardware like Buttons, Leds, Pots, etc. have a limit which is based on the board you use, for example if your board only has 8 Analog Pins then you can only have 8 Pots, etc. The table below is a general limit to each that can not be exceeded as these are hard-coded. *These may change*
-
-|Hardware             |Max  | 3.2 | 3.5 | 3.6 | 4.0 | 4.1 |
-|---------------------|-----|-----|-----|-----|-----|-----|
-|Buttons              |64   |Max  |Max  |Max  |Max  |Max  |
-|Leds                 |32   |Max  |Max  |Max  |Max  |Max  |
-|Pwm Leds             |16   |12   |Max  |Max  |Max  |Max  |
-|Global Leds          |16   |Max  |Max  |Max  |Max  |Max  |
-|Pots                 |128  |Max  |Max  |Max  |Max  |Max  |
-|Encoder              |64   |Max  |Max  |Max  |Max  |Max  |
-|Latching Relays      |16   |Max  |Max  |Max  |Max  |Max  |
-|Non-Latching Relays  |16   |Max  |Max  |Max  |Max  |Max  |
-
-You can use any combination of Hardware as long as your Teensy supports it!
-
-**NOTE:** using Mux Inputs/Outputs will not increase the maximum number of items that can be used, Muxes just allow you to reach that maximum.
+---
 
 ## Installation
-
 Moved to [docs/installation-instructions.md](docs/installation-instructions.md)
 
-### Documentation
-As you can imagine this is a very large and ambitious project and requires a lot of documentation, the editor app has a ton of info about the events for buttons, leds, etc built-in and the library also has lots of comments in the code.
-
-For those who would like to collaborate, helping with documentation would be a HUGE help.
-
-Additionally the code base while solid, needs lots of optimizing.
-
-You can access the documentation [Here](docs/README.md)
+---
 
 ## Coding
 All pre-processors/macros are all uppercase with underscores between words and are always prefixed **BMC_** this is to avoid issues with other libraries.
@@ -183,7 +137,7 @@ The above is the equivalent of:
 ```c++
 BMCApi bmc = BMCApi();
 ```
-
+---
 
 ## About BMC
 BMC started because at around 2017 I wanted to build my own MIDI Controller that could fully sync with my Fractal AX8 guitar processor, I started with an Arduino Mega but I quickly found that there was no easy library that would allow me to make an editor app to make changes to my footcontroller's buttons.
@@ -198,6 +152,10 @@ After I had the original version of BMC, as usual for me, I decided to completel
 
 I've done the best I could within my abilities to make BMC as easy to use as possible, however as I'm not a C++ Pro and the code base is not as optimized (or as well coded) as a seasoned C++ programmer would have done. This is where you can come in and help.
 
+---
+
 If you're a seasoned C++ programmer who wants to collaborate and make BMC as powerful as possible please feel free to contact me @ [https://www.RoxXxtar.com/contact](https://www.roxxxtar.com/contact) to discuss ideas and improvements to the code.
+
+**If you have any experience with HUI control and would like to help me implement it's functionality in BMC please email me at [https://www.RoxXxtar.com/contact](https://www.roxxxtar.com/contact)**
 
 For more info on BMC and to access the editor you can visit the official site at [https://www.RoxXxtar.com/BMC](https://www.roxxxtar.com/bmc)
