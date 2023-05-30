@@ -31,7 +31,7 @@
 #define BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED 	 8
 #define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED     	 9
 #define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 	 10
-#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED       	 11
+#define BMC_EDITOR_FLAG_EEPROM_ERASED       	         11
 #define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP        	 12
 #define BMC_EDITOR_FLAG_BACKUP_ACTIVE               	 13
 #define BMC_EDITOR_FLAG_BACKUP_STARTED              	 14
@@ -39,7 +39,6 @@
 #define BMC_EDITOR_FLAG_BACKUP_CANCELED             	 16
 #define BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE            17
 #define BMC_EDITOR_FLAG_SEND_STATES                 	 18
-#define BMC_EDITOR_FLAG_EEPROM_ERASED                  19
 
 
 class BMCEditor {
@@ -58,9 +57,6 @@ public:
   }
   void reloadPreviouslySavedStore(){
     getStore();
-  }
-  bool wasStoreCleared(){
-    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EEPROM_ERASED);
   }
   void triggerStates(){
     flags.on(BMC_EDITOR_FLAG_SEND_STATES);
@@ -187,7 +183,10 @@ public:
     #endif
   }
   bool eepromErased(){
-    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED);
+    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EEPROM_ERASED);
+  }
+  bool wasStoreCleared(){
+    return eepromErased();
   }
   #if defined(BMC_USE_TIME)
     static time_t getTeensy3Time(){
@@ -1598,36 +1597,11 @@ private:
       BMC_PRINTLN("store.crc:",store.crc,", BMC_CRC:",BMC_CRC);
       BMC_PRINTLN("EEPROM Store",address,"is being Erased.");
       BMC_WARN_FOOT;
-      // clear the current store in RAM by setting all bytes to 0
-      // memset(&store, 0, sizeof(bmcStore));
-      store = bmcStore();
-      flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
-      // add the CRC
-      store.crc = (BMC_CRC); // update the CRC
-      store.version = (BMC_VERSION); // update the library version
-      // save the new store with updated CRC and version
-#if BMC_MAX_SKETCH_BYTES > 0
-      for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
-        BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
-        //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
-        store.global.sketchBytes[0].events[i] = data.getInitialValue();
-      }
-#endif
-#if BMC_TOTAL_POTS_AUX_JACKS > 0
-      for(uint16_t i = 0 ; i < BMC_TOTAL_POTS_AUX_JACKS ; i++){
-        store.global.potCalibration[i].events[0] = 0;
-        store.global.potCalibration[i].events[1] = 0x3FF;
-      }
-#endif
-      store.global.shortcuts[0].events[0] = BMC_DEVICE_ID_EVENT;
-      store.global.shortcuts[0].events[1] = BMC_DEVICE_ID_NAME;
-      store.global.shortcuts[0].events[2] = BMC_DEVICE_ID_LFO;
-      store.global.shortcuts[0].events[3] = BMC_DEVICE_ID_PORT_PRESET;
-      // update the device id on this new store to match the one we already have
-      settings.setDeviceId(deviceId);
-      saveStore();
-      storage.get(address, store);
-      flags.on(BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED);
+      // Erase the store and set all default values
+      storeErase(true);
+
+      
+      
     } else {
       // update the device id on this store to match the one we already have
       // this is only done when a you change the store id so we skip doing this
@@ -1641,7 +1615,62 @@ private:
       }
     }
   }
+  // @full = erases all data including touch calibration
+  // erasing the touch calibration using the editor will cause
+  // the on board editor not to work until the teensy is rebooted.
+  void storeErase(bool full){
+    #if defined(BMC_SD_CARD_ENABLED)
+      uint16_t address = storeAddress;
+    #else
+      uint16_t address = getStoreOffset();
+    #endif
 
+
+    #ifdef BMC_HAS_TOUCH_SCREEN
+      // store touch calibration as it shouldn't get wiped when erasing
+      bmcStoreTouchSettings touchTmp;
+      bool isTouchCalibrated = settings.getTouchScreenIsCalibrated();
+      touchTmp = store.global.settings.touchCalibration;
+    #endif
+
+    store = bmcStore();
+
+    #ifdef BMC_HAS_TOUCH_SCREEN
+      // restore touch calibration
+      if(!full){
+        store.global.settings.touchCalibration = touchTmp;
+        settings.setTouchScreenIsCalibrated(isTouchCalibrated);
+      }
+    #endif
+
+    // add the CRC
+    store.crc = (BMC_CRC); // update the CRC
+    store.version = (BMC_VERSION); // update the library version
+    // save the new store with updated CRC and version
+#if BMC_MAX_SKETCH_BYTES > 0
+    for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
+      BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
+      //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
+      store.global.sketchBytes[0].events[i] = data.getInitialValue();
+    }
+#endif
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+    for(uint16_t i = 0 ; i < BMC_TOTAL_POTS_AUX_JACKS ; i++){
+      store.global.potCalibration[i].events[0] = 0;
+      store.global.potCalibration[i].events[1] = 0x3FF;
+    }
+#endif
+    store.global.shortcuts[0].events[0] = BMC_DEVICE_ID_EVENT;
+    store.global.shortcuts[0].events[1] = BMC_DEVICE_ID_NAME;
+    store.global.shortcuts[0].events[2] = BMC_DEVICE_ID_LFO;
+    store.global.shortcuts[0].events[3] = BMC_DEVICE_ID_PORT_PRESET;
+
+    // update the device id on this new store to match the one we already have
+    settings.setDeviceId(deviceId);
+    saveStore();
+    storage.get(address, store);
+    flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
+  }
 
   // BMC-Editor.midi.cpp
 public:
@@ -1758,6 +1787,7 @@ private:
   void globalEditorMetrics();
   void globalEditorMessenger(bool write);
   void globalEditorPerformMode(bool write);
+  void globalEditorErase(bool write);
 
   void incomingMessageEvent(bool write);
   void incomingMessageName(bool write);

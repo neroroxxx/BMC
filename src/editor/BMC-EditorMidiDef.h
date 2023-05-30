@@ -33,6 +33,7 @@
 #define BMC_EDITOR_FUNCTION_EVENT         	 16
 #define BMC_EDITOR_FUNCTION_NAME          	 17
 #define BMC_EDITOR_FUNCTION_DEVICE        	 18
+#define BMC_EDITOR_FUNCTION_ERASE    	       19
 
 // get build info, includes things like PINS, number of buttons, leds, etc. Layer Number bytes specify the item being retrieved.
 #define BMC_GLOBALF_BUILD_INFO 125

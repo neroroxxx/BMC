@@ -9,12 +9,35 @@
 uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId, 
                           uint16_t deviceIndex, uint16_t eventIndex, 
                           uint8_t value, uint8_t dat){
+  // Process Events
+  // Check if we should render a display's name
+  if(eventIndex == 0 && group == BMC_DEVICE_GROUP_DISPLAY){
+#if defined(BMC_HAS_DISPLAY)
+    if(settings.getDisplayNames()){
+      #if BMC_MAX_OLED > 0
+        if(deviceId == BMC_DEVICE_ID_OLED && store.layers[layer].oled[deviceIndex].name == 0){
+          return false;
+        }
+      #endif
+      #if BMC_MAX_ILI9341_BLOCKS > 0
+        if(deviceId == BMC_DEVICE_ID_ILI && store.layers[layer].ili[deviceIndex].name == 0){
+          return false;
+        }
+      #endif
+      bmcStoreName t;
+      editor.getDeviceNameText(deviceId, deviceIndex, t.name);
+      display.renderText(deviceIndex, (deviceId == BMC_DEVICE_ID_OLED), 254, t.name, "");
+    }
+#endif
+    return false;
+  }
+
   if(eventIndex == 0 || eventIndex > BMC_MAX_EVENTS_LIBRARY){
     return false;
   }
   
   bmcStoreEvent& e = store.global.events[eventIndex-1];
-  if(e.type==BMC_NONE){
+  if(e.type == BMC_NONE){
     return false;
   }
   globals.offset = settings.getDisplayOffset()?0:1;

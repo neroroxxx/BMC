@@ -36,6 +36,17 @@ void BMC::editorRead(){
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
       display.renderStoreClearedBanner();
     #endif
+    #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 1
+      for(uint8_t i=0;i<5;i++){
+        controlFirstLed(true);
+        delay(100);
+        controlFirstLed(false);
+        delay(100);
+      }
+    #endif
+    if(callback.eepromErased){
+      callback.eepromErased();
+    }
   }
   if(editor.getImportStateChanged()){
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0

@@ -74,6 +74,9 @@ void BMCEditor::globalProcessMessage(){
     case BMC_EDITOR_FUNCTION_DEVICE:
       incomingMessageDevice(isWriteMessage());
       break;
+    case BMC_EDITOR_FUNCTION_ERASE:
+      globalEditorErase(isWriteMessage());
+      break;
   }
 }
 void BMCEditor::incomingMessageEvent(bool write){
@@ -1444,6 +1447,30 @@ void BMCEditor::globalEditorMetrics(){
   );
   buff.appendToSysEx32Bits(midi.globals.getCPU());
   buff.appendToSysEx32Bits(midi.globals.getRAM());
+  sendToEditor(buff);
+}
+void BMCEditor::globalEditorErase(bool write){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  BMC_PRINTLN("EEPROM ERASE");
+
+  bool success = false;
+  if(getMessageLayerNumber() == 0x3FFF){
+    BMC_PRINTLN("ERASE OK");
+    success = true;
+    storeErase(false);
+    delay(1000);
+  } else {
+    BMC_PRINTLN("ERASE ERROR");
+  }
+  
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_EDITOR_FUNCTION_ERASE, 0, 0
+  );
+  buff.appendToSysEx7Bits(success);
   sendToEditor(buff);
 }
 void BMCEditor::globalEditorMessenger(bool write){

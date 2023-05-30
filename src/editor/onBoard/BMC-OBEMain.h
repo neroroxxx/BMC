@@ -792,8 +792,8 @@ private:
   BMCOBEData data;
   BMCOBEDevices devicesEditor;
   BMCFlags <uint8_t> flags;
-  const uint16_t totalMenuItems = 37;
-  const BMCOBEMenuItem items[37] = {
+  const uint16_t totalMenuItems = 38;
+  const BMCOBEMenuItem items[38] = {
     {{0}, BMC_OBE_ID_GO_TO, "Go To", BMC_OBE_MENU_LIST},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_LAYER, "Layer", BMC_OBE_EDIT_LIST, 0, BMC_MAX_LAYERS-1, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_BANK, "Bank", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESET_BANKS-1):0, 1},
@@ -807,6 +807,7 @@ private:
         {{2,1,0}, BMC_OBE_ID_S_TYPER_CHANNEL, "Typer Channel", BMC_OBE_EDIT_LIST, 0, 15, 1},
         {{2,1,0}, BMC_OBE_ID_S_DISPLAY_OFFSET, "Display Offset to 0", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_S_DISPLAY_BANNERS, "Display Banner", BMC_OBE_EDIT_LIST, 0, 3, 1},
+        {{2,1,0}, BMC_OBE_ID_S_DISPLAY_NAMES, "Display Names", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_S_PREPEND_PRESET, "Prepend Preset", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_S_PREPEND_BANK, "Prepend Bank", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_S_DIM_LEDS, "Dim Off LEDs", BMC_OBE_EDIT_LIST, 0, 1, 1},
@@ -887,6 +888,14 @@ private:
         } else {
           sprintf(str, "%u ms", value * 500);
         }
+        return value;
+      case BMC_OBE_ID_S_DISPLAY_NAMES:
+        originalValue = display.midi.globals.settings.getDisplayNames();
+        value = (!active) ? originalValue : value;
+        if(setValue && setChangesMade(originalValue, value)){
+          display.midi.globals.settings.setDisplayNames(value);
+        }
+        strcpy(str, data.yesNoLabels[value]);
         return value;
       case BMC_OBE_ID_S_PREPEND_PRESET:
         originalValue = display.midi.globals.settings.getAppendPresetNumberToPresetName();

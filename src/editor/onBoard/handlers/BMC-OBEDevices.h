@@ -1927,7 +1927,6 @@ public:
             return 0;
         }
         break;
-        break;
       default:
         break;
     }

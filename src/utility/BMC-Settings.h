@@ -31,6 +31,7 @@
       bit 8 getDisplayOffset
       bit 9 getAppendPresetNumberToPresetName
       bit 10 getDisplayBankWithPreset
+      bit 11 getDisplayNames
 
 
 
@@ -179,6 +180,13 @@ public:
   }
   void setDisplayBankWithPreset(bool value){
     writeFlag(10, value);
+  }
+  // typer offset to 0
+  uint8_t getDisplayNames(){
+    return readFlag(11);
+  }
+  void setDisplayNames(bool value){
+    writeFlag(11, value);
   }
 
   // data array
