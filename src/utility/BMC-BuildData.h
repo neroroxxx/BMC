@@ -6320,6 +6320,207 @@ class BMCBuildData {
     BMCUIData e;
     return e;
   }
+static BMCLinkData getLinkData(uint16_t n){
+#if BMC_MAX_LINKS > 0
+  switch(n){
+#if BMC_MAX_LINKS > 0 && defined(BMC_LINK_1)
+  case 0: return BMC_LINK_1;
+#endif
+#if BMC_MAX_LINKS > 1 && defined(BMC_LINK_2)
+  case 1: return BMC_LINK_2;
+#endif
+#if BMC_MAX_LINKS > 2 && defined(BMC_LINK_3)
+  case 2: return BMC_LINK_3;
+#endif
+#if BMC_MAX_LINKS > 3 && defined(BMC_LINK_4)
+  case 3: return BMC_LINK_4;
+#endif
+#if BMC_MAX_LINKS > 4 && defined(BMC_LINK_5)
+  case 4: return BMC_LINK_5;
+#endif
+#if BMC_MAX_LINKS > 5 && defined(BMC_LINK_6)
+  case 5: return BMC_LINK_6;
+#endif
+#if BMC_MAX_LINKS > 6 && defined(BMC_LINK_7)
+  case 6: return BMC_LINK_7;
+#endif
+#if BMC_MAX_LINKS > 7 && defined(BMC_LINK_8)
+  case 7: return BMC_LINK_8;
+#endif
+#if BMC_MAX_LINKS > 8 && defined(BMC_LINK_9)
+  case 8: return BMC_LINK_9;
+#endif
+#if BMC_MAX_LINKS > 9 && defined(BMC_LINK_10)
+  case 9: return BMC_LINK_10;
+#endif
+#if BMC_MAX_LINKS > 10 && defined(BMC_LINK_11)
+  case 10: return BMC_LINK_11;
+#endif
+#if BMC_MAX_LINKS > 11 && defined(BMC_LINK_12)
+  case 11: return BMC_LINK_12;
+#endif
+#if BMC_MAX_LINKS > 12 && defined(BMC_LINK_13)
+  case 12: return BMC_LINK_13;
+#endif
+#if BMC_MAX_LINKS > 13 && defined(BMC_LINK_14)
+  case 13: return BMC_LINK_14;
+#endif
+#if BMC_MAX_LINKS > 14 && defined(BMC_LINK_15)
+  case 14: return BMC_LINK_15;
+#endif
+#if BMC_MAX_LINKS > 15 && defined(BMC_LINK_16)
+  case 15: return BMC_LINK_16;
+#endif
+#if BMC_MAX_LINKS > 16 && defined(BMC_LINK_17)
+  case 16: return BMC_LINK_17;
+#endif
+#if BMC_MAX_LINKS > 17 && defined(BMC_LINK_18)
+  case 17: return BMC_LINK_18;
+#endif
+#if BMC_MAX_LINKS > 18 && defined(BMC_LINK_19)
+  case 18: return BMC_LINK_19;
+#endif
+#if BMC_MAX_LINKS > 19 && defined(BMC_LINK_20)
+  case 19: return BMC_LINK_20;
+#endif
+#if BMC_MAX_LINKS > 20 && defined(BMC_LINK_21)
+  case 20: return BMC_LINK_21;
+#endif
+#if BMC_MAX_LINKS > 21 && defined(BMC_LINK_22)
+  case 21: return BMC_LINK_22;
+#endif
+#if BMC_MAX_LINKS > 22 && defined(BMC_LINK_23)
+  case 22: return BMC_LINK_23;
+#endif
+#if BMC_MAX_LINKS > 23 && defined(BMC_LINK_24)
+  case 23: return BMC_LINK_24;
+#endif
+#if BMC_MAX_LINKS > 24 && defined(BMC_LINK_25)
+  case 24: return BMC_LINK_25;
+#endif
+#if BMC_MAX_LINKS > 25 && defined(BMC_LINK_26)
+  case 25: return BMC_LINK_26;
+#endif
+#if BMC_MAX_LINKS > 26 && defined(BMC_LINK_27)
+  case 26: return BMC_LINK_27;
+#endif
+#if BMC_MAX_LINKS > 27 && defined(BMC_LINK_28)
+  case 27: return BMC_LINK_28;
+#endif
+#if BMC_MAX_LINKS > 28 && defined(BMC_LINK_29)
+  case 28: return BMC_LINK_29;
+#endif
+#if BMC_MAX_LINKS > 29 && defined(BMC_LINK_30)
+  case 29: return BMC_LINK_30;
+#endif
+#if BMC_MAX_LINKS > 30 && defined(BMC_LINK_31)
+  case 30: return BMC_LINK_31;
+#endif
+#if BMC_MAX_LINKS > 31 && defined(BMC_LINK_32)
+  case 31: return BMC_LINK_32;
+#endif
+#if BMC_MAX_LINKS > 32 && defined(BMC_LINK_33)
+  case 32: return BMC_LINK_33;
+#endif
+#if BMC_MAX_LINKS > 33 && defined(BMC_LINK_34)
+  case 33: return BMC_LINK_34;
+#endif
+#if BMC_MAX_LINKS > 34 && defined(BMC_LINK_35)
+  case 34: return BMC_LINK_35;
+#endif
+#if BMC_MAX_LINKS > 35 && defined(BMC_LINK_36)
+  case 35: return BMC_LINK_36;
+#endif
+#if BMC_MAX_LINKS > 36 && defined(BMC_LINK_37)
+  case 36: return BMC_LINK_37;
+#endif
+#if BMC_MAX_LINKS > 37 && defined(BMC_LINK_38)
+  case 37: return BMC_LINK_38;
+#endif
+#if BMC_MAX_LINKS > 38 && defined(BMC_LINK_39)
+  case 38: return BMC_LINK_39;
+#endif
+#if BMC_MAX_LINKS > 39 && defined(BMC_LINK_40)
+  case 39: return BMC_LINK_40;
+#endif
+#if BMC_MAX_LINKS > 40 && defined(BMC_LINK_41)
+  case 40: return BMC_LINK_41;
+#endif
+#if BMC_MAX_LINKS > 41 && defined(BMC_LINK_42)
+  case 41: return BMC_LINK_42;
+#endif
+#if BMC_MAX_LINKS > 42 && defined(BMC_LINK_43)
+  case 42: return BMC_LINK_43;
+#endif
+#if BMC_MAX_LINKS > 43 && defined(BMC_LINK_44)
+  case 43: return BMC_LINK_44;
+#endif
+#if BMC_MAX_LINKS > 44 && defined(BMC_LINK_45)
+  case 44: return BMC_LINK_45;
+#endif
+#if BMC_MAX_LINKS > 45 && defined(BMC_LINK_46)
+  case 45: return BMC_LINK_46;
+#endif
+#if BMC_MAX_LINKS > 46 && defined(BMC_LINK_47)
+  case 46: return BMC_LINK_47;
+#endif
+#if BMC_MAX_LINKS > 47 && defined(BMC_LINK_48)
+  case 47: return BMC_LINK_48;
+#endif
+#if BMC_MAX_LINKS > 48 && defined(BMC_LINK_49)
+  case 48: return BMC_LINK_49;
+#endif
+#if BMC_MAX_LINKS > 49 && defined(BMC_LINK_50)
+  case 49: return BMC_LINK_50;
+#endif
+#if BMC_MAX_LINKS > 50 && defined(BMC_LINK_51)
+  case 50: return BMC_LINK_51;
+#endif
+#if BMC_MAX_LINKS > 51 && defined(BMC_LINK_52)
+  case 51: return BMC_LINK_52;
+#endif
+#if BMC_MAX_LINKS > 52 && defined(BMC_LINK_53)
+  case 52: return BMC_LINK_53;
+#endif
+#if BMC_MAX_LINKS > 53 && defined(BMC_LINK_54)
+  case 53: return BMC_LINK_54;
+#endif
+#if BMC_MAX_LINKS > 54 && defined(BMC_LINK_55)
+  case 54: return BMC_LINK_55;
+#endif
+#if BMC_MAX_LINKS > 55 && defined(BMC_LINK_56)
+  case 55: return BMC_LINK_56;
+#endif
+#if BMC_MAX_LINKS > 56 && defined(BMC_LINK_57)
+  case 56: return BMC_LINK_57;
+#endif
+#if BMC_MAX_LINKS > 57 && defined(BMC_LINK_58)
+  case 57: return BMC_LINK_58;
+#endif
+#if BMC_MAX_LINKS > 58 && defined(BMC_LINK_59)
+  case 58: return BMC_LINK_59;
+#endif
+#if BMC_MAX_LINKS > 59 && defined(BMC_LINK_60)
+  case 59: return BMC_LINK_60;
+#endif
+#if BMC_MAX_LINKS > 60 && defined(BMC_LINK_61)
+  case 60: return BMC_LINK_61;
+#endif
+#if BMC_MAX_LINKS > 61 && defined(BMC_LINK_62)
+  case 61: return BMC_LINK_62;
+#endif
+#if BMC_MAX_LINKS > 62 && defined(BMC_LINK_63)
+  case 62: return BMC_LINK_63;
+#endif
+#if BMC_MAX_LINKS > 63 && defined(BMC_LINK_64)
+  case 63: return BMC_LINK_64;
+#endif
+
+  }
+#endif
+BMCLinkData buff;
+return buff;
+}
 static BMCSketchByteData getSketchByteData(uint8_t index){
   char defaultName[BMC_NAME_LEN_SKETCH_BYTES] = "";
   if(index>9){
@@ -7103,7 +7304,6 @@ static bool isMuxInPin(uint8_t n){
     return true;
   }
 #endif
-
 #if BMC_MAX_MUX_IN > 0
   return (n>=64+BMC_MAX_MUX_GPIO && n<(64+BMC_MAX_MUX_GPIO+BMC_MAX_MUX_IN));
 #endif
@@ -7150,14 +7350,12 @@ static bool isMuxInKeypadPinIndex(uint8_t n){
 #endif
   return false;
 }
-
 // MUX INPUT
 static bool isMuxInputPin(uint8_t n){
   if(isMuxInPin(n)){return true;}
   if(isMuxInAnalogPin(n)){return true;}
-  if(isMuxInKeypadPin(n)){return true;}
+  if(isMuxInKeypadPinIndex(n)){return true;}
   return false;
 }
-
 };
 #endif

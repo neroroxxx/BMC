@@ -14637,4 +14637,457 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 0
+#if defined(BMC_LINK_1)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 1
+
+#if defined(BMC_LINK_2)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 2
+
+#if defined(BMC_LINK_3)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 3
+
+#if defined(BMC_LINK_4)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 4
+
+#if defined(BMC_LINK_5)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 5
+
+#if defined(BMC_LINK_6)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 6
+
+#if defined(BMC_LINK_7)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 7
+
+#if defined(BMC_LINK_8)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 8
+
+#if defined(BMC_LINK_9)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 9
+
+#if defined(BMC_LINK_10)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 10
+
+#if defined(BMC_LINK_11)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 11
+
+#if defined(BMC_LINK_12)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 12
+
+#if defined(BMC_LINK_13)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 13
+
+#if defined(BMC_LINK_14)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 14
+
+#if defined(BMC_LINK_15)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 15
+
+#if defined(BMC_LINK_16)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 16
+
+#if defined(BMC_LINK_17)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 17
+
+#if defined(BMC_LINK_18)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 18
+
+#if defined(BMC_LINK_19)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 19
+
+#if defined(BMC_LINK_20)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 20
+
+#if defined(BMC_LINK_21)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 21
+
+#if defined(BMC_LINK_22)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 22
+
+#if defined(BMC_LINK_23)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 23
+
+#if defined(BMC_LINK_24)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 24
+
+#if defined(BMC_LINK_25)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 25
+
+#if defined(BMC_LINK_26)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 26
+
+#if defined(BMC_LINK_27)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 27
+
+#if defined(BMC_LINK_28)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 28
+
+#if defined(BMC_LINK_29)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 29
+
+#if defined(BMC_LINK_30)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 30
+
+#if defined(BMC_LINK_31)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 31
+
+#if defined(BMC_LINK_32)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 32
+
+#if defined(BMC_LINK_33)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 33
+
+#if defined(BMC_LINK_34)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 34
+
+#if defined(BMC_LINK_35)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 35
+
+#if defined(BMC_LINK_36)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 36
+
+#if defined(BMC_LINK_37)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 37
+
+#if defined(BMC_LINK_38)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 38
+
+#if defined(BMC_LINK_39)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 39
+
+#if defined(BMC_LINK_40)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 40
+
+#if defined(BMC_LINK_41)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 41
+
+#if defined(BMC_LINK_42)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 42
+
+#if defined(BMC_LINK_43)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 43
+
+#if defined(BMC_LINK_44)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 44
+
+#if defined(BMC_LINK_45)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 45
+
+#if defined(BMC_LINK_46)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 46
+
+#if defined(BMC_LINK_47)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 47
+
+#if defined(BMC_LINK_48)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 48
+
+#if defined(BMC_LINK_49)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 49
+
+#if defined(BMC_LINK_50)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 50
+
+#if defined(BMC_LINK_51)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 51
+
+#if defined(BMC_LINK_52)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 52
+
+#if defined(BMC_LINK_53)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 53
+
+#if defined(BMC_LINK_54)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 54
+
+#if defined(BMC_LINK_55)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 55
+
+#if defined(BMC_LINK_56)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 56
+
+#if defined(BMC_LINK_57)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 57
+
+#if defined(BMC_LINK_58)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 58
+
+#if defined(BMC_LINK_59)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 59
+
+#if defined(BMC_LINK_60)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 60
+
+#if defined(BMC_LINK_61)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 61
+
+#if defined(BMC_LINK_62)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 62
+
+#if defined(BMC_LINK_63)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 63
+
+#if defined(BMC_LINK_64)
+#ifdef BMC_MAX_LINKS
+#undef BMC_MAX_LINKS
+#endif
+#define BMC_MAX_LINKS 64
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
 #endif

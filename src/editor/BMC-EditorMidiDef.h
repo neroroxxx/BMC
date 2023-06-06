@@ -34,6 +34,7 @@
 #define BMC_EDITOR_FUNCTION_NAME          	 17
 #define BMC_EDITOR_FUNCTION_DEVICE        	 18
 #define BMC_EDITOR_FUNCTION_ERASE    	       19
+#define BMC_EDITOR_FUNCTION_LINK    	       20
 
 // get build info, includes things like PINS, number of buttons, leds, etc. Layer Number bytes specify the item being retrieved.
 #define BMC_GLOBALF_BUILD_INFO 125
@@ -81,6 +82,7 @@
   #define BMC_NOTIFY_BACKUP_DATA_ACCEPTED    	 16
   #define BMC_NOTIFY_INVALID_SKETCH_BYTE_DATA	 17
   #define BMC_NOTIFY_REQUEST_ACCEPTED        	 18
+  #define BMC_NOTIFY_INVALID_LINK           	 19
 
 // LAYER FUNCTIONS
 #define BMC_LAYERF_LAYER 0

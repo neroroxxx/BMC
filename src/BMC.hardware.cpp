@@ -125,24 +125,23 @@ void BMC::readHardware(){
   mux.update();
 #endif
 
-#if BMC_MAX_OLED > 0
-  for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
-    processEvent(BMC_DEVICE_GROUP_DISPLAY,
-                  BMC_DEVICE_ID_OLED,
-                  index,
-                  store.layers[layer].oled[index].events[0]
-                  );
-  }
-#endif
 
-#if BMC_MAX_ILI9341_BLOCKS > 0
-  for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
-    processEvent(BMC_DEVICE_GROUP_DISPLAY,
-                  BMC_DEVICE_ID_ILI,
-                  index,
-                  store.layers[layer].ili[index].events[0]
-                  );
-  }
+#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
+if(oneMillisecondPassed()){
+  #if BMC_MAX_OLED > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
+      uint16_t eIndex = store.layers[layer].oled[index].events[0];
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, index, eIndex);
+    }
+  #endif
+
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
+      uint16_t eIndex = store.layers[layer].ili[index].events[0];
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
+    }
+  #endif
+}
 #endif
 
 // read hardware that can "send" data first and LEDs/Pixels last

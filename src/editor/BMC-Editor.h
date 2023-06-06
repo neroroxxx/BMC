@@ -1792,6 +1792,7 @@ private:
   void incomingMessageEvent(bool write);
   void incomingMessageName(bool write);
   void incomingMessageDevice(bool write);
+  void incomingMessageLinks();
 
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer=-1);

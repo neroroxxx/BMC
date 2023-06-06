@@ -77,7 +77,44 @@ void BMCEditor::globalProcessMessage(){
     case BMC_EDITOR_FUNCTION_ERASE:
       globalEditorErase(isWriteMessage());
       break;
+    case BMC_EDITOR_FUNCTION_LINK:
+      incomingMessageLinks();
+      break;
   }
+}
+void BMCEditor::incomingMessageLinks(){
+  if(!isValidGlobalMessage()){
+    return;
+  }
+  
+  uint16_t index = getMessageLayerNumber();
+  if(index>0 && index>=BMC_MAX_LINKS){
+    sendNotification(BMC_NOTIFY_INVALID_LINK, index, true);
+    return;
+  }
+
+  BMCMidiMessage buff;
+  buff.prepareEditorMessage(
+    port, deviceId,
+    BMC_EDITOR_FUNCTION_LINK, 0,
+    index
+  );
+  buff.appendToSysEx14Bits(BMC_MAX_LINKS);
+  #if BMC_MAX_LINKS > 0
+    BMCLinkData item = BMCBuildData::getLinkData(index);
+  #else
+    BMCLinkData item;
+  #endif
+  buff.appendToSysEx14Bits(item.id1);
+  buff.appendToSysEx14Bits(item.index1);
+  buff.appendToSysEx14Bits(item.id2);
+  buff.appendToSysEx14Bits(item.index2);
+  buff.appendToSysEx14Bits(item.id3);
+  buff.appendToSysEx14Bits(item.index3);
+  buff.appendToSysEx14Bits(item.id4);
+  buff.appendToSysEx14Bits(item.index4);
+  
+  sendToEditor(buff);
 }
 void BMCEditor::incomingMessageEvent(bool write){
   if(!isValidGlobalMessage()){
@@ -1137,6 +1174,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_MAGIC_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_MAGIC_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_LAYER_EVENTS);
+    buff.appendToSysEx7Bits(BMC_MAX_LINKS);
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_DEVICE_NAME){
     String name = BMC_DEVICE_NAME;

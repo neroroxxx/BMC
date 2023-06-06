@@ -30,10 +30,11 @@
 #define USE_SPI4TEENSY3 0
 
 // Basic flags
-#define BMC_FLAGS_CLICK_TRACK_RESPOND 0
-#define BMC_FLAGS_LAYER_CHANGED 1
-#define BMC_FLAGS_FIRST_LOOP 2
-#define BMC_FLAGS_STATUS_LED 3
+#define BMC_FLAGS_CLICK_TRACK_RESPOND	 0
+#define BMC_FLAGS_LAYER_CHANGED      	 1
+#define BMC_FLAGS_FIRST_LOOP         	 2
+#define BMC_FLAGS_STATUS_LED         	 3
+#define BMC_FLAGS_BLOCK_PRESETS      	 4
 
 
 #ifndef BMC_DEBUG_MAX_TIMING
@@ -329,12 +330,22 @@ private:
     if(len > 0){
       bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[t_preset];
       for(uint8_t i = 0 ; i < len ; i++){
+        // this is a fail safe to prevent endless loops
+        // it blocks the triggereing of events of PRESET type
+        // this is so that if you assign an event that triggers a preset
+        // to a preset it will not trigger it, this could cause the teensy to lock
+        // as it would be stuck sending the same preset forever.
+        flags.on(BMC_FLAGS_BLOCK_PRESETS);
+        // send the event for processing
         processEvent(BMC_DEVICE_GROUP_BUTTON,
                       BMC_DEVICE_ID_BUTTON,
                       t_preset,
                       device.events[i]
                     );
+        // disable the preset triggering block
+        flags.off(BMC_FLAGS_BLOCK_PRESETS);
       }
+      
     }
     editor.utilitySendPreset(presets.getBank(), presets.get());
 #endif

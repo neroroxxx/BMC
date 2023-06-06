@@ -45,7 +45,7 @@ void BMC::assignMagicEncoders(){
     // bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent dataEncoder = globals.getDeviceEventType(device.events[1]);
     //bmcStoreEvent dataBtn     = globals.getDeviceEventType(device.events[2]);
-    magicEncoders[i].reassign(ui.rotation);
+    magicEncoders[i].reassign(ui.rotation & 0x0F);
     magicEncoders[i].setColors(device.settings[0]);
 //     if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER){
 // #if defined(BMC_USE_DAW_LC)
@@ -72,7 +72,7 @@ void BMC::assignMagicEncoders(){
     // bmcStoreEvent dataPixel   = globals.getDeviceEventType(device.events[0]);
     //bmcStoreEvent dataEncoder = globals.getDeviceEventType(device.events[1]);
     //bmcStoreEvent dataBtn     = globals.getDeviceEventType(device.events[2]);
-    globalMagicEncoders[i].reassign(ui.rotation);
+    globalMagicEncoders[i].reassign(ui.rotation & 0x0F);
     globalMagicEncoders[i].setColors(device.settings[0]);
 
 //     if(dataPixel.type==BMC_EVENT_TYPE_DAW_MAGIC_ENCODER && BMC_GET_BYTE(0, dataPixel.event)==0){

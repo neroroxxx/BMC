@@ -140,6 +140,17 @@ struct BMCUIData {
   uint16_t other2 = 0;
 };
 
+struct BMCLinkData {
+  uint8_t id1 = 0;
+  uint8_t index1 = 0;
+  uint8_t id2 = 0;
+  uint8_t index2 = 0;
+  uint8_t id3 = 0;
+  uint8_t index3 = 0;
+  uint8_t id4 = 0;
+  uint8_t index4 = 0;
+};
+
 struct BMCEventScrollData {
   bool enabled = false;
   bool direction = false;

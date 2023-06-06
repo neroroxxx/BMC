@@ -123,11 +123,11 @@ public:
   void initILI9341(){
     BMC_PRINTLN("BMCDisplay::initILI9341()");
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ILI, -1);
-    tft.begin(ui.rotation);
+    tft.begin(ui.rotation & 0x0F);
     
     #if defined(BMC_HAS_TOUCH_SCREEN)
       touchScreen.begin();
-      touchScreen.setRotation(ui.rotation);
+      touchScreen.setRotation(ui.rotation & 0x0F);
     #endif
   }
 #if defined(BMC_HAS_TOUCH_SCREEN)
@@ -348,7 +348,7 @@ public:
     #if BMC_MAX_OLED > 1
         selectMux(i);
     #endif
-        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, 0x3C + ui.other1, ui.rotation, i+1);
+        oled[i].begin(BMC_SSD1306_SWITCHCAPVCC, 0x3C + ui.other1, ui.rotation & 0x0F, i+1);
       }
   }
 #endif

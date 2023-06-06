@@ -11,8 +11,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
                           uint8_t value, uint8_t dat){
   // Process Events
   // Check if we should render a display's name
-  if(eventIndex == 0 && group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
+  if(eventIndex == 0 && group == BMC_DEVICE_GROUP_DISPLAY){
     if(settings.getDisplayNames()){
       #if BMC_MAX_OLED > 0
         if(deviceId == BMC_DEVICE_ID_OLED && store.layers[layer].oled[deviceIndex].name == 0){
@@ -28,9 +28,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       editor.getDeviceNameText(deviceId, deviceIndex, t.name);
       display.renderText(deviceIndex, (deviceId == BMC_DEVICE_ID_OLED), 254, t.name, "");
     }
-#endif
     return false;
   }
+#endif
 
   if(eventIndex == 0 || eventIndex > BMC_MAX_EVENTS_LIBRARY){
     return false;
@@ -76,10 +76,14 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       uint8_t outVal = byteB;
       if(byteC > 0){
         // scrolling max or toggle enabled
-        if(max > min){
+        if((byteC-1) > byteB){
           min = byteB;
-          max = byteC;
+          max = byteC-1;
+        } else if((byteC-1) != byteB){
+          max = byteB;
+          min = byteC-1;
         }
+
         if(!scroll.enabled){
           outVal = currentPC != byteB ? byteB : (byteC-1);
         }
@@ -124,9 +128,12 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       uint8_t outVal = byteC;
       if(byteD > 0){
         // scrolling max or toggle enabled
-        if(max > min){
+        if((byteD-1) > byteC){
           min = byteC;
-          max = byteD;
+          max = byteD-1;
+        } else if((byteD-1) != byteC){
+          max = byteC;
+          min = byteD-1;
         }
         if(!scroll.enabled){
           outVal = currentCC != byteC ? byteC : (byteD-1);
@@ -822,6 +829,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
     // PRESETS
 #if BMC_MAX_PRESETS > 0
     case BMC_EVENT_TYPE_PRESET:
+      // don't run this event if it's being triggered by a preset
+      if(flags.read(BMC_FLAGS_BLOCK_PRESETS)){
+        return false;
+      }
       if(group == BMC_DEVICE_GROUP_BUTTON){
         if(scroll.enabled){
           presets.scrollPreset(scroll.direction, scroll.endless, scroll.amount);
@@ -853,6 +864,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       }
       break;
     case BMC_EVENT_TYPE_BANK:
+      // don't run this event if it's being triggered by a preset
+      if(flags.read(BMC_FLAGS_BLOCK_PRESETS)){
+        return false;
+      }
       if(group == BMC_DEVICE_GROUP_BUTTON){
         if(scroll.enabled){
           presets.scrollBank(scroll.direction, scroll.endless, scroll.amount);
@@ -873,7 +888,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #endif
       } else {
         return byteA == presets.getBank();
-
       }
       break;
 #endif

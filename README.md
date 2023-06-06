@@ -67,8 +67,10 @@ For better management all BMC Documentation has been moved to [https://www.roxxx
 ---
 
 ## Support BMC Development
-To support BMC Development you can can buy products from the BMC Shop @ [BadassMIDI.com](http://www.badassmidi.com)
 
+To support BMC Development you can can buy MIDI Modules and Accessories from the BMC Shop @ [BadassMIDI.com](http://www.badassmidi.com)
+
+[![BadassMIDI.com](images/badassmidi-shop-link-image.jpg)](https://www.roxxxtar.com/badassmidi)
 ---
 
 **Watch BMC Videos on [YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)**
