@@ -89,7 +89,7 @@ BMC will use many libraries included with Teensyduino, however, here are some of
 ---
 
 ## Installation
-Moved to [docs/installation-instructions.md](docs/installation-instructions.md)
+Moved to [https://www.roxxxtar.com/blog/articles/2023/05/05/installing-teensyduino-and-bmc-on-arduino-2-0](https://www.roxxxtar.com/blog/articles/2023/05/05/installing-teensyduino-and-bmc-on-arduino-2-0)
 
 ---
 
