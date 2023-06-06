@@ -107,10 +107,10 @@ public:
     buttonFlags.reset();
     pin = t_pin;
 
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+#if defined(BMC_MUX_INPUTS_AVAILABLE)
 // if the pin number is 64 or higher it's a mux pin
     if(pin>=64){
-      if(!BMCBuildData::isMuxInPin(pin) && !BMCBuildData::isMuxInAnalogPin(pin)){
+      if(!BMCBuildData::isMuxInputPin(pin)){
         BMC_ERROR(
           "Mux Pin:", pin,
           "Can NOT be used with buttons as it is NOT a valid Mux In Pin"
@@ -210,13 +210,13 @@ public:
     buttonFlags.reset(1 << BMC_BTN_FLAG_MUX_STATE);
     reset(true);
 
-    // when pages change BMC expects all buttons to be in their OPEN position
+    // when layers change BMC expects all buttons to be in their OPEN position
     // before reading them again, this is because if a button was used to change
-    // pages on it's press, hold, or continuous, then when the page changes
+    // layers on it's press, hold, or continuous, then when the layer changes
     // if the button has a new event assigned to that same trigger, that event
-    // will automatically be triggered, this will also cause pages to change
-    // more than once in some cases, so it you want to scroll pages you will
-    // not go to the next page but 2 or 3 pages up.
+    // will automatically be triggered, this will also cause layers to change
+    // more than once in some cases, so it you want to scroll layers you will
+    // not go to the next layer but 2 or 3 layers up.
     // to solve this there's the REASSIGNED flag, this tells the button to
     // ignore EVERYTHING thing until the button has been released.
     // ------------------------
@@ -411,7 +411,11 @@ public:
       return false;
     }
     if(activityDetected() && flags.read(BMC_BTN_FLAG_CONTINUOUS)){
-      continuousTimer.start(250);
+      continuousTimer.start(250-continuousCount);
+      continuousCount += 10;
+      if(continuousCount >= 100){
+        continuousCount = 100;
+      }
       flags.off(BMC_BTN_FLAG_CONTINUOUS);
       return true;
     }
@@ -430,7 +434,7 @@ public:
   bool isClosed(){
     return flags.read(BMC_BTN_FLAG_STATE);
   }
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+#if defined(BMC_MUX_INPUTS_AVAILABLE)
   void setMuxValue(bool t_state){
     buttonFlags.write(BMC_BTN_FLAG_MUX_STATE, t_state);
   }
@@ -444,7 +448,7 @@ public:
 
   void changePin(uint8_t t_pin){
     if(pin!=255
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+#if defined(BMC_MUX_INPUTS_AVAILABLE)
     && !isMux()
 #endif
     ){
@@ -460,6 +464,7 @@ private:
   void reset(bool hard=false){
     holdTimer.stop();
     continuousTimer.stop();
+    continuousCount = 0;
     // reset all flags except for the debouncing flag and the current state
     flags.reset((1<<BMC_BTN_FLAG_DEBOUNCING)|(1<<BMC_BTN_FLAG_STATE));
     if(hard){
@@ -473,7 +478,7 @@ private:
   // that was set for the pin.
   // during testing putting this function in FASTRUN gave me about 0.5% more LPS
   FASTRUN bool _digitalRead(){
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+#if defined(BMC_MUX_INPUTS_AVAILABLE)
     if(assignedFlags.read(BMC_BTN_FLAG_MUX_IN)){
       return buttonFlags.read(BMC_BTN_FLAG_MUX_STATE);
     }
@@ -582,6 +587,7 @@ private:
   uint8_t pin = 255;
   uint8_t threshold = 0;
   uint8_t releaseType = 0;
+  uint8_t continuousCount = 0;
   unsigned long debounceTime = 0;
   BMCFlags <uint8_t> assignedFlags;
   BMCFlags <uint8_t> buttonFlags;

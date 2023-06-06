@@ -30,8 +30,7 @@ public:
     }
   }
   bool isEigthNote(){
-    return flags.toggleIfTrue(BMC_BPM_CALC_EIGHT_NOTE);;
-
+    return flags.toggleIfTrue(BMC_BPM_CALC_EIGHT_NOTE);
   }
   void setBpm(uint16_t tempo){
     if(isValidBpm(tempo)){
@@ -127,7 +126,8 @@ private:
   void reset(){
     ticks = 0;
     bpmAvgSize = 0;
-    memset(bpmAvg, 0, sizeof(bpmAvg[0])*BMC_BPM_AVERAGE);
+    // memset(bpmAvg, 0, BMC_BPM_AVERAGE);
+    memset(bpmAvg, 0, sizeof(bpmAvg[0]) * BMC_BPM_AVERAGE);
     timer.stop();
     flags.reset();
   }

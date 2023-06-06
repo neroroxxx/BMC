@@ -11,7 +11,7 @@
 void BMC::setSketchByte(uint8_t n, uint8_t value){
   if(n < BMC_MAX_SKETCH_BYTES){
     BMCSketchByteData data = BMCBuildData::getSketchByteData(n);
-    store.global.sketchBytes[n] = constrain(value, data.min, data.max);
+    store.global.sketchBytes[0].events[n] = constrain(value, data.min, data.max);
   }
 }
 void BMC::saveSketchBytes(bool triggerEditorUpdateCallback){
@@ -27,7 +27,7 @@ void BMC::saveSketchBytes(bool triggerEditorUpdateCallback){
 uint8_t BMC::getSketchByte(uint8_t n){
   if(n<BMC_MAX_SKETCH_BYTES){
     BMCSketchByteData data = BMCBuildData::getSketchByteData(n);
-    uint8_t value = store.global.sketchBytes[n];;
+    uint8_t value = store.global.sketchBytes[0].events[n];
     return constrain(value, data.min, data.max);
   }
   return 0;

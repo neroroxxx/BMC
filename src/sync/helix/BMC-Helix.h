@@ -88,6 +88,18 @@ public:
     BMCScroller <uint8_t> scroller(snapshot, 0, getMaxSnapshots()-1);
     setSnapshot(scroller.scroll(1, up, true));
   }
+  void snapshotScroll(bool direction, uint8_t min, uint8_t max){
+    //getMaxSnapshots()
+    //snapshot
+    if(max < min || min == max){
+      return;
+    }
+    uint8_t _max = getMaxSnapshots()-1;
+    min = constrain(min, 0, _max);
+    max = constrain(max, 0, _max);
+    BMCScroller <uint8_t> scroller(snapshot, min, max);
+    setSnapshot(scroller.scroll(1, direction, true));
+  }
   void tap(){
     midi.sendControlChange(port, channel, BMC_HELIX_CC_TAP, 127);
   }
@@ -125,6 +137,17 @@ public:
       setSnapshot((snapshot==a)?b:a);
     }
   }
+  uint8_t getMaxSnapshots(){
+    switch(id){
+      case BMC_HELIX_ID:
+        return 8;
+      case BMC_HELIX_FX_ID:
+        return 4;
+      case BMC_HELIX_STOMP_ID:
+        return 3;
+    }
+    return 0;
+  }
 
 private:
   BMCMidi& midi;
@@ -136,17 +159,6 @@ private:
 
   bool isDevice(uint8_t t_value){
     return id == t_value;
-  }
-  uint8_t getMaxSnapshots(){
-    switch(id){
-      case BMC_HELIX_ID:
-        return 8;
-      case BMC_HELIX_FX_ID:
-        return 4;
-      case BMC_HELIX_STOMP_ID:
-        return 3;
-    }
-    return 0;
   }
   bool validateSnapshot(uint8_t t_value){
     return t_value < getMaxSnapshots();

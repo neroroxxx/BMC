@@ -12,50 +12,18 @@ void BMC::setupHardware(){
 
   BMC_PRINTLN("");
 
-#if BMC_MAX_AUX_JACKS > 0
-  BMC_PRINTLN("BMC_MAX_AUX_JACKS", BMC_MAX_AUX_JACKS);
-  for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
-
-    #if BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_IN_ANALOG > 0
-      if(
-        BMCBuildData::getPotPin(BMCBuildData::getPotMergeItem(i, 0))>=64 ||
-        BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 1))>=64 ||
-        BMCBuildData::getButtonPin(BMCBuildData::getPotMergeItem(i, 2))>=64
-      ){
-        BMC_ERROR("BMC can not be used with Mux Pins");
-        BMC_HALT();
-      }
-    #endif
-
-    auxJacks.begin(i,
-                    BMCBuildData::getPotMergeItem(i, 0),
-                    BMCBuildData::getPotMergeItem(i, 1),
-                    BMCBuildData::getPotMergeItem(i, 2));
-  }
-#endif
-
 #if defined(BMC_MUX_AVAILABLE)
   mux.begin();
 #endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   setupPixels();
 #endif
 
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.rgbPixels
-  setupRgbPixels();
-#endif
-
-#if BMC_MAX_LEDS > 0 || BMC_MAX_GLOBAL_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   setupLeds();
-#endif
-
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  setupPwmLeds();
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
@@ -68,19 +36,23 @@ void BMC::setupHardware(){
   setupEncoders();
 #endif
 
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  setupMagicEncoders();
+#endif
+
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   setupPots();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
   // BMC.hardware.relays
-  setupRelaysNL();
+  setupRelays();
 #endif
 
-#if BMC_MAX_L_RELAYS > 0
-  // BMC.hardware.relays
-  setupRelaysL();
+#if BMC_MAX_AUX_JACKS > 0
+  // BMC.hardware.auxJacks
+  setupAuxJacks();
 #endif
 
   BMC_PRINTLN("");
@@ -90,39 +62,41 @@ void BMC::setupHardware(){
 */
 void BMC::assignHardware() {
 
-#if BMC_MAX_BUTTONS > 0
+#if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   // BMC.hardware.buttons
   assignButtons();
 #endif
 
-#if BMC_MAX_ENCODERS > 0
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   // BMC.hardware.encoders
   assignEncoders();
 #endif
 
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  assignMagicEncoders();
+#endif
+
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   assignPots();
 #endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   assignPixels();
 #endif
 
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.rgbPixels
-  assignRgbPixels();
-#endif
-
-#if BMC_MAX_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   assignLeds();
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  assignPwmLeds();
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
+  assignRelays();
+#endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  assignAuxJacks();
 #endif
 
 
@@ -151,92 +125,94 @@ void BMC::readHardware(){
   mux.update();
 #endif
 
-#if BMC_MAX_AUX_JACKS > 0
-  uint8_t _auxJacksStates = auxJacksStates;
-  for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
-    bool state = auxJacks.isConnected(i);
-    if(auxJacks.update(i)){
-      if(callback.auxJackConnection){
-        callback.auxJackConnection(i, state);
-      }
+
+#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
+if(oneMillisecondPassed()){
+  #if BMC_MAX_OLED > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
+      uint16_t eIndex = store.layers[layer].oled[index].events[0];
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, index, eIndex);
     }
-    bitWrite(_auxJacksStates, i, state);
-  }
-  if(_auxJacksStates != auxJacksStates){
-    auxJacksStates = _auxJacksStates;
-    editor.utilitySendAuxJackActivity(auxJacksStates);
-  }
+  #endif
+
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
+      uint16_t eIndex = store.layers[layer].ili[index].events[0];
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
+    }
+  #endif
+}
 #endif
 
 // read hardware that can "send" data first and LEDs/Pixels last
-#if BMC_MAX_BUTTONS > 0
+#if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
   // BMC.hardware.buttons
   readButtons();
 #endif
 
-#if BMC_MAX_GLOBAL_BUTTONS > 0
-  // BMC.hardware.buttons
-  readGlobalButtons();
-#endif
-
-#if BMC_MAX_ENCODERS > 0
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
   // BMC.hardware.encoders
   readEncoders();
 #endif
 
-#if BMC_MAX_GLOBAL_ENCODERS > 0
+
+#if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
   // BMC.hardware.encoders
-  readGlobalEncoders();
+  readMagicEncoders();
 #endif
 
-#if BMC_MAX_POTS > 0
+#if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
   // BMC.hardware.pots
   readPots();
 #endif
 
-#if BMC_MAX_GLOBAL_POTS > 0
-  // BMC.hardware.pots
-  readGlobalPots();
-#endif
-
-
-#if BMC_MAX_LEDS > 0
+#if BMC_TOTAL_LEDS > 0
   // BMC.hardware.leds
   readLeds();
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-  // BMC.hardware.pwmLeds
-  readPwmLeds();
-#endif
 
-#if BMC_MAX_PIXELS > 0
+#if BMC_TOTAL_PIXELS > 0
   // BMC.hardware.pixels
   readPixels();
 #endif
 
-#if BMC_MAX_RGB_PIXELS > 0
-  // BMC.hardware.pixels
-  readRgbPixels();
-#endif
-
-#if BMC_MAX_NL_RELAYS > 0
+#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
   // BMC.hardware.relays
-  readRelaysNL();
+  readRelays();
 #endif
 
-#if BMC_MAX_L_RELAYS > 0
-  // BMC.hardware.relays
-  readRelaysL();
+#if BMC_MAX_AUX_JACKS > 0
+  // BMC.hardware.auxJacks
+  readAuxJacks();
 #endif
 
+}
+// just used when EEPROM is erased, blinks first of each led type
+void BMC::controlFirstLed(bool t_value){
+  #if BMC_MAX_LEDS > 0
+    leds[0].overrideState(t_value);
+  #endif
 
-#if BMC_MAX_GLOBAL_LEDS > 0
-  // BMC.hardware.leds
-  readGlobalLeds();
-#endif
-  // keep at end of hardware read
-  flags.off(BMC_FLAGS_STATUS_LED);
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    globalLeds[0].overrideState(t_value);
+  #endif
+
+  #if BMC_MAX_PIXELS > 0
+    pixels.setState(0, t_value?255:0);
+  #endif
+
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    globalPixels.setGlobalState(0, t_value?255:0);
+  #endif
+
+  #if BMC_MAX_RGB_PIXELS > 0
+    pixels.setStateRgb(0, 0, t_value);
+  #endif
+
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    pixels.setStateGlobalRgb(0, 0, t_value);
+  #endif
 }
 uint8_t BMC::parseMidiEventType(uint8_t t_type){
   // this code will take an event type from buttons, encoders, leds, pots
@@ -255,9 +231,9 @@ uint8_t BMC::parseMidiEventType(uint8_t t_type){
   return (t_type > 0x7F && t_type < 0xF0) ? (t_type & 0xF0) : t_type;
 }
 
-uint8_t BMC::parseUserEventType(uint8_t t_type){
-  if(t_type<BMC_BUTTON_EVENT_TYPE_USER_1){
-    return 0;
-  }
-  return parseMidiEventType(t_type)-BMC_BUTTON_EVENT_TYPE_USER_1;
-}
+// uint8_t BMC::parseUserEventType(uint8_t t_type){
+//   if(t_type<BMC_BUTTON_EVENT_TYPE_USER_1){
+//     return 0;
+//   }
+//   return parseMidiEventType(t_type)-BMC_BUTTON_EVENT_TYPE_USER_1;
+// }

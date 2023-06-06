@@ -20,22 +20,25 @@
 #include <TimeLib.h>
 #endif
 
-#define BMC_EDITOR_FLAG_CONNECTED 0
-#define BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED 1
-#define BMC_EDITOR_FLAG_READY_TO_RELOAD 2
-#define BMC_EDITOR_FLAG_DATA_FOR_BMC_AVAILABLE 3
-#define BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR 4
-#define BMC_EDITOR_FLAG_EDITOR_FEEDBACK 5
-#define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED 6
-#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED 7
-#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 8
-#define BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED 9
-#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP 10
-
-#define BMC_EDITOR_FLAG_BACKUP_ACTIVE 11
-#define BMC_EDITOR_FLAG_BACKUP_STARTED 12
-#define BMC_EDITOR_FLAG_BACKUP_COMPLETE 13
-#define BMC_EDITOR_FLAG_BACKUP_CANCELED 14
+#define BMC_EDITOR_FLAG_CONNECTED                      0
+#define BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED      	 1
+#define BMC_EDITOR_FLAG_READY_TO_RELOAD             	 2
+#define BMC_EDITOR_FLAG_DATA_FOR_BMC_AVAILABLE      	 3
+#define BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR        	 4
+#define BMC_EDITOR_FLAG_EDITOR_FEEDBACK             	 5
+#define BMC_EDITOR_FLAG_EDITOR_DISCONNECTED         	 6
+#define BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED          	 7
+#define BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED 	 8
+#define BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED     	 9
+#define BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED 	 10
+#define BMC_EDITOR_FLAG_EEPROM_ERASED       	         11
+#define BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP        	 12
+#define BMC_EDITOR_FLAG_BACKUP_ACTIVE               	 13
+#define BMC_EDITOR_FLAG_BACKUP_STARTED              	 14
+#define BMC_EDITOR_FLAG_BACKUP_COMPLETE             	 15
+#define BMC_EDITOR_FLAG_BACKUP_CANCELED             	 16
+#define BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE            17
+#define BMC_EDITOR_FLAG_SEND_STATES                 	 18
 
 
 class BMCEditor {
@@ -51,6 +54,15 @@ public:
   bool dataForBMCAvailable();
   void saveEEPROM(){
     saveStore();
+  }
+  void reloadPreviouslySavedStore(){
+    getStore();
+  }
+  void triggerStates(){
+    flags.on(BMC_EDITOR_FLAG_SEND_STATES);
+  }
+  bool isTriggerStates(){
+    return flags.read(BMC_EDITOR_FLAG_SEND_STATES);
   }
   void messengerSend(uint16_t status, signed long value, char* str, uint8_t len){
     if(!midi.globals.editorConnected() || connectionOngoing()){
@@ -122,8 +134,8 @@ public:
   void disconnectEditor();
   void forceDisconnectEditor();
   void setPort(uint8_t port);
-  void setPage(uint8_t page);
-  uint8_t getPage();
+  void setLayer(uint8_t layer);
+  uint8_t getLayer();
   uint16_t getEepromSize(){
     return storage.length();
   }
@@ -131,16 +143,29 @@ public:
   void getGlobalData(bmcStoreGlobal& p){
     p = store.global;
   }
-  void getPageData(bmcStorePage& p){
-    p = store.pages[page];
+  void getLayerData(bmcStoreLayer& p){
+    p = store.layers[layer];
   }
-  void getPageData(uint8_t index, bmcStorePage& p){
-    p = store.pages[index];
+  void getLayerData(uint8_t index, bmcStoreLayer& p){
+    p = store.layers[index];
   }
-
   void saveSketchBytesToEEPROM(){
     #if BMC_MAX_SKETCH_BYTES > 0
       saveSketchBytes();
+    #endif
+  }
+  bool lfoUpdated(){
+    #if BMC_MAX_LFO > 0
+      return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED);
+    #else
+      return false;
+    #endif
+  }
+  bool tempoToTapUpdated(){
+    #if BMC_MAX_TEMPO_TO_TAP > 0
+      return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+    #else
+      return false;
     #endif
   }
   bool triggersUpdated(){
@@ -158,7 +183,10 @@ public:
     #endif
   }
   bool eepromErased(){
-    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED);
+    return flags.toggleIfTrue(BMC_EDITOR_FLAG_EEPROM_ERASED);
+  }
+  bool wasStoreCleared(){
+    return eepromErased();
   }
   #if defined(BMC_USE_TIME)
     static time_t getTeensy3Time(){
@@ -206,25 +234,27 @@ public:
     return 0;
   }
 
-#if BMC_MAX_POTS > 0
-  void setPotCalibration(uint8_t index, uint16_t min, uint16_t max){
-    if(index<BMC_MAX_POTS){
-      store.global.potCalibration[index].min = min;
-      store.global.potCalibration[index].max = max;
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+  void setPotCalibration(uint8_t deviceType, uint16_t index, uint16_t min, uint16_t max){
+    if(deviceType == BMC_DEVICE_ID_GLOBAL_POT){
+      index += BMC_MAX_POTS;
+    } else if(deviceType == BMC_DEVICE_ID_AUX_JACK){
+      index += (BMC_MAX_POTS + BMC_MAX_GLOBAL_POTS);
+    }
+    if(index < BMC_TOTAL_POTS_AUX_JACKS){
+      store.global.potCalibration[index].events[0] = min;
+      store.global.potCalibration[index].events[1] = max;
       saveGlobalAndReloadData();
     }
   }
 #endif
+  bool getImportStateChanged(){
+    return flags.toggleIfTrue(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
+  }
+  bool importIsActive(){
+    return midi.globals.editorConnected() && flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE);
+  }
 
-#if BMC_MAX_GLOBAL_POTS > 0
-  void setGlobalPotCalibration(uint8_t index, uint16_t min, uint16_t max){
-    if(index<BMC_MAX_GLOBAL_POTS){
-      store.global.globalPotCalibration[index].min = min;
-      store.global.globalPotCalibration[index].max = max;
-      saveGlobalAndReloadData();
-    }
-  }
-#endif
 
 private:
   // Reference to the store from BMC.h
@@ -241,12 +271,12 @@ private:
   uint8_t port = 1;
   // id of this device, this can be changed via Settings
   uint8_t deviceId = 0;
-  // the current page we are working with
-  uint8_t page = 0;
+  // the current layer we are working with
+  uint8_t layer = 0;
   // the current store address
   uint8_t storeAddress = 0;
   // flags
-  BMCFlags <uint16_t> flags;
+  BMCFlags <uint32_t> flags;
   BMCMidiControl dataForBMC;
   // reference to the BMCMidiMessage in the BMCMidi class
   BMCMidiMessage &incoming;
@@ -274,6 +304,7 @@ private:
       BMC_INFO("Backup Started");
       flags.on(BMC_EDITOR_FLAG_BACKUP_ACTIVE);
       flags.on(BMC_EDITOR_FLAG_BACKUP_STARTED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
     }
@@ -286,6 +317,13 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.on(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
+      #if BMC_MAX_LFO > 0
+        flags.on(BMC_EDITOR_FLAG_EDITOR_LFO_UPDATED);
+      #endif
+      #if BMC_MAX_TEMPO_TO_TAP > 0
+        flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+      #endif
       #if BMC_MAX_TRIGGERS > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
       #endif
@@ -302,6 +340,7 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_STARTED);
       flags.off(BMC_EDITOR_FLAG_BACKUP_COMPLETE);
       flags.on(BMC_EDITOR_FLAG_BACKUP_CANCELED);
+      flags.on(BMC_EDITOR_FLAG_BACKUP_STATE_CHANGE);
       getStore();
       reloadData();
     }
@@ -321,37 +360,25 @@ private:
     }
     return 0;
   }
+  
 
   uint16_t checkIfHardwareAvailable(uint8_t t_type){
-    switch(t_type){
-      case BMC_ITEM_ID_BUTTON:          return BMC_MAX_BUTTONS;
-      case BMC_ITEM_ID_LED:             return BMC_MAX_LEDS;
-      case BMC_ITEM_ID_PWM_LED:         return BMC_MAX_PWM_LEDS;
-      case BMC_ITEM_ID_PIXEL:           return BMC_MAX_PIXELS;
-      case BMC_ITEM_ID_RGB_PIXEL:       return BMC_MAX_RGB_PIXELS;
-      case BMC_ITEM_ID_POT:             return BMC_MAX_POTS;
-      case BMC_ITEM_ID_ENCODER:         return BMC_MAX_ENCODERS;
-      case BMC_ITEM_ID_GLOBAL_BUTTON:   return BMC_MAX_GLOBAL_BUTTONS;
-      case BMC_ITEM_ID_GLOBAL_ENCODER:  return BMC_MAX_GLOBAL_ENCODERS;
-      case BMC_ITEM_ID_GLOBAL_POT:      return BMC_MAX_GLOBAL_POTS;
-      case BMC_ITEM_ID_GLOBAL_LED:      return BMC_MAX_GLOBAL_LEDS;
-      case BMC_ITEM_ID_LIBRARY:         return BMC_MAX_LIBRARY;
-      case BMC_ITEM_ID_STRING_LIBRARY:  return BMC_MAX_STRING_LIBRARY;
-      case BMC_ITEM_ID_PRESET:          return BMC_MAX_PRESETS;
-      case BMC_ITEM_ID_CUSTOM_SYSEX:    return BMC_MAX_CUSTOM_SYSEX;
-      case BMC_ITEM_ID_TRIGGER:         return BMC_MAX_TRIGGERS;
-      case BMC_ITEM_ID_TIMED_EVENT:     return BMC_MAX_TIMED_EVENTS;
-      case BMC_ITEM_ID_TEMPO_TO_TAP:    return BMC_MAX_TEMPO_TO_TAP;
-      case BMC_ITEM_ID_SKETCH_BYTES:    return BMC_MAX_SKETCH_BYTES;
-      case BMC_ITEM_ID_NL_RELAY:        return BMC_MAX_NL_RELAYS;
-      case BMC_ITEM_ID_L_RELAY:         return BMC_MAX_L_RELAYS;
-      case BMC_ITEM_ID_SETLIST:         return BMC_MAX_SETLISTS;
-      case BMC_ITEM_ID_SETLIST_SONG:    return BMC_MAX_SETLISTS_SONGS;
-      case BMC_ITEM_ID_SETLIST_SONG_LIBRARY:    return BMC_MAX_SETLISTS_SONGS_LIBRARY;
-      case BMC_ITEM_ID_OLED:            return BMC_MAX_OLED;
-      case BMC_ITEM_ID_ILI:            return BMC_MAX_ILI9341_BLOCKS;
+    for(uint8_t i = 0 ; i < devicesDataLength ; i++){
+      if(devicesData[i].id==t_type){
+        return devicesData[i].length;
+      }
     }
     return 0;
+  }
+
+  bmcStoreName getDeviceName(uint16_t n){
+    bmcStoreName name;
+    strcpy(name.name, "");
+    if(n==0 || n > BMC_MAX_NAMES_LIBRARY){
+      return name;
+    }
+    strcpy(name.name, store.global.names[n-1].name);
+    return name;
   }
 
   void reloadData(){
@@ -367,42 +394,78 @@ private:
   uint32_t getStoreOffset();
   uint32_t getGlobalOffset();
   uint32_t getSettingsOffset();
+
+  uint32_t getEventsOffset();
+  uint32_t getEventsOffset(uint16_t index);
+  uint32_t getNamesOffset();
+  uint32_t getNamesOffset(uint16_t index);
+
+  uint32_t getShortcutsOffset();
+  uint32_t getShortcutsOffset(uint8_t index);
+
+  uint32_t getLfoOffset();
+  uint32_t getLfoOffset(uint8_t index);
+
   uint32_t getSketchBytesOffset();
-  uint32_t getStringLibraryOffset();
-  uint32_t getStringLibraryOffset(uint8_t index);
-  uint32_t getLibraryOffset();
-  uint32_t getLibraryOffset(bmcLibrary_t index);
+  uint32_t getSketchBytesOffset(uint8_t index);
+
   uint32_t getPresetOffset();
-  uint32_t getPresetOffset(bmcPreset_t index);
+  uint32_t getPresetOffset(uint16_t index);
+
   uint32_t getSetListOffset();
   uint32_t getSetListOffset(uint8_t index);
   uint32_t getSetListSongOffset();
   uint32_t getSetListSongOffset(uint8_t index);
-  uint32_t getGlobalLedOffset();
-  uint32_t getGlobalLedOffset(uint8_t index);
+
 
   uint32_t getGlobalButtonOffset();
-  uint32_t getGlobalButtonOffset(uint8_t index);
+  uint32_t getGlobalButtonOffset(uint16_t index);
+
+  uint32_t getGlobalLedOffset();
+  uint32_t getGlobalLedOffset(uint16_t index);
+
+  uint32_t getGlobalBiLedOffset();
+  uint32_t getGlobalBiLedOffset(uint16_t index);
+
+  uint32_t getGlobalTriLedOffset();
+  uint32_t getGlobalTriLedOffset(uint16_t index);
+
   uint32_t getGlobalEncoderOffset();
-  uint32_t getGlobalEncoderOffset(uint8_t index);
+  uint32_t getGlobalEncoderOffset(uint16_t index);
+
   uint32_t getGlobalPotOffset();
-  uint32_t getGlobalPotOffset(uint8_t index);
-  uint32_t getGlobalPotCalibrationOffset();
-  uint32_t getGlobalPotCalibrationOffset(uint8_t index);
+  uint32_t getGlobalPotOffset(uint16_t index);
 
   uint32_t getPotCalibrationOffset();
-  uint32_t getPotCalibrationOffset(uint8_t index);
+  uint32_t getPotCalibrationOffset(uint16_t index);
+
+  uint32_t getGlobalPixelOffset();
+  uint32_t getGlobalPixelOffset(uint16_t index);
+
+  uint32_t getGlobalRgbPixelOffset();
+  uint32_t getGlobalRgbPixelOffset(uint16_t index);
+
+  uint32_t getGlobalMagicEncoderOffset();
+  uint32_t getGlobalMagicEncoderOffset(uint16_t index);
+
+  uint32_t getNLRelayOffset();
+  uint32_t getNLRelayOffset(uint16_t index);
+
+  uint32_t getLRelayOffset();
+  uint32_t getLRelayOffset(uint16_t index);
+
+  uint32_t getAuxJackOffset();
+  uint32_t getAuxJackOffset(uint16_t index);
+
+
   uint32_t getCustomSysExOffset();
   uint32_t getCustomSysExOffset(uint8_t index);
   uint32_t getTriggerOffset();
   uint32_t getTriggerOffset(uint8_t index);
   uint32_t getTempoToTapOffset();
   uint32_t getTempoToTapOffset(uint8_t index);
-  uint32_t getNLRelayOffset();
-  uint32_t getNLRelayOffset(uint8_t index);
-  uint32_t getLRelayOffset();
-  uint32_t getLRelayOffset(uint8_t index);
   uint32_t getPortPresetsOffset();
+  uint32_t getPortPresetsOffset(uint16_t index);
   uint32_t getPixelProgramsOffset();
   uint32_t getPixelProgramsOffset(uint8_t index);
   uint32_t getTimedEventOffset();
@@ -438,6 +501,601 @@ private:
   }
 
 public:
+
+  void getDeviceNameFromIndex(uint16_t value, char* str){
+    if(value < BMC_MAX_NAMES_LIBRARY){
+      if(value > 0 && strlen(store.global.names[value-1].name) > 0){
+        strcpy(str, store.global.names[value-1].name);
+        return;
+      }
+    }
+    // strcpy(str, "...");
+  }
+  void getDeviceNameText(uint8_t deviceType, uint16_t index, char* str){
+    strcpy(str, "...");
+    switch(deviceType){
+      case BMC_DEVICE_ID_LAYER:
+        if(index < BMC_MAX_LAYERS){
+          // getDeviceNameFromIndex(store.layers[index].name, str);
+          getDeviceNameFromIndex(store.layers[midi.globals.layer].events[0].name, str);
+        }
+        break;
+      case BMC_DEVICE_ID_EVENT:
+        if(index < BMC_MAX_EVENTS_LIBRARY){
+          getDeviceNameFromIndex(store.global.events[index].name, str);
+        }
+        break;
+      case BMC_DEVICE_ID_NAME:
+        if(index < BMC_MAX_NAMES_LIBRARY){
+          getDeviceNameFromIndex(index+1, str);
+        }
+        break;
+      case BMC_DEVICE_ID_BUTTON:
+        #if BMC_MAX_BUTTONS > 0
+          if(index < BMC_MAX_BUTTONS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].buttons[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_BUTTON:
+        #if BMC_MAX_GLOBAL_BUTTONS > 0
+          if(index < BMC_MAX_GLOBAL_BUTTONS){
+            getDeviceNameFromIndex(store.global.buttons[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_LED:
+        #if BMC_MAX_LEDS > 0
+          if(index < BMC_MAX_LEDS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].leds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_LED:
+        #if BMC_MAX_GLOBAL_LEDS > 0
+          if(index < BMC_MAX_GLOBAL_LEDS){
+            getDeviceNameFromIndex(store.global.leds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_BI_LED:
+        #if BMC_MAX_BI_LEDS > 0
+          if(index < BMC_MAX_BI_LEDS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].biLeds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_BI_LED:
+        #if BMC_MAX_GLOBAL_BI_LEDS > 0
+          if(index < BMC_MAX_GLOBAL_BI_LEDS){
+            getDeviceNameFromIndex(store.global.biLeds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_TRI_LED:
+        #if BMC_MAX_TRI_LEDS > 0
+          if(index < BMC_MAX_TRI_LEDS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].triLeds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_TRI_LED:
+        #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+          if(index < BMC_MAX_GLOBAL_TRI_LEDS){
+            getDeviceNameFromIndex(store.global.triLeds[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_ENCODER:
+        #if BMC_MAX_ENCODERS > 0
+          if(index < BMC_MAX_ENCODERS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].encoders[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_ENCODER:
+        #if BMC_MAX_GLOBAL_ENCODERS > 0
+          if(index < BMC_MAX_GLOBAL_ENCODERS){
+            getDeviceNameFromIndex(store.global.encoders[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_POT:
+        #if BMC_MAX_POTS > 0
+          if(index < BMC_MAX_POTS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].pots[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_POT:
+        #if BMC_MAX_GLOBAL_POTS > 0
+          if(index < BMC_MAX_GLOBAL_POTS){
+            getDeviceNameFromIndex(store.global.pots[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_MAGIC_ENCODER:
+        #if BMC_MAX_MAGIC_ENCODERS > 0
+          if(index < BMC_MAX_MAGIC_ENCODERS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].magicEncoders[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER:
+        #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+          if(index < BMC_MAX_GLOBAL_MAGIC_ENCODERS){
+            getDeviceNameFromIndex(store.global.magicEncoders[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_PIXEL:
+        #if BMC_MAX_PIXELS > 0
+          if(index < BMC_MAX_PIXELS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].pixels[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_PIXEL:
+        #if BMC_MAX_GLOBAL_PIXELS > 0
+          if(index < BMC_MAX_GLOBAL_PIXELS){
+            getDeviceNameFromIndex(store.global.pixels[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_RGB_PIXEL:
+        #if BMC_MAX_RGB_PIXELS > 0
+          if(index < BMC_MAX_RGB_PIXELS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].rgbPixels[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_GLOBAL_RGB_PIXEL:
+        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+          if(index < BMC_MAX_GLOBAL_RGB_PIXELS){
+            getDeviceNameFromIndex(store.global.rgbPixels[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_PIXEL_STRIP:
+        #if BMC_MAX_PIXEL_STRIP > 0
+          if(index < BMC_MAX_PIXEL_STRIP){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].pixelStrip[0].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_NL_RELAY:
+        #if BMC_MAX_NL_RELAYS > 0
+          if(index < BMC_MAX_NL_RELAYS){
+            getDeviceNameFromIndex(store.global.relaysNL[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_L_RELAY:
+        #if BMC_MAX_L_RELAYS > 0
+          if(index < BMC_MAX_L_RELAYS){
+            getDeviceNameFromIndex(store.global.relaysL[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_AUX_JACK:
+        #if BMC_MAX_AUX_JACKS > 0
+          if(index < BMC_MAX_AUX_JACKS){
+            getDeviceNameFromIndex(store.global.auxJacks[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_OLED:
+        #if BMC_MAX_OLED > 0
+          if(index < BMC_MAX_OLED){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].oled[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_ILI:
+        #if BMC_MAX_ILI9341_BLOCKS > 0
+          if(index < BMC_MAX_ILI9341_BLOCKS){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].ili[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_LFO:
+        #if BMC_MAX_LFO > 0
+          if(index < BMC_MAX_LFO){
+            getDeviceNameFromIndex(store.global.lfo[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_PRESET:
+        #if BMC_MAX_PRESETS > 0
+          if(index < BMC_MAX_PRESETS){
+            getDeviceNameFromIndex(store.global.presets[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_CUSTOM_SYSEX:
+        #if BMC_MAX_CUSTOM_SYSEX > 0
+          if(index < BMC_MAX_CUSTOM_SYSEX){
+            getDeviceNameFromIndex(store.global.customSysEx[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_TRIGGER:
+        #if BMC_MAX_TRIGGERS > 0
+          if(index < BMC_MAX_TRIGGERS){
+            getDeviceNameFromIndex(store.global.triggers[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_TEMPO_TO_TAP:
+        #if BMC_MAX_TEMPO_TO_TAP > 0
+          if(index < BMC_MAX_TEMPO_TO_TAP){
+            getDeviceNameFromIndex(store.global.tempoToTap[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_PORT_PRESET:
+        if(index < 16){
+          getDeviceNameFromIndex(store.global.portPresets[index].name, str);
+        }
+        break;
+      case BMC_DEVICE_ID_SHORTCUTS:
+        if(index < 6){
+          getDeviceNameFromIndex(store.global.shortcuts[index].name, str);
+        }
+        break;
+      case BMC_DEVICE_ID_PIXEL_PROGRAM:
+        #if BMC_MAX_PIXEL_PROGRAMS > 0
+          if(index < BMC_MAX_PIXEL_PROGRAMS){
+            getDeviceNameFromIndex(store.global.pixelPrograms[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_SKETCH_BYTE:
+        #if BMC_MAX_SKETCH_BYTES > 0
+          // getDeviceNameFromIndex(store.global.sketchBytes[0], buff, 0, deviceType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_SETLIST:
+        #if BMC_MAX_SETLISTS > 0
+          if(index < BMC_MAX_SETLISTS){
+            getDeviceNameFromIndex(store.global.setLists[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_SETLIST_SONG:
+        #if BMC_MAX_SETLISTS > 0
+          // getDeviceNameFromIndex(store.global.setLists[index].name, str);
+        #endif
+        break;
+      case BMC_DEVICE_ID_SETLIST_SONG_LIBRARY:
+        #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+          if(index < BMC_MAX_SETLISTS_SONGS_LIBRARY){
+            getDeviceNameFromIndex(store.global.songLibrary[index].name, str);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_TIMED_EVENT:
+        #if BMC_MAX_TIMED_EVENTS > 0
+          if(index < BMC_MAX_TIMED_EVENTS){
+            getDeviceNameFromIndex(store.global.timedEvents[index].name, str);
+          }
+        #endif
+        break;
+    }
+  }
+  const BMCDeviceData devicesData[40] = {
+    {BMC_DEVICE_ID_LAYER, "Layer", -1, 1, false, false, 0, BMC_MAX_LAYER_EVENTS},
+    {BMC_DEVICE_ID_EVENT, "Event", -1, BMC_MAX_EVENTS_LIBRARY, true, false, 0, 0},
+    {BMC_DEVICE_ID_NAME, "Name", -1, BMC_MAX_NAMES_LIBRARY, true, false, 0, 0},
+    #if BMC_MAX_BUTTONS > 0
+    {BMC_DEVICE_ID_BUTTON, "Button", 1, BMC_MAX_BUTTONS, false, true, BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS},
+    #endif
+
+    #if BMC_MAX_GLOBAL_BUTTONS > 0
+    {BMC_DEVICE_ID_GLOBAL_BUTTON, "Global Button", 1, BMC_MAX_GLOBAL_BUTTONS, true, true, BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS},
+    #endif
+
+    #if BMC_MAX_LEDS > 0
+    {BMC_DEVICE_ID_LED, "Led", 2, BMC_MAX_LEDS, false, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_GLOBAL_LEDS > 0
+    {BMC_DEVICE_ID_GLOBAL_LED, "Global Led", 2, BMC_MAX_GLOBAL_LEDS, true, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_BI_LEDS > 0
+    {BMC_DEVICE_ID_BI_LED, "Bi-Color Led", 2, BMC_MAX_BI_LEDS, false, true, 2, 2},
+    #endif
+
+    #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    {BMC_DEVICE_ID_GLOBAL_BI_LED, "Global Bi Led", 2, BMC_MAX_GLOBAL_BI_LEDS, true, true, 2, 2},
+    #endif
+
+    #if BMC_MAX_TRI_LEDS > 0
+    {BMC_DEVICE_ID_TRI_LED, "Tri-Color Led", 2, BMC_MAX_TRI_LEDS, false, true, 3, 3},
+    #endif
+
+    #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    {BMC_DEVICE_ID_GLOBAL_TRI_LED, "Global Tri Led", 2, BMC_MAX_GLOBAL_TRI_LEDS, true, true, 3, 3},
+    #endif
+
+    #if BMC_MAX_ENCODERS > 0
+    {BMC_DEVICE_ID_ENCODER, "Encoder", 3, BMC_MAX_ENCODERS, false, true, 0, 1},
+    #endif
+
+    #if BMC_MAX_GLOBAL_ENCODERS > 0
+    {BMC_DEVICE_ID_GLOBAL_ENCODER, "Global Encoder", 3, BMC_MAX_GLOBAL_ENCODERS, true, true, 0, 1},
+    #endif
+
+    #if BMC_MAX_POTS > 0
+    {BMC_DEVICE_ID_POT, "Pot", 4, BMC_MAX_POTS, false, true, 1, 3},
+    #endif
+
+    #if BMC_MAX_GLOBAL_POTS > 0
+    {BMC_DEVICE_ID_GLOBAL_POT, "Global Pot", 4, BMC_MAX_GLOBAL_POTS, true, true, 1, 3},
+    #endif
+
+    #if BMC_TOTAL_POTS_AUX_JACKS > 0
+    {BMC_DEVICE_ID_POT_CALIBRATION, "Analog Calibration", -1, BMC_TOTAL_POTS_AUX_JACKS, true, true, 0, 2},
+    #endif
+
+    #if BMC_MAX_PIXELS > 0
+    {BMC_DEVICE_ID_PIXEL, "Pixel", 2, BMC_MAX_PIXELS, false, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_GLOBAL_PIXELS > 0
+    {BMC_DEVICE_ID_GLOBAL_PIXEL, "Global Pixel", 2, BMC_MAX_GLOBAL_PIXELS, true, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_RGB_PIXELS > 0
+    {BMC_DEVICE_ID_RGB_PIXEL, "RGB Pixel", 2, BMC_MAX_RGB_PIXELS, false, true, 0, 3},
+    #endif
+
+    #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    {BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, "Global RGB Pixel", 2, BMC_MAX_GLOBAL_RGB_PIXELS, true, true, 0, 3},
+    #endif
+
+    #if BMC_MAX_PIXEL_STRIP > 0
+    {BMC_DEVICE_ID_PIXEL_STRIP, "Pixel Strip", 2, BMC_MAX_PIXEL_STRIP>0?1:0, false, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_NL_RELAYS > 0
+    {BMC_DEVICE_ID_NL_RELAY, "Non-Latching Relay", 6, BMC_MAX_NL_RELAYS, true, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_L_RELAYS > 0
+    {BMC_DEVICE_ID_L_RELAY, "Latching Relay", 6, BMC_MAX_L_RELAYS, true, true, 1, 1},
+    #endif
+
+    #if BMC_MAX_AUX_JACKS > 0
+    {BMC_DEVICE_ID_AUX_JACK, "Aux Jack", 7, BMC_MAX_AUX_JACKS, true, true, 2, 3},
+    #endif
+
+    #if BMC_MAX_LFO > 0
+    {BMC_DEVICE_ID_LFO, "LFO", -1, BMC_MAX_LFO, true, false, 3, 5},
+    #endif
+
+    #if BMC_MAX_OLED > 0
+    {BMC_DEVICE_ID_OLED, "OLED Display", 8, BMC_MAX_OLED, false, true, 0, 1},
+    #endif
+
+    #if BMC_MAX_ILI9341_BLOCKS > 0
+    {BMC_DEVICE_ID_ILI, "ILI9341 Block", 8, BMC_MAX_ILI9341_BLOCKS, false, true, 0, 1},
+    #endif
+
+    #if BMC_MAX_MAGIC_ENCODERS > 0
+    {BMC_DEVICE_ID_MAGIC_ENCODER, "Magic Encoder", 5, BMC_MAX_MAGIC_ENCODERS, false, 3, 3},
+    #endif
+
+    #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    {BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, "Gbl Magic Encoder", 5, BMC_MAX_GLOBAL_MAGIC_ENCODERS, true, true, 3, 3},
+    #endif
+
+    #if BMC_MAX_PRESETS > 0
+    {BMC_DEVICE_ID_PRESET, "Preset", -1, BMC_MAX_PRESETS, true, false, 1, 0},
+    #endif
+
+    #if BMC_MAX_SETLISTS > 0
+    {BMC_DEVICE_ID_SETLIST, "SetList", -1, BMC_MAX_SETLISTS, true, false, 1, 0},
+    #endif
+
+    #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+    {BMC_DEVICE_ID_SETLIST_SONG_LIBRARY, "Song", -1, BMC_MAX_SETLISTS_SONGS_LIBRARY, true, false, 1, 0},
+    #endif
+
+    #if BMC_MAX_TRIGGERS > 0
+    {BMC_DEVICE_ID_TRIGGER, "Trigger", -1, BMC_MAX_TRIGGERS, true, false, 1, 2},
+    #endif
+
+    #if BMC_MAX_TEMPO_TO_TAP > 0
+    {BMC_DEVICE_ID_TEMPO_TO_TAP, "Tempo to Tap", -1, BMC_MAX_TEMPO_TO_TAP, true, false, 0, 1},
+    #endif
+
+    #if BMC_MAX_CUSTOM_SYSEX > 0
+    {BMC_DEVICE_ID_CUSTOM_SYSEX, "Custom SysEx", -1, BMC_MAX_CUSTOM_SYSEX, true, false, 1, 16},
+    #endif
+
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+    {BMC_DEVICE_ID_PIXEL_PROGRAM, "Pixel Program", -1, BMC_MAX_PIXEL_PROGRAMS, true, false, 1, 8},
+    #endif
+
+    #if BMC_MAX_TIMED_EVENTS > 0
+    {BMC_DEVICE_ID_TIMED_EVENT, "Timed Event", -1, BMC_MAX_TIMED_EVENTS, true, false, 2, 1},
+    #endif
+
+    #if BMC_MAX_SKETCH_BYTES > 0
+    {BMC_DEVICE_ID_SKETCH_BYTE, "Sketch Bytes", -1, BMC_MAX_SKETCH_BYTES>0?1:0, true, false, 0, BMC_MAX_SKETCH_BYTES},
+    #endif
+
+    {BMC_DEVICE_ID_PORT_PRESET, "Port Preset", -1, 16, true, false, 0, 1},
+    {BMC_DEVICE_ID_SHORTCUTS, "Shortcuts", -1, 1, true, false, 0, 6}
+  };
+  uint8_t devicesDataLength = 5;
+
+  void setDevicesData(){
+    #if BMC_MAX_BUTTONS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_BUTTONS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_BI_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_TRI_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_ENCODERS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_ENCODERS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_POTS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_POTS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_TOTAL_POTS_AUX_JACKS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_PIXELS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_PIXELS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_RGB_PIXELS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_PIXEL_STRIP > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_NL_RELAYS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_L_RELAYS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_AUX_JACKS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_LFO > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_OLED > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_ILI9341_BLOCKS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_MAGIC_ENCODERS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_PRESETS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_SETLISTS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_SETLISTS_SONGS_LIBRARY > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_TRIGGERS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_TEMPO_TO_TAP > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_CUSTOM_SYSEX > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_PIXEL_PROGRAMS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_TIMED_EVENTS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_SKETCH_BYTES > 0
+    devicesDataLength++;
+    #endif
+  }
+
+
+uint8_t getDevicesDataLength(){
+  return devicesDataLength;
+}
+BMCDeviceData getDeviceData(uint8_t id){
+  for(uint16_t d=0;d<getDevicesDataLength();d++){
+    if(devicesData[d].id == id){
+      return devicesData[d];
+    }
+  }
+  BMCDeviceData e;
+  return e;
+}
+BMCDeviceData getDeviceDataByIndex(uint8_t index){
+  if(index < getDevicesDataLength()){
+    return devicesData[index];
+  }
+  BMCDeviceData e;
+  return e;
+}
+
+
   // keep these public for access by the Api
   // save "store.global.settings" to EEPROM
   void saveSettings(){
@@ -449,6 +1107,61 @@ public:
     #endif
   }
 
+  // save a single Event item to EEPROM
+  void saveEvent(uint16_t index){
+    if(index>=BMC_MAX_EVENTS_LIBRARY){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getEventsOffset(index);
+      storage.set(address, store.global.events[index]);
+    #endif
+  }
+  // save a single Event item to EEPROM
+  void saveName(uint16_t index){
+    if(index>=BMC_MAX_NAMES_LIBRARY){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getNamesOffset(index);
+      storage.set(address, store.global.names[index]);
+    #endif
+  }
+  void saveDevicePorts(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getPortPresetsOffset(index);
+      storage.set(address, store.global.portPresets[index]);
+    #endif
+  }
+  void saveShortCuts(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getShortcutsOffset(index);
+      storage.set(address, store.global.shortcuts[index]);
+    #endif
+  }
+#if BMC_MAX_LFO > 0
+  void saveLFO(uint8_t index){
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getLfoOffset(index);
+      storage.set(address, store.global.lfo[index]);
+    #endif
+  }
+#endif
 #if BMC_MAX_SKETCH_BYTES > 0
   // save Sketch Bytes to EEPROM
   void saveSketchBytes(){
@@ -456,54 +1169,27 @@ public:
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getSettingsOffset();
+      address += getSketchBytesOffset(0);
       storage.set(address, store.global.sketchBytes);
     #endif
   }
 #endif
 
-#if BMC_MAX_STRING_LIBRARY > 0
-  // save a single "string library" item to EEPROM
-  void saveStringLibrary(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getStringLibraryOffset(index);
-      storage.set(address, store.global.stringLibrary[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_LIBRARY > 0
-  // save a single "library" item to EEPROM
-  void saveLibrary(bmcLibrary_t index){
-    if(index>=BMC_MAX_LIBRARY){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getLibraryOffset(index);
-      storage.set(address, store.global.library[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_LIBRARY > 0 && BMC_MAX_PRESETS > 0
+#if BMC_MAX_PRESETS > 0
   // save the "startup" preset item to EEPROM
+  /*
   void saveStartup(){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getLibraryOffset();
+      address += getSketchBytesOffset();
       storage.set(address, store.global.startup);
     #endif
   }
+  */
   // save a single "preset" to EEPROM
-  void savePreset(bmcPreset_t index){
+  void savePreset(uint16_t index){
     if(index>=BMC_MAX_PRESETS){
       return;
     }
@@ -544,22 +1230,6 @@ public:
   #endif
 #endif
 
-#if BMC_MAX_GLOBAL_LEDS > 0
-  // save a single "global led" to EEPROM
-  void saveGlobalLed(uint8_t index){
-    if(index>=BMC_MAX_GLOBAL_LEDS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getGlobalLedOffset(index);
-      storage.set(address, store.global.leds[index]);
-    #endif
-  }
-#endif
-
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   // save a single "global button" to EEPROM
   void saveGlobalButton(uint8_t index){
@@ -572,6 +1242,56 @@ public:
       uint16_t address = getGlobalOffset();
       address += getGlobalButtonOffset(index);
       storage.set(address, store.global.buttons[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalLedOffset(index);
+      storage.set(address, store.global.leds[index]);
+    #endif
+  }
+#endif
+
+
+
+#if BMC_MAX_GLOBAL_BI_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalBiLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_BI_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalBiLedOffset(index);
+      storage.set(address, store.global.biLeds[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_TRI_LEDS > 0
+  // save a single "global led" to EEPROM
+  void saveGlobalTriLed(uint8_t index){
+    if(index >= BMC_MAX_GLOBAL_TRI_LEDS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalTriLedOffset(index);
+      storage.set(address, store.global.triLeds[index]);
     #endif
   }
 #endif
@@ -606,26 +1326,11 @@ public:
       storage.set(address, store.global.pots[index]);
     #endif
   }
-  // save a single global pot calibrarion to EEPROM
-  void saveGlobalPotCalibration(uint8_t index){
-    if(index>=BMC_MAX_GLOBAL_POTS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getGlobalPotCalibrationOffset(index);
-      storage.set(address, store.global.globalPotCalibration[index]);
-    #endif
-  }
-
 #endif
 
-#if BMC_MAX_POTS > 0
-  // save a single "pot" to EEPROM
-  void savePotCalibration(uint8_t index){
-    if(index>=BMC_MAX_POTS){
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+  void savePotCalibration(uint16_t index){
+    if(index>=BMC_TOTAL_POTS_AUX_JACKS){
       return;
     }
     #if defined(BMC_SD_CARD_ENABLED)
@@ -637,6 +1342,101 @@ public:
     #endif
   }
 #endif
+
+
+#if BMC_MAX_GLOBAL_PIXELS > 0
+  void saveGlobalPixel(uint8_t index){
+    if(index>=BMC_MAX_GLOBAL_PIXELS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalPixelOffset(index);
+      storage.set(address, store.global.pixels[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+  void saveGlobalRgbPixel(uint8_t index){
+    if(index>=BMC_MAX_GLOBAL_RGB_PIXELS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalRgbPixelOffset(index);
+      storage.set(address, store.global.rgbPixels[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+  void saveGlobalMagicEncoder(uint8_t index){
+    if(index>=BMC_MAX_GLOBAL_MAGIC_ENCODERS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getGlobalMagicEncoderOffset(index);
+      storage.set(address, store.global.magicEncoders[index]);
+    #endif
+  }
+#endif
+
+
+#if BMC_MAX_NL_RELAYS > 0
+  void saveNLRelay(uint8_t index){
+    if(index>=BMC_MAX_NL_RELAYS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getNLRelayOffset(index);
+      storage.set(address, store.global.relaysNL[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
+  void saveLRelay(uint8_t index){
+    if(index>=BMC_MAX_L_RELAYS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getLRelayOffset(index);
+      storage.set(address, store.global.relaysL[index]);
+    #endif
+  }
+#endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  void saveAuxJack(uint8_t index){
+    if(index>=BMC_MAX_AUX_JACKS){
+      return;
+    }
+    #if defined(BMC_SD_CARD_ENABLED)
+      storage.set(storeAddress, store);
+    #else
+      uint16_t address = getGlobalOffset();
+      address += getAuxJackOffset(index);
+      storage.set(address, store.global.auxJacks[index]);
+    #endif
+  }
+#endif
+
+
+
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
   // save a single "Custom SysEx" to EEPROM
@@ -685,59 +1485,20 @@ public:
     #endif
   }
 #endif
-
-#if BMC_MAX_NL_RELAYS > 0
-  // save a single "Tempo To Tap" to EEPROM
-  void saveNLRelay(uint8_t index){
-    if(index>=BMC_MAX_NL_RELAYS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getNLRelayOffset(index);
-      storage.set(address, store.global.relaysNL[index]);
-    #endif
-  }
-#endif
-
-#if BMC_MAX_L_RELAYS > 0
-  // save a single "Tempo To Tap" to EEPROM
-  void saveLRelay(uint8_t index){
-    if(index>=BMC_MAX_L_RELAYS){
-      return;
-    }
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getLRelayOffset(index);
-      storage.set(address, store.global.relaysL[index]);
-    #endif
-  }
-#endif
-  // save a single "Tempo To Tap" to EEPROM
-  void saveDevicePorts(){
-    #if defined(BMC_SD_CARD_ENABLED)
-      storage.set(storeAddress, store);
-    #else
-      uint16_t address = getGlobalOffset();
-      address += getPortPresetsOffset();
-      storage.set(address, store.global.portPresets);
-    #endif
-  }
+  
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-  void savePixelProgram(uint8_t index){
-    if(index >= BMC_MAX_PIXEL_PROGRAMS){
+  void savePixelProgram(uint8_t n){
+    if(n >= BMC_MAX_PIXEL_PROGRAMS){
       return;
     }
+    BMC_PRINTLN("savePixelProgram", n);
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
-      address += getPixelProgramsOffset(index);
-      storage.set(address, store.global.pixelPrograms);
+      address += getPixelProgramsOffset(n);
+      BMC_PRINTLN("savePixelProgram",address);
+      storage.set(address, store.global.pixelPrograms[n]);
     #endif
   }
 #endif
@@ -756,35 +1517,36 @@ public:
     #endif
   }
 #endif
-  // save a single page to EEPROM
-  void savePage(uint8_t page){
+  // save a single layer to EEPROM
+  void saveLayer(uint8_t layer){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress,store);
     #else
       uint16_t address = getGlobalOffset();
-      address += sizeof(store.global) + (sizeof(store.pages[0]) * page);
-      storage.set(address,store.pages[page]);
+      address += sizeof(store.global) + (sizeof(store.layers[0]) * layer);
+      BMC_PRINTLN("layer address:", address);
+      storage.set(address, store.layers[layer]);
     #endif
   }
 private:
-  // save all pages to EEPROM
-  void savePage(){
+  // save all layers to EEPROM
+  void saveLayer(){
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress,store);
     #else
       uint16_t address = getGlobalOffset();
       address += sizeof(store.global);
-      storage.set(address,store.pages);
+      storage.set(address, store.layers);
     #endif
   }
-  // save a single page and notify to reassign
-  void savePagesAndReloadData(uint8_t page){
-    savePage(page);
+  // save a single layer and notify to reassign
+  void saveLayersAndReloadData(uint8_t layer){
+    saveLayer(layer);
     reloadData();
   }
-  // save all pages and notify to reassign
-  void savePagesAndReloadData(){
-    savePage();
+  // save all layers and notify to reassign
+  void saveLayersAndReloadData(){
+    saveLayer();
     reloadData();
   }
   // change the store address in EEPROM
@@ -835,25 +1597,11 @@ private:
       BMC_PRINTLN("store.crc:",store.crc,", BMC_CRC:",BMC_CRC);
       BMC_PRINTLN("EEPROM Store",address,"is being Erased.");
       BMC_WARN_FOOT;
-      // clear the current store in RAM by setting all bytes to 0
-      // memset(&store,0,sizeof(bmcStore));
-      store = {};
-      // add the CRC
-      store.crc = (BMC_CRC); // update the CRC
-      store.version = (BMC_VERSION); // update the library version
-      // save the new store with updated CRC and version
-#if BMC_MAX_SKETCH_BYTES > 0
-      for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
-        BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
-        //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
-        store.global.sketchBytes[i] = data.getInitialValue();
-      }
-#endif
-      // update the device id on this new store to match the one we already have
-      settings.setDeviceId(deviceId);
-      saveStore();
-      storage.get(address, store);
-      flags.on(BMC_EDITOR_FLAG_EDITOR_EEPROM_CLEARED);
+      // Erase the store and set all default values
+      storeErase(true);
+
+      
+      
     } else {
       // update the device id on this store to match the one we already have
       // this is only done when a you change the store id so we skip doing this
@@ -867,7 +1615,62 @@ private:
       }
     }
   }
+  // @full = erases all data including touch calibration
+  // erasing the touch calibration using the editor will cause
+  // the on board editor not to work until the teensy is rebooted.
+  void storeErase(bool full){
+    #if defined(BMC_SD_CARD_ENABLED)
+      uint16_t address = storeAddress;
+    #else
+      uint16_t address = getStoreOffset();
+    #endif
 
+
+    #ifdef BMC_HAS_TOUCH_SCREEN
+      // store touch calibration as it shouldn't get wiped when erasing
+      bmcStoreTouchSettings touchTmp;
+      bool isTouchCalibrated = settings.getTouchScreenIsCalibrated();
+      touchTmp = store.global.settings.touchCalibration;
+    #endif
+
+    store = bmcStore();
+
+    #ifdef BMC_HAS_TOUCH_SCREEN
+      // restore touch calibration
+      if(!full){
+        store.global.settings.touchCalibration = touchTmp;
+        settings.setTouchScreenIsCalibrated(isTouchCalibrated);
+      }
+    #endif
+
+    // add the CRC
+    store.crc = (BMC_CRC); // update the CRC
+    store.version = (BMC_VERSION); // update the library version
+    // save the new store with updated CRC and version
+#if BMC_MAX_SKETCH_BYTES > 0
+    for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
+      BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
+      //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
+      store.global.sketchBytes[0].events[i] = data.getInitialValue();
+    }
+#endif
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+    for(uint16_t i = 0 ; i < BMC_TOTAL_POTS_AUX_JACKS ; i++){
+      store.global.potCalibration[i].events[0] = 0;
+      store.global.potCalibration[i].events[1] = 0x3FF;
+    }
+#endif
+    store.global.shortcuts[0].events[0] = BMC_DEVICE_ID_EVENT;
+    store.global.shortcuts[0].events[1] = BMC_DEVICE_ID_NAME;
+    store.global.shortcuts[0].events[2] = BMC_DEVICE_ID_LFO;
+    store.global.shortcuts[0].events[3] = BMC_DEVICE_ID_PORT_PRESET;
+
+    // update the device id on this new store to match the one we already have
+    settings.setDeviceId(deviceId);
+    saveStore();
+    storage.get(address, store);
+    flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
+  }
 
   // BMC-Editor.midi.cpp
 public:
@@ -879,7 +1682,7 @@ private:
                     bool appendCRC=true,
                     bool midiOutActivityAllowed=false);
   void sendNotification(uint16_t code, uint32_t payload=0,
-                        bool hasError=false);
+                        bool hasError=false, bool forceResponse=false);
   void sendInvalidIndexReceivedMessage();
 
   bool changeStoreLocal(uint8_t t_address){
@@ -913,11 +1716,14 @@ private:
   bool isWriteMessage(){
     return midiFlags.isWrite();
   }
-  bool isWriteToAllPages(){
-    return midiFlags.isPage() && midiFlags.isAllPages();
+  bool isWriteToAllLayers(){
+    return midiFlags.isLayer() && midiFlags.isAllLayers();
   }
-  bool isPageMessage(){
-    return midiFlags.isPage();
+  bool isDeviceWriteToAllLayers(){
+    return !midiFlags.isLayer() && midiFlags.isAllLayers();
+  }
+  bool isLayerMessage(){
+    return midiFlags.isLayer();
   }
   bool isBackupMessage(){
     return midiFlags.isBackup();
@@ -931,9 +1737,8 @@ private:
   uint8_t getMessageDeviceId(){
     return incoming.sysex[4];
   }
-  uint16_t getMessagePageNumber(){
+  uint16_t getMessageLayerNumber(){
     return incoming.get14Bits(6);
-    //return BMC_MIDI_ARRAY_TO_8BITS(6,incoming.sysex);
   }
   uint8_t getMessageRequestId(){
     return incoming.sysex[8];
@@ -941,11 +1746,11 @@ private:
   uint8_t getMessageFlags(){
     return incoming.sysex[5];
   }
-  bool isValidPageMessage(bool checkSysExSize=true){
-    return (isValidMessage(checkSysExSize) && isPageMessage());
+  bool isValidLayerMessage(bool checkSysExSize=true){
+    return (isValidMessage(checkSysExSize) && isLayerMessage());
   }
   bool isValidGlobalMessage(bool checkSysExSize=true){
-    return (isValidMessage(checkSysExSize) && !isPageMessage());
+    return (isValidMessage(checkSysExSize) && !isLayerMessage());
   }
   bool isValidMessage(bool checkSysExSize=true){
     if(checkSysExSize){
@@ -972,59 +1777,38 @@ private:
   void globalSettingsMessage(bool write);
   void globalBackupMessage(bool write);
   void globalSendBackupStatus();
-  void globalStringLibrary(bool write);
-  void globalLibrary(bool write);
-  void globalPreset(bool write);
   void globalStartup(bool write);
   void globalStoreAddress(bool write);
-  void globalLeds(bool write);
-  void globalPixelProgram(bool write);
-
-  void globalButton(bool write);
-  void globalEncoder(bool write);
-  void globalPot(bool write);
-  void globalGlobalPotCalibration();
-
   void globalPotCalibration();
-  void globalCustomSysEx(bool write);
-  void globalTriggers(bool write);
-  void globalTimedEvents(bool write);
-  void globalTempoToTap(bool write);
-  void globalSketchBytes(bool write);
   void globalSketchBytesData();
-  void globalNLRelay(bool write);
-  void globalLRelay(bool write);
   void globalSetTime(bool write);
-  void globalPortPresets(bool write);
   void globalGetFasState();
   void globalEditorFeedback(bool write);
   void globalEditorMetrics();
   void globalEditorMessenger(bool write);
   void globalEditorPerformMode(bool write);
-  void globalSetList(bool write);
-  void globalSetListSong(bool write);
-  void globalSetListSongPartShiftPosition(bool write);
+  void globalEditorErase(bool write);
 
-// BMC-Editor.midi.page.h
+  void incomingMessageEvent(bool write);
+  void incomingMessageName(bool write);
+  void incomingMessageDevice(bool write);
+  void incomingMessageLinks();
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer=-1);
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  void deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType);
+
+// BMC-Editor.midi.layer.h
 private:
-  void pageProcessMessage();
-  void pageMessage(bool write);
-  void pageNameMessage(bool write);
-  void pageButtonMessage(bool write);
-  void pageLedMessage(bool write);
-  void pagePwmLedMessage(bool write);
-  void pagePixelMessage(bool write);
-  void pageRgbPixelMessage(bool write);
-  void pagePotMessage(bool write);
-  void pageEncoderMessage(bool write);
-  void pageOledDisplay(bool write);
-  void pageIliDisplay(bool write);
-  void pageHardwareCopySwapMessage(bool write);
-  void pageButtonEventShiftPositionMessage(bool write);
-  void globalButtonEventShiftPositionMessage(bool write);
+
+  void layerProcessMessage();
+  void layerMessage(bool write);
+  void layerNameMessage(bool write);
 
 public:
-  void pageSendChangeMessage(bool onlyIfConnected=true);
+  void layerSendChangeMessage(bool onlyIfConnected=true);
   bool changeStore(uint8_t t_address){
     if(!connected()){
       if(changeStoreLocal(t_address)){
@@ -1043,83 +1827,52 @@ private:
   void utilityCommand();
 
 public:
-#if BMC_MAX_BUTTONS > 32
-  void utilitySendButtonActivity(uint32_t states=0,
-                                 uint32_t states2=0,
-                                 bool onlyIfConnected=true);
-#else
-  void utilitySendButtonActivity(uint32_t states=0,
-                               bool onlyIfConnected=true);
-#endif
 
-  void utilitySendLedActivity(uint32_t data,
-                              bool onlyIfConnected=true);
-  //
-  void utilitySendAuxJackActivity(uint8_t data,
-                              bool onlyIfConnected=true);
-  //
+  void utilitySendStateBits(uint8_t itemId, bool onlyIfConnected=true);
+
   void utilitySendFasState(uint8_t data,
                               bool onlyIfConnected=true);
-  //
-  void utilitySendNLRelayActivity(uint16_t data,
-                              bool onlyIfConnected=true);
-  void utilitySendLRelayActivity(uint16_t data,
+
+  void utilitySendPotActivity(uint8_t deviceType, uint16_t index, uint8_t value=0,
                               bool onlyIfConnected=true);
 
-  void utilitySendPwmLedActivity(uint32_t data,
-                              bool onlyIfConnected=true);
-
-  void utilitySendPotActivity(uint8_t index, uint8_t value=0,
-                              bool onlyIfConnected=true);
-
-  void utilitySendPotsActivity(uint8_t *values, uint8_t length,
-                               bool onlyIfConnected=true);
-
-  void utilitySendEncoderActivity(uint8_t index, bool increased,
+  void utilitySendEncoderActivity(uint8_t deviceType, uint8_t index, bool increased,
                                   bool onlyIfConnected=true);
 
-  void utilitySendGlobalLedActivity(uint16_t data,
-                                    bool onlyIfConnected=true);
-  void utilitySendPixelActivity(uint32_t data,
-                                    bool onlyIfConnected=true);
-  void utilitySendRgbPixelActivity(uint32_t red, uint32_t green, uint32_t blue,
-                                    bool onlyIfConnected=true);
-  void utilitySendPreset(bmcPreset_t presetNumber,
+  void utilitySendMagicEncoderActivity(uint8_t deviceType, uint8_t index, 
+                                  uint8_t trigger, uint8_t ticks, bool increased,
+                                  uint8_t ledValue,
+                                  bool onlyIfConnected=true);
+
+                                  
+
+  void utilitySendPreset(uint8_t t_bank, uint8_t t_preset,
                         bool onlyIfConnected=true);
 
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,
                                  uint8_t state, bool onlyIfConnected=true);
 
-  void utilitySendPotCalibrationStatus(bool status, bool canceled=false,
+  void utilitySendAnalogInputCalibrationStatus(bool status, bool canceled=false,
                                        bool onlyIfConnected=true);
+  void utilitySendAnalogInputCalibrationActivity(uint8_t deviceId, uint16_t index,
+                                        uint16_t min, uint16_t max,
+                                        bool onlyIfConnected=true);
 
   void utilitySendSketchBytes(bool onlyIfConnected);
 
 
-  void utilitySendGlobalButtonActivity(uint32_t states=0,
-                                 bool onlyIfConnected=true);
-
-  void utilitySendGlobalPotActivity(uint8_t index, uint8_t value=0,
-                              bool onlyIfConnected=true);
-
-  void utilitySendGlobalPotsActivity(uint8_t *values, uint8_t length,
-                               bool onlyIfConnected=true);
-
-  void utilitySendGlobalEncoderActivity(uint8_t index, bool increased,
-                                  bool onlyIfConnected=true);
-
-  void utilitySendGlobalPotCalibrationStatus(bool status, bool canceled=false,
-                                  bool onlyIfConnected=true);
 private:
 
   // GLOBAL
   void backupGlobalSettings(uint16_t t_minLength);
-  void backupGlobalStringLibrary(uint16_t t_minLength);
+  void backupEventMessage(uint16_t t_minLength);
+  void backupNameMessage(uint16_t t_minLength);
+  void backupGlobalStartup(uint16_t t_minLength);
+
   void backupGlobalLibrary(uint16_t t_minLength);
   void backupGlobalPreset(uint16_t t_minLength);
   void backupGlobalSetList(uint16_t t_minLength);
   void backupGlobalSetListSong(uint16_t t_minLength);
-  void backupGlobalStartup(uint16_t t_minLength);
   void backupGlobalLed(uint16_t t_minLength);
   void backupGlobalCustomSysEx(uint16_t t_minLength);
   void backupGlobalTriggers(uint16_t t_minLength);
@@ -1133,17 +1886,17 @@ private:
   void backupGlobalButton(uint16_t t_minLength);
   void backupGlobalEncoder(uint16_t t_minLength);
   void backupGlobalPot(uint16_t t_minLength);
-  // PAGE
-  void backupPageName(uint16_t t_minLength);
-  void backupPageButton(uint16_t t_minLength);
-  void backupPageLed(uint16_t t_minLength);
-  void backupPagePwmLed(uint16_t t_minLength);
-  void backupPagePixel(uint16_t t_minLength);
-  void backupPageRgbPixel(uint16_t t_minLength);
-  void backupPageEncoder(uint16_t t_minLength);
-  void backupPagePot(uint16_t t_minLength);
-  void backupPageOled(uint16_t t_minLength);
-  void backupPageIli(uint16_t t_minLength);
+  // LAYER
+  void backupLayerName(uint16_t t_minLength);
+  void backupLayerButton(uint16_t t_minLength);
+  void backupLayerLed(uint16_t t_minLength);
+  void backupLayerPwmLed(uint16_t t_minLength);
+  void backupLayerPixel(uint16_t t_minLength);
+  void backupLayerRgbPixel(uint16_t t_minLength);
+  void backupLayerEncoder(uint16_t t_minLength);
+  void backupLayerPot(uint16_t t_minLength);
+  void backupLayerOled(uint16_t t_minLength);
+  void backupLayerIli(uint16_t t_minLength);
 
 };
 #endif

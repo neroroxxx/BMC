@@ -193,6 +193,59 @@ struct BMCFasData {
     bitWrite(parametersSyncedX, slot, 0);
     bitWrite(parametersSyncedY, slot, 0);
   }
+  void paramSet(uint8_t slot, uint16_t paramId){
+    ;
+    uint16_t data = 0;
+    switch(paramId){
+      case 0: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 1: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 2: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 3: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 4: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 5: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 6: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 7: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 8: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 9: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 10: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 11: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 12: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 13: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 14: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 15: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+      case 16: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
+    }
+    parameters[slot & 0x07] = data;
+
+    /*
+#define BMC_FAS_PARAM_AMP_INPUT_DRIVE 1 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_BASS 2 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_MIDDLE 3 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_TREBLE 4 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_BRIGHT 97 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_PRESENCE 20 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_DEPTH 16 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_MASTER_VOLUME 5 // range 0 to 65534
+
+#define BMC_FAS_PARAM_AMP_INPUT_TRIM 47 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_BOOST_SW 40 // range 0 to 1
+#define BMC_FAS_PARAM_AMP_CUT_SW 45 // range 0 to 1
+#define BMC_FAS_PARAM_AMP_FAT_SW 78 // range 0 to 1
+#define BMC_FAS_PARAM_AMP_BRIGHT_SWITCH_SW 39 // range 0 to 1
+#define BMC_FAS_PARAM_AMP_MASTER_TRIM 77 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_LEVEL 21 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_BALANCE 22 // range 0 to 65534
+#define BMC_FAS_PARAM_AMP_OVERDRIVE 74 // range 0 to 65534
+
+
+
+
+    */
+
+    // parameters[slot] = (block<<8) | param;
+    bitWrite(parametersSyncedX, slot, 0);
+    bitWrite(parametersSyncedY, slot, 0);
+  }
   bool paramReceived(uint8_t block, uint8_t param, uint16_t value){
     uint8_t slot = paramFindSlot(block, param);
     if(slot>7){

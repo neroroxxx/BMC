@@ -17,23 +17,33 @@
 #define BMC_GLOBALS_H
 #include <Arduino.h>
 
-#define BMC_GLOBALS_FLAG_MIDI_IN 0
-#define BMC_GLOBALS_FLAG_MIDI_OUT 1
-#define BMC_GLOBALS_FLAG_EDITOR_CONNECTED 2
-#define BMC_GLOBALS_FLAG_HOST_CONNECTED 3
-#define BMC_GLOBALS_FLAG_BLE_CONNECTED 4
-#define BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE 5
+#define BMC_GLOBALS_FLAG_MIDI_IN                	 0
+#define BMC_GLOBALS_FLAG_MIDI_OUT               	 1
+#define BMC_GLOBALS_FLAG_EDITOR_CONNECTED       	 2
+#define BMC_GLOBALS_FLAG_HOST_CONNECTED         	 3
+#define BMC_GLOBALS_FLAG_BLE_CONNECTED          	 4
+#define BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE      	 5
+#define BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE 	 6
+#define BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER    7
+#define BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA      	 8
+#define BMC_GLOBALS_FLAG_RELOAD_LAYER            	 9
+#define BMC_GLOBALS_FLAG_TRIGGER_BANK           	 10
+#define BMC_GLOBALS_FLAG_TRIGGER_PRESET         	 11
+#define BMC_GLOBALS_FLAG_TRIGGER_SETLIST        	 12
+#define BMC_GLOBALS_FLAG_TRIGGER_SONG           	 13
+#define BMC_GLOBALS_FLAG_TRIGGER_SONG_PART      	 14
 
-#define BMC_GLOBALS_DEBUG_FLAG_STORAGE 0
-#define BMC_GLOBALS_DEBUG_FLAG_METRICS 1
-#define BMC_GLOBALS_DEBUG_FLAG_BLE 2
-#define BMC_GLOBALS_DEBUG_FLAG_MIDI_IN 3
-#define BMC_GLOBALS_DEBUG_FLAG_MIDI_IN_WITH_CLOCK 4
-#define BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT 5
-#define BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT_WITH_CLOCK 6
-#define BMC_GLOBALS_DEBUG_FLAG_BUTTONS 7
-#define BMC_GLOBALS_DEBUG_FLAG_FAS 8
-#define BMC_GLOBALS_DEBUG_FLAG_POTS 9
+
+#define BMC_GLOBALS_DEBUG_FLAG_STORAGE            	 0
+#define BMC_GLOBALS_DEBUG_FLAG_METRICS            	 1
+#define BMC_GLOBALS_DEBUG_FLAG_BLE                	 2
+#define BMC_GLOBALS_DEBUG_FLAG_MIDI_IN            	 3
+#define BMC_GLOBALS_DEBUG_FLAG_MIDI_IN_WITH_CLOCK 	 4
+#define BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT           	 5
+#define BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT_WITH_CLOCK	 6
+#define BMC_GLOBALS_DEBUG_FLAG_BUTTONS            	 7
+#define BMC_GLOBALS_DEBUG_FLAG_FAS                	 8
+#define BMC_GLOBALS_DEBUG_FLAG_POTS               	 9
 
 
 // https://github.com/mpflaga/Arduino-MemoryFree
@@ -45,7 +55,10 @@ extern char *__brkval;
 
 class BMCGlobals {
 public:
-  BMCGlobals(){
+  bmcStore& store;
+  BMCSettings& settings;
+  
+  BMCGlobals(bmcStore& t_store, BMCSettings& t_settings):store(t_store), settings(t_settings){
     reset();
   }
   void update(){
@@ -127,6 +140,70 @@ public:
   bool midiLocalUpdate(){
     return flags.read(BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE);
   }
+  void setOnBoardEditorActive(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE, t_state);
+  }
+  bool toggleOnBoardEditor(){
+    return flags.toggle(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
+  }
+  bool onBoardEditorActive(){
+    return flags.read(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
+  }
+  void setDisplayRenderDisable(bool state){
+    flags.write(BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER, state);
+  }
+  bool displayRenderDisabled(){
+    return flags.read(BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER);
+  }
+
+  
+
+
+
+  void setAssignStoreData(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA, t_state);
+  }
+  bool assignStoreData(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_ASSIGN_STORE_DATA);
+  }
+  void setReloadLayer(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_RELOAD_LAYER, t_state);
+  }
+  bool reloadLayer(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_RELOAD_LAYER);
+  }
+  void setTriggerBank(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_TRIGGER_BANK, t_state);
+  }
+  bool triggerBankChange(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_TRIGGER_BANK);
+  }
+  void setTriggerPreset(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_TRIGGER_PRESET, t_state);
+  }
+  bool triggerPresetChange(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_TRIGGER_PRESET);
+  }
+  void setTriggerSetList(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_TRIGGER_SETLIST, t_state);
+  }
+  bool triggerSetListChange(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_TRIGGER_SETLIST);
+  }
+  void setTriggerSong(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_TRIGGER_SONG, t_state);
+  }
+  bool triggerSongChange(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_TRIGGER_SONG);
+  }
+  void setTriggerPart(bool t_state){
+    flags.write(BMC_GLOBALS_FLAG_TRIGGER_SONG_PART, t_state);
+  }
+  bool triggerPartChange(){
+    return flags.toggleIfTrue(BMC_GLOBALS_FLAG_TRIGGER_SONG_PART);
+  }
+
+  
 
 #ifdef BMC_DEBUG
   bool toggleMetricsDebug(){
@@ -209,23 +286,126 @@ public:
   }
 #endif
 
-public:
+bool getButtonStateBit(bool isGlobal, uint16_t n){
+  if(isGlobal){
+    #if BMC_MAX_GLOBAL_BUTTONS > 0
+      return globalButtonStates.getBit(n);
+    #endif
+  } else {
+    #if BMC_MAX_BUTTONS > 0
+      return buttonStates.getBit(n);
+    #endif
+  }
+  return 0;
+}
 
-  uint8_t page = 0;
+bmcStoreEvent getDeviceEventType(uint16_t n){
+  bmcStoreEvent e;
+  if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
+    return store.global.events[n-1];
+  }
+  return e;
+}
+bmcStoreName getDeviceName(uint16_t n){
+  bmcStoreName t;
+  if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
+    return store.global.names[n-1];
+  }
+  return t;
+}
+
+public:
+  uint8_t offset = 0;
+  uint8_t layer = 0;
   uint16_t bpm = 120;
+
 #if BMC_MAX_PRESETS > 0
-  bmcPreset_t preset = 0;
-  #if BMC_MAX_SETLISTS > 0
-    uint8_t setList = 0;
-    bmcPreset_t song = 0;
-    uint8_t songPart = 0;
-    bmcPreset_t songInLibrary;
-    uint8_t setListFlags = 0;
+  uint16_t presetIndex = 0;
+  uint8_t bank = 0;
+  uint8_t preset = 0;
+  const char alph[32] = BMC_ALPHABET;
+#endif
+
+#if BMC_MAX_SETLISTS > 0
+  uint8_t setList = 0;
+  uint16_t song = 0;
+  uint8_t songPart = 0;
+  uint16_t songInLibrary = 0;
+  uint8_t songFlags = 0;
+#endif
+
+#if BMC_MAX_BUTTONS > 0
+  BMCBitStates <BMC_MAX_BUTTONS> buttonStates;
+#endif
+
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_BUTTONS> globalButtonStates;
+#endif
+
+#if BMC_MAX_LEDS > 0
+  BMCBitStates <BMC_MAX_PIXELS> ledCustomState;
+  BMCBitStates <BMC_MAX_PIXELS> ledStates;
+#endif
+
+#if BMC_MAX_GLOBAL_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_LEDS> globalLedStates;
+#endif
+
+#if BMC_MAX_BI_LEDS > 0
+  BMCBitStates <BMC_MAX_BI_LEDS> biLedCustomState;
+  BMCBitStates <BMC_MAX_BI_LEDS> biLedStates[2];
+#endif
+
+#if BMC_MAX_GLOBAL_BI_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_BI_LEDS> globalBiLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_BI_LEDS> globalBiLedStates[2];
+#endif
+
+#if BMC_MAX_TRI_LEDS > 0
+  BMCBitStates <BMC_MAX_TRI_LEDS> triLedCustomState;
+  BMCBitStates <BMC_MAX_TRI_LEDS> triLedStates[3];
+#endif
+
+#if BMC_MAX_GLOBAL_TRI_LEDS > 0
+  BMCBitStates <BMC_MAX_GLOBAL_TRI_LEDS> globalTriLedCustomState;
+  BMCBitStates <BMC_MAX_GLOBAL_TRI_LEDS> globalTriLedStates[3];
+#endif
+
+
+
+#if BMC_TOTAL_PIXELS > 0
+  #if BMC_MAX_PIXELS > 0
+    BMCBitStates <BMC_MAX_PIXELS> pixelStates;
+  #endif
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    BMCBitStates <BMC_MAX_GLOBAL_PIXELS> globalPixelStates;
+  #endif
+  #if BMC_MAX_RGB_PIXELS > 0
+    BMCBitStates <BMC_MAX_RGB_PIXELS> rgbPixelStates[3];
+  #endif
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    BMCBitStates <BMC_MAX_GLOBAL_RGB_PIXELS> globalRgbPixelStates[3];
+  #endif
+  #if BMC_MAX_PIXEL_STRIP > 0
+    BMCBitStates <1> pixelStripStates;
   #endif
 #endif
 
+#if BMC_MAX_NL_RELAYS > 0
+  BMCBitStates <BMC_MAX_NL_RELAYS> relayNLStates;
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
+  BMCBitStates <BMC_MAX_L_RELAYS> relayLStates;
+#endif
+
+#if BMC_MAX_AUX_JACKS > 0
+  BMCBitStates <BMC_MAX_AUX_JACKS> auxJackStates;
+#endif
+
 private:
-  BMCFlags <uint8_t> flags;
+  BMCFlags <uint16_t> flags;
 #ifdef BMC_DEBUG
   BMCFlags <uint16_t> debugFlags;
 #endif
@@ -237,6 +417,9 @@ private:
     #ifdef BMC_DEBUG
       debugFlags.reset();
     #endif
+    offset = 0;
+    layer = 0;
+    bpm = 120;
     loopsPerSecond = 0;
     lastLoopsPerSecond = 0;
   }

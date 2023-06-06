@@ -129,8 +129,14 @@ public:
     }
     return "Unknown";
   }
+  /*
   static bool isMidiClockLedEvent(uint32_t t_value){
     return ((t_value&0xFF)==BMC_LED_EVENT_TYPE_CLOCK_SYNC);
+  }
+  */
+  static bool isMidiClockLedEvent(uint8_t t_value){
+    return t_value == BMC_EVENT_TYPE_SYSTEM_CLOCK ||
+            t_value == BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP;
   }
   static String getButtonTriggerName(uint8_t t_trigger){
     switch(t_trigger){
@@ -149,10 +155,327 @@ public:
     }
     return "Unknown";
   }
+  static void getButtonTriggerName(uint8_t value, char* str){
+    switch(value){
+      case BMC_NONE:
+        strcpy(str, "Inactive");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_PRESS:
+        strcpy(str, "Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_HOLD:
+        strcpy(str, "Hold");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS:
+        strcpy(str, "Double Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_CONTINUOUS:
+        strcpy(str, "Continuous");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
+        strcpy(str, "2nd Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
+        strcpy(str, "State Change");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE:
+        strcpy(str, "Releas/Always");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
+        strcpy(str, "Releas/Press");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
+        strcpy(str, "Releas/Hold");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
+        strcpy(str, "Releas/DblPress");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
+        strcpy(str, "Releas/Continuous");
+        break;
+      case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
+        strcpy(str, "Releas/2ndPress");
+        break;
+      default:
+        sprintf(str, "%u Inactive", value);
+        break;
+    }
+  }
+  static void getPixelColorName(uint8_t value, char* str){
+    switch(value){
+      case BMC_NONE:
+      case BMC_PIXEL_RED:           strcpy(str, "Red"); break;
+      case BMC_PIXEL_GREEN:         strcpy(str, "Green"); break;
+      case BMC_PIXEL_BLUE:          strcpy(str, "Blue"); break;
+      case BMC_PIXEL_YELLOW:        strcpy(str, "Yellow"); break;
+      case BMC_PIXEL_MAGENTA:       strcpy(str, "Magenta"); break;
+      case BMC_PIXEL_CYAN:          strcpy(str, "Cyan"); break;
+      case BMC_PIXEL_ORANGE:        strcpy(str, "Orange"); break;
+      case BMC_PIXEL_WHITE:         strcpy(str, "White"); break;
+      case BMC_PIXEL_RAINBOW:       strcpy(str, "Rainbow"); break;
+      case BMC_PIXEL_RAINBOW_FADE:  strcpy(str, "Rainbow (Fade)"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderColorName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Red"); break;
+      case 1:     strcpy(str, "Green"); break;
+      case 2:     strcpy(str, "Blue"); break;
+      case 3:     strcpy(str, "Magenta"); break;
+      case 4:     strcpy(str, "Cyan"); break;
+      case 5:     strcpy(str, "Yellow"); break;
+      case 6:     strcpy(str, "Rainbow"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderModeName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Dot"); break;
+      case 1:     strcpy(str, "Boost/Cut"); break;
+      case 2:     strcpy(str, "Wrap"); break;
+      case 3:     strcpy(str, "Spread"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getMagicEncoderTriggerName(uint8_t value, char* str){
+    switch(value){
+      case 0:     strcpy(str, "Inactive"); break;
+      case 1:     strcpy(str, "Release"); break;
+      case 2:     strcpy(str, "Press"); break;
+      case 3:     strcpy(str, "Hold"); break;
+      case 4:     strcpy(str, "Double Press"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getLfoWaveformName(uint8_t value, char* str){
+    switch(value){
+      case BMC_LFO_SINE:       strcpy(str, "Sine"); break;
+      case BMC_LFO_SAW:        strcpy(str, "Saw"); break;
+      case BMC_LFO_TRIANGLE:   strcpy(str, "Triangle"); break;
+      case BMC_LFO_SQUARE:     strcpy(str, "Square"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getLfoNoteDivisionName(uint8_t value, char* str){
+    switch(value){
+      case BMC_LFO_NOTE_DIV_WHOLE:        strcpy(str, "Whole"); break;
+      case BMC_LFO_NOTE_DIV_HALF:         strcpy(str, "Half (1/2)"); break;
+      case BMC_LFO_NOTE_DIV_QUARTER:      strcpy(str, "Quarter (1/4)"); break;
+      case BMC_LFO_NOTE_DIV_EIGHTH:       strcpy(str, "Eighth (1/8)"); break;
+      case BMC_LFO_NOTE_DIV_SIXTEENTH:    strcpy(str, "Sixteenth (1/16)"); break;
+      default:
+        sprintf(str, "%u undefined", value);
+        break;
+    }
+  }
+  static void getSketchByteFormat(char* str, uint8_t n, uint8_t value){
+#if BMC_MAX_SKETCH_BYTES > 0
+    BMCSketchByteData t = BMCBuildData::getSketchByteData(n);
+    // buffer.initialValue = 0;
+    // buffer.min = 0;
+    // buffer.max = 255;
+    // buffer.step = 1;
+    // buffer.formatType = BMC_NONE;
+    // buffer.formatValue = BMC_NONE;
+    // buffer.formatAppend = BMC_NONE;
+    uint8_t fType = t.formatType;
+    uint8_t fValue = t.formatValue;
+    uint8_t fAppend = t.formatAppend;
+    char txt[16] = "";
+
+    switch(fAppend){
+      case 0: strcpy(txt, ""); break;
+      case 1: strcpy(txt, "sec"); break;
+      case 2: strcpy(txt, "ms"); break;
+      case 3: strcpy(txt, "us"); break;
+      case 4: strcpy(txt, "mm"); break;
+      case 5: strcpy(txt, "cm"); break;
+      case 6: strcpy(txt, "m"); break;
+      case 7: strcpy(txt, "%"); break;
+      case 8: strcpy(txt, "degrees"); break;
+      case 9: strcpy(txt, "bpm"); break;
+      case 10: strcpy(txt, "hours"); break;
+      case 11: strcpy(txt, "minutes"); break;
+      case 12: strcpy(txt, "seconds"); break;
+      case 13: strcpy(txt, "days"); break;
+      case 14: strcpy(txt, "weeks"); break;
+      case 15: strcpy(txt, "hours"); break;
+    }
+    switch(fType){
+      case 0: sprintf(str, "%u %s", value, txt); break;
+      case 1: sprintf(str, "%u %s", (value+fValue), txt); break;
+      case 2: sprintf(str, "%u %s", (value-fValue), txt); break;
+      case 3: sprintf(str, "%u %s", (value*fValue), txt); break;
+      case 4: sprintf(str, "%u %s", (value/fValue), txt); break;
+      case 5: strcpy(str, (value == 0) ? "Off" : "On"); break;
+      default: sprintf(str, "%u", value); break;
+    }
+#endif
+  }
+  static bmcStoreEvent getDeviceEventType(bmcStore& store, uint16_t n){
+    bmcStoreEvent e;
+    if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
+      return store.global.events[n-1];
+    }
+    return e;
+  }
+  static void strTrim(char * str){
+    strTrimHead(str);
+    strTrimTail(str);
+  }
+  static void strTrimHead(char * str){
+    // remove spaces at the beginning of a char array
+    uint16_t len = strlen(str);
+    if(len == 0 || str[0] != 32){
+      return;
+    }
+    char buff[len+1] = "";
+    bool skipTrim = false;
+    for(uint8_t i = 0, e = 0;i<len;i++){
+      if(!skipTrim){
+        if(str[i] == 32){
+          continue;
+        } else if(str[i] == 0){
+          break;
+        } else {
+          skipTrim = true;
+        }
+      }
+      buff[e++] = str[i];
+    }
+    strcpy(str, buff);
+  }
+  static void strTrimTail(char * str){
+    // remove spaces at end of a char array
+    uint16_t len = strlen(str);
+    if(len == 0 || str[len-1] != 32){
+      return;
+    }
+    for(int i = len; i --> 0;){
+      if(str[i] != 0){
+        if(str[i] == 32){
+          str[i] = 0;
+        } if(str[i] > 32){
+          break;
+        }
+      }
+    }
+  }
+  static void strRemoveSpaces(char * str){
+    // trim the end of a char array
+    uint16_t len = strlen(str);
+    if(len == 0){
+      return;
+    }
+    char buff[len+1] = "";
+    for(uint8_t i = 0, e = 0;i<len;i++){
+      if(str[i] == 32){
+        continue;
+      } else if(str[i] == 0){
+        break;
+      }
+      buff[e++] = str[i];
+    }
+    strcpy(str, buff);
+  }
+  static void strShorten(char * str, bool removeSpaces=false){
+    // removes all vowels as well
+    // if the first character of the string is a vowel leave it
+    // removes all spaces from string if @removeSpaces is true
+    uint16_t len = strlen(str);
+    if(len < 5){
+      return;
+    }
+    char buff[len+1] = "";
+    for(uint8_t i = 0, e = 0 ; i < len ; i++){
+      if((removeSpaces && str[i] == 32) || (i>0 && (str[i] == 65 || str[i] == 69 || str[i] == 73 ||
+         str[i] == 79 || str[i] == 85 || str[i] == 97 || str[i] == 101 ||
+         str[i] == 105 || str[i] == 111 || str[i] == 117))
+      ){
+        continue;
+      } else if(str[i] == 0){
+        break;
+      }
+      buff[e++] = str[i];
+    }
+    if(strlen(buff)>0){
+      strcpy(str, buff);
+    }
+  }
+  static void getBankLetter(uint8_t n, char* buff){
+    strcpy(buff, "");
+    if(n < 32){
+      const char alph[32] = BMC_ALPHABET;
+      sprintf(buff, "%c", alph[n]);
+    }
+  }
+  static uint16_t toPresetIndex(uint8_t t_bank, uint8_t t_preset){
+    uint16_t p = (t_bank << BMC_PRESET_BANK_MASK) | (t_preset & (BMC_MAX_PRESETS_PER_BANK-1));
+    if(p >= BMC_MAX_PRESETS){
+      return 0;
+    }
+    return p;
+  }
+  static void getPresetLabel(uint8_t t_bank, uint8_t t_preset, char * str, bmcStoreGlobal& t_store){
+    uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
+    if(t_presetAndBank < BMC_MAX_PRESETS){
+#if BMC_MAX_PRESETS > 0
+      bmcName_t n = t_store.presets[t_presetAndBank].name;
+      char name[BMC_MAX_NAMES_LENGTH] = "";
+      char bankStr[2] = "";
+      getBankLetter(t_bank, bankStr);
+      if(n!=0){
+        strcpy(name, t_store.names[n].name);
+      }
+      sprintf(str, "%s%u%s", bankStr, t_preset, name);
+#endif
+    }
+  }
+  static void getPresetLabel(uint16_t t_presetAndBank, char * str, bmcStoreGlobal& t_store){
+    if(t_presetAndBank < BMC_MAX_PRESETS){
+#if BMC_MAX_PRESETS > 0
+      uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
+      uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
+      bmcName_t n = t_store.presets[t_presetAndBank].name;
+      char name[BMC_MAX_NAMES_LENGTH] = "";
+      char bankStr[2] = "";
+      getBankLetter(t_bank, bankStr);
+      if(n!=0){
+        strcpy(name, t_store.names[n].name);
+      }
+      sprintf(str, "%s%u%s", bankStr, t_preset, name);
+#endif
+    }
+  }
+  static bool isValidRelayEvent(uint8_t t_type){
+    switch(t_type){
+      case BMC_EVENT_TYPE_MIDI_PROGRAM_CHANGE:
+      case BMC_EVENT_TYPE_MIDI_CONTROL_CHANGE:
+      case BMC_EVENT_TYPE_LAYER:
+      case BMC_EVENT_TYPE_PRESET:
+        return true;
+    }
+    return false;
+  }
   static bool isLedBlinkAllowed(uint8_t t_type){
     switch(t_type){
-      case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
-      case BMC_LED_EVENT_TYPE_CLOCK_SYNC:
+      //case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
+      //case BMC_LED_EVENT_TYPE_CLOCK_SYNC:
+      case BMC_EVENT_TYPE_SYSTEM_STATUS:
+      case BMC_EVENT_TYPE_SYSTEM_MIDI_ACTIVITY:
+      case BMC_EVENT_TYPE_SYSTEM_CLOCK:
+      case BMC_EVENT_TYPE_SYSTEM_CLOCK_TAP:
         return false;
     }
     return true;
@@ -284,6 +607,8 @@ public:
   }
   // an Endless SOS of all LEDs, use for stopping BMC
   static void sos(){
+    while(1);
+    /*
     #if BMC_TOTAL_LEDS == 0
       while(1);
     #else
@@ -294,13 +619,6 @@ public:
     for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
       items[totalLeds++] = BMCBuildData::getLedPin(i);
       pinMode(BMCBuildData::getLedPin(i),OUTPUT);
-      break;
-    }
-    #endif
-    #if BMC_MAX_PWM_LEDS > 0
-    for(uint8_t i = 0; i < BMC_MAX_PWM_LEDS; i++){
-      items[totalLeds++] = BMCBuildData::getPwmLedPin(i);
-      pinMode(BMCBuildData::getPwmLedPin(i),OUTPUT);
       break;
     }
     #endif
@@ -321,6 +639,7 @@ public:
       }
     }
     #endif
+    */
   }
 };
 

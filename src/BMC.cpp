@@ -1,119 +1,87 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2022 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
+
 // Initialize all compiled objects
 BMC::BMC():
-  globals(),
-  globalData(store.global),
   settings(store.global.settings),
-  midi(callback, globals, store.global.portPresets),
+  globals(store, settings),
+  layer(globals.layer),
+  midi(callback, globals),
   valueTyper(callback),
   editor(store, midi, settings, messenger),
   midiClock(midi),
   midiActiveSense(midi)
-  #ifdef BMC_USE_SYNC
-    ,sync(midi, midiClock, store.global, callback)
+
+  #if BMC_MAX_PRESETS > 0
+    ,presets(midi)
   #endif
-  /*
-  #ifdef BMC_USE_DAW_LC
-    ,daw(midi, store.global, callback)
+  #if BMC_MAX_SETLISTS > 0
+    ,setLists(presets)
   #endif
-  #ifdef BMC_USE_BEATBUDDY
-    ,beatBuddy(midi, midiClock)
+  #if defined(BMC_USE_SYNC)
+    ,sync(midi, midiClock, callback)
   #endif
-  #ifdef BMC_USE_HELIX
-    ,helix(midi)
-  #endif
-  #ifdef BMC_USE_FAS
-    ,fas(midi)
-  #endif
-  #ifdef BMC_USE_KEMPER
-    ,kemper(midi)
-  #endif
-  */
   #if BMC_MAX_CUSTOM_SYSEX > 0
-    ,customSysEx(midi, store.global)
-  #endif
-  #if BMC_MAX_LIBRARY > 0
-    ,library(
-      midi,
-      store.global,
-      callback
-    #if BMC_MAX_CUSTOM_SYSEX > 0
-      ,customSysEx
-    #endif
-    #if defined(BMC_USE_BEATBUDDY)
-      ,beatBuddy
-    #endif
-    )
-    #if BMC_MAX_PRESETS > 0
-      ,presets(midi, store.global, library)
-      #if BMC_MAX_SETLISTS > 0
-        ,setLists(globals, store.global, presets)
-      #endif
-    #endif
+    ,customSysEx(midi)
   #endif
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    ,tempoToTap(midi, store.global)
+    ,tempoToTap(midi)
   #endif
   #if BMC_MAX_TRIGGERS > 0
-    ,triggers(midi, store.global)
+    ,triggers(midi)
   #endif
   #if BMC_MAX_PIXEL_PROGRAMS > 0
-    ,pixelPrograms(store.global)
+    ,pixelPrograms(midi)
   #endif
   #if BMC_MAX_TIMED_EVENTS > 0
-    ,timedEvents(store.global)
+    ,timedEvents(midi)
   #endif
-
-  #ifdef BMC_HAS_DISPLAY
-    ,display(midi, store, callback
-    #ifdef BMC_USE_SYNC
-      ,sync
-    #endif
-    #if BMC_MAX_PRESETS > 0
-      ,presets
-    #endif
-    #if BMC_MAX_SETLISTS > 0
-      ,setLists
-    #endif
-    )
-  #endif
-
-
-    ,page(globals.page)
-
   #if BMC_MAX_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
-    ,dualPress(callback, false, BMC_MAX_BUTTONS)
+    ,dualPress(callback, globals, false, BMC_MAX_BUTTONS)
   #endif
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     // second argument is true for global buttons
     // to check which callback to use
-    ,dualPressGlobal(callback, true, BMC_MAX_GLOBAL_BUTTONS)
+    ,dualPressGlobal(callback, globals, true, BMC_MAX_GLOBAL_BUTTONS)
   #endif
   #ifdef BMC_DEBUG
     ,serialMonitor()
+  #endif
+  #if defined(BMC_HAS_DISPLAY)
+    ,display(midi
+    #if defined(BMC_USE_SYNC)
+      ,sync
+    #endif
+    )
+  #endif
+
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    ,obe(editor, display)
   #endif
 {
   // nothing here
 }
 
 void BMC::begin(){
-
+  BMC_PRINTLN("BMC::begin");
   // keep this order
-  #ifdef BMC_DEBUG
-    setupDebug();
-    BMC_PRINTLN("BMC::begin");
-  #endif
-
   #if defined(BMC_HAS_DISPLAY)
     display.begin();
+  #endif
+  
+  #ifdef BMC_DEBUG
+    setupDebug();
+  #endif
+
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    obe.begin();
   #endif
 
   // setup all MIDI Ports being used
@@ -130,7 +98,6 @@ void BMC::begin(){
 
   // here we handle pin assignments during the initial setup
   setupHardware();
-
 
   #ifdef BMC_USE_CLICK_TRACK
     // the click track object is tied to the MIDI Clock since they work hand in hand.
@@ -153,7 +120,7 @@ void BMC::begin(){
   midi.setRealTimeBlockOutput(settings.getMidiRealTimeBlockOutput());
 
   BMC_INFO("BMC Initial Setup Complete!");
-
+  
   delay(100);
 
   #ifdef BMC_USE_FAS
@@ -170,35 +137,44 @@ void BMC::update(){
   // even tho this could be done in the begin() method BMC will do a few things
   // only when the very first bmc.update() method is called.
   // this is so you can initialize other things in your sketch, like displays
-  // once all those are initialized then BMC will call the first page and
+  // once all those are initialized then BMC will call the first layer and
   // send the startup preset.
-  // This way if any callbacks triggered by the page change can be triggered
+  // This way if any callbacks triggered by the layer change can be triggered
   // and seen by your display.
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
     BMC_PRINTLN("FIRST loop()");
-    BMC_PRINTLN("");
 
     #if defined(BMC_HAS_DISPLAY)
+      #if BMC_MAX_ILI9341_BLOCKS > 0
+        display.initILI9341Blocks();
+        #if defined(BMC_HAS_TOUCH_SCREEN)
+          if(!settings.getTouchScreenIsCalibrated()){
+            display.touchCalibration();
+            editor.saveEEPROM();
+            while(1);
+          }
+        #endif
+      #endif
       display.clearAll();
     #endif
-    // set the current page to page 1 (0)
+    // set the current layer to layer 1 (0)
     // also the second parameter specifies that we want to reassign settings
     // in this case since it's the initial setup we are assigning the curent
     // data in settings to all objects that require this data
     // We do this here so that any other objects initialized after BMC
     // can receive callbacks.
-    setPage(0, true);
+    setLayer(0, true);
 
     // Startup Preset
-    #if BMC_MAX_LIBRARY > 0 && BMC_MAX_PRESETS > 0
+    #if BMC_MAX_PRESETS > 0
       // send the startup Preset if any
-      if(settings.getMidiStartup()){
+      if(settings.getStartupPreset() > 0){
         delay(1);
-        presets.send(globalData.startup);
+        presets.setByIndex(settings.getStartupPreset()-1);
       }
       #if BMC_MAX_SETLISTS > 0
         // set the first setlist and trigger it's first song and part
-        setLists.set(0, true);
+        setLists.set(0);
         setLists.setPart(0);
       #endif
     #endif
@@ -218,10 +194,27 @@ void BMC::update(){
     }
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
+    BMC_PRINTLN("FIRST loop() complete");
   }
+  if(globals.reloadLayer()){
+    reloadLayer();
+  }
+  if(globals.assignStoreData()){
+    assignStoreData();
+  }
+  #if defined(BMC_USE_ON_BOARD_EDITOR)
+    obe.update();
+  #endif
+
+  #if defined(BMC_HAS_DISPLAY)
+    display.update();
+    // #if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_HAS_TOUCH_SCREEN)
+    //   obe.menuCommand(display.getTouchCommand());
+    // #endif
+  #endif
 
   #if BMC_MAX_TEMPO_TO_TAP > 0
-    tempoToTap.update();
+    runTempoToTap();
   #endif
 
   #if BMC_MAX_TIMED_EVENTS > 0
@@ -254,7 +247,7 @@ void BMC::update(){
 
 #ifdef BMC_USE_FAS
     sync.fas.update();
-    if(sync.fas.onnectionStateChanged()){
+    if(sync.fas.connectionStateChanged()){
       editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
     }
 #endif
@@ -272,6 +265,12 @@ void BMC::update(){
 
   // handle callbacks for presets and setlist
   #if BMC_MAX_PRESETS > 0
+    if(globals.triggerBankChange()){
+      presets.setBank(presets.getBank(), true);
+    } else if(globals.triggerPresetChange()){
+      BMC_PRINTLN("Trigger Preset Change")
+      presets.setPreset(presets.get(), true);
+    }
     if(presets.presetChanged()){
       runPresetChanged();
     }
@@ -279,20 +278,25 @@ void BMC::update(){
       runBankChanged();
     }
     #if BMC_MAX_SETLISTS > 0
+      // used to re-trigger current preset
+      if(globals.triggerSetListChange()){
+        setLists.set(setLists.get());
+      } else if(globals.triggerSongChange()){
+        setLists.setSong(setLists.getSong());
+      } else if(globals.triggerPartChange()){
+        setLists.setPart(setLists.getPart());
+      }
       if(setLists.setListChanged()){
         runSetListChanged();
       }
       if(setLists.songChanged()){
         runSongChanged();
       }
+      if(setLists.partChanged()){
+        runSongPartChanged();
+      }
     #endif
   #endif
-
-#if BMC_MAX_LIBRARY > 0
-  if(library.changeAvailable()){
-    runLibraryChanged();
-  }
-#endif
 
   //
   #ifdef BMC_USE_CLICK_TRACK
@@ -314,14 +318,9 @@ void BMC::update(){
     }
   #endif
 
-
-  #if defined(BMC_HAS_DISPLAY)
-    display.update(page);
-  #endif
-
-  // used specifically when pages have changed
-  if(pageChanged()){
-    runPageChanged();
+  // used specifically when layers have changed
+  if(layerChanged()){
+    runLayerChanged();
   }
 
   // read the input of the serial monitor
@@ -343,6 +342,25 @@ void BMC::update(){
   // update globals clearing some flags that may need to be used only once
   globals.update();
 
+  #if BMC_MAX_LFO > 0
+    for(uint8_t i=0;i<BMC_MAX_LFO;i++){
+      uint8_t lfoValue = lfo[i].getWave(micros());
+      if(lfo[i].isEnabled()){
+        if(lfo[i].send()){
+          if(lastLfo[i] != lfoValue){
+            lastLfo[i] = lfoValue;
+            uint8_t channel = store.global.lfo[i].events[0]+0;
+            uint8_t cc = store.global.lfo[i].events[1]+0;
+            uint8_t ports = store.global.lfo[i].events[2]+0;
+            midi.sendControlChange(ports, BMC_TO_MIDI_CHANNEL(channel), cc, lfoValue);
+            //BMC_PRINTLN(lfoValue);
+          }
+          
+        }
+      }
+    }
+  #endif
+
   if(oneMillisecondPassed()){
     oneMilliSecondtimer = 0;
   }
@@ -352,6 +370,17 @@ void BMC::update(){
     stopwatch.tick();
     runTime.tick();
 
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
+    if(potCalibration.active() && globals.editorConnected()){
+      editor.utilitySendAnalogInputCalibrationActivity(
+        potCalibration.getDeviceType(),
+        potCalibration.getIndex(),
+        potCalibration.getMin(),
+        potCalibration.getMax()
+      );
+    }
+#endif
+
     if(callback.oneSecondPassed){
       callback.oneSecondPassed(stopwatch.getState());
     }
@@ -360,6 +389,7 @@ void BMC::update(){
 
     if(BMC_IS_EVEN(runTime.seconds)){
       flags.on(BMC_FLAGS_STATUS_LED);
+      heartbeat = millis();
       // only do this every other second
 #ifdef BMC_DEBUG
       if(globals.getMetricsDebug()){
@@ -369,6 +399,10 @@ void BMC::update(){
     }
     //globals.resetCPU();
     oneSecondTimer = 0;
+  }
+  if(heartbeat>0 && (unsigned long)millis()-heartbeat >= 150){
+    flags.off(BMC_FLAGS_STATUS_LED);
+    heartbeat = 0;
   }
 }
 

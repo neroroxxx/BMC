@@ -14,10 +14,10 @@
   4 = 0xXX device id
   5 = 0xXX flags:
     bit0 -> query type    =>  0=read, 1=write
-    bit1 -> query target  =>  0=global, 1=page
+    bit1 -> query target  =>  0=global, 1=layer
     bit2 -> confirmation  =>  0=send response, 1=send acknowledge
-  6 = 0xXX page/item number (LSB)
-  7 = 0xXX page/item number (MSB)
+  6 = 0xXX layer/item number (LSB)
+  7 = 0xXX layer/item number (MSB)
   8 = 0xXX function id
   9 = start of data
   ...
@@ -74,9 +74,9 @@ bool BMCEditor::read(){
         #endif
         return true;
       }
-      if(isPageMessage()){
-        // editor/BMC-Editor.midi.page.h
-        pageProcessMessage();
+      if(isLayerMessage()){
+        // editor/BMC-Editor.midi.layer.h
+        layerProcessMessage();
       } else {
         // editor/BMC-Editor.midi.global.h
         globalProcessMessage();
@@ -133,13 +133,18 @@ void BMCEditor::sendToEditor(BMCMidiMessage message, bool appendCRC,
     );
   }
 }
-void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError){
+void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError, bool forceResponse){
   //BMCF_NOTIFY, byte 9 = 1 for error
   BMCEditorMidiFlags flag;
   flag.setError(hasError);
 
   BMCMidiMessage buff;
-  buff.prepareEditorMessage(port, deviceId, BMCF_NOTIFY, flag.get(), 0);
+  uint8_t outPort = port;
+  if(!forceResponse){
+    outPort = incoming.getPort();
+  }
+  buff.prepareEditorMessage(outPort, deviceId, BMCF_NOTIFY, flag.get(), 0);
+  
   // the source of the notification
   buff.appendSysExByte(getMessageRequestId());
   // notification code
@@ -149,7 +154,21 @@ void BMCEditor::sendNotification(uint16_t code, uint32_t payload, bool hasError)
   // add the flags of the source message
   buff.appendSysExByte(getMessageFlags());
   // send
-  sendToEditor(buff);
+  if(!forceResponse){
+    sendToEditor(buff);
+  } else {
+    buff.createChecksum(true);
+    // send the sysex message
+    midi.sendSysEx(
+      buff.getPort(), // target port(s)
+      buff.getSysEx(), // the sysex array
+      buff.size(), // the sysex array length
+      false, // does it have the 0xF0 & 0xF7 bytes
+      0, // cable, used for USB
+      false // should it trigger MIDI Out activity
+    );
+  }
+  
 }
 void BMCEditor::sendInvalidIndexReceivedMessage(){
   sendNotification(BMC_NOTIFY_INVALID_INDEX, 0, true);

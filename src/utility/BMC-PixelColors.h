@@ -199,12 +199,12 @@ public:
       case BMC_COLOR_MAGENTA: return BMC_COLOR_RGB_MAGENTA;
       case BMC_COLOR_CYAN: return BMC_COLOR_RGB_CYAN;
       case BMC_COLOR_WHITE: return BMC_COLOR_RGB_WHITE;
-      case BMC_COLOR_LIME: return BMC_COLOR_RGB_LIME;
-      case BMC_COLOR_PINK: return BMC_COLOR_RGB_PINK;
-      case BMC_COLOR_PURPLE: return BMC_COLOR_RGB_PURPLE;
+      //case BMC_COLOR_LIME: return BMC_COLOR_RGB_LIME;
+      //case BMC_COLOR_PINK: return BMC_COLOR_RGB_PINK;
+      //case BMC_COLOR_PURPLE: return BMC_COLOR_RGB_PURPLE;
       case BMC_COLOR_ORANGE: return BMC_COLOR_RGB_ORANGE;
-      case BMC_COLOR_TEAL: return BMC_COLOR_RGB_TEAL;
-      case BMC_COLOR_CORAL: return BMC_COLOR_RGB_CORAL;
+      //case BMC_COLOR_TEAL: return BMC_COLOR_RGB_TEAL;
+      //case BMC_COLOR_CORAL: return BMC_COLOR_RGB_CORAL;
       case BMC_COLOR_RAINBOW: return BMC_COLOR_RGB_RAINBOW;
       case BMC_COLOR_RAINBOW_FADE: return BMC_COLOR_RGB_RAINBOW_FADE;
     }

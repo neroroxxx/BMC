@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -29,45 +29,34 @@ public:
     timedEventCustom = 0;
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-    libraryCustom = 0;
-#endif
+    customActivity = 0;
 
     buttonDualPress = 0;
-    buttonActivity = 0;
-    encoderActivity = 0;
-    potActivity = 0;
-    ledsActivity = 0;
-    globalLedsActivity = 0;
-    pixelsActivity = 0;
-    rgbPixelsActivity = 0;
-
-#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-    potsToeSwitchState = 0;
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-    globalPotsToeSwitchState = 0;
-#endif
-
     globalButtonDualPress = 0;
-    globalButtonActivity = 0;
-    globalEncoderActivity = 0;
-    globalPotActivity = 0;
 
-    buttonsCustomActivity = 0;
-    encoderCustomActivity = 0;
-    potCustomActivity = 0;
-    globalButtonsCustomActivity = 0;
-    globalEncoderCustomActivity = 0;
-    globalPotCustomActivity = 0;
+    // buttonActivity = 0;
+    // encoderActivity = 0;
+    // potActivity = 0;
+    // ledsActivity = 0;
+    // globalLedsActivity = 0;
+    // pixelsActivity = 0;
+    // rgbPixelsActivity = 0;
+    // globalButtonActivity = 0;
+    // globalEncoderActivity = 0;
+    // globalPotActivity = 0;
+    // buttonsCustomActivity = 0;
+    // encoderCustomActivity = 0;
+    // potCustomActivity = 0;
+    // globalButtonsCustomActivity = 0;
+    // globalEncoderCustomActivity = 0;
+    // globalPotCustomActivity = 0;
 
     // for user defined events
-    userEventButtons = 0;
-    userEventEncoders = 0;
-    userEventPots = 0;
-    userEventLeds = 0;
-    userEventRelays = 0;
+    // userEventButtons = 0;
+    // userEventEncoders = 0;
+    // userEventPots = 0;
+    // userEventLeds = 0;
+    // userEventRelays = 0;
 
     auxJackConnection = 0;
     midiTriggerReceived = 0;
@@ -85,6 +74,7 @@ public:
     presetChanged = 0;
     setListChanged = 0;
     setListSongChanged = 0;
+    setListSongPartChanged = 0;
     presetBankChanged = 0;
     eepromErased = 0;
     programBankChanged = 0;
@@ -144,7 +134,7 @@ public:
   void (*oneSecondPassed)(uint8_t stopwatchState);
   void (*editorConnection)(bool state);
   void (*storeUpdated)();
-  void (*pageChanged)(uint8_t page);
+  void (*pageChanged)(uint8_t layer);
   void (*menuCommand)(uint8_t t_command);
   void (*typerCommand)(uint16_t t_value, uint16_t t_rawValue);
   void (*typerCustomCommand)(uint16_t t_value, uint16_t t_rawValue);
@@ -157,53 +147,33 @@ public:
   void (*timedEventCustom)(uint8_t id, uint8_t a, uint8_t b, uint8_t c);
 #endif
 
-#if BMC_MAX_LIBRARY > 0
-  void (*libraryCustom)(uint8_t id);
-#endif
+  bool (*customActivity)(uint8_t deviceType, uint16_t deviceIndex, uint8_t id, uint8_t dat1, uint8_t dat2);
+
+  void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
+  void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
 
 
-  void (*buttonDualPress)(uint8_t btn1, uint8_t btn2);
-  void (*buttonActivity)(uint8_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreButton button,
-                          bmcStoreButtonEvent data);
-  void (*encoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data, uint8_t ticks);
-  void (*potActivity)(uint8_t index, uint8_t value,
-                      bmcStorePot data);
-  void (*ledsActivity)(uint32_t states);
-  void (*globalLedsActivity)(uint32_t states);
-  void (*pixelsActivity)(uint32_t states);
-  void (*rgbPixelsActivity)(uint32_t states);
-
-  void (*globalButtonDualPress)(uint8_t btn1, uint8_t btn2);
-  void (*globalButtonActivity)(uint8_t n, uint8_t eventIndex, uint8_t trigger,
-                          bmcStoreButton button,
-                          bmcStoreButtonEvent data);
-  void (*globalEncoderActivity)(uint8_t index, bool increased,
-                          bmcStoreEncoder data, uint8_t ticks);
-  void (*globalPotActivity)(uint8_t index, uint8_t value,
-                      bmcStorePot data);
-
-#if BMC_MAX_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*potsToeSwitchState)(uint8_t n, bool state);
-#endif
-
-#if BMC_MAX_GLOBAL_POTS > 0 && defined(BMC_USE_POT_TOE_SWITCH)
-  void (*globalPotsToeSwitchState)(uint8_t n, bool state);
-#endif
-
-  void (*buttonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*encoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
-  void (*potCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
-  void (*globalButtonsCustomActivity)(uint8_t n, uint8_t eventIndex, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t ports);
-  void (*globalEncoderCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, bool direction, uint8_t ticks);
-  void (*globalPotCustomActivity)(uint8_t index, uint8_t byteA, uint8_t byteB, uint8_t byteC, uint8_t t_value);
-
-  void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
-  void (*userEventEncoders)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
-  void (*userEventPots)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value);
-  uint8_t (*userEventLeds)(uint8_t n, uint32_t event, uint8_t ledType);
-  uint8_t (*userEventRelays)(uint8_t n, uint32_t event);
+  // void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  // void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  // void (*potActivity)(uint16_t index, uint8_t value);
+  // void (*ledsActivity)(uint32_t states);
+  // void (*globalLedsActivity)(uint32_t states);
+  // void (*pixelsActivity)(uint32_t states);
+  // void (*rgbPixelsActivity)(uint32_t states);
+  // void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  // void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
+  // void (*globalPotActivity)(uint16_t index, uint8_t value);
+  // void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  // void (*encoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  // void (*potCustomActivity)(uint16_t index, uint8_t t_value);
+  // void (*globalButtonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);
+  // void (*globalEncoderCustomActivity)(uint16_t index, bool direction, uint8_t ticks);
+  // void (*globalPotCustomActivity)(uint16_t index, uint8_t t_value);
+  // void (*userEventButtons)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
+  // void (*userEventEncoders)(uint8_t n, uint32_t event, uint8_t ports, uint8_t mode);
+  // void (*userEventPots)(uint8_t n, uint32_t event, uint8_t ports, uint8_t value);
+  // uint8_t (*userEventLeds)(uint8_t n, uint32_t event, uint8_t ledType);
+  // uint8_t (*userEventRelays)(uint8_t n, uint32_t event);
 
   void (*auxJackConnection)(uint8_t n, bool state);
 
@@ -218,10 +188,11 @@ public:
   bool (*midiPreRoute)(BMCMidiMessage& data, uint8_t destinations);
 
   void (*valueStream)(BMCValueStream item);
-  void (*presetChanged)(bmcPreset_t n);
+  void (*presetChanged)(uint8_t t_bank, uint8_t t_preset);
   void (*presetBankChanged)(uint8_t n);
   void (*setListChanged)(uint8_t n);
   void (*setListSongChanged)(uint8_t n);
+  void (*setListSongPartChanged)(uint8_t n);
 
   void (*programBankChanged)(uint8_t n);
   void (*programBankTrigger)(uint8_t n);

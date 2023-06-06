@@ -60,31 +60,7 @@ public:
       );
       BMC_HALT();
     }
-/*
-#if BMC_MAX_MUX_GPIO > 0
-// all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
-// BMC will group them in this order MUX_IN then MUX_IN_ANALOG
-// so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
-// then MUX_IN_ANALOG pins start at pin 74 and so on
-// so we want to make sure this pot was set to a MUX_IN_ANALOG
-if(t_pin>=64){
-  if(BMCBuildData::isMuxOutPin(t_pin)){
-    flags.on(BMC_FLAG_LED_MUX);
-    pin = t_pin;
-    reset();
-    blinker.start(BMC_LED_BLINK_TIMEOUT);
-    return;
-  } else {
-    BMC_ERROR(
-      "Mux Pin:", t_pin,
-      "Can NOT be used with Leds as it is NOT a Mux Out Pin"
-    );
-    BMC_HALT();
-  }
-}
-#endif
-*/
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     // all mux pins start with pin number 64, that includes MUX_IN MUX_IN_ANALOG
     // BMC will group them in this order MUX_IN then MUX_IN_ANALOG
     // so if you have 10 MUX_IN pins then pins 64 to 73 are MUX_IN pins
@@ -95,7 +71,6 @@ if(t_pin>=64){
         flags.on(BMC_FLAG_LED_MUX);
         pin = t_pin;
         reset();
-        blinker.start(BMC_LED_BLINK_TIMEOUT);
         return;
       } else {
         BMC_ERROR(
@@ -127,16 +102,14 @@ if(t_pin>=64){
 #endif
 
     reset();
-
-    blinker.start(BMC_LED_BLINK_TIMEOUT);
   }
   uint8_t getPin(){
     return pin;
   }
 
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
   uint8_t getMuxPin(){
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       return pin-64;
     }
@@ -167,18 +140,22 @@ if(t_pin>=64){
   // test LED led by blinking it, here we use delay since this is only used
   // at startup or if the editor is triggering a test of the LED
   // the LED will return to it's state before the test began
-  void test(){
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+  void test(bool t_init=false){
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.on(BMC_FLAG_LED_MUX_TESTING);
       return;
     }
 #endif
     bool state = flags.read(BMC_FLAG_LED_STATE);
-    writeToPin(!state);
-    delay(BMC_MAX_LED_TEST_DELAY);
-    writeToPin(state);
-    delay(BMC_MAX_LED_TEST_DELAY+5);
+    for(uint8_t i = 0, n=(t_init ? 2 : 4) ; i < n ; i++){
+      writeToPin(!state);
+      // delay(BMC_MAX_LED_TEST_DELAY * (t_init ? 1 : 4));
+      delay(BMC_MAX_LED_TEST_DELAY);
+      writeToPin(state);
+      // delay(BMC_MAX_LED_TEST_DELAY * (t_init ? 1 : 4));
+      delay(BMC_MAX_LED_TEST_DELAY);
+    }
   }
   // used to blink an led temporarily, similar to the test() method but
   // it can be used to blink an led temporarily then reset back to its
@@ -208,21 +185,31 @@ if(t_pin>=64){
     }
     return false;
   }
+  // reassign the LED behaviour, used when switching layers or the editor
+  // has updated EEPROM
+  void reassign(uint8_t t_settings=0){
+    reset();
+    setBlinkMode(t_settings > 0);
+    setBlinkSpeed(t_settings);
+    BMC_PRINTLN("LED reassign", t_settings);
+  }
   // set weather the LED will blink when on
   void setBlinkMode(bool t_mode){
     flags.write(BMC_FLAG_LED_BLINK_ENABLED, t_mode);
   }
-  // reassign the LED behaviour, used when switching pages or the editor
-  // has updated EEPROM
-  void reassign(uint8_t t_blinkMode=false){
-    reset();
-    setBlinkMode(t_blinkMode);
+  // set the blink speed
+  void setBlinkSpeed(uint8_t t_speed){
+    t_speed = constrain(t_speed, 0, 5);
+    if(t_speed > 0){
+      blinkerSpeed = t_speed-1;
+    }
   }
+  
   // used to update the blink timer to turn the LED on/off
   // and the pulse timer which turns the LED off after the set threshold time
   // this method returns the current state of the led,
   // true if the LED is on (or blinking), false when the LED is off
-  bool update(){
+  bool update(bool t_blinkerState){
     // handle quick blink even if LED is not active
     if(handleQuickBlinker()){
       return getState();
@@ -233,8 +220,16 @@ if(t_pin>=64){
       if(flags.read(BMC_FLAG_LED_STATE)){
         // if it's on we check if the blinker time has reached it's interval
         // and we then set the LED to the oposite state it's currently in
-        if(blinker.complete()){
-          writeToPin(flags.toggle(BMC_FLAG_LED_BLINKER_STATE));
+        if(t_blinkerState){
+          uint8_t bSteps = blinkerSpeed & 0x0F;
+          uint8_t bCount = (blinkerSpeed >> 4) & 0x0F;
+          if(bCount >= bSteps){
+            writeToPin(flags.toggle(BMC_FLAG_LED_BLINKER_STATE));
+            bCount = 0;
+          } else {
+            bCount++;
+          }
+          blinkerSpeed = bSteps | (bCount<<4);
         }
       } else {
         // if the state is OFF we just turn the LED off
@@ -301,13 +296,13 @@ if(t_pin>=64){
   }
 private:
   uint8_t pin = 255;
-#if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
-  BMCFlags <uint8_t> flags;
-#else
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
   BMCFlags <uint16_t> flags;
+#else
+  BMCFlags <uint8_t> flags;
 #endif
-  // endeless timer used for blinking the LED
-  BMCEndlessTimer blinker;
+  // used to handle blink speed
+  uint8_t blinkerSpeed = 0;
   // temporary blinker
   BMCTimer quickBlinkerTimer;
   uint8_t quickBlinkerCount = 0;
@@ -323,16 +318,16 @@ private:
     bool userPwmOffValue = flags.read(BMC_FLAG_LED_USE_OFF_VALUE);
     bool blinkerState = flags.read(BMC_FLAG_LED_BLINKER_STATE);
 
-    #if BMC_MAX_MUX_OUT == 0 && BMC_MAX_MUX_GPIO == 0
-      flags.reset();
-    #else
+    #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
       flags.reset((1 << BMC_FLAG_LED_MUX));
+    #else
+      flags.reset();
     #endif
 
     flags.write(BMC_FLAG_LED_IS_PWM, isPWM);
     flags.write(BMC_FLAG_LED_USE_OFF_VALUE, userPwmOffValue);
     flags.write(BMC_FLAG_LED_BLINKER_STATE, blinkerState);
-
+    blinkerSpeed = 0;
     // temp blinker reset
     quickBlinkerCount = 0;
     // turn the LED off
@@ -343,7 +338,7 @@ private:
     t_value = !t_value;
 #endif
 
-#if BMC_MAX_MUX_OUT > 0 || BMC_MAX_MUX_GPIO > 0
+#if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){
       flags.write(BMC_FLAG_LED_MUX_VALUE, t_value);
       return;

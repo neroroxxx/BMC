@@ -17,14 +17,20 @@
   #include "mux/BMC-MuxGpioMcp.h"
 #endif
 
-#if BMC_MAX_MUX_GPIO > 48
-  #define BMC_MUX_GPIO_COUNT 4
-#elif BMC_MAX_MUX_GPIO > 32
-  #define BMC_MUX_GPIO_COUNT 3
-#elif BMC_MAX_MUX_GPIO > 16
-  #define BMC_MUX_GPIO_COUNT 2
-#else
+// #if BMC_MAX_MUX_GPIO > 48
+//   #define BMC_MUX_GPIO_COUNT 4
+// #elif BMC_MAX_MUX_GPIO > 32
+//   #define BMC_MUX_GPIO_COUNT 3
+// #elif BMC_MAX_MUX_GPIO > 16
+//   #define BMC_MUX_GPIO_COUNT 2
+// #else
+//   #define BMC_MUX_GPIO_COUNT 1
+// #endif
+
+#if BMC_MAX_MUX_GPIO == 1
   #define BMC_MUX_GPIO_COUNT 1
+#else
+  #define BMC_MUX_GPIO_COUNT (((BMC_MAX_MUX_GPIO - 1) >> 4) + 1)
 #endif
 
 class BMCMuxGpio {
@@ -83,9 +89,10 @@ public:
   bool readPin(uint8_t t_pin){
     if(t_pin < BMC_MAX_MUX_GPIO){
 #if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_OTHER
-      uint8_t mux = (uint8_t) (t_pin/16);
-      uint8_t pin = t_pin-(mux*16);
-      return bitRead(states[mux], pin);
+      // uint8_t mux = (uint8_t) (t_pin/16);
+      // uint8_t pin = t_pin-(mux*16);
+      // return bitRead(states[mux], pin);
+      bitRead(states[t_pin>>4], t_pin & 0x0F);
 #elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
       return mux.readPin(t_pin);
 #endif
@@ -95,9 +102,10 @@ public:
   void writePin(uint8_t t_pin, bool t_value){
     if(t_pin < BMC_MAX_MUX_GPIO){
 #if BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_OTHER
-      uint8_t mux = (uint8_t) (t_pin/16);
-      uint8_t pin = t_pin-(mux*16);
-      bitWrite(states[mux], pin, t_value);
+      // uint8_t mux = (uint8_t) (t_pin/16);
+      // uint8_t pin = t_pin-(mux*16);
+      // bitWrite(states[mux], pin, t_value);
+      bitWrite(states[t_pin>>4], t_pin & 0x0F, t_value);
 #elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
       mux.writePin(t_pin, t_value);
 #endif

@@ -85,6 +85,7 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
+#if defined(BMC_FAS3)
 // for Axe Fx 3
 #define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
 #define BMC_FAS_FUNC_ID_FIRMWARE              0x08
@@ -100,6 +101,7 @@
 #define BMC_FAS_FUNC_ID_SET_PRESET_NUMBER     0x3C
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
+#endif
 
 class BMCFas {
 private:
@@ -166,6 +168,9 @@ public:
   }
   bool tunerInTune(){
     return isTunerActive() && (!tunerFlat() && !tunerSharp());
+  }
+  bool tunerOutOfTune(){
+    return isTunerActive() && (tunerFlat() || tunerSharp());
   }
   bool tunerFlat(){
     return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLAT);
@@ -298,6 +303,9 @@ public:
       }
     }
   }
+  void getBlockName(uint8_t id, char* str){
+    findBlockName(id, str);
+  }
   bool looperGetState(){
     return device.looper.isEnabled();
   }
@@ -406,6 +414,18 @@ public:
   void toggleTuner(){
     sendControlChange(BMC_FAS_CC_TUNER, isTunerActive()?0:127);
   }
+  // Turn tuner on
+  void tunerOn(){
+    if(!isTunerActive()){
+      sendControlChange(BMC_FAS_CC_TUNER, 127);
+    }
+  }
+  // Turn tuner off
+  void tunerOff(){
+    if(isTunerActive()){
+      sendControlChange(BMC_FAS_CC_TUNER, 0);
+    }
+  }
   // send a tap tempo cc
   void tapTempo(){
     sendControlChange(BMC_FAS_CC_TAP_TEMPO, 127);
@@ -418,7 +438,7 @@ public:
   }
   // SCENE CONTROL, revert via CC
   bool setSceneNumber(uint8_t scene, bool revert=false){
-    if(!connected()){
+    if(!connected() || scene > 7){
       return false;
     }
     if(revert){
@@ -450,6 +470,7 @@ public:
   }
   bool toggleBlockXY(uint8_t blockId){
     //return setBlockXY(blockId, false);
+    BMC_PRINTLN(">>>>>>>>>>>>>>>>>>>>>", blockId, canXY(blockId), connected());
     if(canXY(blockId) && connected()){
       setBlockXY(blockId, device.blocks.isX(blockId));
       return true;
@@ -494,6 +515,9 @@ public:
   }
 
   void setPreset(uint16_t value){
+    if(value >= getMaxPresets()){
+      return;
+    }
     // Send CC#0
     sendControlChange(0, (value>>7) & 0x7F);
     // Send Program Change
@@ -509,7 +533,9 @@ public:
     if(device.preset!=inc){
       setPreset(inc);
     }
-
+  }
+  uint16_t getMaxPresets(){
+    return device.maxPresets;
   }
 
   uint8_t getConnectedDeviceId(){
@@ -860,7 +886,9 @@ private:
 			case 9: strcpy(str, "F#"); break;
 			case 10: strcpy(str, "G "); break;
 			case 11: strcpy(str, "G#"); break;
+      default: strcpy(str, "??"); break;
 		}
+    
 	}
   // this is the data for blocks, this is used to determine if
   // block is available on the device loaded then to either bypass/XY the block

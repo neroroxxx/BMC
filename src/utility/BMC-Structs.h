@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -8,6 +8,217 @@
 #ifndef BMC_STRUCT_H
 #define BMC_STRUCT_H
 #include <Arduino.h>
+
+
+/*
+  eventPacket.group = 0;
+  eventPacket.deviceId = 0;
+  eventPacket.deviceIndex = 0;
+  eventPacket.ioType = 0;
+  eventPacket.eventIndex = 0;
+  eventPacket.value = 0;
+*/
+struct __attribute__ ((packed)) bmcEventPacket {
+  uint8_t group = 0;
+  uint8_t deviceId = 0;
+  uint16_t deviceIndex = 0;
+  uint8_t ioType = 0;
+  uint16_t eventIndex = 0;
+  uint8_t value = 0;
+};
+
+struct __attribute__ ((packed)) BMCDeviceData {
+  uint8_t id = 0;
+  char label[19] = "";
+  int16_t group = 0;
+  uint16_t length = 0;
+  bool global = 0;
+  bool hardware = 0;
+  uint8_t settings = 0;
+  uint8_t events = 0;
+};
+struct __attribute__ ((packed)) BMCEventData {
+  uint8_t type = BMC_NONE;
+  char label[35] = "";
+  bool available = false;
+  bool scroll = false;
+  bool ports = false;
+  uint8_t fields = 0;
+};
+struct bmcXY {
+  int16_t x = 0;
+  int16_t y = 0;
+};
+
+#if defined(BMC_HAS_TOUCH_SCREEN)
+struct bmcTouchArea {
+  int16_t x = 0;
+  int16_t y = 0;
+  uint16_t width = 0;
+  uint16_t height = 0;
+  float xCalM = 0.0, yCalM = 0.0; // gradients
+  float xCalC = 0.0, yCalC = 0.0; // y axis crossing points
+  bmcXY xy;
+  bmcTouchArea(){}
+  void begin(int16_t t_x, int16_t t_y, uint16_t w, uint16_t h){
+    x = t_x;
+    y = t_y;
+    width = w;
+    height = h;
+  }
+  void setCalibrationData(float t_xCalM, float t_xCalC, float t_yCalM, float t_yCalC){
+    xCalM = t_xCalM;
+    xCalC = t_xCalC;
+    yCalM = t_yCalM;
+    yCalC = t_yCalC;
+  }
+  bool isTouched(int16_t t_x, int16_t t_y){
+    getScreenCoordinates(t_x, t_y);
+    if ((xy.x >= x) && (xy.x <= (x+width)) && (xy.y >= y) && (xy.y <= (y+height))){
+      return true;
+    }
+    return false;
+  }
+  void getScreenCoordinates(int16_t t_x, int16_t t_y){
+    int16_t xCoord = round((t_x * xCalM) + xCalC);
+    int16_t yCoord = round((t_y * yCalM) + yCalC);
+    if(xCoord < 0) xCoord = 0;
+    if(xCoord >= BMC_TFT_WIDTH) xCoord = BMC_TFT_WIDTH - 1;
+    if(yCoord < 0) yCoord = 0;
+    if(yCoord >= BMC_TFT_HEIGHT) yCoord = BMC_TFT_HEIGHT - 1;
+    xy.x = xCoord;
+    xy.y = yCoord;
+  }
+};
+#endif
+struct bmcDawChannelsInfo {
+  int8_t index = -1;
+  bool isOled = false;
+  char name[10];
+  char value[10];
+  char twoDigitDisplay[3];
+  uint8_t stateBits = 0;
+  uint8_t vuValue = 0;
+  uint16_t vuBits = 0;
+  uint8_t vPotLevel = 0;
+  uint16_t vPotBits = 0;
+  void reset(){
+    index = -1;
+    isOled = false;
+    strcpy(name, "");
+    strcpy(value, "");
+    stateBits = 0;
+    vuValue = 0;
+    vuBits = 0;
+    vPotLevel = 0;
+    vPotBits = 0;
+  }
+};
+
+#if defined(BMC_USE_FAS)
+struct bmcDisplayFasTunerInfo {
+  int8_t index = -1;
+  bool isOled = false;
+  bool active = false;
+  void reset(){
+    index = -1;
+    isOled = false;
+  }
+};
+#endif
+
+// pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
+struct BMCUIData {
+  int16_t pins[3] = {-1, -1, -1};
+  uint16_t x = 0;
+  uint16_t y = 0;
+  uint8_t style = 0;
+  uint8_t rotation = 0;
+  uint8_t mergeType = 0;
+  uint16_t mergeIndex = 0;
+  uint16_t other1 = 0;
+  uint16_t other2 = 0;
+};
+
+struct BMCLinkData {
+  uint8_t id1 = 0;
+  uint8_t index1 = 0;
+  uint8_t id2 = 0;
+  uint8_t index2 = 0;
+  uint8_t id3 = 0;
+  uint8_t index3 = 0;
+  uint8_t id4 = 0;
+  uint8_t index4 = 0;
+};
+
+struct BMCEventScrollData {
+  bool enabled = false;
+  bool direction = false;
+  bool endless = true;
+  uint8_t amount = 1;
+  BMCEventScrollData(uint8_t settings, uint8_t ticks, bool forceEnable=false){
+    enabled = bitRead(settings, 0);
+    direction = bitRead(settings, 1);
+    endless = bitRead(settings, 2);
+    if(forceEnable){
+      enabled = true;
+    }
+    if(ticks > 0){
+      direction = bitRead(ticks, 7);
+    }
+    if(!enabled){
+      endless = true;
+    }
+    amount = ticks & 0x7F;
+    if(amount==0){
+      amount = 1;
+    }
+  }
+};
+template <uint16_t len>
+struct BMCBitStates {
+  uint16_t value[((len >> 4) & 0x0F)+1];
+  bool updated = false;
+  BMCBitStates(){
+    memset(value, 0 , (((len >> 4) & 0x0F)+1)*sizeof(uint16_t));
+  }
+  uint8_t getLength(){
+    return ((len >> 4) & 0x0F)+1;
+  }
+  uint16_t get(uint8_t n){
+    return value[n];
+  }
+  void clear(){
+    for(uint8_t i = 0, n = getLength() ; i < n ; i++){
+      value[i] = ~value[i];
+    }
+  }
+  void zeroOut(){
+    for(uint8_t i = 0, n = getLength() ; i < n ; i++){
+      value[i] = 0;
+    }
+  }
+  bool hasChanged(){
+    if(updated){
+      updated = false;
+      return true;
+    }
+    return false;
+  }
+  void setBit(uint16_t n, bool newValue){
+    uint8_t mask = (n >> 4) & 0x0F;
+    uint8_t bit = n & 0x0F;
+    if(bitRead(value[mask], bit) != newValue){
+      bitWrite(value[mask], bit, newValue);
+      updated = true;
+    }
+  }
+  bool getBit(uint16_t n){
+    uint8_t mask = (n >> 4) & 0x0F;
+    uint8_t bit = n & 0x0F;
+    return bitRead(value[mask], bit);
+  }
+};
 
 struct BMCRunTime {
   uint32_t seconds = 0;
@@ -33,12 +244,14 @@ struct BMCRunTime {
 struct BMCTunerData {
   uint8_t stringNumber = 0;
   uint8_t note = 0;
+  uint8_t pitchRaw = 0;
   int pitch = 0;
   char noteName[3] = "";
 
   void reset(){
     stringNumber = 0;
     pitch = 0;
+    pitchRaw = 0;
     note = 0;
     strcpy(noteName, "");
   }
@@ -290,8 +503,8 @@ struct BMCMidiPort {
 struct BMCEditorMidiFlags {
   // Editor SysEx Message flags, just an easier way to manage them
   // bit0 -> query type         =>  0=read, 1=write
-  // bit1 -> query target       =>  0=global, 1=page
-  // bit2 -> Save to all pages  =>  if on, save the payload to all pages
+  // bit1 -> query target       =>  0=global, 1=layer
+  // bit2 -> Save to all layers  =>  if on, save the payload to all layers
   // bit3 -> Available          =>
   // bit4 -> Available          =>
   // bit5 -> Backup             =>  if on, message is intended as a backup restore
@@ -307,11 +520,11 @@ struct BMCEditorMidiFlags {
   void setWrite(bool value=true)    {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_WRITE,value);}
   bool isWrite()                    {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_WRITE);}
 
-  void setPage(bool value=true)     {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_PAGE,value);}
-  bool isPage()                     {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_PAGE);}
+  void setLayer(bool value=true)     {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_LAYER,value);}
+  bool isLayer()                     {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_LAYER);}
 
-  void setAllPages(bool value=true) {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_ALL_PAGES,value);}
-  bool isAllPages()                 {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_ALL_PAGES);}
+  void setAllLayers(bool value=true) {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_ALL_LAYERS,value);}
+  bool isAllLayers()                 {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_ALL_LAYERS);}
 
   void setBackup(bool value=true)   {bitWrite(flags,BMC_EDITOR_SYSEX_FLAG_BACKUP,value);}
   bool isBackup()                   {return bitRead(flags,BMC_EDITOR_SYSEX_FLAG_BACKUP);}
@@ -464,7 +677,7 @@ struct BMCMidiTimeSignature {
 struct BMCLogicControlChannelVU {
   // bits 0=overload, 1=changed
   BMCFlags <uint8_t> flags;
-  BMCEndlessTimer meterDecayTimer;
+  // BMCEndlessTimer meterDecayTimer;
   uint8_t meter = 0;
   uint8_t lastPeak = 0;
   void reset(){
@@ -474,13 +687,13 @@ struct BMCLogicControlChannelVU {
   }
 
   BMCLogicControlChannelVU(){
-    meterDecayTimer.start(300);
+    // meterDecayTimer.start(300);
   }
   void update(){
-    if(meter>0 && meterDecayTimer){
-      meter--;
-      flags.on(1);
-    }
+    // if(meter>0 && meterDecayTimer){
+    //   meter--;
+    //   flags.on(1);
+    // }
   }
   bool hasChanged(){
     return flags.toggleIfTrue(1);
@@ -497,9 +710,12 @@ struct BMCLogicControlChannelVU {
     }
     return meter;
   }
+  uint8_t getMeterValue(){
+    return meter;
+  }
   void setMeter(uint8_t value){
     if(assignMeterValue(value)){
-      meterDecayTimer.restart();
+      // meterDecayTimer.restart();
     }
   }
   bool assignMeterValue(uint8_t value){
@@ -508,17 +724,21 @@ struct BMCLogicControlChannelVU {
         break;
       case 0x0E:
         // set the overload
-        if(!flags.read(0)){flags.on(1);}
+        if(!flags.read(0)){
+          flags.on(1);
+        }
         flags.on(0);
         return true;
       case 0x0F:
         // remove the overload
-        if(flags.read(0)){flags.on(1);}
+        if(flags.read(0)){
+          flags.on(1);
+        }
         flags.off(0);
         return true;
       default:
         // get the last peak state
-        if(value != lastPeak){
+        if(value != meter){
           meter = value;
           flags.on(1);
         }
@@ -531,13 +751,13 @@ struct BMCLogicControlChannelVU {
 struct BMCLogicControlChannel {
   // state bits: 0=rec, 1=solo, 2=mute, 3=select, 4=signal
   uint8_t states = 0;
-  int fader = 0;
+  int16_t fader = (-8192);
   uint8_t vPot = 0;
   BMCLogicControlChannelVU vu;
   void reset(){
     vu.reset();
     states = 0;
-    fader = 0;
+    fader = (-8192);
     vPot = 0;
   }
   // get the state
@@ -616,10 +836,10 @@ struct BMCLogicControlChannel {
   void setVPot(uint8_t value){
     vPot = value;
   }
-  void setVolume(int value){
+  void setVolume(int16_t value){
     fader = value;
   }
-  int getVolume(){
+  int16_t getVolume(){
     return fader;
   }
 };
@@ -629,20 +849,20 @@ struct BMCLogicControlData {
   uint8_t selected = 0;
   uint32_t states = 0;
   uint8_t states2 = 0;
-  int masterVolume = 0;
-  BMCLogicControlChannel channel[8];
+  int16_t masterVolume = 0;
+  BMCLogicControlChannel channel[9];
 
   void reset(){
     flags = 0;
     selected = 0;
     states = 0;
-    for(uint8_t i=0;i<9;i++){
+    for(uint8_t i = 0 ; i < 9 ; i++){
       channel[i].reset();
     }
   }
 
   void update(){
-    for(uint8_t i=0;i<9;i++){
+    for(uint8_t i = 0 ; i < 9 ; i++){
       channel[i].update();
     }
   }
@@ -771,6 +991,10 @@ struct BMCLogicControlData {
   uint8_t getMeter(uint8_t n, uint8_t max=0){
     return chAllowed(n) ? channel[chCheck(n)].vu.getMeter(max) : 0;
   }
+  uint8_t getMeterValue(uint8_t n){
+    return chAllowed(n) ? channel[chCheck(n)].vu.getMeterValue() : 0;
+  }
+  
   uint8_t getMeterPeak(uint8_t n){
     return chAllowed(n) ? channel[chCheck(n)].vu.getPeak() : 0;
   }
@@ -787,18 +1011,18 @@ struct BMCLogicControlData {
   void setVPot(uint8_t n, uint8_t value){      if(chAllowed(n)){channel[n].setVPot(value);}}
   void setMeter(uint8_t n, uint8_t value){     if(chAllowed(n)){channel[n].vu.setMeter(value);}}
 
-  void setVolume(uint8_t n, int value){
+  void setVolume(uint8_t n, int16_t value){
     if(chAllowed(n)){
       channel[n].setVolume(value);
     }
   }
-  int getVolume(uint8_t n){
+  int16_t getVolume(uint8_t n){
     return chAllowed(n) ? channel[chCheck(n)].getVolume() : 0;
   }
-  void setMasterVolume(int value){
+  void setMasterVolume(int16_t value){
     masterVolume = value;
   }
-  int getMasterVolume(){
+  int16_t getMasterVolume(){
     return masterVolume;
   }
 

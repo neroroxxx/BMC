@@ -8,16 +8,18 @@
 
 // these are used for all LEDs and Pixels
 #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
+/*
 uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
+  
   // ledType
-  // 0 = page led (BMC_LED_TYPE_PAGE)
+  // 0 = layer led (BMC_LED_TYPE_LAYER)
   // 1 = global led (BMC_LED_TYPE_GLOBAL)
   // 2 = PWM led (BMC_LED_TYPE_PWM)
   // 3 = pixel (BMC_LED_TYPE_PIXEL)
   // 4 = rgb pixel Red event (BMC_LED_TYPE_RGB_RED)
   // 5 = rgb pixel Green event (BMC_LED_TYPE_RGB_GREEN)
   // 6 = rgb pixel Blue event (BMC_LED_TYPE_RGB_BLUE)
-  // page and global leds use the most significant bit of the even as the Blink setting
+  // layer and global leds use the most significant bit of the even as the Blink setting
   // this is bit-31
   // pixels use the 4 most significant bits for color
   // PWM Leds use the 4 most significant bits for brightness
@@ -56,15 +58,15 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
     case BMC_LED_EVENT_TYPE_MIDI_ACTIVITY:
       return globals.hasMidiActivity(byteA) ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
 
-    case BMC_LED_EVENT_TYPE_PAGE:
-      return byteA == page;
+    case BMC_LED_EVENT_TYPE_LAYER:
+      return byteA == layer;
 
 
     case BMC_EVENT_TYPE_CUSTOM:
 #if BMC_MAX_GLOBAL_LEDS > 0
-      if(ledType==BMC_LED_TYPE_GLOBAL){// page led
+      if(ledType==BMC_LED_TYPE_GLOBAL){// layer led
         if(byteA<BMC_MAX_GLOBAL_LEDS){
-          return globalLedCustomState.read(byteA);
+          return globals.globalLedCustomState.getBit(byteA);
         }
       }
 #endif
@@ -72,20 +74,13 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_LEDS > 0
       // the only reason to leave ledType here even if Global Leds are
       // not compiled is so we don't get compiler errors for the unused variable
-      if(ledType==BMC_LED_TYPE_PAGE){// global led
+      if(ledType==BMC_LED_TYPE_LAYER){// global led
         if(byteA<BMC_MAX_LEDS){
-          return ledCustomState.read(byteA);
+          return globals.ledCustomState.getBit(byteA);
         }
       }
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-      if(ledType==BMC_LED_TYPE_PWM){
-        if(byteA<BMC_MAX_PWM_LEDS){
-          return pwmLedCustomState[byteA];
-        }
-      }
-#endif
 
 #if BMC_MAX_PIXELS > 0
       if(ledType==BMC_LED_TYPE_PIXEL){
@@ -202,15 +197,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_BUTTONS > 0
     case BMC_LED_EVENT_TYPE_BUTTON:
       if(byteA < BMC_MAX_BUTTONS){
-        #if BMC_MAX_BUTTONS > 32
-          if(byteA>32){
-            return bitRead(buttonStates2, byteA-32);
-          } else {
-            return bitRead(buttonStates, byteA);
-          }
-        #else
-          return bitRead(buttonStates, byteA);
-        #endif
+        return globals.buttonStates.getBit(byteA);
       }
       break;
     case BMC_LED_EVENT_TYPE_BUTTON_RAW:
@@ -227,7 +214,7 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
 #if BMC_MAX_GLOBAL_BUTTONS > 0
     case BMC_LED_EVENT_TYPE_GLOBAL_BUTTON:
       if(byteA < BMC_MAX_GLOBAL_BUTTONS){
-        return bitRead(globalButtonStates, byteA);
+        return globals.globalButtonStates.getBit(byteA);
       }
       break;
     case BMC_LED_EVENT_TYPE_GLOBAL_BUTTON_RAW:
@@ -249,14 +236,6 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
     case BMC_LED_EVENT_TYPE_L_RELAY:
       if(byteA < BMC_MAX_L_RELAYS){
         return bitRead(relayLStates, byteA);
-      }
-      break;
-#endif
-
-#if BMC_MAX_AUX_JACKS > 0
-    case BMC_LED_EVENT_TYPE_AUX_JACK_CONNECTED:
-      if(byteA < BMC_MAX_AUX_JACKS){
-        return auxJacks.isConnected(byteA);
       }
       break;
 #endif
@@ -321,135 +300,10 @@ uint8_t BMC::handleLedEvent(uint8_t index, uint32_t event, uint8_t ledType){
       }
       break;
   }
+  
   return BMC_OFF_LED_EVENT;
+  // return true if the status is matched
 }
+*/
 
-// return true if the status is matched
-bool BMC::handleStatusLedEvent(uint8_t status){
-  switch(status){
-    case BMC_LED_STATUS_ALWAYS_ON:
-      return true;
-    case BMC_LED_STATUS_BMC:
-      return flags.read(BMC_FLAGS_STATUS_LED);
-    case BMC_LED_STATUS_EDITOR_CONNECTED:
-      return globals.editorConnected();
-    case BMC_LED_STATUS_HOST_CONNECTED:
-      return globals.hostConnected();
-    case BMC_LED_STATUS_BLE_CONNECTED:
-      return globals.bleConnected();
-    case BMC_LED_STATUS_ACTIVE_SENSE_SENDING:
-      return midiActiveSense.active();
-    case BMC_LED_STATUS_ACTIVE_SENSE_READING:
-      return midiActiveSense.reading();
-    case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_INPUT:
-      return !midi.getRealTimeBlockInput();
-    case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_OUTPUT:
-      return !midi.getRealTimeBlockOutput();
-    case BMC_LED_STATUS_STOPWATCH_ACTIVE:
-      return (stopwatch.getState() == 1);
-    case BMC_LED_STATUS_STOPWATCH_STATE:
-      return (stopwatch.getState() > 0);
-    case BMC_LED_STATUS_STOPWATCH_COMPLETE:
-      return (stopwatch.getState() == 2);
-  }
-  return false;
-}
-
-#ifdef BMC_USE_BEATBUDDY
-  bool BMC::handleBeatBuddyLedEvent(uint8_t status, uint8_t data){
-    switch(status){
-      case BMC_LED_BEATBUDDY_SYNC:
-        return sync.beatBuddy.inSync();
-      case BMC_LED_BEATBUDDY_PLAYING:
-        return sync.beatBuddy.isPlaying();
-      case BMC_LED_BEATBUDDY_PART:
-        return sync.beatBuddy.isSongPart(data);
-      case BMC_LED_BEATBUDDY_HALF_TIME:
-        return sync.beatBuddy.isHalfTime();
-      case BMC_LED_BEATBUDDY_DOUBLE_TIME:
-        return sync.beatBuddy.isDoubleTime();
-    }
-    return false;
-  }
-#endif
-
-void BMC::handleClockLeds(){
-
-#if BMC_MAX_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_LEDS; index++){
-    bmcStoreLed& item = store.pages[page].leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      leds[index].pulse();
-    }
-  }
-#endif
-
-#if BMC_MAX_GLOBAL_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_GLOBAL_LEDS; index++){
-    bmcStoreLed& item = globalData.leds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      globalLeds[index].pulse();
-    }
-  }
-#endif
-
-#if BMC_MAX_PWM_LEDS > 0
-  for(uint8_t index = 0; index < BMC_MAX_PWM_LEDS; index++){
-    bmcStoreLed& item = store.pages[page].pwmLeds[index];
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      pwmLeds[index].pulse(((BMC_GET_BYTE(3, item.event)) & 0x7F));
-    }
-  }
-#endif
-
-#if BMC_MAX_PIXELS > 0
-  for(uint8_t index = 0; index < BMC_MAX_PIXELS; index++){
-    bmcStoreLed& item = store.pages[page].pixels[index];
-    // first bit is always the "blink" state
-    if(BMCTools::isMidiClockLedEvent(item.event)){
-      // last 4 bits are always the color
-      pixels.pulse(index, (BMC_GET_BYTE(3, item.event) >> 4));
-    }
-  }
-#endif
-
-#if BMC_MAX_RGB_PIXELS > 0
-  for(uint8_t index = 0; index < BMC_MAX_RGB_PIXELS; index++){
-    bmcStoreRgbLed& item = store.pages[page].rgbPixels[index];
-    if(BMCTools::isMidiClockLedEvent(item.red)){
-      pixels.pulseRgb(index, 0);
-    }
-    if(BMCTools::isMidiClockLedEvent(item.green)){
-      pixels.pulseRgb(index, 1);
-    }
-    if(BMCTools::isMidiClockLedEvent(item.blue)){
-      pixels.pulseRgb(index, 2);
-    }
-  }
-#endif
-}
-
-
-// just used when EEPROM is erased, blinks first of each led type
-void BMC::controlFirstLed(bool t_value){
-  #if BMC_MAX_LEDS > 0
-    leds[0].overrideState(t_value);
-  #endif
-
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLeds[0].overrideState(t_value);
-  #endif
-
-  #if BMC_MAX_PWM_LEDS > 0
-    pwmLeds[0].overrideState(t_value?127:0);
-  #endif
-
-  #if BMC_MAX_PIXELS > 0
-    pixels.setState(0, t_value?255:0);
-  #endif
-
-  #if BMC_MAX_RGB_PIXELS > 0
-    pixels.setStateRgb(0, 0, t_value);
-  #endif
-}
 #endif

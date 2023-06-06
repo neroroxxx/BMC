@@ -39,10 +39,11 @@ public:
   BMCMidiMessage message;
   BMCCallbacks& callback;
   BMCGlobals& globals;
-  BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStorePortPresets& t_portPresets):
+  
+  // BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
+  BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals):
     callback(cb),
-    globals(t_globals),
-    portPresets(t_portPresets)
+    globals(t_globals)
 #ifdef BMC_HAS_SERIAL_MIDI
       ,midiSerial(cb)
 #endif
@@ -54,6 +55,7 @@ public:
 #endif
     {
     flags.reset();
+    
   }
 
   void begin(){
@@ -255,11 +257,11 @@ public:
   // SCROLLING
   uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control,
                 uint8_t t_flags, uint8_t min=0, uint8_t max=127);
-  uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control,
+  uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control, uint8_t amount,
                 bool direction, bool endless, uint8_t min=0, uint8_t max=127);
   uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t t_flags,
                 uint8_t min=0, uint8_t max=127);
-  uint8_t scrollPC(uint8_t ports, uint8_t channel, bool direction,
+  uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t amount, bool direction,
                 bool endless, uint8_t min=0, uint8_t max=127);
 
   // Specific to USB & HOST
@@ -364,13 +366,14 @@ public:
   }
   uint8_t getPortPreset(uint8_t port){
     if(port>127){
-      return portPresets.preset[(port & 0x0F)];
+      return globals.store.global.portPresets[(port & 0x0F)].events[0];
     }
     return port;
   }
 private:
   // port presets
-  bmcStorePortPresets& portPresets;
+  //bmcStorePortPresets& portPresets;
+  // bmcStoreGlobal& global;
   // flags
   BMCFlags <uint8_t> flags;
   // midiData = is a large struct that stores incoming and outgoing
@@ -382,12 +385,12 @@ private:
   // sent or received
   BMCMidiData midiData;
   // listenerPorts = the MIDI port that will react to things like
-  // page changes, preset changes and bank changes
+  // layer changes, preset changes and bank changes
   BMCMidiPort listenerPorts;
   // the port that wil receive MIDI Clock signal
   uint8_t slaveClockPort = 0;
   // channel = the channel that BMC will react to things like
-  // page changes, preset changes and bank changes
+  // layer changes, preset changes and bank changes
   uint8_t channel = 0;
   // debug variables only compiled if BMC_DEBUG is enabled
   #ifdef BMC_DEBUG

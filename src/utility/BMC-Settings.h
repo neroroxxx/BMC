@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -20,16 +20,18 @@
 
   struct bmcStoreGlobalSettings {
     uint32_t flags = 0;
-      bit 0
+      bit 0 getFirstEditorConnection
       bit 1 getMasterClock
-      bit 2 getMidiStartup
+      bit 2 getDisplayBannerTimeout
       bit 3 getIncomingListenerEnabled
       bit 4 Beatbuddy Sync Enabled
       bit 5 getActiveSenseAtStartup - Active Sensing Master Enabled
       bit 6 getMidiRealTimeBlockInput
       bit 7 getMidiRealTimeBlockOutput
-      bit 8 getTyperOffSet
-      bit 9
+      bit 8 getDisplayOffset
+      bit 9 getAppendPresetNumberToPresetName
+      bit 10 getDisplayBankWithPreset
+      bit 11 getDisplayNames
 
 
 
@@ -39,8 +41,8 @@
         bits 02-06  getListenerChannel, 0=omni, 1-16=listen to specific channel
         bits 07-13  getListenerPorts
         bits 14-17  deviceId
-        bits 18-18  dim pwm leds when off
-        bits 19-19  *1 bit Available*
+        bits 18-18  getPwmDimWhenOff
+        bits 19-19  getTouchScreenIsCalibrated
         bits 20-21  current Store
         bits 22-24  Slave Clock Input (only 1 port) (NOT YET IMPLEMENTED)
         bits 25-27  getChainingPort
@@ -60,12 +62,17 @@
 
       [2]:
         bits 00-03  Buttons Threshold
+        bits 04-04  Trigger first song
+        bits 05-05  Trigger first song part
+        bits 06-09  Typer Channel
 
       [3]: *Reserved for future updates*
       [4]: *Reserved for future updates*
       [5]: *Reserved for future updates*
       [6]: *Reserved for future updates*
       [7]: *Reserved for future updates*
+
+    uint16_t startup; startup preset data
 
     uint16_t routing[7]; routing data for each port
     offsets
@@ -90,8 +97,20 @@ private:
   }
 public:
   BMCSettings(bmcStoreGlobalSettings &t_settings):settings(t_settings){}
+  // Send the startup MIDI preset at startup
+  uint16_t getStartupPreset(){
+    #if BMC_MAX_PRESETS == 0
+      return 0;
+    #else
+      return settings.startup;
+    #endif
+  }
+  void setStartupPreset(uint16_t value=0){
+    if(value < BMC_MAX_PRESETS){
+      settings.startup = value;
+    }
+  }
   // SETTINGS FLAGS
-
   // Sets BMC as a master midi clock
   bool getFirstEditorConnection(){
     return readFlag(0);
@@ -105,13 +124,6 @@ public:
   }
   void setMasterClock(bool value){
     writeFlag(1,value);
-  }
-  // Send the startup MIDI preset at startup
-  bool getMidiStartup(){
-    return readFlag(2);
-  }
-  void setMidiStartup(bool value){
-    writeFlag(2,value);
   }
   // Enable incoming MIDI messages to activate certain events
   bool getIncomingListenerEnabled(){
@@ -149,15 +161,43 @@ public:
     writeFlag(7,value);
   }
   // typer offset to 0
-  uint8_t getTyperOffSet(){
+  uint8_t getDisplayOffset(){
     return readFlag(8);
   }
-  void setTyperOffSet(bool value){
+  void setDisplayOffset(bool value){
     writeFlag(8, value);
+  }
+  // This option will append the preset number to the preset name on displays.
+  bool getAppendPresetNumberToPresetName(){
+    return readFlag(9);
+  }
+  void setAppendPresetNumberToPresetName(bool value){
+    writeFlag(9, value);
+  }
+  // This option will display the bank letter with the preset number
+  bool getDisplayBankWithPreset(){
+    return readFlag(10);
+  }
+  void setDisplayBankWithPreset(bool value){
+    writeFlag(10, value);
+  }
+  // typer offset to 0
+  uint8_t getDisplayNames(){
+    return readFlag(11);
+  }
+  void setDisplayNames(bool value){
+    writeFlag(11, value);
   }
 
   // data array
-  
+
+  uint8_t getDisplayBannerTimeout(){
+    return settings.data[0] & 0x03;
+  }
+  void setDisplayBannerTimeout(uint8_t value){
+    BMC_WRITE_BITS(settings.data[0], value, 0x03, 0);
+  }
+
   uint8_t getListenerChannel(){
     return (settings.data[0]>>2) & 0x1F;
   }
@@ -185,6 +225,13 @@ public:
   }
   void setPwmDimWhenOff(uint8_t value){
     bitWrite(settings.data[0],18,value);
+  }
+  // touch screen is calibrated
+  uint8_t getTouchScreenIsCalibrated(){
+    return (settings.data[0]>>19) & 0x01;
+  }
+  void setTouchScreenIsCalibrated(uint8_t value){
+    bitWrite(settings.data[0],19,value);
   }
   // store address
   uint8_t getStoreAddress(){
@@ -225,22 +272,11 @@ public:
     BMC_WRITE_BITS(settings.data[0], modes, 0x0F, 28);
   }
 
-
-
-
-
-
-
-
-
-
-
-
   //data[1] used
 
   // Incoming midi programs
   // @value: 0 do nothing
-  //         1 change pages
+  //         1 change layers
   //         2 trigger presets
   uint8_t getIncomingProgramType(){
     return settings.data[1] & 0x03;
@@ -248,11 +284,6 @@ public:
   void setIncomingProgramType(bool value){
     BMC_WRITE_BITS(settings.data[1],value,0x03,0);
   }
-
-
-
-
-
   // Helix Id
   // @value: 0 to 15
   uint8_t getHelixId(){
@@ -277,12 +308,6 @@ public:
   void setHelixPort(uint8_t value){
     BMC_WRITE_BITS(settings.data[1],value,0x0F,10);
   }
-
-
-
-
-
-
   // BeatBuddy Channel
   // @value: 0 to 15
   uint8_t getBeatBuddyChannel(){
@@ -372,12 +397,53 @@ public:
   uint16_t getBleRouting(){
     return settings.routing[6];
   }
-
+  // button hold threshold
   uint8_t getButtonHoldThreshold(){
     return settings.data[2] & 0x0F;
   }
   void setButtonHoldThreshold(uint8_t value){
-    BMC_WRITE_BITS(settings.data[2],value,0x0F,0);
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 0); //0-3
+  }
+  // set lists
+  uint8_t getSetListTriggerFirstSong(){
+    return bitRead(settings.data[2], 4);
+  }
+  void setSetListTriggerFirstSong(uint8_t value){
+    bitWrite(settings.data[2], value, 4);
+  }
+  uint8_t getSetListTriggerFirstSongPart(){
+    return bitRead(settings.data[2], 5);
+  }
+  void setSetListTriggerFirstSongPart(uint8_t value){
+    bitWrite(settings.data[2], value, 5);
+  }
+  uint8_t getTyperChannel(){
+    return (settings.data[2]>>6) & 0x0F;
+  }
+  void setTyperChannel(uint8_t value){
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 6); //0-3
+  }
+  // tft touch calibration
+  float getTouchTftCalibration(uint8_t n){
+#ifdef BMC_HAS_TOUCH_SCREEN
+    switch(n){
+      case 0: return settings.touchCalibration.xM;
+      case 1: return settings.touchCalibration.xC;
+      case 2: return settings.touchCalibration.yM;
+      case 3: return settings.touchCalibration.yC;
+    }
+#endif
+    return 0.0;
+  }
+  void setTouchTftCalibration(uint8_t n, float value){
+#ifdef BMC_HAS_TOUCH_SCREEN
+    switch(n){
+      case 0: settings.touchCalibration.xM = value; break;
+      case 1: settings.touchCalibration.xC = value; break;
+      case 2: settings.touchCalibration.yM = value; break;
+      case 3: settings.touchCalibration.yC = value; break;
+    }
+#endif
   }
 };
 

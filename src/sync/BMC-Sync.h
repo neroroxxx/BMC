@@ -16,16 +16,17 @@
   #include "sync/daw/BMC-DawLogicControl.h"
 #endif
 
-#if defined(BMC_USE_BEATBUDDY)
-  #include "sync/beatbuddy/BMC-BeatBuddy.h"
+#if defined(BMC_USE_FAS)
+  #include "sync/fas/BMC-Fas.h"
 #endif
 
 #if defined(BMC_USE_HELIX)
   #include "sync/helix/BMC-Helix.h"
 #endif
 
-#if defined(BMC_USE_FAS)
-  #include "sync/fas/BMC-Fas.h"
+
+#if defined(BMC_USE_BEATBUDDY)
+  #include "sync/beatbuddy/BMC-BeatBuddy.h"
 #endif
 
 #if defined(BMC_USE_KEMPER)
@@ -43,17 +44,17 @@ public:
 #if defined(BMC_USE_DAW_LC)
   BMCDawLogicControl daw;
 #endif
-#if defined(BMC_USE_BEATBUDDY)
-  // handles beatbuddy syncing and commands
-  BMCBeatBuddy beatBuddy;
+#if defined(BMC_USE_FAS)
+  // handles Fractal devices syncing
+  BMCFas fas;
 #endif
 #if defined(BMC_USE_HELIX)
   // handles helix commands
   BMCHelix helix;
 #endif
-#if defined(BMC_USE_FAS)
-  // handles Fractal devices syncing
-  BMCFas fas;
+#if defined(BMC_USE_BEATBUDDY)
+  // handles beatbuddy syncing and commands
+  BMCBeatBuddy beatBuddy;
 #endif
 #if defined(BMC_USE_KEMPER)
 // handles Kemper devices see src/sync/BMC-Kemper.h
@@ -62,27 +63,26 @@ public:
   BMCSync(
     BMCMidi& t_midi,
     BMCMidiClock& t_midiClock,
-    bmcStoreGlobal& t_global,
     BMCCallbacks& t_callback
   )
   :
   midi(t_midi),
   midiClock(t_midiClock),
-  global(t_global),
+  global(midi.globals.store.global),
   callback(t_callback)
-  #ifdef BMC_USE_DAW_LC
+  #if defined(BMC_USE_DAW_LC)
     ,daw(midi, global, callback)
   #endif
-  #ifdef BMC_USE_BEATBUDDY
-    ,beatBuddy(midi, midiClock)
-  #endif
-  #ifdef BMC_USE_HELIX
-    ,helix(midi)
-  #endif
-  #ifdef BMC_USE_FAS
+  #if defined(BMC_USE_FAS)
     ,fas(midi)
   #endif
-  #ifdef BMC_USE_KEMPER
+  #if defined(BMC_USE_HELIX)
+    ,helix(midi)
+  #endif
+  #if defined(BMC_USE_BEATBUDDY)
+    ,beatBuddy(midi, midiClock)
+  #endif
+  #if defined(BMC_USE_KEMPER)
     ,kemper(midi)
   #endif
   {}

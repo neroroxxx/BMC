@@ -6,32 +6,43 @@
 */
 #include <BMC.h>
 
-#if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
+#if defined(BMC_HAS_BUTTONS)
 // setup buttons by assigning button pins, we only do this once at startup
 void BMC::setupButtons(){
-#ifdef BMC_BUTTON_DELAY_ENABLED
-  BMC_PRINTLN("BMC_BUTTON_DELAY_ENABLED");
+#if BMC_MAX_BUTTONS > 0
+  for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, i);
+    buttons[i].begin(ui.pins[0]);
+  }
 #endif
 
+#if BMC_MAX_GLOBAL_BUTTONS > 0
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
+    globalButtons[i].begin(ui.pins[0]);
+  }
+#endif
+}
+
+void BMC::assignButtons(){
 #if BMC_MAX_BUTTONS > 0
-  for(uint8_t i = 0; i < BMC_MAX_BUTTONS; i++){
-    buttons[i].begin(BMCBuildData::getButtonPin(i));
+  for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
+    assignButton(buttons[i], store.layers[layer].buttons[i]);
   }
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
-    globalButtons[i].begin(BMCBuildData::getGlobalButtonPin(i));
+    assignButton(globalButtons[i], store.global.buttons[i]);
   }
-  assignGlobalButtons();
 #endif
 }
 
-void BMC::assignButton(BMCButton& button, bmcStoreButton& data){
+void BMC::assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& data){
   // first check fi the button has an event with a State Change Trigger
   bool hasStateChangeTrigger = flags.read(BMC_FLAGS_FIRST_LOOP);
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    if((data.events[e].mode & 0x0F) == BMC_BUTTON_PRESS_TYPE_STATE_CHANGE){
+    if((data.settings[e] & 0x0F) == BMC_BUTTON_PRESS_TYPE_STATE_CHANGE){
       hasStateChangeTrigger = true;
       break;
     }
@@ -40,178 +51,57 @@ void BMC::assignButton(BMCButton& button, bmcStoreButton& data){
   button.setThreshold(settings.getButtonHoldThreshold());
   // read button only any of it's events have a Trigger set
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    if((data.events[e].mode & 0x0F) != BMC_NONE){
-      button.setMode(data.events[e].mode);
-      button.setFlags(data.events[0].mode);
+    if((data.settings[e] & 0x0F) != BMC_NONE){
+      button.setMode(data.settings[e]);
+      button.setFlags(data.settings[0]);
     }
   }
 }
-#endif
-
-
-#if BMC_MAX_BUTTONS > 0
 // assign button hold threshold and flags.
-// this happens everytime a page changes since it can be different for each page
+// this happens everytime a layer changes since it can be different for each layer
 // also we activate buttons, if a button doesn't have an event attached then
 // we don't bother parsing the event data, UNLESS all buttons are active thru settings
-void BMC::assignButtons(){
-  for(uint8_t i = 0; i < BMC_MAX_BUTTONS; i++){
-    assignButton(buttons[i], store.pages[page].buttons[i]);
-  }
-}
+
 // read the buttons
 void BMC::readButtons(){
-#if defined(BMC_BUTTON_DELAY_ENABLED)
-    // check if any triggers are active
-    uint8_t d = buttonsDelay.update();
-    if(d!=255){
-      handleButtonEvent(buttonsDelay.getType(d), buttonsDelay.getEvent(d));
-      BMC_PRINTLN("Button delay event handled");
-    }
-#endif
-  uint32_t _buttonStates = buttonStates;
-#if BMC_MAX_BUTTONS > 32
-  uint32_t _buttonStates2 = buttonStates2;
-#endif
-  for(uint8_t i = 0; i < BMC_MAX_BUTTONS; i++){
-
-    #if BMC_MAX_AUX_JACKS > 0
-      if(!auxJacks.readButton(i)){
-        continue;
-      }
-    #endif
-
+#if BMC_MAX_BUTTONS > 0
+  for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
+    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.layers[layer].buttons[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
 
     uint8_t buttonTrigger = buttons[i].read();
-
-// this feature is only available when more than 1 button are compiled
-
-  #if BMC_MAX_BUTTONS == 1
-    // if only one button is compiled don't use this feature
-    bool dual = false;
-  #elif BMC_MAX_BUTTONS > 32
-    bool dual = dualPress.read(i, buttonTrigger, buttons[i].isClosed(), buttonStates, buttonStates2);
-  #else
-    bool dual = dualPress.read(i, buttonTrigger, buttons[i].isClosed(), buttonStates);
-  #endif
-
+    // this feature is only available when more than 1 button are compiled
+    #if BMC_MAX_BUTTONS == 1
+      // if only one button is compiled don't use this feature
+      bool dual = false;
+    #else
+      bool dual = dualPress.read(i, buttonTrigger, buttons[i].isClosed());
+    #endif
     if(buttonTrigger != BMC_NONE && !dual){
-      handleButton(i, buttonTrigger);
+      handleButton(device, BMC_DEVICE_ID_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
         printButtonTrigger(i, buttonTrigger, false);
       #endif
     }
-#if BMC_MAX_BUTTONS > 32
-    // add dual press for more than 32 buttons
-    if(i>=32){
-      bitWrite(_buttonStates2, i-32, buttons[i].isClosed());
-    } else {
-      bitWrite(_buttonStates, i, buttons[i].isClosed());
-    }
-#else
-    bitWrite(_buttonStates, i, buttons[i].isClosed());
-#endif
+    globals.buttonStates.setBit(i, buttons[i].isClosed());
   }
-#if BMC_MAX_BUTTONS > 32
-  if(buttonStates != _buttonStates || buttonStates2 != _buttonStates2){
-    buttonStates = _buttonStates;
-    buttonStates2 = _buttonStates2;
-    editor.utilitySendButtonActivity((uint32_t) buttonStates, (uint32_t) buttonStates2);
+  if(globals.buttonStates.hasChanged()){
+    editor.utilitySendStateBits(BMC_DEVICE_ID_BUTTON);
   }
-#else
-  if(buttonStates != _buttonStates){
-    buttonStates = _buttonStates;
-    editor.utilitySendButtonActivity((uint32_t) buttonStates);
-  }
-#endif
-
-#if BMC_MAX_BUTTONS > 1
-  // used for dual buttons to run the timeout
-  dualPress.update();
-#endif
-}
-
-void BMC::handleButton(uint8_t index, uint8_t t_trigger){
-  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    bmcStoreButtonEvent &data = store.pages[page].buttons[index].events[e];
-    uint8_t type = BMC_GET_BYTE(0, data.event);
-    uint8_t trigger = ((data.mode&0x0F)==t_trigger) ? t_trigger : BMC_NONE;
-
-#ifdef BMC_USE_DAW_LC
-    if(type==BMC_BUTTON_EVENT_TYPE_DAW &&
-      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
-      uint8_t cmd = BMC_GET_BYTE(1, data.event);
-      uint8_t ch = BMC_GET_BYTE(2, data.event);
-      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        sync.daw.sendButtonCommand(cmd, ch, false);
-      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        sync.daw.sendButtonCommand(cmd, ch, true);
-      }
-    }
-#endif
-
-    if(trigger == BMC_NONE || type == BMC_NONE){
-      continue;
-    }
-#if defined(BMC_BUTTON_DELAY_ENABLED)
-    if(type==BMC_BUTTON_EVENT_TYPE_DELAY && e < (BMC_MAX_BUTTON_EVENTS-1)){
-      // do not use the delay if the event with the delay
-      // is the last event of the button
-      // always set the delay threshold first
-      buttonsDelay.setThreshold(BMC_GET_BYTE(1,data.event));
-      buttonsDelay.queueDelay(index, e, trigger, data);
-    } else if(buttonsDelay.setDelayedEvent(index, e, trigger, data)){
-      continue;
-    }
-#endif
-    handleButtonEvent(type, data);
-
-    if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
-      callback.buttonsCustomActivity(index, e,
-                            BMC_GET_BYTE(1,data.event),
-                            BMC_GET_BYTE(2,data.event),
-                            BMC_GET_BYTE(3,data.event),
-                            data.ports);
-    } else if(callback.buttonActivity){
-      callback.buttonActivity(index, e, trigger, store.pages[page].buttons[index], data);
-    }
-  }
-  #if defined(BMC_BUTTON_DELAY_ENABLED)
-    // clear the queue in case there was no event for the delay
-    buttonsDelay.clearQueued();
+  #if BMC_MAX_BUTTONS > 1
+    // used for dual buttons to run the timeout
+    dualPress.update();
   #endif
-}
 #endif
 
 #if BMC_MAX_GLOBAL_BUTTONS > 0
-// assign button hold threshold and flags.
-// this happens everytime a page changes since it can be different for each page
-// also we activate buttons, if a button doesn't have an event attached then
-// we don't bother parsing the event data, UNLESS all buttons are active thru settings
-void BMC::assignGlobalButtons(){
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
-    assignButton(globalButtons[i], globalData.buttons[i]);
-  }
-}
-
-// read the buttons
-void BMC::readGlobalButtons(){
-#if defined(BMC_BUTTON_DELAY_ENABLED)
-    // check if any triggers are active
-    uint8_t d = globalButtonsDelay.update();
-    if(d!=255){
-      handleButtonEvent(globalButtonsDelay.getType(d), globalButtonsDelay.getEvent(d));
-      BMC_PRINTLN("Global Button delay event handled");
-    }
-#endif
-  uint32_t _globalButtonStates = globalButtonStates;
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
+    bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS>& device = store.global.buttons[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       globalButtons[i].setMuxValue(mux.readDigital(globalButtons[i].getMuxPin()));
     #endif
 
@@ -221,86 +111,63 @@ void BMC::readGlobalButtons(){
       // if only one button is compiled don't use this feature
       bool dual = false;
     #else
-      bool dual = dualPressGlobal.read(i, buttonTrigger, globalButtons[i].isClosed(), globalButtonStates);
+      bool dual = dualPressGlobal.read(i, buttonTrigger, globalButtons[i].isClosed());
     #endif
 
     if(buttonTrigger != BMC_NONE && !dual){
-      handleGlobalButton(i, buttonTrigger);
+      handleButton(device, BMC_DEVICE_ID_GLOBAL_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
         printButtonTrigger(i, buttonTrigger, true);
       #endif
     }
-    bitWrite(_globalButtonStates, i, globalButtons[i].isClosed());
+    globals.globalButtonStates.setBit(i, globalButtons[i].isClosed());
   }
-  if(globalButtonStates != _globalButtonStates){
-    globalButtonStates = _globalButtonStates;
-    editor.utilitySendGlobalButtonActivity((uint32_t) globalButtonStates);
+  if(globals.globalButtonStates.hasChanged()){
+    editor.utilitySendStateBits(BMC_DEVICE_ID_GLOBAL_BUTTON);
   }
 
   #if BMC_MAX_GLOBAL_BUTTONS > 1
     // used for dual buttons to run the timeout
     dualPressGlobal.update();
   #endif
-}
-void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
-  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
-    bmcStoreButtonEvent &data = globalData.buttons[index].events[e];
-    uint8_t type = BMC_GET_BYTE(0,data.event);
-    uint8_t trigger = (data.mode & 0x0F)==t_trigger ? t_trigger : BMC_NONE;
-
-#ifdef BMC_USE_DAW_LC
-    if(type==BMC_BUTTON_EVENT_TYPE_DAW &&
-      (t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS || t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE)){
-      uint8_t cmd = BMC_GET_BYTE(1, data.event);
-      uint8_t ch = BMC_GET_BYTE(2, data.event);
-      if(t_trigger==BMC_BUTTON_PRESS_TYPE_PRESS){
-        sync.daw.sendButtonCommand(cmd, ch, false);
-      } else if(t_trigger==BMC_BUTTON_PRESS_TYPE_RELEASE){
-        sync.daw.sendButtonCommand(cmd, ch, true);
-      }
-    }
 #endif
-    if(trigger == BMC_NONE || type == BMC_NONE){
+}
+
+template <uint8_t sLen, uint8_t eLen>
+void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device, uint8_t deviceType,
+                        uint16_t index, uint8_t t_trigger){
+  for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
+    bmcStoreEvent data = globals.getDeviceEventType(device.events[e]);
+    uint8_t type = data.type;
+    uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
+    if(type == BMC_NONE || trigger == BMC_NONE){
       continue;
     }
-#if defined(BMC_BUTTON_DELAY_ENABLED)
-      if(type==BMC_BUTTON_EVENT_TYPE_DELAY && e < (BMC_MAX_BUTTON_EVENTS-1)){
-        // do not use the delay if they event with the delay
-        // is the last event of the button
-        // always set the delay threshold first
-        globalButtonsDelay.setThreshold(BMC_GET_BYTE(1,data.event));
-        globalButtonsDelay.queueDelay(index, e, trigger, data);
-      } else if(globalButtonsDelay.setDelayedEvent(index, e, trigger, data)){
-        continue;
-      }
-#endif
-    handleButtonEvent(type, data);
+    processEvent(BMC_DEVICE_GROUP_BUTTON,
+                  deviceType,
+                  index,
+                  device.events[e],
+                  0,
+                  trigger
+                );
 
-    if(type==BMC_EVENT_TYPE_CUSTOM && callback.globalButtonsCustomActivity){
-      callback.globalButtonsCustomActivity(index, e,
-                            BMC_GET_BYTE(1,data.event),
-                            BMC_GET_BYTE(2,data.event),
-                            BMC_GET_BYTE(3,data.event),
-                            data.ports);
-    } else if(callback.globalButtonActivity){
-      callback.globalButtonActivity(index, e, trigger, globalData.buttons[index], data);
+    /*
+    if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
+      callback.buttonsCustomActivity(index, e, data.ports);
+    } else if(callback.buttonActivity){
+      callback.buttonActivity(index, e, trigger);
     }
+    */
   }
-  #if defined(BMC_BUTTON_DELAY_ENABLED)
-    // clear the queue in case there was no event for the delay
-    globalButtonsDelay.clearQueued();
-  #endif
 }
+
 #endif
+
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
-  void BMC::handleButtonEvent(uint8_t type, bmcStoreButtonEvent data){
-    #if defined(BMC_BUTTON_DELAY_ENABLED)
-      // ignore this event type
-      if(type==BMC_BUTTON_EVENT_TYPE_DELAY){
-        return;
-      }
-    #endif
+/*
+  void BMC::handleButtonEvent(uint8_t type, bmcStoreEvent data){
+
     #if defined(BMC_ENABLE_ENCODER_BUTTON_FILTERING)
       encoderFixTimer.start(BMC_ENCODER_BUTTON_DEBOUNCE_TIME);
     #endif
@@ -347,15 +214,15 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         }
         break;
 
-  #if BMC_MAX_PAGES > 1
-      case BMC_BUTTON_EVENT_TYPE_PAGE:
-        setPage(byteA);
+  #if BMC_MAX_LAYERS > 1
+      case BMC_BUTTON_EVENT_TYPE_LAYER:
+        setLayer(byteA);
         break;
-      case BMC_BUTTON_EVENT_TYPE_PAGE_SCROLL:
+      case BMC_BUTTON_EVENT_TYPE_LAYER_SCROLL:
         // byteA = flags, bit-0 direction, bit-1 endless
-        // byteB = min page
-        // byteC = max page
-        scrollPage(byteA, byteB, byteC, 1);
+        // byteB = min layer
+        // byteC = max layer
+        scrollLayer(byteA, byteB, byteC, 1);
         break;
   #endif
       case BMC_BUTTON_EVENT_TYPE_PROGRAM_SCROLL:
@@ -506,7 +373,7 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           byteA = constrain(byteA, 0, BMC_MAX_SKETCH_BYTES);
           BMCSketchByteData data = BMCBuildData::getSketchByteData(byteA);
           byteB = constrain(byteB, data.min, data.max);
-          streamToSketch(BMC_ITEM_ID_SKETCH_BYTES, byteB, data.name);
+          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, byteB, data.name);
           setSketchByte(byteA, byteB);
           if(callback.storeUpdated){
             callback.storeUpdated();
@@ -527,7 +394,7 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 
           BMCScroller <uint8_t> scroller(data.min, data.max);
           tmp = scroller.scroll(data.step, bitRead(byteA,0), bitRead(byteA,1), tmp, byteB, byteC);
-          streamToSketch(BMC_ITEM_ID_SKETCH_BYTES, tmp, data.name);
+          streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, tmp, data.name);
 
           setSketchByte(n, tmp);
           if(callback.storeUpdated){
@@ -544,10 +411,10 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
           uint8_t tmp = getSketchByte(byteA);
           if(tmp!=byteB){
             setSketchByte(byteA, byteB);
-            streamToSketch(BMC_ITEM_ID_SKETCH_BYTES, byteB, data.name);
+            streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, byteB, data.name);
           } else {
             setSketchByte(byteA, byteC);
-            streamToSketch(BMC_ITEM_ID_SKETCH_BYTES, byteC, data.name);
+            streamToSketch(BMC_DEVICE_ID_SKETCH_BYTES, byteC, data.name);
           }
           streamToSketch(0, byteB, data.name);
           if(callback.storeUpdated){
@@ -568,13 +435,6 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
     case BMC_BUTTON_EVENT_TYPE_GLOBAL_LED_TEMP_BLINK:
       if(byteA<BMC_MAX_GLOBAL_LEDS){
         globalLeds[byteA].quickBlink();
-      }
-      break;
-  #endif
-  #if BMC_MAX_PWM_LEDS > 0
-    case BMC_BUTTON_EVENT_TYPE_PWM_LED_TEMP_BLINK:
-      if(byteA<BMC_MAX_PWM_LEDS){
-        pwmLeds[byteA].quickBlink(byteB);
       }
       break;
   #endif
@@ -759,8 +619,8 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         {
           uint8_t cmd = valueTyper.cmd(byteA, byteB);
           if(cmd > 10){// cmd 10 is Clear
-            if(cmd==12){// page
-              setPage(valueTyper.getRawOutput());
+            if(cmd==12){// layer
+              setLayer(valueTyper.getRawOutput());
             } else if(cmd==13){// preset
 #if BMC_MAX_PRESETS > 0
               presets.set(valueTyper.getRawOutput());
@@ -822,18 +682,7 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
 
 
 
-  #if BMC_MAX_LIBRARY > 0
-      case BMC_BUTTON_EVENT_TYPE_LIBRARY:
-        // byteA = index of the library item
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8));
-        break;
-      case BMC_BUTTON_EVENT_TYPE_LIBRARY2:
-        // byteA = index of the 1st library item to send
-        // byteB = index of the 2nd library item to send
-        library.send(BMC_EVENT_TO_LIBRARY_NUM(event>>8), BMC_EVENT_TO_LIBRARY_NUM(event>>18));
-        break;
-
-    #if BMC_MAX_PRESETS > 0
+  #if BMC_MAX_PRESETS > 0
       case BMC_BUTTON_EVENT_TYPE_PRESET:
         // byteA = index of preset to send
         // byteB = if 0 use send each library item of the preset to it's ports
@@ -910,14 +759,10 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
         // byteC = maximum song for scrolling
         setLists.scrollPart(1, byteA, byteB, byteC);
         break;
-
-
-
-    #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
-  #endif // BMC_MAX_LIBRARY > 0
+  #endif // BMC_MAX_SETLISTS > 0 && BMC_MAX_SETLISTS_SONGS > 0
 
   #ifdef BMC_USE_DAW_LC
-      case BMC_BUTTON_EVENT_TYPE_DAW: break;// handled in the press type handler
+      case BMC_EVENT_TYPE_DAW_COMMAND: break;// handled in the press type handler
   #endif
 
       case BMC_BUTTON_EVENT_TYPE_USER_1:
@@ -929,9 +774,10 @@ void BMC::handleGlobalButton(uint8_t index, uint8_t t_trigger){
       case BMC_BUTTON_EVENT_TYPE_USER_7:
       case BMC_BUTTON_EVENT_TYPE_USER_8:
         if(callback.userEventButtons){
-          callback.userEventButtons(parseUserEventType(type), event, ports, data.mode);
+          callback.userEventButtons(parseUserEventType(type), event, ports, data.settings);
         }
         break;
     }
   }
+*/
 #endif

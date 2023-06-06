@@ -13,19 +13,22 @@ public:
   BMCPotCalibration(){
     reset();
   }
-  void toggle(uint8_t n){
+  bool toggle(uint8_t t_deviceType, uint16_t n){
     if(!active()){
       //start
+      deviceType = t_deviceType;
       potIndex = n;
       min = 1023;
       max = 0;
+      return true;
     } else {
       // complete
       reset();
     }
+    return false;
   }
   bool active(){
-    return (potIndex!=255);
+    return (potIndex!=0xFFFF);
   }
   void cancel(){
     reset();
@@ -40,7 +43,10 @@ public:
       }
     }
   }
-  uint8_t getIndex(){
+  uint8_t getDeviceType(){
+    return deviceType;
+  }
+  uint16_t getIndex(){
     return potIndex;
   }
   uint16_t getMin(){
@@ -50,11 +56,13 @@ public:
     return max;
   }
 private:
-  uint8_t potIndex = 255;
+  uint8_t deviceType = 0;
+  uint16_t potIndex = 0xFFFF;
   uint16_t min = 1023;
   uint16_t max = 0;
   void reset(){
-    potIndex = 255;
+    deviceType = 0;
+    potIndex = 0xFFFF;
     min = 1023;
     max = 0;
   }

@@ -191,8 +191,8 @@ struct BMCMidiMessage {
   }
   void prepareEditorMessage(uint8_t t_source, uint8_t deviceId,
                             uint8_t functionId, BMCEditorMidiFlags flags,
-                            uint16_t page=0){
-    prepareEditorMessage(t_source, deviceId, functionId, flags.get(), page);
+                            uint16_t layer=0){
+    prepareEditorMessage(t_source, deviceId, functionId, flags.get(), layer);
   }
   uint8_t get7Bits(uint16_t t_offset){
     // get 8-bits from a sysex at a specified index, encoded as 2 midi words
@@ -291,7 +291,7 @@ struct BMCMidiMessage {
   }
   void prepareEditorMessage(uint8_t t_source, uint8_t deviceId,
                             uint8_t functionId, uint8_t flags=0,
-                            uint16_t page=0){
+                            uint16_t layer=0){
     // 0 = 0xF0 altho we don't actually include since when
     //     we send the message we specify that it has no 0xF0 nor 0xF7
     //     but we still specify it here for when we read and incoming sysex
@@ -301,10 +301,10 @@ struct BMCMidiMessage {
     // 4 = XX device id
     // 5 = XX flags:
     //   bit0 -> query type    =>  0=read, 1=write
-    //   bit1 -> query target  =>  0=global, 1=page
-    //   bit2 -> Save to all pages  =>  0=save item specified page, 1=all pages
-    // 6 = XX page/item number (MSB) 14-bits total
-    // 7 = XX page/item number (LSB) 14-bits total
+    //   bit1 -> query target  =>  0=global, 1=layer
+    //   bit2 -> Save to all layers  =>  0=save item specified layer, 1=all layers
+    // 6 = XX layer/item number (MSB) 14-bits total
+    // 7 = XX layer/item number (LSB) 14-bits total
     // 8 = XX function id
     // x ...
     // 9 -> CRC
@@ -316,7 +316,7 @@ struct BMCMidiMessage {
     appendToSysEx7Bits(BMC_GET_BYTE(0,BMC_EDITOR_SYSEX_ID));
     appendToSysEx7Bits(deviceId);
     appendToSysEx7Bits(flags);
-    appendToSysEx14Bits(page); // 2 bytes
+    appendToSysEx14Bits(layer); // 2 bytes
     appendToSysEx7Bits(functionId);
   }
   // append a 7-bit midi word to the sysex array

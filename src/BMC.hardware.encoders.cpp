@@ -10,36 +10,39 @@
 // SETUP
 void BMC::setupEncoders(){
 #if BMC_MAX_ENCODERS > 0
-  for(uint8_t i = 0; i < BMC_MAX_ENCODERS; i++){
-    encoders[i].begin(BMCBuildData::getEncoderPinA(i),BMCBuildData::getEncoderPinB(i));
+  for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ENCODER, i);
+    encoders[i].begin(ui.pins[0], ui.pins[1]);
   }
 #endif
 
 #if BMC_MAX_GLOBAL_ENCODERS > 0
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
-    globalEncoders[i].begin(BMCBuildData::getGlobalEncoderPinA(i),
-                            BMCBuildData::getGlobalEncoderPinB(i));
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
+    BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
+    globalEncoders[i].begin(ui.pins[0], ui.pins[1]);
   }
-  assignGlobalEncoders();
 #endif
 }
-void BMC::assignEncoder(BMCEncoder& encoder, bmcStoreEncoder& data){
-  encoder.reassign();
-}
-#endif
 
-#if BMC_MAX_ENCODERS > 0
 void BMC::assignEncoders(){
-  for(uint8_t i = 0; i < BMC_MAX_ENCODERS; i++){
-    assignEncoder(encoders[i], store.pages[page].encoders[i]);
+#if BMC_MAX_ENCODERS > 0
+  for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
+    encoders[i].reassign();
   }
+#endif
+#if BMC_MAX_GLOBAL_ENCODERS > 0
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
+    globalEncoders[i].reassign();
+  }
+#endif
 }
-// READ
+
 void BMC::readEncoders(){
-  bmcStorePage& pageData = store.pages[page];
-  for(uint8_t i = 0; i < BMC_MAX_ENCODERS; i++){
+#if BMC_MAX_ENCODERS > 0
+  for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
+    bmcStoreDevice <1, 1>& device = store.layers[layer].encoders[i];
     // GET THE PIN STATE FROM MUX
-    #if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+    #if defined(BMC_MUX_INPUTS_AVAILABLE)
       if(encoders[i].hasMux()){
         encoders[i].setMuxValue(0, mux.readDigital(encoders[i].getMuxPin(0)));
         encoders[i].setMuxValue(1, mux.readDigital(encoders[i].getMuxPin(1)));
@@ -49,62 +52,64 @@ void BMC::readEncoders(){
     if(encoders[i].update()){
       bool increased = encoders[i].increased();
       uint8_t ticks = encoders[i].getTicks();
-      handleEncoder(pageData.encoders[i], increased, ticks);
+      processEvent(BMC_DEVICE_GROUP_ENCODER,
+                  BMC_DEVICE_ID_ENCODER,
+                  i,
+                  device.events[0],
+                  increased<<7 | ticks
+                  );
 
-      uint32_t event = pageData.encoders[i].event;
-      if(BMC_GET_BYTE(0, event)==BMC_EVENT_TYPE_CUSTOM && callback.encoderCustomActivity){
-        callback.encoderCustomActivity(i,
-                              BMC_GET_BYTE(1, event),
-                              BMC_GET_BYTE(2, event),
-                              BMC_GET_BYTE(3, event),
-                              increased, ticks);
+      //uint32_t event = pageData.encoders[i].event;
+      /*
+      if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.encoderCustomActivity){
+        callback.encoderCustomActivity(i, increased, ticks);
       } else if(callback.encoderActivity){
-        callback.encoderActivity(i, increased, pageData.encoders[i], ticks);
+        callback.encoderActivity(i, increased, ticks);
       }
-      editor.utilitySendEncoderActivity(i, increased);
+      */
+      editor.utilitySendEncoderActivity(BMC_DEVICE_ID_ENCODER, i, increased);
     }
   }
-}
 #endif
 
 #if BMC_MAX_GLOBAL_ENCODERS > 0
-void BMC::assignGlobalEncoders(){
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
-    assignEncoder(globalEncoders[i], globalData.encoders[i]);
-  }
-}
-// READ
-void BMC::readGlobalEncoders(){
-  for(uint8_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
+  for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
+    bmcStoreDevice <1, 1>& device = store.global.encoders[i];
     // GET THE PIN STATE FROM MUX
-#if BMC_MAX_MUX_IN > 0 || BMC_MAX_MUX_GPIO > 0 || BMC_MAX_MUX_IN_ANALOG > 0
+  #if defined(BMC_MUX_INPUTS_AVAILABLE)
     if(globalEncoders[i].hasMux()){
       globalEncoders[i].setMuxValue(0, mux.readDigital(globalEncoders[i].getMuxPin(0)));
       globalEncoders[i].setMuxValue(1, mux.readDigital(globalEncoders[i].getMuxPin(1)));
     }
-#endif
+  #endif
 
     if(globalEncoders[i].update()){
       bool increased = globalEncoders[i].increased();
       uint8_t ticks = globalEncoders[i].getTicks();
-      handleEncoder(globalData.encoders[i], increased, ticks);
+      processEvent(BMC_DEVICE_GROUP_ENCODER,
+                  BMC_DEVICE_ID_GLOBAL_ENCODER,
+                  i,
+                  device.events[0],
+                  increased<<7 | ticks
+                  );
 
-      uint32_t event = globalData.encoders[i].event;
-      if(BMC_GET_BYTE(0, event)==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
-        callback.globalEncoderCustomActivity(i,
-                              BMC_GET_BYTE(1, event),
-                              BMC_GET_BYTE(2, event),
-                              BMC_GET_BYTE(3, event),
-                              increased, ticks);
+      /*
+      if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalEncoderCustomActivity){
+        callback.globalEncoderCustomActivity(i, increased, ticks);
       } else if(callback.globalEncoderActivity){
-        callback.globalEncoderActivity(i, increased, globalData.encoders[i], ticks);
+        callback.globalEncoderActivity(i, increased, ticks);
       }
-      editor.utilitySendGlobalEncoderActivity(i, increased);
+      */
+      //editor.utilitySendGlobalEncoderActivity(i, increased);
+      editor.utilitySendEncoderActivity(BMC_DEVICE_ID_GLOBAL_ENCODER, i, increased);
     }
   }
+#endif
 }
 #endif
 
+
+/*
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
 void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
   uint32_t event  = data.event;
@@ -180,8 +185,8 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
 
     case BMC_ENCODER_EVENT_TYPE_MENU:
       if(callback.menuCommand){
-        if(byteA==BMC_MENU_UP || byteA==BMC_MENU_DOWN){
-          callback.menuCommand(increased?BMC_MENU_UP:BMC_MENU_DOWN);
+        if(byteA==BMC_MENU_PREV || byteA==BMC_MENU_NEXT){
+          callback.menuCommand(increased?BMC_MENU_PREV:BMC_MENU_NEXT);
         } else if(byteA==BMC_MENU_LEFT || byteA==BMC_MENU_RIGHT){
           callback.menuCommand(increased?BMC_MENU_RIGHT:BMC_MENU_LEFT);
         } else if(byteA==BMC_MENU_INC || byteA==BMC_MENU_DEC){
@@ -223,19 +228,19 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       midiProgramBankScroll(increased, bitRead(byteA, 0), (byteA>>1), byteB, BMC_GET_BYTE(3,event));
       break;
 
-#if BMC_MAX_PAGES > 1
-    case BMC_ENCODER_EVENT_TYPE_PAGES:
-      // byteA = min Page
-      // byteB = max Page
+#if BMC_MAX_LAYERS > 1
+    case BMC_ENCODER_EVENT_TYPE_LAYER:
+      // byteA = min Layer
+      // byteB = max Layer
       tmp = getNewEncoderValue(
         mode,
-        page,
-        0, BMC_MAX_PAGES-1,
+        layer,
+        0, BMC_MAX_LAYERS-1,
         byteA, byteB,
         increased,
         BMC_GET_BYTE(3,event)
       ) & 0xFF;
-      setPage(tmp);
+      setLayer(tmp);
       break;
 #endif
 
@@ -244,7 +249,7 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       // byteA = max Presets
       // byteB = max Presets
       // byteC = limit, BMC_SCROLL_LIMITED, BMC_SCROLL_ENDLESS
-      tmp = (bmcPreset_t) getNewEncoderValue(
+      tmp = (uint16_t) getNewEncoderValue(
         mode,
         presets.get(),
         0, BMC_MAX_PRESETS-1,
@@ -272,12 +277,6 @@ void BMC::handleEncoder(bmcStoreEncoder& data, bool increased, uint8_t ticks){
       } else if(byteA==BMC_BEATBUDDY_CMD_BPM_DEC || byteA==BMC_BEATBUDDY_CMD_BPM_INC){
         sync.beatBuddy.tempoControl((((mode>>1)&0x7F)+1), increased);
       }
-      break;
-#endif
-
-#if BMC_MAX_LIBRARY > 1
-    case BMC_ENCODER_EVENT_TYPE_LIBRARY:
-      library.send(BMC_EVENT_TO_LIBRARY_NUM(event >> (increased ? 18 : 8)));
       break;
 #endif
 
@@ -391,3 +390,4 @@ uint16_t BMC::getNewEncoderValue(uint8_t mode, uint16_t value,
   return scroller.scroll(((mode>>1)&0x7F)+1, increased, endless);
 }
 #endif
+*/

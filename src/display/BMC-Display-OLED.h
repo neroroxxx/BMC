@@ -32,46 +32,148 @@ class BMC_OLED {
   uint8_t w = 0;
   uint8_t h = 0;
   uint8_t maxLines = 3;
-  uint8_t xShift = 0;
-  uint8_t yShift = 0;
+  int8_t selChar = -1;
   BMC_SSD1306 display;
   BMC_OLED(uint8_t _w=128, uint8_t _h=BMC_OLED_HEIGHT):display(_w, _h){
     w = _w;
     h = _h;
     maxLines = (h == 64) ? 3 : 2;
   }
-  bool begin(uint8_t switchvcc=BMC_SSD1306_SWITCHCAPVCC, uint8_t i2caddr=0, uint8_t rotation=0){
+  bool begin(uint8_t switchvcc=BMC_SSD1306_SWITCHCAPVCC, uint8_t i2caddr=0, uint8_t rotation=0, uint8_t n=0){
     if(!display.begin(switchvcc, i2caddr)){
       return false;
     }
     display.setFont(&BMCDisplay_Font);
-    display.setTextWrap(false);
-    display.setTextSize(2);
-    display.setTextColor(BMC_OLED_WHITE);
     display.setRotation(rotation);
-    drawIcon(1);
+    display.setTextWrap(false);
+    
+    display.setTextColor(BMC_OLED_WHITE);
+    display.setTextSize(4);
+    display.setCursor((n < 10) ? 54 : 42, (h == 32) ? 34 : 50);
+    display.print(n);
+
+    //drawIcon(1);
     display.drawRect(0, 0, w, h, BMC_OLED_WHITE);
     display.display();
+
+    display.setTextSize(2);
     return true;
   }
   void setRotation(uint8_t r){
     display.setRotation(r);
   }
-  void clear(){
+  int8_t getSelChar(){
+    return selChar;
+  }
+  void setSelChar(uint8_t t_selChar){
+    selChar = t_selChar;
+  }
+  void reassign(uint8_t t_settings){
+    selChar = -1;
+    clear(t_settings);
+  }
+  void clear(uint8_t t_settings){
+    // settings
+    // bit 0 label
+    // bit 1 border
+    // bit 2 selected
+    // bit 3 use name instead of number
     display.clearDisplay();
+    if(bitRead(t_settings, 1)){
+      display.drawRect(0, 0, w, h, BMC_OLED_WHITE);
+    }
     display.display();
   }
-  void print(const char * str, uint8_t t_xShift=0, uint8_t t_yShift=0){
+  void printPC(uint8_t t_ch, uint8_t t_d1, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_PROGRAM_CHANGE, t_ch, t_d1, -1, t_settings, highlight);
+  }
+  void printCC(uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_CONTROL_CHANGE, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printNote(uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
+    printMIDI(BMC_MIDI_NOTE_ON, t_ch, t_d1, t_d2, t_settings, highlight);
+  }
+  void printMIDI(uint8_t t_type, uint8_t t_ch, uint8_t t_d1, int16_t t_d2, uint8_t t_settings, bool highlight=false){
+    if(highlight){
+      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
+      display.setTextColor(BMC_OLED_BLACK);
+    } else {
+      display.clearDisplay();
+      display.setTextColor(BMC_OLED_WHITE);
+    }
+
+    char strChTitle[4] = "CH";
+    char strD1Title[4] = "";
+    char strD2Title[4] = "";
+    char strCH[4] = "";
+    char strD1[4] = "";
+    char strD2[4] = "";
+
+    t_ch = constrain(t_ch, 1, 16);
+    t_d1 = constrain(t_d1, 0, 127);
+    sprintf(strCH, "%02u", t_ch);
+    sprintf(strD1, "%03u", t_d1);
+    if(t_d2 != -1){
+      t_d2 = constrain(t_d2, 0, 127);
+      sprintf(strD2, "%03u", t_d2);
+    }
+
+    uint16_t t_wBound = 128;
+    uint16_t bW = (t_wBound/3);
+    uint16_t y1 = (h == 32) ? 16 : 28;
+    uint16_t y2 = (h == 32) ? 34 : 52;
+
+    switch(t_type){
+      case BMC_MIDI_PROGRAM_CHANGE:
+        strcpy(strD1Title, "PC");
+        bW = (t_wBound/2);
+        break;
+      case BMC_MIDI_CONTROL_CHANGE:
+        strcpy(strD1Title, "CC");
+        strcpy(strD2Title, "VAL");
+        break;
+      case BMC_MIDI_NOTE_OFF:
+      case BMC_MIDI_NOTE_ON:
+        strcpy(strD1Title, "NO");
+        strcpy(strD2Title, "VEL");
+        break;
+    }
+
+    display.setTextSize(2);
+    printMidiLabelAndValue(strChTitle, strCH, y1, y2, bW, 0);
+    if(t_d2 < 0){
+      printMidiLabelAndValue(strD1Title, strD1, y1, y2, bW, bW);
+    } else {
+      printMidiLabelAndValue(strD1Title, strD1, y1, y2, bW, bW);
+      printMidiLabelAndValue(strD2Title, strD2, y1, y2, bW, bW*2);
+    }
+    display.display();
+  }
+
+  void printMidiLabelAndValue(char * t_label, char * t_value, uint8_t y1, uint8_t y2, uint16_t bW, uint16_t bW2){
+    uint16_t x = bW2 + ((bW - (strlen(t_label)*12)) / 2);
+    display.setCursor(x, y1);
+    display.println(t_label);
+    
+    x = bW2 + ((bW - (strlen(t_value)*12)) / 2);
+    display.setCursor(x, y2);
+    display.println(t_value);
+  }
+  void print(const char * str, uint8_t t_settings, bool highlight=false){
     // add one extra character for the EOL
     uint8_t len = strlen(str)+1;
     char c[len] = "";
     strncpy(c, str, len);
-    print(c, t_xShift, t_yShift);
+    print(c, t_settings, highlight);
   }
-  void print(char * str, uint8_t t_xShift=0, uint8_t t_yShift=0){
-    xShift = t_xShift;
-    yShift = t_yShift;
-    display.clearDisplay();
+  void print(char * str, uint8_t t_settings, bool highlight=false){
+    
+    if(highlight){
+      display.fillRect(0, 0, w, h, BMC_OLED_WHITE);
+    } else {
+      display.clearDisplay();
+    }
+    
     uint8_t len = strlen(str);
     if(len == 0){
       display.display();
@@ -143,8 +245,7 @@ class BMC_OLED {
         }
       }
     }
-
-    display.setTextColor(BMC_OLED_WHITE);
+    display.setTextColor(highlight ? BMC_OLED_BLACK : BMC_OLED_WHITE);
     display.setTextWrap(false);
     if(lines==3){
       if(len>20){
@@ -159,6 +260,9 @@ class BMC_OLED {
       renderLine(str, 1, 2, (spaceIndex+1), len);
     } else {
       renderLine(str, 0, 1, 0, len);
+    }
+    if(bitRead(t_settings, 1)){
+      display.drawRect(0, 0, w, h, BMC_OLED_WHITE);
     }
     display.display();
   }
@@ -195,6 +299,14 @@ class BMC_OLED {
   }
   void printIcon(uint8_t n, int8_t n2=-1){
     drawIcon(n, n2, true);
+  }
+  void drawHorizontalMeter(uint8_t t_value, uint16_t t_w, uint16_t t_min, uint16_t t_max, uint16_t t_x, uint16_t t_y){
+    uint16_t width = t_w - 4;
+    uint16_t height = 8;
+    uint16_t fill = map(t_value, t_min, t_max, 0, width-4);
+    display.drawRect(t_x, t_y, width, height, BMC_OLED_WHITE);
+    display.drawRect(t_x+1, t_y+1, width-2, height-2, BMC_OLED_BLACK);
+    display.drawRect(t_x+2, t_y+2, fill, height-4, BMC_OLED_WHITE);
   }
   void printHorizontalMeter(uint8_t value){
     uint8_t y         = (h == 64) ? 10 :  0;
@@ -242,101 +354,104 @@ class BMC_OLED {
   }
 
  private:
+  const char icon[BMC_OLED_ICON_LENGTH] = {
+    0x12,// 0x12 'stop'
+    0x13,// 0x13 'check'
+    0x14,// 0x14 'menu'
+    0x15,// 0x15 'up'
+    0x16,// 0x16 'down'
+    0x17,// 0x17 'left arrow'
+    0x18,// 0x18 'right arrow'
+    0x19,// 0x19 'back'
+    0x1A,// 0x1A 'enter'
+    0x1B,// 0x1B 'record'
+    0x1C,// 0x1C 'rewind'
+    0x1D,// 0x1D 'fast forward'
+    0x1E,// 0x1E 'prev'
+    0x1F// 0x1F 'next/play'
+  };
+  void drawSideBox(){
+    display.setTextColor(BMC_OLED_WHITE);
+    display.fillRect(0, 0, 17, 64, BMC_OLED_BLACK);
+    display.setTextSize(2);
+  }
 
-   const char icon[BMC_OLED_ICON_LENGTH] = {
-     0x12,// 0x12 'stop'
-     0x13,// 0x13 'check'
-     0x14,// 0x14 'menu'
-     0x15,// 0x15 'up'
-     0x16,// 0x16 'down'
-     0x17,// 0x17 'left arrow'
-     0x18,// 0x18 'right arrow'
-     0x19,// 0x19 'back'
-     0x1A,// 0x1A 'enter'
-     0x1B,// 0x1B 'record'
-     0x1C,// 0x1C 'rewind'
-     0x1D,// 0x1D 'fast forward'
-     0x1E,// 0x1E 'prev'
-     0x1F// 0x1F 'next/play'
-   };
-   void drawSideBox(){
-     display.setTextColor(BMC_OLED_WHITE);
-     display.fillRect(0, 0, 17, 64, BMC_OLED_BLACK);
-     display.setTextSize(2);
-   }
+  void drawIcon(uint8_t n, int8_t n2=-1, bool t_show=false){
+    uint8_t textSize = h>>3;
+    uint8_t charW = 6 * textSize;
+    uint8_t xStart = (w - charW) / 2;
+    display.clearDisplay();
+    if(n2 == -1){
+      n = constrain(n, 0, (BMC_OLED_ICON_LENGTH-1));
+      display.drawChar(xStart, h, icon[n], BMC_OLED_WHITE, BMC_OLED_BLACK, textSize);
+    } else {
+      n = constrain(n, 0, (BMC_OLED_ICON_LENGTH-1));
+      n2 = constrain(n2, 0, (BMC_OLED_ICON_LENGTH-1));
+      display.drawChar(xStart-(charW/2), h, icon[n], BMC_OLED_WHITE, BMC_OLED_BLACK,  textSize);
+      display.drawChar(xStart+charW, h, icon[n2], BMC_OLED_WHITE, BMC_OLED_BLACK,  textSize);
+    }
+    if(t_show){
+      display.display();
+    }
+  }
+  void renderLine(const char * str, uint8_t lineNumber, uint8_t totalLines, uint8_t start, uint8_t end){
+    uint8_t height = h / totalLines;
+    uint8_t font = 2;
+    uint8_t len = end - start;
+    // trim line
+    for(uint8_t i = start, n=(end - start), e = 0 ; e < n ; i++, e++){
+      if(str[i] == ' '){
+        start++;
+        len--;
+      } else {
+        break;
+      }
+    }
+    len = constrain(len, 0, 10);
+    if((h==64 && totalLines == 2) || (h==32 && totalLines==1)){
+      switch(len){
+        case 1: case 2: case 3: case 4: case 5: font = 4; break;
+        case 6: case 7:                         font = 3; break;
+      }
+    } else if(h==64 && totalLines==1){
+      switch(len){
+        case 1: case 2:  font = 8; break;
+        case 3:          font = 6; break;
+        case 4:          font = 5; break;
+        case 5:          font = 4; break;
+        case 6: case 7:  font = 3; break;
+      }
+    }
 
-   void drawIcon(uint8_t n, int8_t n2=-1, bool t_show=false){
-     uint8_t textSize = h>>3;
-     uint8_t charW = 6 * textSize;
-     uint8_t xStart = (w - charW) / 2;
-     display.clearDisplay();
-     if(n2 == -1){
-       n = constrain(n, 0, (BMC_OLED_ICON_LENGTH-1));
-       display.drawChar(xStart, h, icon[n], BMC_OLED_WHITE, BMC_OLED_BLACK, textSize);
-     } else {
-       n = constrain(n, 0, (BMC_OLED_ICON_LENGTH-1));
-       n2 = constrain(n2, 0, (BMC_OLED_ICON_LENGTH-1));
-       display.drawChar(xStart-(charW/2), h, icon[n], BMC_OLED_WHITE, BMC_OLED_BLACK,  textSize);
-       display.drawChar(xStart+charW, h, icon[n2], BMC_OLED_WHITE, BMC_OLED_BLACK,  textSize);
-     }
-     if(t_show){
-       display.display();
-     }
-   }
-   void renderLine(const char * str, uint8_t lineNumber, uint8_t totalLines, uint8_t start, uint8_t end){
-     uint8_t height = h / totalLines;
-     uint8_t font = 2;
-     uint8_t len = end - start;
-     // trim line
-     for(uint8_t i = start, n=(end - start), e = 0 ; e < n ; i++, e++){
-       if(str[i] == ' '){
-         start++;
-         len--;
-       } else {
-         break;
-       }
-     }
-     len = constrain(len, 0, 10);
-     if((h==64 && totalLines == 2) || (h==32 && totalLines==1)){
-       switch(len){
-         case 1: case 2: case 3: case 4: case 5: font = 4; break;
-         case 6: case 7:                         font = 3; break;
-       }
-     } else if(h==64 && totalLines==1){
-       switch(len){
-         case 1: case 2:  font = 8; break;
-         case 3:          font = 6; break;
-         case 4:          font = 5; break;
-         case 5:          font = 4; break;
-         case 6: case 7:  font = 3; break;
-       }
-     }
+    uint8_t x = (w - (((font * 6) * len) - font)) / 2;
+    uint8_t y = ceil((height - (font * 7)) / 2.0) + (height * lineNumber) + ((8*font));
+    if((h==32 && totalLines == 2)){
+      y = (lineNumber == 0) ? 16 : 34;
+    } else if(totalLines==2){
+      if(h==32){
+        if(lineNumber==0){
+          y += font;
+        } else {
+          y -= font;
+        }
+      } else {
 
-     uint8_t x = (w - (((font * 6) * len) - font)) / 2;
-     uint8_t y = ceil((height - (font * 7)) / 2.0) + (height * lineNumber) + ((8*font));
-     if((h==32 && totalLines == 2)){
-       y = (lineNumber == 0) ? 16 : 34;
-     } else if(totalLines==2){
-       if(h==32){
-         if(lineNumber==0){
-           y += font;
-         } else {
-           y -= font;
-         }
-       } else {
-
-       }
-     }
-     //display.drawRect(0, 0, w, h,BMC_OLED_WHITE);
-     display.setTextSize(font);
-     display.setCursor(x+xShift, y+yShift);
-     for(uint8_t i = start, e = 0 ; e < len ; i++, e++){
-       display.print(str[i]);
-       if(e >= len){
-         break;
-       }
-     }
-   }
+      }
+    }
+    //display.drawRect(0, 0, w, h,BMC_OLED_WHITE);
+    display.setTextSize(font);
+    display.setCursor(x, y);
+    for(uint8_t i = start, e = 0 ; e < len ; i++, e++){
+      display.print(str[i]);
+      if(selChar>=0 && selChar==i){
+        uint16_t fW = 6*font;
+        display.fillRect(x+(e*fW), y, fW, 2, BMC_OLED_WHITE);
+      }
+      if(e >= len){
+        break;
+      }
+    }
+  }
 };
 
 #endif

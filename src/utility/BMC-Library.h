@@ -40,7 +40,7 @@
 #endif
 
 #define BMC_LIBRARY_FLAG_CHANGE_AVAILABLE 0
-#define BMC_LIBRARY_FLAG_SET_PAGE 1
+#define BMC_LIBRARY_FLAG_SET_LAYER 1
 #define BMC_LIBRARY_FLAG_SET_BPM  2
 #define BMC_LIBRARY_FLAG_SET_PIXEL_PROGRAM  3
 
@@ -86,10 +86,10 @@ public:
           uint8_t ports = BMC_GET_BYTE(3, event);
           sendCustomSysEx(index, status, ports);
         #endif
-      } else if(status==BMC_LIBRARY_EVENT_TYPE_PAGE){// page
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_LAYER){// layer
 
-        page = BMC_GET_BYTE(1, event);
-        flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
+        layer = BMC_GET_BYTE(1, event);
+        flags.on(BMC_LIBRARY_FLAG_SET_LAYER);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
 
       } else if(status==BMC_LIBRARY_EVENT_TYPE_CLOCK){// clock
@@ -130,10 +130,10 @@ public:
         #if BMC_MAX_CUSTOM_SYSEX > 0
         sendCustomSysEx(index, status, ports);
         #endif
-      } else if(status==BMC_LIBRARY_EVENT_TYPE_PAGE){// page
+      } else if(status==BMC_LIBRARY_EVENT_TYPE_LAYER){// layer
 
-        page = BMC_GET_BYTE(1, event);
-        flags.on(BMC_LIBRARY_FLAG_SET_PAGE);
+        layer = BMC_GET_BYTE(1, event);
+        flags.on(BMC_LIBRARY_FLAG_SET_LAYER);
         flags.on(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
 
       } else if(status==BMC_LIBRARY_EVENT_TYPE_CLOCK){// bmp
@@ -176,11 +176,11 @@ public:
   bool changeAvailable(){
     return flags.toggleIfTrue(BMC_LIBRARY_FLAG_CHANGE_AVAILABLE);
   }
-  bool pageChanged(){
-    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_PAGE);
+  bool layerChanged(){
+    return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_LAYER);
   }
-  uint8_t getPageChange(){
-    return page;
+  uint8_t getLayerChange(){
+    return layer;
   }
   bool bpmChanged(){
     return flags.toggleIfTrue(BMC_LIBRARY_FLAG_SET_BPM);
@@ -257,7 +257,7 @@ private:
   bmcStoreGlobal& global;
   BMCCallbacks& callback;
   BMCFlags <uint8_t> flags;
-  uint8_t page = 0;
+  uint8_t layer = 0;
   uint8_t pixelProgram = 0;
   uint16_t bpm = 0;
 

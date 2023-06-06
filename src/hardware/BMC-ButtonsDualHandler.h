@@ -47,7 +47,7 @@
 
 
 
-  These Dual Button Presses are usually used for Utility, maybe to change Pages,
+  These Dual Button Presses are usually used for Utility, maybe to change Layers,
   save edits, maybe even to change stores.
 */
 #ifndef BMC_BUTTONS_DUAL_HANDLER_H
@@ -61,21 +61,17 @@
 
 class BMCButtonsDualHandler {
 public:
-  BMCButtonsDualHandler(BMCCallbacks& cb, bool isGlobal, uint8_t _count):callback(cb){
+  BMCButtonsDualHandler(BMCCallbacks& cb, BMCGlobals& t_globals, bool isGlobal, uint8_t _count):
+  callback(cb), globals(t_globals){
     reset();
     itemsCount = _count;
     flags.reset();
     flags.write(BMC_BUTTONS_DUAL_GLOBAL, isGlobal);
   }
   // return true when 2 buttons have been pressed
-  bool read(uint8_t n, uint8_t trigger, bool state, uint32_t states, uint32_t states2=0){
+  bool read(uint8_t n, uint8_t trigger, bool state){
     // only check for dual button press if there's a callback setup
     if(callbackAvailable()){
-      uint8_t btn = n;
-      if(itemsCount>=32 && n >= 32){
-        btn = n-32;
-        states = states2;
-      }
       if(flags.read(BMC_BUTTONS_DUAL_WAITING_FOR_RELEASE)){
         // at this point we are waiting for the buttons to be released and any
         // events of these buttons will be ignored.
@@ -105,7 +101,8 @@ public:
       }
       // check if the button is pressed down and if the state is not the same
       // as it was the last time we checked for a dual press
-      if(state && bitRead(states, btn) != state){
+      //if(state && bitRead(states, btn) != state){
+      if(state && globals.getButtonStateBit(flags.read(BMC_BUTTONS_DUAL_GLOBAL),n) != state){
         // state changed and buttons is pressed
         if(last>=0 && last!=n){
           // save the index of the buttons that were pressed so we can wait for
@@ -144,11 +141,11 @@ public:
       }
     }
   }
-  // when pages change on BMC buttons are locked out until they are all released
-  // this is by design to avoid one press of a button changing pages too many times
+  // when layers change on BMC buttons are locked out until they are all released
+  // this is by design to avoid one press of a button changing layers too many times
   // because of this we have to add this call which resets the dual press handler
-  // anytime there's a page change.
-  void pageChanged(){
+  // anytime there's a layer change.
+  void layerChanged(){
     if(callbackAvailable()){
       reset();
       timeout.stop();
@@ -163,6 +160,7 @@ private:
   BMCTimer timeout;
   BMCFlags <uint8_t> flags;
   BMCCallbacks& callback;
+  BMCGlobals& globals;
 
   void reset(){
     last = -1;

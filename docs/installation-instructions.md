@@ -20,11 +20,6 @@ If you don't have Teensyduino installed you can follow these instructions:
 
 Instal Teensyduino, you can follow the instructions here: [https://www.pjrc.com/arduino-ide-2-0-0-teensy-support/](https://www.pjrc.com/arduino-ide-2-0-0-teensy-support/)
 
-**For Arduino 1.8.19**
-
-First you will need to install the Teensyduino addon for Arduino with all it's libraries, you can download it and follow the installation instructions here [https://www.pjrc.com/teensy/td_download.html](https://www.pjrc.com/teensy/td_download.html)
-
-Once you have Arduino and Teensyduino installed everything is working follow the steps below.
 
 #### Step 1: Install the BMC for Teensy boards
 

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -21,16 +21,10 @@ void BMC::editorRead(){
   if(editor.connectionHasChanged()){
     if(!globals.editorConnected()){
       // put here anything that should be done if the editor was disconnected
-      #if BMC_MAX_POTS > 0
+      #if BMC_TOTAL_POTS_AUX_JACKS > 0
         // if pot calibration is ongoing after disconnected, cancel it
         if(potCalibration.active()){
-          potCalibrationToggle();
-        }
-      #endif
-      #if BMC_MAX_GLOBAL_POTS > 0
-        // if pot calibration is ongoing after disconnected, cancel it
-        if(potCalibration.active()){
-          globalPotCalibrationToggle();
+          analogInputCalibrationToggle();
         }
       #endif
     }
@@ -38,48 +32,36 @@ void BMC::editorRead(){
       callback.editorConnection(globals.editorConnected());
     }
   }
+  if(editor.wasStoreCleared()){
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      display.renderStoreClearedBanner();
+    #endif
+    #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 1
+      for(uint8_t i=0;i<5;i++){
+        controlFirstLed(true);
+        delay(100);
+        controlFirstLed(false);
+        delay(100);
+      }
+    #endif
+    if(callback.eepromErased){
+      callback.eepromErased();
+    }
+  }
+  if(editor.getImportStateChanged()){
+    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      if(editor.importIsActive()){
+        display.renderImportBanner();
+      } else {
+        display.closeBanner();
+      }
+    #endif
+  }
 }
 void BMC::assignStoreData(){
   // The editor has updated data in EEPROM so we need to update all Hardware and Settings
   BMC_PRINTLN("editor.readyToReload()");
-  setPage(editor.getPage(), true);
-
-  #if BMC_MAX_GLOBAL_BUTTONS > 0
-    globalButtonStates = ~globalButtonStates;
-    // BMC.hardware.buttons
-    assignGlobalButtons();
-  #endif
-
-  #if BMC_MAX_GLOBAL_POTS > 0
-    // BMC.hardware.pots
-    assignGlobalPots();
-  #endif
-
-  #if BMC_MAX_GLOBAL_ENCODERS > 0
-    // BMC.hardware.encoders
-    assignGlobalEncoders();
-  #endif
-
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLedStates = ~globalLedStates;
-    // BMC.hardware.leds
-    assignGlobalLeds();
-  #endif
-
-  #if BMC_MAX_NL_RELAYS > 0
-    // BMC.relays.leds
-    assignRelaysNL();
-  #endif
-
-  #if BMC_MAX_L_RELAYS > 0
-    // BMC.relays.leds
-    assignRelaysL();
-  #endif
-
-
-  #if defined(BMC_HAS_DISPLAY)
-    display.update(page);
-  #endif
+  setLayer(editor.getLayer(), true);
 
   if(callback.storeUpdated){
     callback.storeUpdated();
@@ -95,7 +77,7 @@ void BMC::assignSettings(){
   midi.setClockListenerPort(settings.getClockInputPortBit());
   editor.setChainingPort(settings.getChainingPort());
 
-  valueTyper.setOffset(settings.getTyperOffSet());
+  valueTyper.setOffset(settings.getDisplayOffset());
 
   midi.setRouting(BMC_USB, settings.getUsbRouting());
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
@@ -131,76 +113,105 @@ void BMC::assignSettings(){
   sync.helix.setPortBit(settings.getHelixPort());
 #endif
 
-#if BMC_MAX_AUX_JACKS > 0
-  for(uint8_t i=0;i<BMC_MAX_AUX_JACKS;i++){
-    // update with data from settings
-    bool useAsExpression = settings.getAuxJackMode(i);
-    auxJacks.setMode(i, useAsExpression);
-    if(!useAsExpression){
-      // get analog pin and enable btn Index
-      // set enable btn index to analog pin
-      uint8_t potPin = auxJacks.getPotPin(i);
-      uint8_t btnEnIndex = auxJacks.getBtnEnIndex(i);
-      buttons[btnEnIndex].changePin(potPin);
+  #if BMC_MAX_LFO > 0
+    if(editor.lfoUpdated()){
+      for(uint8_t i=0;i<BMC_MAX_LFO;i++){
+        uint8_t mode = bitRead(store.global.lfo[i].settings[0], 7);
+        uint8_t cycle = store.global.lfo[i].settings[0] & 0x7F;
+        uint8_t waveform = store.global.lfo[i].settings[1];
+        uint8_t bpmRate = store.global.lfo[i].settings[2];
+        uint8_t min = store.global.lfo[i].events[3]+0;
+        uint8_t max = store.global.lfo[i].events[4]+0;
+        if(min == max){
+          min = 0;
+          max = 127;
+        } else if(max < min){
+          uint8_t _min = min;
+          min = max;
+          max = _min;
+        }
+        lfo[i].setMode(mode);
+        lfo[i].setSendCycle(cycle);
+        lfo[i].setBpm(midiClock.getBpm());  
+        lfo[i].setWaveForm(waveform);
+        lfo[i].setBpmRate(bpmRate);
+        lfo[i].setRange(min, max);
+      }
     }
-  }
-#endif
-
+  #endif
+  #if BMC_MAX_TEMPO_TO_TAP > 0
+    if(editor.tempoToTapUpdated()){
+      tempoToTap.buildListeners();
+    }
+  #endif
   #if BMC_MAX_TRIGGERS > 0
     if(editor.triggersUpdated()){
       triggers.buildListeners();
     }
   #endif
-
   #if BMC_MAX_TIMED_EVENTS > 0
     if(editor.timedEventsUpdated()){
       timedEvents.buildListeners();
     }
   #endif
-
-  #if BMC_MAX_BUTTONS > 32
-    buttonStates = ~buttonStates;
-    buttonStates2 = ~buttonStates2;
-  #elif BMC_MAX_BUTTONS > 0
-    buttonStates = ~buttonStates;
-  #endif
-
-  #if BMC_MAX_LEDS > 0
-    ledStates = ~ledStates;
-  #endif
-
-  #if BMC_MAX_PWM_LEDS > 0
-    pwmLedStates = ~pwmLedStates;
-  #endif
-
-  #if BMC_MAX_PIXELS > 0
-    pixelStates = ~pixelStates;
-  #endif
-
-  #if BMC_MAX_RGB_PIXELS > 0
-    rgbPixelStatesR = ~rgbPixelStatesR;
-    rgbPixelStatesG = ~rgbPixelStatesG;
-    rgbPixelStatesB = ~rgbPixelStatesB;
+  #if BMC_MAX_BUTTONS > 0
+    globals.buttonStates.clear();
   #endif
 
   #if BMC_MAX_GLOBAL_BUTTONS > 0
-    globalButtonStates = ~globalButtonStates;
+    globals.globalButtonStates.clear();
+  #endif
+
+  #if BMC_MAX_LEDS > 0
+    globals.ledStates.clear();
   #endif
 
   #if BMC_MAX_GLOBAL_LEDS > 0
-    globalLedStates = ~globalLedStates;
+    globals.globalLedStates.clear();
+  #endif
+
+  #if BMC_MAX_BI_LEDS > 0
+    globals.biLedStates[0].clear();
+    globals.biLedStates[1].clear();
+  #endif
+
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    globals.globalBiLedStates[0].clear();
+    globals.globalBiLedStates[1].clear();
+  #endif
+
+  #if BMC_MAX_TRI_LEDS > 0
+    globals.triLedStates[0].clear();
+    globals.triLedStates[1].clear();
+    globals.triLedStates[2].clear();
+  #endif
+
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    globals.globalTriLedStates[0].clear();
+    globals.globalTriLedStates[1].clear();
+    globals.globalTriLedStates[2].clear();
+  #endif
+
+  #if BMC_MAX_PIXELS > 0
+    globals.pixelStates.clear();
+  #endif
+
+  #if BMC_MAX_RGB_PIXELS > 0
+    globals.rgbPixelStates[0].clear();
+    globals.rgbPixelStates[1].clear();
+    globals.rgbPixelStates[2].clear();
   #endif
 
   #if BMC_MAX_NL_RELAYS > 0
-    relayNLStates = ~relayNLStates;
+    globals.relayNLStates.clear();
   #endif
 
   #if BMC_MAX_L_RELAYS > 0
-    relayLStates = ~relayLStates;
+    globals.relayLStates.clear();
   #endif
 
   #if BMC_MAX_AUX_JACKS > 0
-    auxJacksStates = ~auxJacksStates;
+    globals.auxJackStates.clear();
   #endif
 }
 void BMC::controlReceived(){
@@ -224,14 +235,18 @@ void BMC::controlReceived(){
 }
 void BMC::ctrlHardware(){
   switch(editor.getCtrlParameter()){
-    case BMC_CTRL_PAGE_GET:
-      editor.pageSendChangeMessage(false);
+    case BMC_CTRL_LAYERS_GET:
+      editor.layerSendChangeMessage(false);
       break;
-    case BMC_CTRL_PAGE_SET:
-      if(editor.getCtrlWrite() && editor.getCtrlValue()<BMC_MAX_PAGES){
-        setPage(editor.getCtrlValue() & 0xFF);
+    case BMC_CTRL_LAYERS_SET:
+      if(editor.getCtrlWrite() && editor.getCtrlValue()<BMC_MAX_LAYERS){
+        setLayer(editor.getCtrlValue() & 0xFF);
       }
-      editor.pageSendChangeMessage(false);
+      editor.layerSendChangeMessage(false);
+      break;
+
+    case BMC_CTRL_GET_STATES:
+      editor.triggerStates();
       break;
 
 #if BMC_MAX_BUTTONS > 0
@@ -246,27 +261,94 @@ void BMC::ctrlHardware(){
       }
       break;
     case BMC_CTRL_BUTTON_TRIGGER_RELEASE:
-      if(editor.getCtrlValue()  <BMC_MAX_BUTTONS){
+      if(editor.getCtrlValue() < BMC_MAX_BUTTONS){
         buttons[editor.getCtrlValue()].triggerRelease();
       }
       break;
 #endif
-
-#if BMC_MAX_LEDS > 0
-    case BMC_CTRL_LED_STATES:
-      ledStates = ~ledStates;
-      break;
     case BMC_CTRL_LED_TEST:
-      if(editor.getCtrlValue() < BMC_MAX_LEDS){
-        leds[(editor.getCtrlValue() & 0xFF)].test();
+#if BMC_TOTAL_LEDS > 0
+    {
+      uint8_t deviceId = (editor.getCtrlValue()>>16) & 0xFF;
+      uint16_t deviceIndex = editor.getCtrlValue() & 0xFF;
+      BMC_PRINTLN("deviceId", deviceId, "deviceIndex", deviceIndex);
+      if(deviceId == BMC_DEVICE_ID_LED){
+        #if BMC_MAX_LEDS > 0
+        if(deviceIndex < BMC_MAX_LEDS){
+          BMC_PRINTLN("Test led");
+          leds[deviceIndex].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_GLOBAL_LED){
+        #if BMC_MAX_GLOBAL_LEDS > 0
+        if(deviceIndex < BMC_MAX_GLOBAL_LEDS){
+          globalLeds[deviceIndex].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_BI_LED){
+        #if BMC_MAX_BI_LEDS > 0
+        if(deviceIndex < BMC_MAX_BI_LEDS){
+          biLeds[(deviceIndex*2)].test();
+          biLeds[(deviceIndex*2)+1].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_GLOBAL_BI_LED){
+        #if BMC_MAX_GLOBAL_BI_LEDS > 0
+        if(deviceIndex < BMC_MAX_GLOBAL_BI_LEDS){
+          globalBiLeds[(deviceIndex*2)].test();
+          globalBiLeds[(deviceIndex*2)+1].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_TRI_LED){
+        #if BMC_MAX_TRI_LEDS > 0
+        if(deviceIndex < BMC_MAX_TRI_LEDS){
+          triLeds[(deviceIndex*3)].test();
+          triLeds[(deviceIndex*3)+1].test();
+          triLeds[(deviceIndex*3)+2].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_GLOBAL_TRI_LED){
+        #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+        if(deviceIndex < BMC_MAX_GLOBAL_TRI_LEDS){
+          globalTriLeds[(deviceIndex*3)].test();
+          globalTriLeds[(deviceIndex*3)+1].test();
+          globalTriLeds[(deviceIndex*3)+2].test();
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_PIXEL){
+        #if BMC_MAX_PIXELS > 0
+        if(deviceIndex < BMC_MAX_PIXELS){
+          pixels.test(deviceId, deviceIndex);
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_GLOBAL_PIXEL){
+        #if BMC_MAX_GLOBAL_PIXELS > 0
+        if(deviceIndex < BMC_MAX_GLOBAL_PIXELS){
+          pixels.test(deviceId, deviceIndex);
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_RGB_PIXEL){
+        #if BMC_MAX_RGB_PIXELS > 0
+        if(deviceIndex < BMC_MAX_RGB_PIXELS){
+          pixels.test(deviceId, deviceIndex);
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_GLOBAL_RGB_PIXEL){
+        #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+        if(deviceIndex < BMC_MAX_GLOBAL_RGB_PIXELS){
+          pixels.test(deviceId, deviceIndex);
+        }
+        #endif
+      } else if(deviceId == BMC_DEVICE_ID_PIXEL_STRIP){
+        #if BMC_MAX_PIXEL_STRIP > 0
+          pixels.test(deviceId, 0);
+        #endif
       }
-      break;
+    }
 #endif
+      break;
 
 #if BMC_MAX_NL_RELAYS > 0
-    case BMC_CTRL_NL_RELAYS_GET:
-      relayNLStates = ~relayNLStates;
-      break;
     case BMC_CTRL_NL_RELAYS_OPEN:
       if(editor.getCtrlValue() < BMC_MAX_NL_RELAYS){
         relaysNL[(editor.getCtrlValue() & 0xFF)].off();
@@ -284,9 +366,6 @@ void BMC::ctrlHardware(){
       break;
 #endif
 #if BMC_MAX_L_RELAYS > 0
-    case BMC_CTRL_L_RELAYS_GET:
-      relayLStates = ~relayLStates;
-      break;
     case BMC_CTRL_L_RELAYS_SET:
       if(editor.getCtrlValue() < BMC_MAX_L_RELAYS){
         relaysL[(editor.getCtrlValue() & 0xFF)].off();
@@ -304,148 +383,45 @@ void BMC::ctrlHardware(){
       break;
 #endif
 
-#if BMC_MAX_AUX_JACKS > 0
-    case BMC_CTRL_AUX_JACK_STATES:
-      editor.utilitySendAuxJackActivity(auxJacksStates);
-      break;
-#endif
-
 #if defined(BMC_USE_FAS)
     case BMC_CTRL_FAS_STATE:
       editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
       break;
 #endif
 
-#if BMC_MAX_PWM_LEDS > 0
-    case BMC_CTRL_PWM_LED_STATES:
-      pwmLedStates = ~pwmLedStates;
-      break;
-    case BMC_CTRL_PWM_LED_TEST:
-      BMC_PRINTLN("Test Pwm Led",editor.getCtrlValue());
-      if(editor.getCtrlValue() < BMC_MAX_PWM_LEDS){
-        pwmLeds[(editor.getCtrlValue() & 0xFF)].test();
-      }
-      break;
-#endif
-
-#if BMC_MAX_PIXELS > 0
-    case BMC_CTRL_PIXEL_STATES:
-      pixelStates = ~pixelStates;
-      break;
-    case BMC_CTRL_PIXEL_TEST:
-      BMC_PRINTLN("Test Pixel",editor.getCtrlValue());
-      if(editor.getCtrlValue() < BMC_MAX_PIXELS){
-        pixels.test((editor.getCtrlValue() & 0xFF));
-      }
-      break;
-#endif
-
-#if BMC_MAX_RGB_PIXELS > 0
-    case BMC_CTRL_RGB_PIXEL_STATES:
-      rgbPixelStatesR = ~rgbPixelStatesR;
-      rgbPixelStatesG = ~rgbPixelStatesG;
-      rgbPixelStatesB = ~rgbPixelStatesB;
-      break;
-    case BMC_CTRL_RGB_PIXEL_TEST:
-      BMC_PRINTLN("Test RGB Pixel",editor.getCtrlValue());
-      if(editor.getCtrlValue() < BMC_MAX_RGB_PIXELS){
-        pixels.testRgb((editor.getCtrlValue() & 0xFF));
-      }
-      break;
-#endif
-
-#if BMC_MAX_GLOBAL_LEDS > 0
-    case BMC_CTRL_GLOBAL_LED_STATES:
-      globalLedStates = ~globalLedStates;
-      break;
-    case BMC_CTRL_GLOBAL_LED_TEST:
-      if(editor.getCtrlValue() < BMC_MAX_GLOBAL_LEDS){
-        globalLeds[(editor.getCtrlValue() & 0xFF)].test();
-      }
-      break;
-#endif
-
-#if BMC_MAX_POTS > 0
-    case BMC_CTRL_POT_STATES:
-      {
-        uint8_t values[BMC_MAX_POTS];
-        for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
-          values[i] = pots[i].getValue();
-        }
-        editor.utilitySendPotsActivity(values, BMC_MAX_POTS, false);
-      }
-      break;
-
+#if BMC_TOTAL_POTS_AUX_JACKS > 0
     case BMC_CTRL_POT_CALIBRATION:
       {
-        BMC_PRINTLN("BMCCtrl::hardware::PotCalibration",editor.getCtrlValue());
+        uint32_t e = editor.getCtrlValue();
+        uint8_t deviceType = (e >> 16) & 0xFF;
+        uint16_t index = e & 0xFFFF;
+        BMC_PRINTLN("BMCCtrl::hardware::PotCalibration", deviceType, index);
         bool canceled = false;
         if(potCalibration.active()){
-
           if(potCalibration.getMin() < potCalibration.getMax()){
             editor.setPotCalibration(
-                potCalibration.getIndex(),
-                potCalibration.getMin(),
-                potCalibration.getMax()
-              );
-            BMC_PRINTLN("Pot Calibration Set", potCalibration.getMin(), potCalibration.getMax());
+              potCalibration.getDeviceType(),
+              potCalibration.getIndex(),
+              potCalibration.getMin(),
+              potCalibration.getMax()
+            );
           } else {
             canceled = true;
           }
         }
-        potCalibrationToggle(editor.getCtrlValue() & 0xFF);
-        editor.utilitySendPotCalibrationStatus(potCalibration.active(), canceled);
+        analogInputCalibrationToggle(deviceType, index);
+        editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(), canceled);
       }
       break;
 
     case BMC_CTRL_POT_CALIBRATION_CANCEL:
       if(potCalibration.active()){
-        potCalibrationToggle();
+        analogInputCalibrationToggle();
       }
-      editor.utilitySendPotCalibrationStatus(potCalibration.active(),true);
+      BMC_PRINTLN("Pot Calibration Cancelled");
+      editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(),true);
       break;
 #endif
-
-#if BMC_MAX_GLOBAL_POTS > 0
-    case BMC_CTRL_GLOBAL_POT_STATES:
-      {
-        uint8_t values[BMC_MAX_GLOBAL_POTS];
-        for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
-          values[i] = globalPots[i].getValue();
-        }
-        editor.utilitySendGlobalPotsActivity(values, BMC_MAX_GLOBAL_POTS, false);
-      }
-      break;
-
-    case BMC_CTRL_GLOBAL_POT_CALIBRATION:
-      {
-        BMC_PRINTLN("BMCCtrl::hardware::GlobalPotCalibration",editor.getCtrlValue());
-        bool canceled = false;
-        if(potCalibration.active()){
-          if(potCalibration.getMin() < potCalibration.getMax()){
-            editor.setGlobalPotCalibration(
-                potCalibration.getIndex(),
-                potCalibration.getMin(),
-                potCalibration.getMax()
-              );
-            BMC_PRINTLN("Global Pot Calibration Set", potCalibration.getMin(), potCalibration.getMax());
-          } else {
-            canceled = true;
-          }
-        }
-        globalPotCalibrationToggle(editor.getCtrlValue() & 0xFF);
-        editor.utilitySendGlobalPotCalibrationStatus(potCalibration.active(), canceled);
-      }
-      break;
-
-    case BMC_CTRL_GLOBAL_POT_CALIBRATION_CANCEL:
-      if(potCalibration.active()){
-        globalPotCalibrationToggle();
-      }
-      editor.utilitySendGlobalPotCalibrationStatus(potCalibration.active(),true);
-      break;
-#endif
-
   }
 }
 
@@ -456,15 +432,18 @@ void BMC::ctrlPreset(){
       editor.utilitySendPreset(presets.get(), false);
       break;
     case BMC_CTRL_PRESET_SET:
-      if(editor.getCtrlWrite() && editor.getCtrlValue() < BMC_MAX_PRESETS){
-        presets.set((bmcPreset_t) editor.getCtrlValue());
+      if(editor.getCtrlWrite()){
+        uint16_t p = (uint16_t) editor.getCtrlValue();
+        uint8_t bank = (p >> 8) & 0xFF;
+        uint8_t preset = p & 0xFF;
+        presets.set(bank, preset);
         // since this is a request that can be sent not just by the editor app
         // we need to send a notification of this change right away
         // so we send it out (second parameter false means it should be sent
         // even if we're not connected to the editor app)
         // we also call presets.presetChanged() to clear that flag
         if(!globals.editorConnected()){
-          editor.utilitySendPreset(presets.get(), false);
+          editor.utilitySendPreset(presets.getBank(), presets.get(), false);
         }
       }
       break;

@@ -24,14 +24,14 @@
  * Library tested with:                                                        *
  *   Microchip 24LC256 (256k bit)                                              *
  *                                                                             *
- * Library will NOT work with Microchip 24xx1025 as its control byte does not  *
+ * Library will NOT work with Microchip 24xx1025 as its control uint8_t does not  *
  * conform to the following assumptions.                                       *
  *                                                                             *
  * Device addressing assumptions:                                              *
- * 1. The I2C address sequence consists of a control byte followed by one      *
- *    address byte (for EEPROMs <= 16k bits) or two address bytes (for         *
+ * 1. The I2C address sequence consists of a control uint8_t followed by one      *
+ *    address uint8_t (for EEPROMs <= 16k bits) or two address bytes (for         *
  *    EEPROMs > 16k bits).                                                     *
- * 2. The three least-significant bits in the control byte (excluding the R/W  *
+ * 2. The three least-significant bits in the control uint8_t (excluding the R/W  *
  *    bit) comprise the three most-significant bits for the entire address     *
  *    space, i.e. all chips on the bus. As such, these may be chip-select      *
  *    bits or block-select bits (for individual chips that have an internal    *
@@ -43,14 +43,14 @@
  *    Depending on EEPROM device size, this may result in one or more of the   *
  *    most significant bits in the I2C address bytes being unused (or "don't   *
  *    care").                                                                  *
- * 4. An EEPROM contains an integral number of pages.                          *
+ * 4. An EEPROM contains an integral number of layers.                          *
  *                                                                             *
  * To use the BMC24LC256 library, the Arduino Wire library must also            *
  * be included.                                                                *
  *                                                                             *
  * Jack Christensen 23Mar2013 v1                                               *
  * 29Mar2013 v2 - Updated to span page boundaries (and therefore also          *
- * device boundaries, assuming an integral number of pages per device)         *
+ * device boundaries, assuming an integral number of layers per device)         *
  * 08Jul2014 v3 - Generalized for 2kb - 2Mb EEPROMs.                           *
  *                                                                             *
  * External EEPROM Library by Jack Christensen is licensed under CC BY-SA 4.0, *
@@ -83,20 +83,20 @@ enum BMC_eeprom_size_t {
 };
 
 //EEPROM addressing error, returned by write() or read() if upper address bound is exceeded
-const byte EEPROM_ADDR_ERR = 9;
+const uint8_t EEPROM_ADDR_ERR = 9;
 
 class BMC24LC256
 {
     public:
         //I2C clock frequencies
         enum twiClockFreq_t { twiClock100kHz = 100000, twiClock400kHz = 400000 };
-        BMC24LC256(BMC_eeprom_size_t deviceCapacity, byte nDevice, unsigned int pageSize, byte eepromAddr = 0x50);
-        byte begin(twiClockFreq_t twiFreq = twiClock100kHz);
-        byte write(unsigned long addr, byte *values, unsigned int nBytes);
-        byte write(unsigned long addr, byte value);
-        byte read(unsigned long addr, byte *values, unsigned int nBytes);
+        BMC24LC256(BMC_eeprom_size_t deviceCapacity, uint8_t nDevice, unsigned int pageSize, uint8_t eepromAddr = 0x50);
+        uint8_t begin(twiClockFreq_t twiFreq = twiClock100kHz);
+        uint8_t write(unsigned long addr, uint8_t *values, unsigned int nBytes);
+        uint8_t write(unsigned long addr, uint8_t value);
+        uint8_t read(unsigned long addr, uint8_t *values, unsigned int nBytes);
         int read(unsigned long addr);
-        byte update(unsigned long addr, byte value){
+        uint8_t update(unsigned long addr, uint8_t value){
           if(read(addr) != value){
             write(addr, &value, 1);
             return 1;
@@ -105,7 +105,7 @@ class BMC24LC256
           //return read(addr) == value ? 0 : write(addr, &value, 1);
         }
         template <typename T> uint8_t put(uint16_t start, const T& value){
-          const byte * p = (const byte*) &value;
+          const uint8_t * p = (const uint8_t*) &value;
           unsigned long i = start;
           unsigned long n = sizeof(value)+start;
           unsigned long updatedBytes = 0;
@@ -123,12 +123,13 @@ class BMC24LC256
 #endif
           }
 #ifdef BMC_DEBUG
+          BMC_PRINTLN(".");
           BMC_PRINTLN(". Updated", updatedBytes, "Bytes");
 #endif
           return updatedBytes;
         }
         template <typename T> uint8_t get(uint16_t start, const T& value){
-          byte * p = (byte*) &value;
+          uint8_t * p = (uint8_t*) &value;
           unsigned long i = start;
           unsigned long n = sizeof(value)+start;
 #ifdef BMC_DEBUG
@@ -160,7 +161,7 @@ class BMC24LC256
           BMC_PRINTLN("This may take a few seconds");
           uint8_t chunk = 64;
           uint8_t data[chunk];
-          memset(data,0,chunk);
+          memset(data, 0, chunk);
           for(uint32_t a = 0; a <= _totalCapacity; a += chunk){
             write(a, data, chunk);
 #ifdef BMC_DEBUG
@@ -195,11 +196,11 @@ class BMC24LC256
         }
 
     private:
-        byte _eepromAddr;            //eeprom i2c address
+        uint8_t _eepromAddr;            //eeprom i2c address
         uint16_t _dvcCapacity;          //capacity of one EEPROM device, in kbits
-        byte _nDevice;               //number of devices on the bus
+        uint8_t _nDevice;               //number of devices on the bus
         uint16_t _pageSize;             //page size in bytes
-        byte _csShift;               //number of bits to shift address for chip select bits in control byte
+        uint8_t _csShift;               //number of bits to shift address for chip select bits in control byte
         uint16_t _nAddrBytes;           //number of address bytes (1 or 2)
         unsigned long _totalCapacity;   //capacity of all EEPROM devices on the bus, in bytes
         #ifdef BMC_DEBUG

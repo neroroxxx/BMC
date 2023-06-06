@@ -21,12 +21,15 @@ BMCEditor::BMCEditor(bmcStore& t_store,
   incoming.reset();
 }
 void BMCEditor::begin(){
+  
   flags.reset();
   // see getStore() in BMC-Editor.h
   flags.on(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP);
   BMC_PRINTLN("");
   BMC_PRINTLN("+++++++++++++++++++++++++++++++++++++++++++");
   BMC_PRINTLN("BMCEditor::begin");
+
+  setDevicesData();
 
   storage.begin();
   #if defined(BMC_USE_TIME)
@@ -81,7 +84,9 @@ void BMCEditor::begin(){
   BMC_PRINTLN("****************************************");
 
   deviceId = settings.getDeviceId();
-
+  #if BMC_MAX_TEMPO_TO_TAP > 0
+    flags.on(BMC_EDITOR_FLAG_EDITOR_TEMPO_TO_TAP_UPDATED);
+  #endif
   #if BMC_MAX_TRIGGERS > 0
     flags.on(BMC_EDITOR_FLAG_EDITOR_TRIGGERS_UPDATED);
   #endif
@@ -99,7 +104,7 @@ void BMCEditor::begin(){
   flags.off(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP);
 }
 void BMCEditor::update(){
-
+  flags.off(BMC_EDITOR_FLAG_SEND_STATES);
 }
 bool BMCEditor::readyToReload(){
   return flags.toggleIfTrue(BMC_EDITOR_FLAG_READY_TO_RELOAD);
@@ -116,13 +121,13 @@ bool BMCEditor::connectionHasChanged(){
 void BMCEditor::setPort(uint8_t port){
   bitWrite(this->port,port,1);
 }
-void BMCEditor::setPage(uint8_t page){
-  if(page < BMC_MAX_PAGES){
-    this->page = page;
+void BMCEditor::setLayer(uint8_t layer){
+  if(layer < BMC_MAX_LAYERS){
+    this->layer = layer;
   }
 }
-uint8_t BMCEditor::getPage(){
-  return page;
+uint8_t BMCEditor::getLayer(){
+  return this->layer;
 }
 
 
@@ -139,56 +144,89 @@ uint32_t BMCEditor::getGlobalOffset(){
 uint32_t BMCEditor::getSettingsOffset(){
   return sizeof(store.global.settings);
 }
-uint32_t BMCEditor::getSketchBytesOffset(){
+
+
+
+
+
+uint32_t BMCEditor::getEventsOffset(){
   uint32_t value = getSettingsOffset();
+  return value + sizeof(store.global.events);
+}
+uint32_t BMCEditor::getEventsOffset(uint16_t index){
+  uint32_t value = getSettingsOffset();
+  return value + (sizeof(bmcStoreEvent)*index);
+}
+
+uint32_t BMCEditor::getNamesOffset(){
+  uint32_t value = getEventsOffset();
+  return value + sizeof(store.global.names);
+}
+uint32_t BMCEditor::getNamesOffset(uint16_t index){
+  uint32_t value = getEventsOffset();
+  return value + (sizeof(bmcStoreName)*index);
+}
+uint32_t BMCEditor::getPortPresetsOffset(){
+  uint32_t value = getNamesOffset();
+  return value + sizeof(store.global.portPresets);
+}
+uint32_t BMCEditor::getPortPresetsOffset(uint16_t index){
+  uint32_t value = getNamesOffset();
+  return value + (sizeof(bmcStoreDevice <0, 1, uint8_t>)*index);
+}
+
+uint32_t BMCEditor::getShortcutsOffset(){
+  uint32_t value = getPortPresetsOffset();
+  return (value + sizeof(store.global.shortcuts));
+}
+uint32_t BMCEditor::getShortcutsOffset(uint8_t index){
+  uint32_t value = getPortPresetsOffset();
+  return (value + (sizeof(bmcStoreDevice <0, 6, uint8_t>)*index));
+}
+
+uint32_t BMCEditor::getLfoOffset(){
+  uint32_t value = getShortcutsOffset();
+  #if BMC_MAX_LFO > 0
+    value += sizeof(store.global.lfo);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getLfoOffset(uint8_t index){
+  uint32_t value = getShortcutsOffset();
+  #if BMC_MAX_LFO > 0
+    value += (sizeof(bmcStoreDevice <3, 5, uint8_t>)*index);
+  #endif
+  return value;
+}
+
+uint32_t BMCEditor::getSketchBytesOffset(){
+  uint32_t value = getLfoOffset();
   #if BMC_MAX_SKETCH_BYTES > 0
     value += sizeof(store.global.sketchBytes);
   #endif
   return value;
 }
-
-uint32_t BMCEditor::getStringLibraryOffset(){
-  uint32_t value = getSketchBytesOffset();
-#if BMC_MAX_STRING_LIBRARY > 0
-  value += sizeof(store.global.stringLibrary);
-#endif
-  return value;
-}
-uint32_t BMCEditor::getStringLibraryOffset(uint8_t index){
-  uint32_t value = getSketchBytesOffset();
-#if BMC_MAX_STRING_LIBRARY > 0
-  value += (sizeof(bmcStoreGlobalStringLibrary)*index);
-#endif
+uint32_t BMCEditor::getSketchBytesOffset(uint8_t index){
+  uint32_t value = getLfoOffset();
+  #if BMC_MAX_SKETCH_BYTES > 0
+    value += (sizeof(bmcStoreDevice <0, BMC_MAX_SKETCH_BYTES, uint8_t>)*index);
+  #endif
   return value;
 }
 
-uint32_t BMCEditor::getLibraryOffset(){
-  uint32_t value = getStringLibraryOffset();
-#if BMC_MAX_LIBRARY > 0
-  value += sizeof(store.global.library);
-#endif
-  return value;
-}
-uint32_t BMCEditor::getLibraryOffset(bmcLibrary_t index){
-  uint32_t value = getStringLibraryOffset();
-#if BMC_MAX_LIBRARY > 0
-  value += (sizeof(bmcStoreGlobalLibrary)*index);
-#endif
-  return value;
-}
 uint32_t BMCEditor::getPresetOffset(){
-  uint32_t value = getLibraryOffset();
+  uint32_t value = getSketchBytesOffset();
 #if BMC_MAX_PRESETS > 0
-  value += sizeof(bmcPreset_t);
+  //value += sizeof(uint16_t);
   value += sizeof(store.global.presets);
 #endif
   return value;
 }
-uint32_t BMCEditor::getPresetOffset(bmcPreset_t index){
-  uint32_t value = getLibraryOffset();
+uint32_t BMCEditor::getPresetOffset(uint16_t index){
+  uint32_t value = getSketchBytesOffset();
 #if BMC_MAX_PRESETS > 0
-  value += sizeof(bmcPreset_t);
-  value += (sizeof(bmcStoreGlobalPresets)*index);
+  //value += sizeof(uint16_t);
+  value += (sizeof(bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>)*index);
 #endif
   return value;
 }
@@ -203,7 +241,7 @@ uint32_t BMCEditor::getSetListOffset(){
 uint32_t BMCEditor::getSetListOffset(uint8_t index){
   uint32_t value = getPresetOffset();
 #if BMC_MAX_SETLISTS > 0
-  value += (sizeof(bmcStoreGlobalSetList)*index);
+  value += (sizeof(bmcStoreDevice <1, BMC_MAX_SETLISTS_SONGS>)*index);
 #endif
   return value;
 }
@@ -218,52 +256,84 @@ uint32_t BMCEditor::getSetListSongOffset(){
 uint32_t BMCEditor::getSetListSongOffset(uint8_t index){
   uint32_t value = getSetListOffset();
 #if BMC_MAX_SETLISTS > 0
-  value += (sizeof(bmcStoreGlobalSetListSong)*index);
+  value += (sizeof(bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS>)*index);
 #endif
   return value;
 }
 
 
 
-uint32_t BMCEditor::getGlobalLedOffset(){
-  uint32_t value = getSetListSongOffset();
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    value += sizeof(store.global.leds);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getGlobalLedOffset(uint8_t index){
-  uint32_t value = getSetListSongOffset();
-  #if BMC_MAX_GLOBAL_LEDS > 0
-    value += (sizeof(bmcStoreLed) * index);
-  #endif
-  return value;
-}
 uint32_t BMCEditor::getGlobalButtonOffset(){
-  uint32_t value = getGlobalLedOffset();
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_BUTTONS > 0
     value += sizeof(store.global.buttons);
   #endif
   return value;
 }
-uint32_t BMCEditor::getGlobalButtonOffset(uint8_t index){
-  uint32_t value = getGlobalLedOffset();
+uint32_t BMCEditor::getGlobalButtonOffset(uint16_t index){
+  uint32_t value = getSetListSongOffset();
   #if BMC_MAX_GLOBAL_BUTTONS > 0
-    value += (sizeof(bmcStoreButton) * index);
+    //value += ((sizeof(bmcStoreDevice)+(BMC_MAX_BUTTON_EVENTS*4)) * index);
+    value += (sizeof(bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,BMC_MAX_BUTTON_EVENTS>) * index);
+  #endif
+  return value;
+}
+
+
+
+uint32_t BMCEditor::getGlobalLedOffset(){
+  uint32_t value = getGlobalButtonOffset();
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    value += sizeof(store.global.leds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalLedOffset(uint16_t index){
+  uint32_t value = getGlobalButtonOffset();
+  #if BMC_MAX_GLOBAL_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,1>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalBiLedOffset(){
+  uint32_t value = getGlobalLedOffset();
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    value += sizeof(store.global.biLeds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalBiLedOffset(uint16_t index){
+  uint32_t value = getGlobalLedOffset();
+  #if BMC_MAX_GLOBAL_BI_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,2>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalTriLedOffset(){
+  uint32_t value = getGlobalBiLedOffset();
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    value += sizeof(store.global.triLeds);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalTriLedOffset(uint16_t index){
+  uint32_t value = getGlobalBiLedOffset();
+  #if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    value += (sizeof(bmcStoreDevice<1,3>) * index);
   #endif
   return value;
 }
 uint32_t BMCEditor::getGlobalEncoderOffset(){
-  uint32_t value = getGlobalButtonOffset();
+  uint32_t value = getGlobalTriLedOffset();
   #if BMC_MAX_GLOBAL_ENCODERS > 0
     value += sizeof(store.global.encoders);
   #endif
   return value;
 }
-uint32_t BMCEditor::getGlobalEncoderOffset(uint8_t index){
-  uint32_t value = getGlobalButtonOffset();
+uint32_t BMCEditor::getGlobalEncoderOffset(uint16_t index){
+  uint32_t value = getGlobalTriLedOffset();
   #if BMC_MAX_GLOBAL_ENCODERS > 0
-    value += (sizeof(bmcStoreEncoder) * index);
+    value += (sizeof(bmcStoreDevice<1, 1>) * index);
   #endif
   return value;
 }
@@ -274,98 +344,84 @@ uint32_t BMCEditor::getGlobalPotOffset(){
   #endif
   return value;
 }
-uint32_t BMCEditor::getGlobalPotOffset(uint8_t index){
+uint32_t BMCEditor::getGlobalPotOffset(uint16_t index){
   uint32_t value = getGlobalEncoderOffset();
   #if BMC_MAX_GLOBAL_POTS > 0
-    value += (sizeof(bmcStorePot) * index);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getGlobalPotCalibrationOffset(){
-  uint32_t value = getGlobalPotOffset();
-  #if BMC_MAX_GLOBAL_POTS > 0
-    value += sizeof(store.global.globalPotCalibration);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getGlobalPotCalibrationOffset(uint8_t index){
-  uint32_t value = getGlobalPotOffset();
-  #if BMC_MAX_GLOBAL_POTS > 0
-    value += (sizeof(bmcStoreGlobalPotCalibration) * index);
+    //value += (sizeof(bmcStorePot) * index);
+    value += (sizeof(bmcStoreDevice<1,2>) * index);
   #endif
   return value;
 }
 
 uint32_t BMCEditor::getPotCalibrationOffset(){
-  uint32_t value = getGlobalPotCalibrationOffset();
-  #if BMC_MAX_POTS > 0
+  uint32_t value = getGlobalPotOffset();
+  #if BMC_TOTAL_POTS_AUX_JACKS > 0
     value += sizeof(store.global.potCalibration);
   #endif
   return value;
 }
-uint32_t BMCEditor::getPotCalibrationOffset(uint8_t index){
-  uint32_t value = getGlobalPotCalibrationOffset();
-  #if BMC_MAX_POTS > 0
-    value += (sizeof(bmcStoreGlobalPotCalibration) * index);
+uint32_t BMCEditor::getPotCalibrationOffset(uint16_t index){
+  uint32_t value = getGlobalPotOffset();
+  #if BMC_TOTAL_POTS_AUX_JACKS > 0
+    value += (sizeof(bmcStoreDevice <0, 2, uint16_t>) * index);
   #endif
   return value;
 }
-
-uint32_t BMCEditor::getCustomSysExOffset(){
+uint32_t BMCEditor::getGlobalPixelOffset(){
   uint32_t value = getPotCalibrationOffset();
-  #if BMC_MAX_CUSTOM_SYSEX > 0
-    value += sizeof(store.global.customSysEx);
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    value += sizeof(store.global.pixels);
   #endif
   return value;
 }
-uint32_t BMCEditor::getCustomSysExOffset(uint8_t index){
+uint32_t BMCEditor::getGlobalPixelOffset(uint16_t index){
   uint32_t value = getPotCalibrationOffset();
-  #if BMC_MAX_CUSTOM_SYSEX > 0
-    value += (sizeof(bmcStoreGlobalCustomSysEx) * index);
+  #if BMC_MAX_GLOBAL_PIXELS > 0
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalRgbPixelOffset(){
+  uint32_t value = getGlobalPixelOffset();
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    value += sizeof(store.global.rgbPixels);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getGlobalRgbPixelOffset(uint16_t index){
+  uint32_t value = getGlobalPixelOffset();
+  #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
+    value += (sizeof(bmcStoreDevice <1, 3>) * index);
   #endif
   return value;
 }
 
-uint32_t BMCEditor::getTriggerOffset(){
-  uint32_t value = getCustomSysExOffset();
-  #if BMC_MAX_TRIGGERS > 0
-    value += sizeof(store.global.triggers);
+uint32_t BMCEditor::getGlobalMagicEncoderOffset(){
+  uint32_t value = getGlobalRgbPixelOffset();
+  #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    value += sizeof(store.global.magicEncoders);
   #endif
   return value;
 }
-uint32_t BMCEditor::getTriggerOffset(uint8_t index){
-  uint32_t value = getCustomSysExOffset();
-  #if BMC_MAX_TRIGGERS > 0
-    value += (sizeof(bmcStoreGlobalTriggers) * index);
+uint32_t BMCEditor::getGlobalMagicEncoderOffset(uint16_t index){
+  uint32_t value = getGlobalRgbPixelOffset();
+  #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
+    value += (sizeof(bmcStoreDevice <3, 3>) * index);
   #endif
   return value;
 }
 
-uint32_t BMCEditor::getTempoToTapOffset(){
-  uint32_t value = getTriggerOffset();
-  #if BMC_MAX_TEMPO_TO_TAP > 0
-    value += sizeof(store.global.tempoToTap);
-  #endif
-  return value;
-}
-uint32_t BMCEditor::getTempoToTapOffset(uint8_t index){
-  uint32_t value = getTriggerOffset();
-  #if BMC_MAX_TEMPO_TO_TAP > 0
-    value += (sizeof(bmcStoreGlobalTempoToTap) * index);
-  #endif
-  return value;
-}
 uint32_t BMCEditor::getNLRelayOffset(){
-  uint32_t value = getTempoToTapOffset();
+  uint32_t value = getGlobalMagicEncoderOffset();
   #if BMC_MAX_NL_RELAYS > 0
     value += sizeof(store.global.relaysNL);
   #endif
   return value;
 }
-uint32_t BMCEditor::getNLRelayOffset(uint8_t index){
-  uint32_t value = getTempoToTapOffset();
+uint32_t BMCEditor::getNLRelayOffset(uint16_t index){
+  uint32_t value = getGlobalMagicEncoderOffset();
   #if BMC_MAX_NL_RELAYS > 0
-    value += (sizeof(bmcStoreGlobalRelay) * index);
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif
   return value;
 }
@@ -376,29 +432,80 @@ uint32_t BMCEditor::getLRelayOffset(){
   #endif
   return value;
 }
-uint32_t BMCEditor::getLRelayOffset(uint8_t index){
+uint32_t BMCEditor::getLRelayOffset(uint16_t index){
   uint32_t value = getNLRelayOffset();
   #if BMC_MAX_L_RELAYS > 0
-    value += (sizeof(bmcStoreGlobalRelay) * index);
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif
   return value;
 }
-uint32_t BMCEditor::getPortPresetsOffset(){
-  return getLRelayOffset();
+uint32_t BMCEditor::getAuxJackOffset(){
+  uint32_t value = getLRelayOffset();
+  #if BMC_MAX_AUX_JACKS > 0
+    value += sizeof(store.global.auxJacks);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getAuxJackOffset(uint16_t index){
+  uint32_t value = getLRelayOffset();
+  #if BMC_MAX_AUX_JACKS > 0
+    value += (sizeof(bmcStoreDevice <2, 3>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getCustomSysExOffset(){
+  uint32_t value = getAuxJackOffset();
+  #if BMC_MAX_CUSTOM_SYSEX > 0
+    value += sizeof(store.global.customSysEx);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getCustomSysExOffset(uint8_t index){
+  uint32_t value = getAuxJackOffset();
+  #if BMC_MAX_CUSTOM_SYSEX > 0
+    value += (sizeof(bmcStoreDevice <1, 16, uint8_t>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getTriggerOffset(){
+  uint32_t value = getCustomSysExOffset();
+  #if BMC_MAX_TRIGGERS > 0
+    value += sizeof(store.global.triggers);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getTriggerOffset(uint8_t index){
+  uint32_t value = getCustomSysExOffset();
+  #if BMC_MAX_TRIGGERS > 0
+    value += (sizeof(bmcStoreDevice <1, 2>) * index);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getTempoToTapOffset(){
+  uint32_t value = getTriggerOffset();
+  #if BMC_MAX_TEMPO_TO_TAP > 0
+    value += sizeof(store.global.tempoToTap);
+  #endif
+  return value;
+}
+uint32_t BMCEditor::getTempoToTapOffset(uint8_t index){
+  uint32_t value = getTriggerOffset();
+  #if BMC_MAX_TEMPO_TO_TAP > 0
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
+  #endif
+  return value;
 }
 uint32_t BMCEditor::getPixelProgramsOffset(){
-  uint32_t value = getPortPresetsOffset();
-  value += sizeof(store.global.portPresets);
+  uint32_t value = getTempoToTapOffset();
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     value += sizeof(store.global.pixelPrograms);
   #endif
   return value;
 }
 uint32_t BMCEditor::getPixelProgramsOffset(uint8_t index){
-  uint32_t value = getPortPresetsOffset();
-  value += sizeof(store.global.portPresets);
+  uint32_t value = getTempoToTapOffset();
   #if BMC_MAX_PIXEL_PROGRAMS > 0
-    value += (sizeof(bmcStorePixelPrograms) * index);
+    value += (sizeof(bmcStoreDevice <1, 8, uint8_t>) * index);
   #endif
   return value;
 }
@@ -412,7 +519,7 @@ uint32_t BMCEditor::getTimedEventOffset(){
 uint32_t BMCEditor::getTimedEventOffset(uint8_t index){
   uint32_t value = getPixelProgramsOffset();
   #if BMC_MAX_TIMED_EVENTS > 0
-    value += (sizeof(bmcStoreGlobalTimedEvents) * index);
+    value += (sizeof(bmcStoreDevice <1, 1>) * index);
   #endif
   return value;
 }

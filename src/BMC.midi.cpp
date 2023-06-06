@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -10,16 +10,21 @@ void BMC::readMidi(){
   // this is mainly used to update the midi clocks timer
   handleMidiClock(false);
 
+  if(midiClock.tempoChanged()){
+    BMC_PRINTLN("tempoChanged()");
+    runBpmChanged();
+  }
+
   midiActiveSense.update();
 
   incomingMidi(midi.read());// Read the USB MIDI Port
 
   #ifdef BMC_USB_HOST_ENABLED
-    incomingMidi(midi.readHost());// Read the USB Host MIDI Port
+    incomingMidi(midi.readHost()); // Read the USB Host MIDI Port
   #endif
 
   #ifdef BMC_MIDI_BLE_ENABLED
-    incomingMidi(midi.readBle());// Read the BLE MIDI Port
+    incomingMidi(midi.readBle()); // Read the BLE MIDI Port
   #endif
 
   #if defined(BMC_MIDI_SERIAL_A_ENABLED) && !defined(BMC_RX_DISABLE_SERIAL_A)
@@ -38,9 +43,9 @@ void BMC::readMidi(){
     incomingMidi(midi.readSerial(3));// Read the Serial D MIDI Port
   #endif
 
-#ifdef BMC_USE_BEATBUDDY
-  sync.beatBuddy.update();
-#endif
+  #ifdef BMC_USE_BEATBUDDY
+    sync.beatBuddy.update();
+  #endif
 }
 void BMC::incomingMidi(BMCMidiMessage message){
   if(message.getStatus()==BMC_NONE){
@@ -67,10 +72,6 @@ void BMC::incomingMidi(BMCMidiMessage message){
   readTrigger();
 #endif
 
-#if BMC_MAX_NL_RELAYS > 0 || BMC_MAX_L_RELAYS > 0
-  checkRelaysMidiInput(message);
-#endif
-
 #ifdef BMC_USE_DAW_LC
   sync.daw.incoming(message);
 #endif
@@ -93,24 +94,24 @@ void BMC::incomingMidi(BMCMidiMessage message){
         case BMC_NONE:
           break;
         case 1:
-#if BMC_MAX_PAGE > 127
-          setPage((bank*128) + message.getData1());
+#if BMC_MAX_LAYERS > 127
+          setLayer((bank*128) + message.getData1());
 #else
-          setPage(message.getData1());
+          setLayer(message.getData1());
 #endif
           break;
         case 2:
 #if BMC_MAX_PRESETS > 127
-          presets.send((bmcPreset_t) ((bank*128) + message.getData1()));
+          //presets.setByIndex((uint16_t) ((bank*128) + message.getData1()));
 #elif BMC_MAX_PRESETS > 0
-          presets.send(message.getData1());
+          //presets.setByIndex(message.getData1());
 #endif
           break;
       }
     } else if(message.isControlChange()){
       // if BMC is set to listen to incoming messages, MIDI CC#0 on the
       // specified channel is automatically the BANK control change
-#if BMC_MAX_PAGE > 127 || BMC_MAX_PRESETS > 127
+#if BMC_MAX_LAYERS > 127 || BMC_MAX_PRESETS > 127
       if(message.getData1() == 0){
         bank = message.getData2() > 0 ? 1 : 0;
         BMC_PRINTLN("MIDI Bank Changed", bank);
@@ -131,25 +132,21 @@ void BMC::incomingMidi(BMCMidiMessage message){
     }
   }
   // only used when debugging
-#ifdef BMC_DEBUG
+#if defined(BMC_DEBUG)
   midiInDebug(message);
 #endif
 }
 
 void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
   if(midiClock.read(isClock, isStartOrContinue)){
-#if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
+#if (BMC_TOTAL_LEDS + BMC_TOTAL_PIXELS) > 0
     handleClockLeds();
 #endif
-
     if(callback.midiClockBeat){
       callback.midiClockBeat();
     }
-    if(midiClock.tempoChanged()){
-      runBpmChanged();
-    }
   }
-#if BMC_MAX_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
     pixels.clockBeat(midiClock.getBpm());
 #endif
 }
@@ -162,9 +159,12 @@ void BMC::midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t m
   }
   BMC_PRINTLN("programBank", programBank);
 }
-void BMC::midiProgramBankTrigger(uint8_t amount, uint8_t channel, uint8_t ports){
-  uint8_t nextProgram = programBank+amount;
-  if(nextProgram>127 || channel==0 || channel>16 || ports==BMC_NONE){
+void BMC::midiProgramBankTrigger(uint8_t channel, uint8_t ports){
+  uint8_t nextProgram = programBank;
+  if(nextProgram>127){
+    nextProgram = 0;
+  }
+  if(channel==0 || channel>16 || ports==BMC_NONE){
     return;
   }
   midi.sendProgramChange(ports, channel, nextProgram);

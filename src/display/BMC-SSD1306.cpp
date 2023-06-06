@@ -599,8 +599,8 @@ uint8_t *BMC_SSD1306::getBuffer(void) {
 void BMC_SSD1306::display(void) {
   static const uint8_t PROGMEM dlist1[] = {
     BMC_SSD1306_PAGEADDR,
-    0,                         // Page start address
-    0xFF,                      // Page end (not really, but works here)
+    0,                         // Layer start address
+    0xFF,                      // Layer end (not really, but works here)
     BMC_SSD1306_COLUMNADDR,
     0 };                       // Column start address
   ssd1306_commandList(dlist1, sizeof(dlist1));
