@@ -70,6 +70,8 @@ class BMC_ILI9341_BLOCK {
   }
   void reassign(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
     selChar = -1;
+    meterPixelValue = 0xFFFF;
+    meterValue = 0xFFFF;
     clear(tft, t_settings, highlight);
   }
   void clear(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
@@ -85,14 +87,14 @@ class BMC_ILI9341_BLOCK {
       tft.drawRect(xBound, yBound, wBound, hBound, highlight ? background : color);
     }
   }
-  void drawHorizontalMeter(BMC_TFT& tft, uint8_t t_value, uint16_t t_w, uint16_t t_min, uint16_t t_max, uint16_t t_x, uint16_t t_y){
-    uint16_t width = t_w - 4;
-    uint16_t height = 8;
-    uint16_t fill = map(t_value, t_min, t_max, 0, width-4);
-    tft.drawRect(t_x, t_y, width, height, color);
-    tft.drawRect(t_x+1, t_y+1, width-2, height-2, background);
-    tft.drawRect(t_x+2, t_y+2, fill, height-4, color);
-  }
+  // void drawHorizontalMeter(BMC_TFT& tft, uint8_t t_value, uint16_t t_w, uint16_t t_min, uint16_t t_max, uint16_t t_x, uint16_t t_y){
+  //   uint16_t width = t_w - 4;
+  //   uint16_t height = 8;
+  //   uint16_t fill = map(t_value, t_min, t_max, 0, width-4);
+  //   tft.drawRect(t_x, t_y, width, height, color);
+  //   tft.drawRect(t_x+1, t_y+1, width-2, height-2, background);
+  //   tft.drawRect(t_x+2, t_y+2, fill, height-4, color);
+  // }
   void print(BMC_TFT& tft, uint8_t t_crc, const char* str, const char* label="", bool highlight=false){
     // add one extra character for the EOL
     uint8_t len = strlen(str)+1;
@@ -235,37 +237,343 @@ class BMC_ILI9341_BLOCK {
 #endif
     return fontHeight | ((fontPadding*2)<<8);
   }
-  void printPC(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_settings, bool highlight=false){
-    printMIDI(tft, t_crc, BMC_MIDI_PROGRAM_CHANGE, t_ch, t_d1, -1, t_settings, highlight);
+  uint16_t fitStrInWidth(BMC_TFT& tft, char* buff, uint16_t t_width){
+    if(strlen(buff) < 2){
+      return BMC_TFT_STR_LEN(tft, buff);
+    }
+    uint16_t pixLen = 0;
+    uint8_t len = strlen(buff)-1;
+    for(int i = len; i --> 0; ){
+      pixLen = BMC_TFT_STR_LEN(tft, buff);
+      if(pixLen > t_width){
+        buff[i] = 0;
+      } else {
+        return pixLen;
+      }
+    }
+    return pixLen;
   }
-  void printCC(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
-    printMIDI(tft, t_crc, BMC_MIDI_CONTROL_CHANGE, t_ch, t_d1, t_d2, t_settings, highlight);
+
+
+
+
+
+
+
+  // drawKnobFace & drawKnobPosition
+  // based on code from this sketch:
+  // https://github.com/rydepier/Arduino-OLED-Clock/blob/master/Arduino-OLED-Clock%20using%20ADAfruit%20libraries.ino
+  void drawKnobFace(BMC_TFT& tft, uint16_t t_x, uint16_t t_y, uint16_t t_r){
+    tft.fillRect(t_x, t_y, t_r, t_r, background);
+    tft.drawCircle(t_x, t_y, t_r-12, color);
+    uint8_t outterR = 5;
+    for(int z = 0 ; z < 360 ; z += 30){
+      if(z == 180){
+        continue;
+      }
+      float angle = z;
+      angle = (angle / 57.29577951) ;
+      int x1 = (t_x + (sin(angle) * (t_r-outterR)));
+      int y1 = (t_y - (cos(angle) * (t_r-outterR)));
+      tft.fillCircle(x1, y1, 1, color);
+    }
   }
-  void printNote(BMC_TFT& tft, uint8_t t_crc, uint8_t t_ch, uint8_t t_d1, uint8_t t_d2, uint8_t t_settings, bool highlight=false){
-    printMIDI(tft, t_crc, BMC_MIDI_NOTE_ON, t_ch, t_d1, t_d2, t_settings, highlight);
+  void drawKnobPositionDot(BMC_TFT& tft, uint16_t t_value, uint16_t t_x, uint16_t t_y, uint16_t t_r, uint16_t t_color){
+    uint8_t outterR = 19;
+    int z = map(t_value, 0, 100, 210, 510);
+    // Begin at 0° and stop at 360°
+    float angle = z;
+    if(z > 360){
+      angle = z - 360;
+    }
+    angle = (angle / 57.29577951) ; //Convert degrees to radians
+    int x1 = (t_x + (sin(angle) * (t_r-outterR)));
+    int y1 = (t_y - (cos(angle) * (t_r-outterR)));
+    tft.fillCircle(x1, y1, 2, t_color);
   }
-  void printMIDI(BMC_TFT& tft, uint8_t t_crc, uint8_t t_type, uint8_t t_ch, uint8_t t_d1, int16_t t_d2, uint8_t t_settings, bool highlight=false){
-    if(crc == t_crc || wBound < 120){
+  void drawKnobPositionLine(BMC_TFT& tft, uint16_t t_value, uint16_t t_x, uint16_t t_y, uint16_t t_r, uint16_t t_color){
+    uint8_t outterR = 18;
+    uint8_t innerR = 28;
+    int z = map(t_value, 0, 100, 210, 510);
+    //Begin at 0° and stop at 360°
+    float angle = z;
+    if(z > 360){
+      angle = z - 360;
+    }
+    angle = (angle / 57.29577951) ; //Convert degrees to radians
+    int x1 = (t_x + (sin(angle) * (t_r-outterR)));
+    int y1 = (t_y - (cos(angle) * (t_r-outterR)));
+    int x2 = (t_x + (sin(angle) * (t_r-innerR)));
+    int y2 = (t_y - (cos(angle) * (t_r-innerR)));
+
+    tft.drawLine(x1, y1, x2, y2, t_color);
+  }
+  void printKnob(BMC_TFT& tft, BMCDataContainer d){
+    bool showLabel      = d.showLabel() && wBound > 120;
+    uint16_t wPos       = xBound + (showLabel ? (wBound/4) : (wBound/2));
+    uint16_t hPos       = yBound + (hBound/2);
+    uint16_t rPos       = ((hBound/2)-2);
+    uint16_t pixelValue = map(d.value, d.min, d.max, 0, 100);
+    uint16_t strL       = 0;
+    uint16_t blockW     = (wBound/2);
+    uint16_t txtX       = 0;
+    
+
+    if(showLabel){
+      tft.setFont(BMCLiberationSansNarrow_16);
+      tft.setTextWrap(false);
+      uint16_t txtY      = yBound + (BMC_TFT_STR_LEN(tft, d.label)==0 ? hBound : 40);
+      char outStr[32] = "";
+      // display the last value but in the background color
+
+      BMCTools::formatKnobValue(d, meterValue, outStr);
+      strL = fitStrInWidth(tft, outStr, blockW);
+      if(strL > blockW){
+        txtX = xBound + blockW+5;
+      } else {
+        txtX = xBound + blockW + ((blockW - strL)/2);
+      }
+
+      tft.setTextColor(background);
+      tft.setCursor(txtX, txtY);
+      tft.print(outStr);
+      
+      BMCTools::formatKnobValue(d, d.value, outStr);
+      strL = fitStrInWidth(tft, outStr, blockW);
+      if(strL > blockW){
+        txtX = xBound + blockW+5;
+      } else {
+        txtX = xBound + blockW + ((blockW - strL)/2);
+      }
+      
+      tft.setTextColor(color);
+      tft.setCursor(txtX, txtY);
+      tft.print(outStr);
+    }
+    if(meterPixelValue == 0xFFFF){
+      if(showLabel){
+        // strL = BMC_TFT_STR_LEN(tft, d.label);
+        strL = fitStrInWidth(tft, d.label, blockW);
+        if(strL > blockW){
+          txtX = xBound + blockW + 5;
+        } else {
+          txtX = xBound + blockW + ((blockW - strL)/2);
+        }
+        tft.setCursor(txtX, yBound+17);
+        tft.print(d.label);
+      }
+      drawKnobFace(tft, wPos, hPos, rPos);
+      drawKnobPositionDot(tft, pixelValue, wPos, hPos, rPos, color);
+      
+    } else {
+      drawKnobPositionDot(tft, meterPixelValue, wPos, hPos, rPos, background);
+      drawKnobPositionDot(tft, pixelValue, wPos, hPos, rPos, color);
+    }
+    meterPixelValue = pixelValue;
+    meterValue = d.value;
+  }
+
+
+  void drawSwitchRect(BMC_TFT& tft, uint16_t pos){
+    uint16_t pos2 = pos*2;
+    tft.drawRect(xBound+pos, yBound+pos, wBound-pos2, hBound-pos2, color);
+  }
+  
+  void drawSwitch(BMC_TFT& tft, uint16_t pos, bool value){
+    // hBound = 32;
+    uint16_t pos2 = pos*2;
+    uint16_t centerX = wBound/2;
+
+    tft.setFont(BMCLiberationSansNarrow_16);
+    tft.setTextWrap(false);
+    
+    if(!value){
+      tft.fillRect(xBound+centerX, yBound+pos, centerX-pos, hBound-pos2, background);
+      tft.fillRect(xBound+pos, yBound+pos, centerX-pos, hBound-pos2, color);
+      uint16_t txtX = xBound+(pos + ((wBound-pos2)*0.75)) - (18);
+      tft.setTextColor(color);
+      tft.setCursor(txtX, yBound+(hBound/2)-8);
+      tft.print("OFF");
+    } else {
+      tft.fillRect(xBound+pos, yBound+pos, centerX-pos, hBound-pos2, background);
+      tft.fillRect(xBound+centerX, yBound+pos, centerX-pos, hBound-pos2, color);
+
+      uint16_t txtX = xBound+(pos + ((wBound-pos2)*0.25)) - (12);
+      tft.setTextColor(color);
+      tft.setCursor(txtX, yBound+(hBound/2)-8);
+      tft.print("ON");
+    }
+  }
+  void printSwitch(BMC_TFT& tft, BMCDataContainer d){
+    // 2 pixel wide box
+    // drawSwitchRect(4);
+    // drawSwitchRect(5);
+    // switch border with 5px padding
+
+    uint16_t pixelValue = d.value == d.max ? 1 : 0;
+    uint8_t startPoint = 10;
+    
+    if(meterPixelValue == 0xFFFF){
+      drawSwitchRect(tft, startPoint);
+      drawSwitchRect(tft, startPoint+1);
+    }
+    if(pixelValue != meterPixelValue){
+      drawSwitch(tft, startPoint+2, pixelValue);
+    }
+    meterPixelValue = pixelValue;
+    meterValue = d.value;
+  }
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  void printSlider(BMC_TFT& tft, BMCDataContainer d){
+    if(crc == d.crc){
       return;
     }
-    clear(tft, t_settings, highlight);
-    tft.setTextColor(highlight ? background : color);
     // set crc after clear()
-    crc = t_crc;
+    crc = d.crc;
+
+
+    if(hBound == 80 && wBound >= 80){
+      if(d.useOnOffSwitch()){
+        printSwitch(tft, d);
+      } else {
+        printKnob(tft, d);
+      }
+      return;
+    }
+
+    uint8_t padding    = (hBound == 80) ? 4 : 2;
+    uint16_t h         = hBound;
+    uint16_t x         = xBound + padding;
+    uint16_t frameH    = ((hBound == 80) ? (h / 2) : (h / 3)) - padding;
+    uint16_t frameW    = wBound - (padding * 2);
+    uint16_t frameYC   = yBound + ((h-frameH)/2);
+    uint16_t y         = frameYC;
+    uint16_t fillH     = frameH-(padding*4);
+    uint16_t fillW     = frameW-(padding*4);
+    uint16_t txtY      = (h == 80) ? yBound+10 : yBound+5;
+    uint16_t pixelValue = map(d.value, d.min, d.max, (d.useOffset ? d.offset : 0), fillW);
+    bool addLabel = d.showLabel() && wBound > 120;
+
+    tft.setFont(BMCLiberationSansNarrow_16);
+
+    uint16_t txtX = 0;
+    char outStr[32] = "";
+    // display the last value but in the background color
+    sprintf(outStr, "%u", meterValue+(d.useOffset ? d.offset : 0));
+    
+    if(addLabel){
+      txtX = ((xBound + wBound) - BMC_TFT_STR_LEN(tft, outStr))-padding;
+    } else {
+      txtX = xBound + ((wBound - BMC_TFT_STR_LEN(tft, outStr))/2);
+    }
+    tft.setTextColor(background);
+    tft.setCursor(txtX, txtY);
+    tft.print(outStr);
+
+    // display the new value but in the foreground color
+    sprintf(outStr, "%u", d.value+(d.useOffset ? d.offset : 0));
+    if(addLabel){
+      txtX = ((xBound + wBound) - BMC_TFT_STR_LEN(tft, outStr))-padding;
+    } else {
+      txtX = xBound + ((wBound - BMC_TFT_STR_LEN(tft, outStr))/2);
+    }
+    tft.setTextColor(color);
+    tft.setCursor(txtX, txtY);
+    tft.print(outStr);
+    y = ((yBound+hBound)-frameH)-2;
+
+    uint16_t fillX     = x+(padding*2);
+    uint16_t fillY     = y+(padding*2);
+
+    if(meterPixelValue == 0xFFFF){
+      tft.drawRect(x, y, frameW, frameH, color);
+      tft.fillRect(fillX, fillY, fillW, fillH, background);
+      tft.fillRect(fillX, fillY, pixelValue, fillH, color);
+      if(addLabel){
+        tft.setTextColor(color);
+        tft.setCursor(xBound+padding, txtY);
+        tft.print(d.label);
+      }
+    } else if(pixelValue != meterPixelValue){
+      if(pixelValue > meterPixelValue){
+        tft.fillRect(fillX, fillY, pixelValue, fillH, color);
+      } else {
+        tft.fillRect(fillX+pixelValue, fillY, fillW-pixelValue, fillH, background);
+      }
+
+      // if(pixelValue > meterPixelValue){
+      //   tft.fillRect(fillX+meterPixelValue, fillY, pixelValue-meterPixelValue, fillH, color);
+      // } else {
+      //   tft.fillRect(fillX+pixelValue, fillY, meterPixelValue-pixelValue, fillH, background);
+      // }
+    }
+
+    meterPixelValue = pixelValue;
+    meterValue = d.value;
+  }
+  
+  void printPC(BMC_TFT& tft, BMCDataContainer d){
+    if(d.useMeter(wBound >= 120)){
+      // display dial
+      printSlider(tft, d);
+      return;
+    }
+    d.byteC = 0xFF;
+    d.type = BMC_MIDI_PROGRAM_CHANGE;
+    printMIDI(tft, d);
+  }
+  void printCC(BMC_TFT& tft, BMCDataContainer d){
+    if(d.useMeter(wBound >= 120)){
+      // display dial
+      printSlider(tft, d);
+      return;
+    }
+    d.type = BMC_MIDI_CONTROL_CHANGE;
+    printMIDI(tft, d);
+  }
+  void printNote(BMC_TFT& tft, BMCDataContainer d){
+    d.type = BMC_MIDI_NOTE_ON;
+    printMIDI(tft, d);
+  }
+  void printMIDI(BMC_TFT& tft, BMCDataContainer d){
+    if(crc == d.crc || wBound < 120){
+      return;
+    }
+    clear(tft, d.settings, d.highlight);
+    tft.setTextColor(d.highlight ? background : color);
+    // set crc after clear()
+    crc = d.crc;
     char strChTitle[4] = "CH";
     char strD1Title[4] = "";
     char strD2Title[4] = "";
     char strCH[4] = "";
     char strD1[4] = "";
     char strD2[4] = "";
+    uint8_t t_ch = d.byteA;
+    uint8_t t_d1 = d.byteB;
+    uint8_t t_d2 = d.byteC;
 
     t_ch = constrain(t_ch, 1, 16);
     t_d1 = constrain(t_d1, 0, 127);
     sprintf(strCH, "%02u", t_ch);
-    sprintf(strD1, "%03u", t_d1);
-    if(t_d2 != -1){
+    if(t_d2 != 0xFF){
+      sprintf(strD1, "%03u", t_d1);
       t_d2 = constrain(t_d2, 0, 127);
-      sprintf(strD2, "%03u", t_d2);
+      sprintf(strD2, "%03u", t_d2+(d.useOffset ? (uint8_t)d.offset : 0));
+    } else {
+      sprintf(strD1, "%03u", t_d1+(d.useOffset ? (uint8_t)d.offset : 0));
     }
     // wBound kept at 120 pixels instead of block width
     uint16_t t_wBound = 120;
@@ -273,7 +581,7 @@ class BMC_ILI9341_BLOCK {
     uint16_t y1 = (hBound == 40) ? 2 : 16;
     uint16_t y2 = (hBound == 40) ? 22 : 48;
 
-    switch(t_type){
+    switch(d.type){
       case BMC_MIDI_PROGRAM_CHANGE:
         strcpy(strD1Title, "PC");
         bW = (t_wBound/2);
@@ -290,7 +598,7 @@ class BMC_ILI9341_BLOCK {
     }
     tft.setFont(BMCLiberationSansNarrow_16);
     printMidiLabelAndValue(tft, strChTitle, strCH, y1, y2, bW, 0);
-    if(t_d2 < 0){
+    if(t_d2 == 0xFF){
       printMidiLabelAndValue(tft, strD1Title, strD1, y1, y2, bW, bW);
     } else {
       printMidiLabelAndValue(tft, strD1Title, strD1, y1, y2, bW, bW);
@@ -340,6 +648,8 @@ class BMC_ILI9341_BLOCK {
     uint8_t settings = 0;
     uint8_t crc = 0;
     int8_t selChar = -1;
+    uint16_t meterPixelValue = 0xFFFF;
+    uint16_t meterValue = 0xFFFF;
 };
 
 #endif

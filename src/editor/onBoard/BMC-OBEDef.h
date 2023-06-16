@@ -55,6 +55,8 @@
   #define BMC_OBE_HEAD_FONT Arial_20_Bold
   // y coordinate of text inside each list item
   #define BMC_OBE_ROW_TEXT_Y 16
+  // toolbar button count
+  #define BMC_OBE_TOOLBAR_BUTTON_COUNT 4
 #else 
   #define BMC_OBE_ROW_HEAD_H 60
   // y coordinate of header text
@@ -63,6 +65,8 @@
   #define BMC_OBE_HEAD_FONT Arial_20_Bold
   // y coordinate of text inside each list item
   #define BMC_OBE_ROW_TEXT_Y 16
+  // toolbar button count
+  #define BMC_OBE_TOOLBAR_BUTTON_COUNT 5
 #endif
 
 
@@ -169,58 +173,61 @@
 #define BMC_OBE_DEVICE_OPT_CUSTOM_EDITOR_MODE	 12
 
 // main
-#define BMC_OBE_ID_GO_TO             	 1
+#define BMC_OBE_ID_GO_TO              	 1
 // main > change layer
-#define BMC_OBE_ID_CP_GO_TO_LAYER    	 2
-#define BMC_OBE_ID_CP_GO_TO_BANK     	 3
-#define BMC_OBE_ID_CP_GO_TO_PRESET   	 4
-#define BMC_OBE_ID_CP_GO_TO_SETLIST  	 5
-#define BMC_OBE_ID_CP_GO_TO_SONG     	 6
-#define BMC_OBE_ID_CP_GO_TO_PART     	 7
+#define BMC_OBE_ID_CP_GO_TO_LAYER     	 2
+#define BMC_OBE_ID_CP_GO_TO_BANK      	 3
+#define BMC_OBE_ID_CP_GO_TO_PRESET    	 4
+#define BMC_OBE_ID_CP_GO_TO_SETLIST   	 5
+#define BMC_OBE_ID_CP_GO_TO_SONG      	 6
+#define BMC_OBE_ID_CP_GO_TO_PART      	 7
+// edit
+#define BMC_OBE_ID_EDIT               	 8
 // main
-#define BMC_OBE_ID_SETTINGS          	 8
+#define BMC_OBE_ID_SETTINGS           	 9
 // main > settings
-#define BMC_OBE_ID_SETTINGS_GENERAL  	 9
+#define BMC_OBE_ID_SETTINGS_GENERAL   	 10
 // main > settings > general
-#define BMC_OBE_ID_S_BTN_HOLD_TIME   	 10
-#define BMC_OBE_ID_S_TYPER_CHANNEL   	 11
-#define BMC_OBE_ID_S_DISPLAY_OFFSET  	 12
-#define BMC_OBE_ID_S_DISPLAY_BANNERS 	 13
-#define BMC_OBE_ID_S_DISPLAY_NAMES   	 14
-#define BMC_OBE_ID_S_PREPEND_PRESET  	 15
-#define BMC_OBE_ID_S_PREPEND_BANK    	 16
-#define BMC_OBE_ID_S_DIM_LEDS        	 17
-#define BMC_OBE_ID_S_STARTUP_PRESET  	 18
-#define BMC_OBE_ID_S_TRIG_1ST_SONG   	 19
-#define BMC_OBE_ID_S_TRIG_1ST_PART   	 20
-#define BMC_OBE_ID_S_TOUCH_CALIBRATED	 21
+#define BMC_OBE_ID_S_BTN_HOLD_TIME    	 11
+#define BMC_OBE_ID_S_TYPER_CHANNEL    	 12
+#define BMC_OBE_ID_S_DISPLAY_OFFSET   	 13
+#define BMC_OBE_ID_S_DISPLAY_BANNERS  	 14
+#define BMC_OBE_ID_S_DISPLAY_NAMES    	 15
+#define BMC_OBE_ID_S_PREPEND_PRESET   	 16
+#define BMC_OBE_ID_S_PREPEND_BANK     	 17
+#define BMC_OBE_ID_S_DIM_LEDS         	 18
+#define BMC_OBE_ID_S_STARTUP_PRESET   	 19
+#define BMC_OBE_ID_S_TRIG_1ST_SONG    	 20
+#define BMC_OBE_ID_S_TRIG_1ST_PART    	 21
+#define BMC_OBE_ID_S_DISPLAY_LIST_MODE	 22
+#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 23
 // main > settings
-#define BMC_OBE_ID_SETTINGS_MIDI     	 22
+#define BMC_OBE_ID_SETTINGS_MIDI      	 24
 // main > settings > general
-#define BMC_OBE_ID_S_IN_CTRL         	 23
-#define BMC_OBE_ID_S_IN_CTRL_CH      	 24
-#define BMC_OBE_ID_S_IN_CTRL_ACTION  	 25
-#define BMC_OBE_ID_S_CLOCK_IN_PORT   	 26
-#define BMC_OBE_ID_S_MASTER_CLOCK    	 27
-#define BMC_OBE_ID_S_ACTIVE_SENSE    	 28
-#define BMC_OBE_ID_S_BLOCK_RT_IN     	 29
-#define BMC_OBE_ID_S_BLOCK_RT_OUT    	 30
+#define BMC_OBE_ID_S_IN_CTRL          	 25
+#define BMC_OBE_ID_S_IN_CTRL_CH       	 26
+#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 27
+#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 28
+#define BMC_OBE_ID_S_MASTER_CLOCK     	 29
+#define BMC_OBE_ID_S_ACTIVE_SENSE     	 30
+#define BMC_OBE_ID_S_BLOCK_RT_IN      	 31
+#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 32
 // main
-#define BMC_OBE_ID_GLOBAL            	 31
+#define BMC_OBE_ID_GLOBAL             	 33
 // main > global
-#define BMC_OBE_ID_GLOBAL_ITEMS      	 32
+#define BMC_OBE_ID_GLOBAL_ITEMS       	 34
 // main > global > items
-#define BMC_OBE_ID_G_ITEM_LIST       	 33
+#define BMC_OBE_ID_G_ITEM_LIST        	 35
 // main > global > items > editor
-#define BMC_OBE_ID_G_ITEM_EDIT       	 34
+#define BMC_OBE_ID_G_ITEM_EDIT        	 36
 // main
-#define BMC_OBE_ID_LAYERS            	 35
+#define BMC_OBE_ID_LAYERS             	 37
 // main > layers
-#define BMC_OBE_ID_LAYERS_ITEMS      	 36
+#define BMC_OBE_ID_LAYERS_ITEMS       	 38
 // main > layers > items
-#define BMC_OBE_ID_P_ITEM_LIST       	 37
+#define BMC_OBE_ID_P_ITEM_LIST        	 39
 // main > layers > items > editor
-#define BMC_OBE_ID_P_ITEM_EDIT       	 38
+#define BMC_OBE_ID_P_ITEM_EDIT        	 40
 
 
 class bmcRenderButton {
@@ -267,15 +274,28 @@ class bmcRenderTouchButtons {
       uint16_t y = (BMC_TFT_HEIGHT-h)-1;
       char l = type==0 ? BMC_OBE_SEL_CHAR_ARROW_UP : BMC_OBE_SEL_CHAR_ARROW_LEFT;
       char r = type==0 ? BMC_OBE_SEL_CHAR_ARROW_DOWN : BMC_OBE_SEL_CHAR_ARROW_RIGHT;
-      uint16_t space = (BMC_TFT_WIDTH-(w*4))/3;
+      uint16_t space = (BMC_TFT_WIDTH-(w*BMC_OBE_TOOLBAR_BUTTON_COUNT))/(BMC_OBE_TOOLBAR_BUTTON_COUNT-1);
+      // add a 5th button on larger displays 480x320
 
       tft.fillRect(0, BMC_OBE_H-BMC_OBE_ROW_H, BMC_OBE_W, BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
+      
       // arrow up
       button.render(tft, 0, y, w, h, l, BMC_OBE_BUTTON_COLOR);
-      // exit
-      button.render(tft, space+w, y, w, h, 120, BMC_ILI9341_RED);
-      // enter
-      button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_GREEN);
+
+      #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 4
+        // exit
+        button.render(tft, space+w, y, w, h, 120, BMC_ILI9341_RED);
+        // enter
+        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_GREEN);
+      #else
+        // exit
+        button.render(tft, space+w, y, w, h, 120, BMC_ILI9341_RED);
+        // back
+        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_ARROW_LEFT, BMC_ILI9341_BLUE);
+        // enter
+        button.render(tft, (space*3)+(w*3), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_GREEN);
+      #endif
+      
       // arrow down
       button.render(tft, BMC_TFT_WIDTH-52, y, 52, h, r, BMC_OBE_BUTTON_COLOR);
     }
@@ -317,20 +337,28 @@ struct BMCOBEMenuItem {
   uint16_t max = 0;
   uint8_t steps = 0;
 };
+struct BMCOBEAssignments {
+  uint8_t type = 0;
+  uint16_t index = 0;
+};
 class BMCOBEData {
   public:
   BMCOBEData(){}
   BMCDeviceData activeDevice;
   BMCTimer encoderQueue;
   uint8_t queueAction = 0;
-  char headerTitle[40] = "";
+  // char headerTitle[40] = "";
+  // char selectionText[40] = "";
+
   uint16_t level[BMC_OBE_MAX_LEVELS];
   int16_t lastRowPage[BMC_OBE_MAX_LEVELS];
   //int16_t lastMaxRowPages[BMC_OBE_MAX_LEVELS];
   int8_t lastActiveRow[BMC_OBE_MAX_LEVELS];
+  uint8_t breadcrumbs[BMC_OBE_MAX_LEVELS];
   uint16_t visibleRowId[BMC_OBE_ROWS_PER_PAGE];
   uint8_t visibleRowIdLength = 0;
   bool eventEditorEditMode = false;
+  
   uint16_t rowEditValue = 0;
   uint8_t deviceType = 0;
   uint16_t deviceIndex = 0;
@@ -348,14 +376,8 @@ class BMCOBEData {
   bool namesEditorActive = false;
   bool eventsEditorActive = false;
   bool triggerHeaderRender = false;
-  const char onOffLabels[2][4] = {
-    "Off",
-    "On"
-  };
-  const char yesNoLabels[2][4] = {
-    "No",
-    "Yes"
-  };
+  const char onOffLabels[2][4] = {"Off", "On"};
+  const char yesNoLabels[2][4] = {"No", "Yes"};
   void begin(){
     availablePortsData[availablePorts++] = BMC_MIDI_PORT_USB_BIT;
 		#if defined(BMC_MIDI_SERIAL_A_ENABLED)
@@ -457,6 +479,9 @@ class BMCOBEData {
       }
     } else {
       activeRow = visibleRowIdLength;
+      if(rowPage == maxRowPages-1){
+        activeRow = 3;
+      }
       if(rowPage > 0){
         rowPage--;
       } else {
@@ -506,7 +531,9 @@ class BMCOBEData {
   // return true when it's not the main menu
   bool setNextMenuLevel(){
     uint16_t currentLevel = level[0];
-    if(currentLevel==0){
+    breadcrumbs[currentLevel] = getActiveVisibleRow()-1;
+    // BMC_PRINTLN("getActiveVisibleRow()", getActiveVisibleRow()-1, activeRow, activeRow-1);
+    if(currentLevel == 0){
       level[0]++;
       level[1] = activeRow-1;
       lastRowPage[0] = 0;

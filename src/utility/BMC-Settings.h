@@ -65,6 +65,7 @@
         bits 04-04  Trigger first song
         bits 05-05  Trigger first song part
         bits 06-09  Typer Channel
+        bits 10-12  DisplayListMode
 
       [3]: *Reserved for future updates*
       [4]: *Reserved for future updates*
@@ -409,13 +410,13 @@ public:
     return bitRead(settings.data[2], 4);
   }
   void setSetListTriggerFirstSong(uint8_t value){
-    bitWrite(settings.data[2], value, 4);
+    bitWrite(settings.data[2], 4, value);
   }
   uint8_t getSetListTriggerFirstSongPart(){
     return bitRead(settings.data[2], 5);
   }
   void setSetListTriggerFirstSongPart(uint8_t value){
-    bitWrite(settings.data[2], value, 5);
+    bitWrite(settings.data[2], 5, value);
   }
   uint8_t getTyperChannel(){
     return (settings.data[2]>>6) & 0x0F;
@@ -423,6 +424,13 @@ public:
   void setTyperChannel(uint8_t value){
     BMC_WRITE_BITS(settings.data[2],value, 0x0F, 6); //0-3
   }
+  uint8_t getDisplayListMode(){
+    return (settings.data[2]>>12) & 0x07;
+  }
+  void setDisplayListMode(uint8_t value){
+    BMC_WRITE_BITS(settings.data[2],value, 0x07, 12); //0-3
+  }
+  
   // tft touch calibration
   float getTouchTftCalibration(uint8_t n){
 #ifdef BMC_HAS_TOUCH_SCREEN

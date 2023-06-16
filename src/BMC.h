@@ -155,6 +155,12 @@ public:
   // code @ BMC.layer.cpp
   // get the current layer number
   uint8_t getLayer();
+  // layer name
+  bmcStoreName getLayerName();
+  bmcStoreName getLayerName(uint8_t n);
+  bmcStoreName getLayerStr();
+  bmcStoreName getLayerStr(uint8_t n);
+  
   // go to a new layer
   // @reassignSettings if true will reassign all global settings
   void setLayer(uint8_t layer, bool reassignSettings=false, bool forced=false);
@@ -296,6 +302,7 @@ private:
 
   void runLayerChanged(){
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      globals.setRenderDisplayList(BMC_DEVICE_ID_LAYER);
       display.renderLayerBanner();
     #endif
 
@@ -315,6 +322,7 @@ private:
   void runPresetChanged(){
 #if BMC_MAX_PRESETS > 0
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET);
       display.renderPresetBanner();
     #endif
 
@@ -352,6 +360,7 @@ private:
   }
   void runBankChanged(){
 #if BMC_MAX_PRESETS > 0
+    globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET);
     if(callback.presetBankChanged){
       callback.presetBankChanged(presets.getBank());
     }
@@ -359,9 +368,12 @@ private:
   }
   void runSetListChanged(){
 #if BMC_MAX_SETLISTS > 0
-    #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+    #if BMC_MAX_ILI9341_BLOCKS > 0
+      globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST);
       display.renderSetListBanner();
     #endif
+    
+
 
 /*
     char setListName[30] = "";
@@ -376,6 +388,7 @@ private:
   void runSongChanged(){
 #if BMC_MAX_SETLISTS > 0
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
+      globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST);
       display.renderSongBanner();
     #endif
 
@@ -659,6 +672,7 @@ private:
   void setupDebug();
   void readDebug();
   void printBoardInfo();
+  void printSyncInfo();
   void printButtonTrigger(uint8_t n, uint8_t t_trigger, bool t_global=false);
   void printDebugHeader(char* str);
   void midiInDebug(BMCMidiMessage midiMessage);

@@ -194,6 +194,7 @@ void BMC::update(){
     }
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
+    BMC_PRINTLN("");
     BMC_PRINTLN("FIRST loop() complete");
   }
   if(globals.reloadLayer()){
@@ -279,6 +280,7 @@ void BMC::update(){
     }
     #if BMC_MAX_SETLISTS > 0
       // used to re-trigger current preset
+      setLists.update();
       if(globals.triggerSetListChange()){
         setLists.set(setLists.get());
       } else if(globals.triggerSongChange()){

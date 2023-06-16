@@ -69,6 +69,7 @@ void BMC::assignStoreData(){
 }
 void BMC::assignSettings(){
   // Set the global settings
+  globals.offset = settings.getDisplayOffset()?0:1;
   midiClock.setMaster(settings.getMasterClock());
   midiActiveSense.setOutputPorts(settings.getListenerPorts());
   midi.setListenerEnable(settings.getIncomingListenerEnabled());

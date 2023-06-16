@@ -33,11 +33,16 @@ public:
 
   {
   }
-  void set(uint8_t n=0, bool firstSong=false){
+  void update(){
+    
+  }
+  void set(uint8_t n){
     if(n >= BMC_MAX_SETLISTS){
       return;
     }
-    if(presets.midi.globals.store.global.setLists[n].settings[0] > 0){
+    
+    // allow switching to setlist that has no songs assigned
+    if(setList != n){
       setList = n;
       BMC_PRINTLN("Set SetList #", n);
       flags.on(BMC_FLAG_SETLISTS_CHANGED);
@@ -46,31 +51,28 @@ public:
       }
     }
   }
-  void setSong(uint8_t n=0){
+  void setSong(uint8_t n){
     if(n >= BMC_MAX_SETLISTS_SONGS){
       return;
     }
-    if(presets.midi.globals.store.global.setLists[setList].settings[0] > n){
+    // allow switching to song without parts
+    if(song != n || flags.read(BMC_FLAG_SETLISTS_CHANGED)){
+      flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
       song = n;
       songInLibrary = presets.midi.globals.store.global.setLists[setList].events[song];
-      if(setHasSong(n)){
-        songEmpty(false); // song has parts
-        if(autoTriggerFirstPart()){
-          // trigger first part
-          setPart(0);
-        }
-      } else {
-        songEmpty(true);
+      songEmpty(setHasSong(n)); // song has parts
+      if(autoTriggerFirstPart()){
+        // trigger first part
+        setPart(0);
       }
       BMC_PRINTLN("Song #", n);
-      flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
     }
   }
-  void setPart(uint8_t n=0){
+  void setPart(uint8_t n){
     if(n >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    if(presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > n){
+    if(songPart != n || flags.read(BMC_FLAG_SETLISTS_SONG_CHANGED)){
       songPart = n;
       if(songHasPart(songPart)){
         partEmpty(false);
@@ -128,27 +130,78 @@ public:
     }
     return 0;
   }
-  void scrollSet(bool t_direction, bool t_wrap, uint8_t t_amount, bool firstSong=true){
-    uint8_t t_max = BMC_MAX_SETLISTS-1;
-    //uint8_t t_max = presets.midi.globals.store.global.setLists[n].settings[0];
-    BMCScroller <uint8_t> scroller(0, t_max);
-    set(scroller.scroll(t_amount, t_direction, t_wrap, setList, 0, t_max), firstSong);
-  }
-  void scrollSong(bool t_direction, bool t_wrap, uint8_t t_amount){
-    uint8_t len = presets.midi.globals.store.global.setLists[setList].settings[0];
-
-    if(len > 1){
-      //uint8_t t_max = BMC_MAX_SETLISTS_SONGS-1;
-      uint8_t t_max = presets.midi.globals.store.global.setLists[setList].settings[0]-1;
-      BMCScroller <uint8_t> scroller(0, t_max);
-      setSong(scroller.scroll(t_amount, t_direction, t_wrap, song, 0, t_max));
+  void scrollSet(bool t_direction, bool t_wrap, uint8_t t_amount, uint8_t t_min, uint8_t t_max){
+    // if(!presets.midi.globals.onBoardEditorActive()){
+    //   if(presets.midi.globals.settings.getDisplayListMode() && !presets.midi.globals.displayListsActive()){
+    //     presets.midi.globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST);
+    //     return;
+    //   }
+    // }
+    if(presets.midi.globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST)){
+      return;
     }
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_SETLISTS-1;
+    }
+    if(t_max > BMC_MAX_SETLISTS-1){
+      t_max = BMC_MAX_SETLISTS-1;
+    }
+    if(t_min > BMC_MAX_SETLISTS-1){
+      t_min = 0;
+    }
+    BMCScroller <uint8_t> scroller(t_min, t_max);
+    set(scroller.scroll(t_amount, t_direction, t_wrap, setList, t_min, t_max));
   }
-  void scrollPart(bool t_direction, bool t_wrap, uint8_t t_amount){
-    //uint8_t t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
-    uint8_t t_max = presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0]-1;
-    BMCScroller <uint8_t> scroller(0, t_max);
-    setPart(scroller.scroll(t_amount, t_direction, t_wrap, song, 0, t_max));
+  void scrollSong(bool t_direction, bool t_wrap, uint8_t t_amount, uint8_t t_min, uint8_t t_max){
+    // if(!presets.midi.globals.onBoardEditorActive()){
+    //   if(presets.midi.globals.settings.getDisplayListMode() && !presets.midi.globals.displayListsActive()){
+    //     presets.midi.globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST_SONG);
+    //     return;
+    //   }
+    // }
+    if(presets.midi.globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST_SONG)){
+      return;
+    }
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_SETLISTS_SONGS-1;
+    }
+    if(t_max > BMC_MAX_SETLISTS_SONGS-1){
+      t_max = BMC_MAX_SETLISTS_SONGS-1;
+    }
+    if(t_min > BMC_MAX_SETLISTS_SONGS-1){
+      t_min = 0;
+    }
+
+    BMCScroller <uint8_t> scroller(t_min, t_max);
+    setSong(scroller.scroll(t_amount, t_direction, t_wrap, song, t_min, t_max));
+  }
+  void scrollPart(bool t_direction, bool t_wrap, uint8_t t_amount, uint8_t t_min, uint8_t t_max){
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
+    }
+    if(t_max > BMC_MAX_SETLISTS_SONG_PARTS-1){
+      t_max = BMC_MAX_SETLISTS_SONG_PARTS-1;
+    }
+    if(t_min > BMC_MAX_SETLISTS_SONG_PARTS-1){
+      t_min = 0;
+    }
+    BMCScroller <uint8_t> scroller(t_min, t_max);
+    setPart(scroller.scroll(t_amount, t_direction, t_wrap, song, t_min, t_max));
   }
   bool autoTriggerFirstSong(){
     return presets.midi.globals.settings.getSetListTriggerFirstSong();

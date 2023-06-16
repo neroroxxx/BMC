@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2022 RoxXxtar.com
+  Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -17,15 +17,13 @@
   #include "display/BMC-DisplayTouchCalibration.h"
 #endif
 
+
 // lighter gray 0x39C7
 #define BMC_ILI9341_VU_GREY BMC_ILI9341_GRAY_7
 #define BMC_ILI9341_FADER_CAP_COLOR BMC_ILI9341_GRAY_24
 
 // values for the DAW VU Meters and other 8 channel display events
 // these are use no matter the screen dimensions
-
-
-
 
 // For meters
 #define BMC_ILI9341_VU_METER_S 6 // blank space between meter blocks
@@ -71,11 +69,15 @@
 
 class BMCDisplay {
 public:
+  
   BMCDisplay(BMCMidi& t_midi
     #ifdef BMC_USE_SYNC
       ,BMCSync& t_sync
     #endif
-  ):midi(t_midi)
+  ):midi(t_midi),
+    globals(t_midi.globals),
+    store(t_midi.globals.store),
+    settings(t_midi.globals.settings)
     #ifdef BMC_USE_SYNC
       ,sync(t_sync)
     #endif
@@ -140,22 +142,44 @@ public:
   void initILI9341Blocks(){
     #if defined(BMC_HAS_TOUCH_SCREEN)
       bmcStoreTouchSettings cal;
-      cal.xM = midi.globals.settings.getTouchTftCalibration(0);
-      cal.xC = midi.globals.settings.getTouchTftCalibration(1);
-      cal.yM = midi.globals.settings.getTouchTftCalibration(2);
-      cal.yC = midi.globals.settings.getTouchTftCalibration(3);
-      uint16_t blockWidth = BMC_TFT_WIDTH/4;
+      cal.xM = settings.getTouchTftCalibration(0);
+      cal.xC = settings.getTouchTftCalibration(1);
+      cal.yM = settings.getTouchTftCalibration(2);
+      cal.yC = settings.getTouchTftCalibration(3);
+      
+      uint16_t blockWidth = BMC_TFT_WIDTH/BMC_OBE_TOOLBAR_BUTTON_COUNT;
+      // uint16_t blockPadding = 10;
+      uint16_t blockPadding = (blockWidth-54)/2;
+      uint16_t blockHeight = 120;
+      uint16_t blockY = BMC_TFT_HEIGHT-blockHeight;
+      uint16_t paddedBlockWidth = blockWidth-(blockPadding*2);
+      uint16_t paddedBlockWidthEdges = blockWidth-blockPadding;
 
-      touchPrev.begin(0, BMC_TFT_HEIGHT-80, blockWidth, 80);
-      touchToggle.begin(blockWidth, BMC_TFT_HEIGHT-80, blockWidth, 80);
-      touchSelect.begin(blockWidth*2, BMC_TFT_HEIGHT-80, blockWidth, 80);
-      touchNext.begin(blockWidth*3, BMC_TFT_HEIGHT-80, blockWidth, 80);
+      // begin(int16_t t_x, int16_t t_y, uint16_t w, uint16_t h)
+      touchHeader.begin(0, 0, BMC_OBE_W, 60);
+      
+      touchPrev.begin(0, blockY, paddedBlockWidthEdges, blockHeight);
+      #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 4
+        touchToggle.begin(blockWidth+blockPadding, blockY, paddedBlockWidth, blockHeight);
+        touchSelect.begin((blockWidth*2)+blockPadding, blockY, paddedBlockWidth, blockHeight);
+      #else
+        touchToggle.begin(blockWidth+blockPadding, blockY, paddedBlockWidth, blockHeight);
+        touchBack.begin((blockWidth*2)+blockPadding, blockY, paddedBlockWidth, blockHeight);
+        touchSelect.begin((blockWidth*3)+blockPadding, blockY, paddedBlockWidth, blockHeight);
+      #endif
+      touchNext.begin((blockWidth*(BMC_OBE_TOOLBAR_BUTTON_COUNT-1))+blockPadding, blockY, paddedBlockWidthEdges, blockHeight);
+      // used to confirm saving changes
       touchCancel.begin(BMC_OBE_CANCEL_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H);
       touchSave.begin(BMC_OBE_SAVE_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H);
+      // enter into the menu
       touchEnter.begin(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT);
-
+      
+      touchHeader.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
       touchPrev.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
       touchToggle.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+      #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 5
+        touchBack.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
+      #endif
       touchSelect.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
       touchNext.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
       touchCancel.setCalibrationData(cal.xM, cal.xC, cal.yM, cal.yC);
@@ -185,12 +209,215 @@ public:
     }
     char line1[33] = "";
     char line2[33] = "";
-    sprintf(line1, "Layer %u", midi.globals.layer+midi.globals.offset);
-    bmcName_t n = midi.globals.store.layers[midi.globals.layer].events[0].name;
+    sprintf(line1, "Layer %u", globals.layer+globals.offset);
+    bmcName_t n = store.layers[globals.layer].events[0].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-      strcpy(line2, midi.globals.store.global.names[n-1].name);
+      strcpy(line2, store.global.names[n-1].name);
     }
     renderTempBanner(line1, line2);
+  }
+  void renderDisplayLists(){
+#if BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0
+    if(globals.onBoardEditorActive()){
+      return;
+    }
+    uint8_t listModeValue = settings.getDisplayListMode();
+    if(listModeValue==0){
+      globals.exitDisplayListMode();
+      return;
+    }
+    uint8_t listId = globals.getDisplayListId();
+    
+    // if(!globals.displayListsActive()){
+      // entering list mode
+      // assign the list id
+      // listId = globals.getDisplayListId();
+    // } else if(listId != globals.getDisplayListId()){
+      // return;
+    // }
+    if(listId == 0){
+      globals.exitDisplayListMode();
+      return;
+    }
+    
+    uint8_t listCount = BMC_TFT_HEIGHT==240 ? 4 : 6;
+    uint16_t listCurrentValue = 0;
+    uint16_t maxListCount = 0;
+    uint8_t listItemHeight = BMC_TFT_HEIGHT==240 ? 52 : 48;
+    uint8_t headerHeight = 30;
+    uint8_t yPadding = BMC_TFT_HEIGHT==240 ? 10 : 8;
+    char deviceName[16] = "";
+
+    // BMC_PRINTLN("renderDisplayLists", globals.getDisplayListId());
+
+    #if BMC_MAX_LAYERS > 0
+      if(listId == BMC_DEVICE_ID_LAYER){
+        strcpy(deviceName, "LAYERS");
+        listCurrentValue = globals.layer;
+        maxListCount = BMC_MAX_LAYERS;
+      }
+    #else
+      return;
+    #endif
+
+    #if BMC_MAX_PRESETS > 0
+      if(listId == BMC_DEVICE_ID_PRESET){
+        strcpy(deviceName, "PRESETS");
+        listCurrentValue = globals.presetIndex;
+        maxListCount = BMC_MAX_PRESETS;
+      }
+      
+      #if BMC_MAX_SETLISTS > 0
+        if(listId == BMC_DEVICE_ID_SETLIST){
+          strcpy(deviceName, "SETLISTS");
+          listCurrentValue = globals.setList;
+          maxListCount = BMC_MAX_SETLISTS;
+        }
+        if(listId == BMC_DEVICE_ID_SETLIST_SONG){
+          strcpy(deviceName, "SONGS");
+          listCurrentValue = globals.song;
+          maxListCount = BMC_MAX_SETLISTS_SONGS;
+        }
+      #else
+        return;
+      #endif
+      
+    #else
+      return;
+    #endif
+    
+    // BMC_PRINTLN("listCurrentValue",listCurrentValue);
+    
+    
+    if(!globals.displayListsActive()){
+      
+      tft.display.setFont(BMCLiberationSansNarrow_24_Bold);
+      tft.display.fillRect(0, 0, BMC_TFT_WIDTH, headerHeight, BMC_ILI9341_YELLOW);
+      uint16_t x = (BMC_TFT_WIDTH - BMC_TFT_STR_LEN(tft.display, deviceName))/2;
+      x = x < 4 ? 4 : x;
+      tft.display.setCursor(x, 3);
+      tft.display.setTextColor(BMC_ILI9341_BLACK);
+      tft.display.print(deviceName);
+      tft.display.fillRect(0, headerHeight, BMC_TFT_WIDTH, BMC_TFT_HEIGHT-headerHeight, BMC_ILI9341_BLACK);
+      listPageCurrent = (uint16_t) floor(listCurrentValue / (listCount+0.0));
+    }
+
+    tft.display.setTextColor(BMC_ILI9341_WHITE);
+    tft.display.setFont(BMCLiberationSansNarrow_32);
+    
+    // uint8_t pageTotal = (uint8_t) (BMC_MAX_SETLISTS / listCount);
+    // uint8_t pageTotal = pageTotal + listCount;
+    uint16_t pageCurrent = (uint16_t) floor(listCurrentValue / (listCount+0.0));
+    // BMC_PRINTLN("*********",listCurrentValue, pageCurrent);
+    if(listPageCurrent != pageCurrent){
+      // BMC_PRINTLN("********* CHANGED PAGE");
+      listPageCurrent = pageCurrent;
+      tft.display.fillRect(0, headerHeight, BMC_TFT_WIDTH, BMC_TFT_HEIGHT-headerHeight, BMC_ILI9341_BLACK);
+    }
+
+    // listCurrentValue
+    
+    for(uint16_t i = 0, e = (pageCurrent*listCount) ; i < listCount; i++, e++){
+      if(i >= listCount){
+        break;
+      }
+      /*
+      if(e == listLastSelection || globals.setList == e){
+        // fill a black area for the list item
+        // but only do it for the last selection and the current selection
+        // tft.display.fillRect(0, (headerHeight + (i*listItemHeight))+1, BMC_TFT_WIDTH, listItemHeight-2, BMC_ILI9341_BLACK);
+      }
+      */
+      if(e < maxListCount){
+        if(listCurrentValue == e){
+          // selected
+          tft.display.setTextColor(BMC_ILI9341_YELLOW);
+          listLastSelection = e;
+        } else {
+          tft.display.setTextColor(BMC_ILI9341_WHITE);
+        }
+        tft.display.setCursor(10, headerHeight + ((i*listItemHeight) + yPadding));
+
+
+        bmcName_t nameIndex = 0;
+
+        #if BMC_MAX_LAYERS > 0
+          if(listId == BMC_DEVICE_ID_LAYER){
+            nameIndex = store.layers[e].events[0].name;
+          }
+        #endif
+        #if BMC_MAX_PRESETS > 0
+          if(listId == BMC_DEVICE_ID_PRESET){
+            nameIndex = store.global.presets[e].name;
+          }
+        #endif
+        #if BMC_MAX_SETSLISTS > 0
+          if(listId == BMC_DEVICE_ID_SETLIST){
+            nameIndex = store.global.setLists[e].name;
+          } else if(listId == BMC_DEVICE_ID_SETLIST_SONG){
+            // get the id of the song
+            uint8_t currentSetlist = globals.setList;
+            uint16_t songId = store.global.setLists[currentSetlist].events[e];
+            nameIndex = store.global.songList[songId].name;
+          }
+
+        #endif
+
+        if(nameIndex>0){
+          #if BMC_MAX_PRESETS > 0
+            if(listId == BMC_DEVICE_ID_PRESET){
+              char bankLetter[3] = "";
+              BMCTools::getBankLetter(((e >> BMC_PRESET_BANK_MASK) & 0x1F), bankLetter);
+              tft.display.print(bankLetter);
+              tft.display.print((e & (BMC_MAX_PRESETS_PER_BANK-1))+globals.offset);
+              continue;
+            } else {
+              tft.display.print("#");
+              tft.display.print(e + globals.offset);
+              tft.display.print(" ");
+            }
+          #else
+            tft.display.print("#");
+            tft.display.print(e + globals.offset);
+            tft.display.print(" ");
+          #endif
+          
+          bmcStoreName nameData = globals.getDeviceName(nameIndex);
+          tft.display.print(nameData.name);
+        } else {
+          // no name just write Set #
+
+          #if BMC_MAX_LAYERS > 0
+            if(listId == BMC_DEVICE_ID_LAYER){
+              tft.display.print("Layer #");
+            }
+          #endif
+          #if BMC_MAX_PRESETS > 0
+            if(listId == BMC_DEVICE_ID_PRESET){
+              char bankLetter[3] = "";
+              BMCTools::getBankLetter(((e >> BMC_PRESET_BANK_MASK) & 0x1F), bankLetter);
+              tft.display.print(bankLetter);
+              tft.display.print((e & (BMC_MAX_PRESETS_PER_BANK-1))+globals.offset);
+              continue;
+            }
+          #endif
+          #if BMC_MAX_SETSLISTS > 0
+            if(listId == BMC_DEVICE_ID_SETLIST){
+              tft.display.print("Set #");
+            } else if(listId == BMC_DEVICE_ID_SETLIST_SONG){
+              tft.display.print("Song #");
+            }
+          #endif
+          tft.display.print(e + globals.offset);
+        }
+        
+      }
+      // add a divider line
+      tft.display.drawFastHLine(0, headerHeight + ((i+1)*listItemHeight), BMC_TFT_WIDTH, (e < BMC_MAX_SETLISTS) ? BMC_ILI9341_VU_GREY : BMC_ILI9341_BLACK);
+    }
+
+    globals.enterDisplayListMode(500+(listModeValue*500));
+#endif
   }
   void renderStoreClearedBanner(){
     if(!allowBanner()){
@@ -202,7 +429,7 @@ public:
   }
   void renderImportBanner(){
     #if defined(BMC_USE_ON_BOARD_EDITOR)
-      if(midi.globals.onBoardEditorActive()){
+      if(globals.onBoardEditorActive()){
         return;
       }
     #endif
@@ -215,17 +442,17 @@ public:
       return;
     }
 #if BMC_MAX_PRESETS > 0
-    if(midi.globals.bank>=32 || midi.globals.presetIndex >= BMC_MAX_PRESETS){
+    if(globals.bank>=32 || globals.presetIndex >= BMC_MAX_PRESETS){
       return;
     }
     char line1[33] = "";
     char line2[33] = "";
-    uint16_t p = midi.globals.preset+midi.globals.offset;
-    char b = midi.globals.alph[midi.globals.bank];
+    uint16_t p = globals.preset+globals.offset;
+    char b = globals.alph[globals.bank];
     sprintf(line1, "Preset %c%u", b, p);
-    bmcName_t n = midi.globals.store.global.presets[midi.globals.presetIndex].name;
+    bmcName_t n = store.global.presets[globals.presetIndex].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-      strcpy(line2, midi.globals.store.global.names[n-1].name);
+      strcpy(line2, store.global.names[n-1].name);
     }
     renderTempBanner(line1, line2);
 #endif
@@ -235,15 +462,15 @@ public:
       return;
     }
 #if BMC_MAX_SETLISTS > 0
-    if(midi.globals.setList >= BMC_MAX_SETLISTS){
+    if(globals.setList >= BMC_MAX_SETLISTS){
       return;
     }
     char line1[33] = "";
     char line2[33] = "";
-    sprintf(line1, "Set List %u", midi.globals.setList+midi.globals.offset);
-    bmcName_t n = midi.globals.store.global.setLists[midi.globals.setList].name;
+    sprintf(line1, "Set List %u", globals.setList+globals.offset);
+    bmcName_t n = store.global.setLists[globals.setList].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-      strcpy(line2, midi.globals.store.global.names[n-1].name);
+      strcpy(line2, store.global.names[n-1].name);
     }
     renderTempBanner(line1, line2);
 #endif
@@ -253,15 +480,15 @@ public:
       return;
     }
 #if BMC_MAX_SETLISTS > 0
-    if(midi.globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
+    if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
       return;
     }
     char line1[33] = "";
     char line2[33] = "";
-    sprintf(line1, "Song %u", midi.globals.song+midi.globals.offset);
-    bmcName_t n = midi.globals.store.global.songLibrary[midi.globals.songInLibrary].name;
+    sprintf(line1, "Song %u", globals.song+globals.offset);
+    bmcName_t n = store.global.songLibrary[globals.songInLibrary].name;
     if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-      strcpy(line2, midi.globals.store.global.names[n-1].name);
+      strcpy(line2, store.global.names[n-1].name);
     }
     renderTempBanner(line1, line2);
 #endif
@@ -271,32 +498,30 @@ public:
       return;
     }
 #if BMC_MAX_SETLISTS > 0
-    if(midi.globals.songPart >= BMC_MAX_SETLISTS_SONG_PARTS){
+    if(globals.songPart >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    if(midi.globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
+    if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
       return;
     }
     char line1[33] = "";
     char line2[33] = "";
-    sprintf(line1, "Part %u", midi.globals.songPart+midi.globals.offset);
-    uint16_t songPart = midi.globals.store.global.songLibrary[midi.globals.songInLibrary].events[midi.globals.songPart];
+    sprintf(line1, "Part %u", globals.songPart+globals.offset);
+    uint16_t songPart = store.global.songLibrary[globals.songInLibrary].events[globals.songPart];
     if(songPart > 0){
-      bmcName_t n = midi.globals.store.global.presets[songPart-1].name;
+      bmcName_t n = store.global.presets[songPart-1].name;
       if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-        strcpy(line2, midi.globals.store.global.names[n-1].name);
+        strcpy(line2, store.global.names[n-1].name);
       }
     }
     renderTempBanner(line1, line2);
 #endif
   }
   bool allowBanner(){
-#if defined(BMC_USE_ON_BOARD_EDITOR)
-    if(midi.globals.onBoardEditorActive()){
+    if(globals.onBoardEditorActive() || globals.displayListsActive()){
       return false;
     }
-#endif
-    return (midi.globals.settings.getDisplayBannerTimeout()>0);
+    return (settings.getDisplayBannerTimeout()>0);
   }
   void renderTempBanner(const char* line1, const char* line2, bool timeout=true){
     char s1[strlen(line1)+1] = "";
@@ -306,7 +531,7 @@ public:
     renderTempBanner(s1, s2, timeout);
   }
   void renderTempBanner(char* line1, char* line2, bool timeout=true){
-    midi.globals.setDisplayRenderDisable(true);
+    globals.setDisplayRenderDisable(true);
     
     tft.display.fillRect(0, BMC_DISPLAY_BANNER_Y, BMC_TFT_WIDTH, 120, BMC_ILI9341_BLACK);
     tft.display.setFont(BMCLiberationSansNarrow_40_Bold);
@@ -331,14 +556,14 @@ public:
     tft.display.drawRect(0, BMC_DISPLAY_BANNER_Y, BMC_TFT_WIDTH, 120, 0xfe60);
     tft.display.drawRect(1, BMC_DISPLAY_BANNER_Y+1, BMC_TFT_WIDTH-2, 118, 0xfe60);
     if(timeout){
-      tempTimer.start(midi.globals.settings.getDisplayBannerTimeout()*500);
+      tempTimer.start(settings.getDisplayBannerTimeout()*500);
     }
   }
 #endif
 
 #if BMC_MAX_OLED > 0
   void initOled(){
-    
+     BMC_PRINTLN("BMCDisplay::initOled()");
     #if BMC_MAX_OLED > 1
       Wire.begin();
     #endif
@@ -357,13 +582,13 @@ public:
     memset(last, 0, sizeof(last[0])*BMC_MAX_OLED);
     clearOleds();
 
-    uint16_t layer = midi.globals.layer;
+    uint16_t layer = globals.layer;
     for(uint8_t i = 0 ; i < BMC_MAX_OLED ; i++){
-      if(midi.globals.store.layers[layer].oled[i].events[0] == BMC_NONE){
+      if(store.layers[layer].oled[i].events[0] == BMC_NONE){
         continue;
       }
 #if defined(BMC_USE_DAW_LC) || defined(BMC_USE_FAS)
-      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].oled[i].events[0]);
+      bmcStoreEvent e = BMCTools::getDeviceEventType(globals.store, store.layers[layer].oled[i].events[0]);
 #endif
 
 #if defined(BMC_USE_DAW_LC)
@@ -423,12 +648,12 @@ public:
     
     clearIliBlocks();
 
-    uint16_t layer = midi.globals.layer;
+    uint16_t layer = globals.layer;
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-      if(midi.globals.store.layers[layer].ili[i].events[0] == 0){
+      if(store.layers[layer].ili[i].events[0] == 0){
         continue;
       }
-      bmcStoreEvent e = BMCTools::getDeviceEventType(midi.globals.store, midi.globals.store.layers[layer].ili[i].events[0]);
+      bmcStoreEvent e = BMCTools::getDeviceEventType(globals.store, store.layers[layer].ili[i].events[0]);
 #if defined(BMC_USE_DAW_LC)
       if(e.type == BMC_EVENT_TYPE_DAW_DISPLAY){
         uint16_t blockW = block[i].getWidth();
@@ -480,7 +705,7 @@ public:
 #endif
   }
   void reassign(){
-    BMC_PRINTLN("display reassign()");
+    // BMC_PRINTLN("display reassign()");
     for(uint8_t i=0;i<9;i++){
 #if defined(BMC_USE_DAW_LC)
       chInfo[i].reset();
@@ -500,7 +725,7 @@ public:
     if(!allowRendering() || dawMetersBlock==-1){
       return;
     }
-    BMC_PRINTLN("************ initDawMeters");
+    // BMC_PRINTLN("************ initDawMeters");
     uint16_t x = block[dawMetersBlock].getX();
     uint16_t y = block[dawMetersBlock].getY();
     uint16_t w = block[dawMetersBlock].getWidth();
@@ -583,7 +808,7 @@ public:
     if(!allowRendering() || dawChannelsBlock == -1){
       return;
     }
-    BMC_PRINTLN("************ initDawChannels");
+    // BMC_PRINTLN("************ initDawChannels");
     // make background black
     uint16_t x = block[dawChannelsBlock].getX();
     uint16_t y = block[dawChannelsBlock].getY();
@@ -921,7 +1146,7 @@ public:
 #if defined(BMC_USE_FAS)
   // available to both oled and ili displays
   void initFasTuner(bool isOled, uint8_t n){
-    BMC_PRINTLN("initFasTuner", fasTuner.index);
+    // BMC_PRINTLN("initFasTuner", fasTuner.index);
     if(fasTuner.index >= 0){
       return;
     }
@@ -1034,7 +1259,7 @@ public:
       oled[index].display.setTextSize(2);
       oled[index].display.setTextColor(BMC_OLED_WHITE);
       oled[index].display.setCursor(116, y+16);
-      oled[index].display.print(currentTuner.stringNumber+midi.globals.offset);
+      oled[index].display.print(currentTuner.stringNumber+globals.offset);
       show = true;
     }
     tunerData = currentTuner;
@@ -1118,11 +1343,11 @@ public:
 
       tft.display.setCursor(x+(w-16), y1);
       tft.display.setTextColor(BMC_ILI9341_BLACK);
-      tft.display.print(tunerData.stringNumber+midi.globals.offset);
+      tft.display.print(tunerData.stringNumber+globals.offset);
 
       tft.display.setCursor(x+(w-16), y1);
       tft.display.setTextColor(BMC_ILI9341_WHITE);
-      tft.display.print(currentTuner.stringNumber+midi.globals.offset);
+      tft.display.print(currentTuner.stringNumber+globals.offset);
     }
     tunerData = currentTuner;
   }
@@ -1139,8 +1364,8 @@ public:
   #if BMC_MAX_OLED > 1
       selectMux(i);
   #endif
-      uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[i].settings[0];
-      oled[i].reassign(settings);
+      uint8_t t_settings = store.layers[globals.layer].oled[i].settings[0];
+      oled[i].reassign(t_settings);
     }
 #endif
   }
@@ -1150,8 +1375,8 @@ public:
       return;
     }
     for(uint8_t i = 0 ; i < BMC_MAX_ILI9341_BLOCKS ; i++){
-      uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[i].settings[0];
-      block[i].reassign(tft.display, settings);
+      uint8_t t_settings = store.layers[globals.layer].ili[i].settings[0];
+      block[i].reassign(tft.display, t_settings);
     }
 #endif
   }
@@ -1161,15 +1386,43 @@ public:
     touchCommand = 0;
     if(touchTimer.complete()){
       touchPoint = touchScreen.getPoint();
-      if(!midi.globals.onBoardEditorActive()){
+      if(!globals.onBoardEditorActive()){
         if(touchEnter.isTouched(touchPoint.x, touchPoint.y)){
           touchCommand = BMC_MENU_TOGGLE;
         }
       } else {
+        // bool isHeader = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isPrev = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isToggle = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isSelect = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isNext = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isCancel = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+        // bool isSave = touchPrev.isTouched(touchPoint.x, touchPoint.y);
+
+        // if(isPrev){
+        //   touchCommand = BMC_MENU_PREV;
+        // } else if(isToggle || isHeader){
+        //   touchCommand = BMC_MENU_TOGGLE;
+        // } else if(isSelect){
+        //   touchCommand = BMC_MENU_SELECT;
+        // } else if(isNext){
+        //   touchCommand = BMC_MENU_NEXT;
+        // } else if(isCancel){
+        //   touchCommand = BMC_MENU_CANCEL;
+        // } else if(isSave){
+        //   touchCommand = BMC_MENU_SAVE;
+        // }
+
         if(touchPrev.isTouched(touchPoint.x, touchPoint.y)){
           touchCommand = BMC_MENU_PREV;
         } else if(touchToggle.isTouched(touchPoint.x, touchPoint.y)){
           touchCommand = BMC_MENU_TOGGLE;
+        } else if(touchHeader.isTouched(touchPoint.x, touchPoint.y)){
+          touchCommand = BMC_MENU_BACK;
+        #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 5
+        } else if(touchBack.isTouched(touchPoint.x, touchPoint.y)){
+          touchCommand = BMC_MENU_BACK;
+        #endif
         } else if(touchSelect.isTouched(touchPoint.x, touchPoint.y)){
           touchCommand = BMC_MENU_SELECT;
         } else if(touchNext.isTouched(touchPoint.x, touchPoint.y)){
@@ -1190,13 +1443,13 @@ public:
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
-    if(midi.globals.onBoardEditorActive()){
+    if(globals.onBoardEditorActive()){
       tempTimer.stop();
       return;
     }
   #endif
     if(tempTimer.complete()){
-      midi.globals.setDisplayRenderDisable(false);
+      globals.setDisplayRenderDisable(false);
       tft.display.fillScreen(BMC_ILI9341_BLACK);
       reassignIliBlocks();
     }
@@ -1239,31 +1492,38 @@ public:
     }
   }
 #endif
-
-void renderNumber(uint8_t n, bool isOled, uint8_t type, uint16_t value, const char * format, const char* label="", bool highlight=false){
-  char str[10] = "";
-  if(value<10){
-    sprintf(str, "%01u", value);
-  } else if(value<100){
-    sprintf(str, "%02u", value);
-  } else if(value<1000){
-    sprintf(str, "%03u", value);
+void renderNumber(BMCDataContainer d){
+  if(d.value<10){
+    sprintf(d.str, "%01u", d.value);
+  } else if(d.value<100){
+    sprintf(d.str, "%02u", d.value);
+  } else if(d.value<1000){
+    sprintf(d.str, "%03u", d.value);
   } else {
-    sprintf(str, "%04u", value);
+    sprintf(d.str, "%04u", d.value);
   }
-  renderText(n, isOled, type, str, label, highlight);
+  renderText(d);
 }
-void renderChar(uint8_t n, bool isOled, uint8_t type, char str){
-  char c[2] = {str, 0};
-  //strncpy(c, str, 1);
-  renderText(n, isOled, type, c);
-}
-void renderText(uint8_t n, bool isOled, uint8_t type, const char* str, const char* label="", bool highlight=false){
-  char c[strlen(str)+1] = "";
-  // strncpy(c, str, len-1);
-  strcpy(c, str);
-  renderText(n, isOled, type, c, label, highlight);
-}
+// void renderNumber(uint8_t n, bool isOled, uint8_t type, uint16_t value, const char * format, const char* label="", bool highlight=false){
+//   char str[10] = "";
+//   if(value<10){
+//     sprintf(str, "%01u", value);
+//   } else if(value<100){
+//     sprintf(str, "%02u", value);
+//   } else if(value<1000){
+//     sprintf(str, "%03u", value);
+//   } else {
+//     sprintf(str, "%04u", value);
+//   }
+//   renderText(n, isOled, type, str, label, highlight);
+// }
+
+// void renderChar(uint8_t n, bool isOled, uint8_t type, char str){
+//   char c[2] = {str, 0};
+//   //strncpy(c, str, 1);
+//   renderText(n, isOled, type, c);
+// }
+
 void setSelChar(uint8_t n, bool isOled, uint8_t selChar){
   #if BMC_MAX_OLED > 0
     if(isOled){
@@ -1275,14 +1535,17 @@ void setSelChar(uint8_t n, bool isOled, uint8_t selChar){
     }
   #endif 
 
-
   #if BMC_MAX_ILI9341_BLOCKS > 0
     if(!isOled){
       block[n].setSelChar(selChar);
     }
   #endif
 }
-void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* label="", bool highlight=false){
+
+void renderText(BMCDataContainer d){
+  renderText(d.index, d.oled, d.type, d.str, d.label, d.highlight);
+}
+void renderText(uint8_t n, bool isOled, uint8_t type, const char* t_str, const char* label="", bool highlight=false){
 #if BMC_MAX_OLED > 1
   if(isOled){
     selectMux(n);
@@ -1297,13 +1560,12 @@ void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* l
     if(isOled){
       if(last[n] != crc){
         last[n] = crc;
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
-        oled[n].print(str, settings, highlight);
+        uint8_t t_settings = store.layers[globals.layer].oled[n].settings[0];
+        oled[n].print(str, t_settings, highlight);
       }
       return;
     }
   #endif 
-
 
   #if BMC_MAX_ILI9341_BLOCKS > 0
     if(!isOled){
@@ -1314,52 +1576,97 @@ void renderText(uint8_t n, bool isOled, uint8_t type, char* t_str, const char* l
   #endif
 }
 
-void renderProgramChangeValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t pc, bool highlight=false){
+void renderSlider(BMCDataContainer d){
 #if BMC_MAX_OLED > 1
-  if(isOled){
-    selectMux(n);
+  if(d.oled){
+    selectMux(d.index);
   }
 #endif
-
-  char str[12] = "";
-  sprintf(str, "PC%u/%u", ch, pc);
-  uint8_t crc = checkLast(type, str)+highlight;
+  char crcStr[32] = "";
+  sprintf(crcStr, "sli%u/%u/%u", d.value, d.min, d.max);
+  d.crc = checkLast(d.type, crcStr);
   #if BMC_MAX_OLED > 0
-    if(isOled){
-      if(last[n] != crc){
-        last[n] = crc;
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
-        oled[n].printPC(ch, pc, settings, highlight);
+    if(d.oled){
+      if(last[d.index] != d.crc){
+        last[d.index] = d.crc;
+        // oled[d.index].printSlider(d.value, d.min, d.max, d.settings, d.label);
+        oled[d.index].printSlider(d);
       }
       return;
     }
   #endif
   
   #if BMC_MAX_ILI9341_BLOCKS > 0
-    if(!isOled){
+    if(!d.oled){
       if(allowRendering()){
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
-        block[n].printPC(tft.display, crc, ch, pc, settings, highlight);
+        block[d.index].printSlider(tft.display, d);
       }
     }
   #endif
 }
-void renderControlChangeValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t cc, uint8_t vv, bool highlight=false){
+void renderProgramChangeValue(BMCDataContainer d){
 #if BMC_MAX_OLED > 1
-  if(isOled){
-    selectMux(n);
+  if(d.oled){
+    selectMux(d.index);
+  }
+#endif
+  char crcStr[12] = "";
+  uint8_t ch = d.byteA;
+  uint8_t pc = d.byteB;
+  sprintf(crcStr, "PC%u/%u", ch, pc);
+  d.crc = (uint8_t) (checkLast(d.type, crcStr)+d.highlight);
+
+  #if BMC_MAX_OLED > 0
+    if(d.oled){
+      if(last[d.index] != d.crc){
+        last[d.index] = d.crc;
+        if(d.useMeter()){
+          // display dial
+          d.value = d.byteB;
+          oled[d.index].printSlider(d);
+        } else {
+          // oled[d.index].printPC(ch, pc, d.settings, d.highlight);
+          oled[d.index].printPC(d);
+        }
+        
+      }
+      return;
+    }
+  #endif
+  
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!d.oled){
+      if(allowRendering()){
+        d.value = d.byteB;
+        block[d.index].printPC(tft.display, d);
+      }
+    }
+  #endif
+}
+void renderControlChangeValue(BMCDataContainer d){
+#if BMC_MAX_OLED > 1
+  if(d.oled){
+    selectMux(d.index);
   }
 #endif
 
-  char str[16] = "";
-  sprintf(str, "CC%u/%u/%u", ch, cc, vv);
-  uint8_t crc = checkLast(type, str)+highlight;
+  char crcStr[16] = "";
+  uint8_t ch = d.byteA;
+  uint8_t cc = d.byteB;
+  uint8_t vv = d.byteC;
+  sprintf(crcStr, "CC%u/%u/%u", ch, cc, vv);
+  d.crc = checkLast(d.type, crcStr)+d.highlight;
   #if BMC_MAX_OLED > 0
-    if(isOled){
-      if(last[n] != crc){
-        last[n] = crc;
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
-        oled[n].printCC(ch, cc, vv, settings, highlight);
+    if(d.oled){
+      if(last[d.index] != d.crc){
+        last[d.index] = d.crc;
+        if(bitRead(d.settings, 4)){
+          d.value = d.byteC;
+          oled[d.index].printSlider(d);
+        } else {
+          // oled[d.index].printCC(ch, cc, vv, d.settings, d.highlight);
+          oled[d.index].printCC(d);
+        }
       }
       return;
     }
@@ -1367,49 +1674,55 @@ void renderControlChangeValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, 
 
 
   #if BMC_MAX_ILI9341_BLOCKS > 0
-    if(!isOled){
+    if(!d.oled){
       if(allowRendering()){
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
-        block[n].printCC(tft.display, crc, ch, cc, vv, settings, highlight);
+        d.value = d.byteC;
+        block[d.index].printCC(tft.display, d);
       }
     }
   #endif
 }
-void renderNoteValue(uint8_t n, bool isOled, uint8_t type, uint8_t ch, uint8_t nn, uint8_t vv, bool highlight=false){
+void renderNoteValue(BMCDataContainer d){
 #if BMC_MAX_OLED > 1
-  if(isOled){
-    selectMux(n);
+  if(d.oled){
+    selectMux(d.index);
   }
 #endif
-  char str[16] = "";
-  sprintf(str, "NN%u/%u/%u", ch, nn, vv);
-  uint8_t crc = checkLast(type, str)+highlight;
-#if BMC_MAX_OLED > 0
-    if(isOled){
-      if(last[n] != crc){
-        last[n] = crc;
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].oled[n].settings[0];
-        oled[n].printNote(ch, nn, vv, settings, highlight);
+
+  char crcStr[16] = "";
+  uint8_t ch = d.byteA;
+  uint8_t nn = d.byteB;
+  uint8_t vv = d.byteC;
+  sprintf(crcStr, "NN%u/%u/%u", ch, nn, vv);
+  d.crc = checkLast(d.type, crcStr)+d.highlight;
+  #if BMC_MAX_OLED > 0
+    if(d.oled){
+      if(last[d.index] != d.crc){
+        last[d.index] = d.crc;
+        // oled[d.index].printNote(ch, nn, vv, d.settings, d.highlight);
+        oled[d.index].printNote(d);
       }
       return;
     }
-#endif
-#if BMC_MAX_ILI9341_BLOCKS > 0
-    if(!isOled){
+  #endif 
+
+
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!d.oled){
       if(allowRendering()){
-        uint8_t settings = midi.globals.store.layers[midi.globals.layer].ili[n].settings[0];
-        block[n].printNote(tft.display, crc, ch, nn, vv, settings, highlight);
+        block[d.index].printNote(tft.display, d);
       }
     }
-#endif
+  #endif
 }
-
-
 
 
 
 public:
   BMCMidi& midi;
+  BMCGlobals& globals;
+  bmcStore& store;
+  BMCSettings& settings;
 #if defined(BMC_USE_SYNC)
   BMCSync& sync;
 #endif
@@ -1428,8 +1741,13 @@ public:
   XPT2046_Touchscreen touchScreen = XPT2046_Touchscreen(BMC_ILI_TOUCH_CS, BMC_ILI_TOUCH_IRQ);
   TS_Point touchPoint;
   BMCTimer touchTimer;
+  
+  bmcTouchArea touchHeader;
   bmcTouchArea touchPrev;
   bmcTouchArea touchToggle;
+  #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 5
+    bmcTouchArea touchBack;
+  #endif
   bmcTouchArea touchSelect;
   bmcTouchArea touchNext;
   bmcTouchArea touchEnter;
@@ -1487,6 +1805,11 @@ private:
     "LEAD",
     "BANK",
   };
+#if BMC_MAX_SETLISTS > 0 || BMC_MAX_PRESETS > 0 || BMC_MAX_LAYERS > 1
+  // uint8_t listId = 0;
+  uint16_t listPageCurrent = 0;
+  uint16_t listLastSelection = 0;
+#endif
 
   void renderIcon(uint8_t n, bool isOled, uint8_t type, uint8_t value){
 #if BMC_MAX_OLED > 0
@@ -1501,7 +1824,7 @@ private:
 #endif
   }
   bool allowRendering(){
-    return !midi.globals.displayRenderDisabled();
+    return !globals.displayRenderDisabled();
   }
 
   uint8_t checkLast(uint8_t type, char * str){

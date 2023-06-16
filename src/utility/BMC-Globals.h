@@ -32,6 +32,8 @@
 #define BMC_GLOBALS_FLAG_TRIGGER_SETLIST        	 12
 #define BMC_GLOBALS_FLAG_TRIGGER_SONG           	 13
 #define BMC_GLOBALS_FLAG_TRIGGER_SONG_PART      	 14
+#define BMC_GLOBALS_FLAG_PAUSE_ILI      	         15
+#define BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST      	     16
 
 
 #define BMC_GLOBALS_DEBUG_FLAG_STORAGE            	 0
@@ -147,10 +149,16 @@ public:
     return flags.toggle(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
   }
   bool onBoardEditorActive(){
+#if defined(BMC_USE_ON_BOARD_EDITOR)
     return flags.read(BMC_GLOBALS_FLAG_ON_BOARD_EDITOR_ACTIVE);
+#else
+    return false;
+#endif
   }
   void setDisplayRenderDisable(bool state){
+#if defined(BMC_USE_ON_BOARD_EDITOR)
     flags.write(BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER, state);
+#endif
   }
   bool displayRenderDisabled(){
     return flags.read(BMC_GLOBALS_FLAG_DISABLE_DISPLAY_RENDER);
@@ -299,6 +307,83 @@ bool getButtonStateBit(bool isGlobal, uint16_t n){
   return 0;
 }
 
+
+bool pauseIli(){
+  return flags.read(BMC_GLOBALS_FLAG_PAUSE_ILI);
+}
+bool pauseIli(bool value){
+  flags.write(BMC_GLOBALS_FLAG_PAUSE_ILI, value);
+  return value;
+}
+bool getRenderDisplayList(){
+  return flags.toggleIfTrue(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST);
+}
+bool setRenderDisplayList(uint8_t id){
+  if(onBoardEditorActive() || !settings.getDisplayListMode()){
+    return false;
+  }
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  // if(!displayListsActive() && !flags.read(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST)){
+    
+  // }
+  if(displayListsActive() && !flags.read(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST)){
+    flags.on(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST);
+    return false;
+  } else if(!displayListsActive() && !flags.read(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST)){
+    displayListId = id;
+    flags.on(BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST);
+    return true;
+  }
+#endif
+  return false;
+}
+
+uint8_t getDisplayListId(){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  return displayListId;
+#else
+  return 0;
+#endif
+}
+
+bool displayListsActive(){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  return displayListsTimer.active();
+#else
+  return false;
+#endif
+}
+bool displayListsComplete(){
+  #if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+    return displayListsTimer.complete();
+  #else
+    return false;
+  #endif
+}
+// bool displayListsActive(){
+// #if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+//   return displayListsTimer.active();
+// #else
+//   return false;
+// #endif
+// }
+void enterDisplayListMode(uint16_t value){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  BMC_PRINTLN("*** Enter Display List Mode");
+  displayListsTimer.start(value);
+  pauseIli(true);
+#endif
+}
+void exitDisplayListMode(){
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  BMC_PRINTLN("*** Exit Display List Mode");
+  displayListsTimer.stop();
+  displayListId = 0;
+  pauseIli(false);
+#endif
+}
+
+
 bmcStoreEvent getDeviceEventType(uint16_t n){
   bmcStoreEvent e;
   if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
@@ -404,11 +489,18 @@ public:
   BMCBitStates <BMC_MAX_AUX_JACKS> auxJackStates;
 #endif
 
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  BMCTimer displayListsTimer;
+  uint8_t displayListId = 0;
+#endif
+
 private:
-  BMCFlags <uint16_t> flags;
+  BMCFlags <uint32_t> flags;
 #ifdef BMC_DEBUG
   BMCFlags <uint16_t> debugFlags;
 #endif
+
+
 
   uint32_t loopsPerSecond = 0;
   uint32_t lastLoopsPerSecond = 0;

@@ -23,8 +23,10 @@ public:
   {
   }
   void setByIndex(uint16_t t_presetAndBank, bool forced=false){
-    uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
-    uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
+    // uint8_t t_bank = (t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F;
+    // uint8_t t_preset = t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1);
+    uint8_t t_bank = getBankFromPresetIndex(t_presetAndBank);
+    uint8_t t_preset = getPresetInBankFromPresetIndex(t_presetAndBank);
     set(t_bank, t_preset, forced);
   }
   void setPreset(uint8_t t_preset, bool forced = false){
@@ -46,17 +48,94 @@ public:
       BMC_PRINTLN("Switch Preset, Bank:", t_bank, "Preset:", t_preset, "presetIndex:", presetIndex);
     }
   }
-  uint8_t scrollPreset(bool t_direction, bool t_wrap, uint8_t amount=1){
+  uint16_t scrollPresetList(bool t_direction, bool t_wrap, uint8_t amount=1, uint8_t t_min=0, uint8_t t_max=0){
+    // if(!midi.globals.onBoardEditorActive()){
+    //   if(midi.globals.settings.getDisplayListMode() && !midi.globals.displayListsActive()){
+    //     midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET);
+    //     return presetIndex;
+    //   }
+    // }
+    if(midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET)){
+      return presetIndex;
+    }
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_PRESETS-1;
+    }
+    if(t_max > BMC_MAX_PRESETS-1){
+      t_max = BMC_MAX_PRESETS-1;
+    }
+    if(t_min > BMC_MAX_PRESETS-1){
+      t_min = 0;
+    }
+    amount = (amount >= BMC_MAX_PRESETS || amount==0) ? 1 : amount;
+    BMCScroller <uint16_t> scroller(0, BMC_MAX_PRESETS-1);
+    uint16_t value = scroller.scroll(amount, t_direction, t_wrap, presetIndex, t_min, t_max);
+    setByIndex(value, false);
+    return value;
+  }
+  uint8_t scrollPreset(bool t_direction, bool t_wrap, uint8_t amount=1, uint8_t t_min=0, uint8_t t_max=0){
+    // if(!midi.globals.onBoardEditorActive()){
+    //   if(midi.globals.settings.getDisplayListMode() && !midi.globals.displayListsActive()){
+    //     midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET);
+    //     return preset;
+    //   }
+    // }
+    if(midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET)){
+      return preset;
+    }
+    BMC_PRINTLN("*************** SCROLL PRESET ***************");
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_PRESETS_PER_BANK-1;
+    }
+    if(t_max > BMC_MAX_PRESETS_PER_BANK-1){
+      t_max = BMC_MAX_PRESETS_PER_BANK-1;
+    }
+    if(t_min > BMC_MAX_PRESETS_PER_BANK-1){
+      t_min = 0;
+    }
     amount = (amount >= BMC_MAX_PRESETS_PER_BANK || amount==0) ? 1 : amount;
     BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESETS_PER_BANK-1);
-    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, preset, 0, BMC_MAX_PRESETS_PER_BANK-1);
+    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, preset, t_min, t_max);
     set(bank, value);
     return value;
   }
-  uint8_t scrollBank(bool t_direction, bool t_wrap, uint8_t amount=1){
+  uint8_t scrollBank(bool t_direction, bool t_wrap, uint8_t amount=1, uint8_t t_min=0, uint8_t t_max=0){
+    // if(!midi.globals.onBoardEditorActive()){
+    //   if(midi.globals.settings.getDisplayListMode() && !midi.globals.displayListsActive()){
+    //     midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET);
+    //     return bank;
+    //   }
+    // }
+    if(midi.globals.setRenderDisplayList(BMC_DEVICE_ID_PRESET)){
+      return bank;
+    }
+    if(t_min > t_max){
+      uint8_t t_min2 = t_min;
+      t_min = t_max;
+      t_max = t_min2;
+    } else if(t_min == t_max){
+      t_min = 0;
+      t_max = BMC_MAX_PRESET_BANKS-1;
+    }
+    if(t_max > BMC_MAX_PRESET_BANKS-1){
+      t_max = BMC_MAX_PRESET_BANKS-1;
+    }
+    if(t_min > BMC_MAX_PRESET_BANKS-1){
+      t_min = 0;
+    }
     amount = (amount >= BMC_MAX_PRESET_BANKS || amount==0) ? 1 : amount;
     BMCScroller <uint8_t> scroller(0, BMC_MAX_PRESET_BANKS-1);
-    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, bank, 0, BMC_MAX_PRESET_BANKS-1);
+    uint8_t value = scroller.scroll(amount, t_direction, t_wrap, bank, t_min, t_max);
     set(value, preset);
     return value;
   }
@@ -147,6 +226,14 @@ public:
     }
     return p;
   }
+  uint8_t getBankFromPresetIndex(uint16_t t_presetAndBank){
+    return ((t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F);
+    
+  }
+  uint8_t getPresetInBankFromPresetIndex(uint16_t t_presetAndBank){
+    return (t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1));
+  }
+
 public:
   BMCMidi& midi;
 

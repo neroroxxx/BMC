@@ -20,10 +20,10 @@ void BMC::setupDebug(){
     "line '#define BMC_DEBUG' from your config"
   );
   printBoardInfo();
-  BMC_PRINTLN("");
-#ifdef BMC_USE_DAW_LC
+  #ifdef BMC_USE_DAW_LC
   BMC_PRINTLN(">>>>> BMC_USE_DAW_LC <<<<<");
 #endif
+  BMC_PRINTLN("");
 }
 void BMC::printDebugHeader(char* str){
   BMC_PRINTLN("");
@@ -48,6 +48,8 @@ void BMC::readDebug(){
     BMC_PRINTLN("board = Print Board Info");
     BMC_PRINTLN("eeprom = Displays EEPROM.length()");
     BMC_PRINTLN("objects = Displays the sizes of many objects used by BMC");
+    BMC_PRINTLN("sync = Displays the Sync Features Available");
+    
 
     #ifdef BMC_HAS_HARDWARE
     BMC_PRINTLN("pins = Displays the pins for buttons/leds/pots/encoders");
@@ -138,6 +140,13 @@ void BMC::readDebug(){
     printBoardInfo();
     printDebugHeader(debugInput);
 
+  } else if(BMC_STR_MATCH(debugInput,"sync")){
+    printDebugHeader(debugInput);
+    printSyncInfo();
+    printDebugHeader(debugInput);
+
+    
+
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS> 0
   } else if(BMC_STR_MATCH(debugInput,"buttons")){
@@ -222,7 +231,7 @@ void BMC::readDebug(){
   } else if(BMC_STR_MATCH(debugInput,"version")){
 
     printDebugHeader(debugInput);
-    BMC_PRINTLNNS("BMC Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,".",BMC_VERSION_PATCH,"\"");
+    BMC_PRINTLN("BMC Library Version", BMC_VERSION_STR);
     BMC_PRINTLNNS("BMC Library Version stored in EEPROM ",'"',BMC_GET_BYTE(1,store.version),".",BMC_GET_BYTE(0,store.version),'"');
     printDebugHeader(debugInput);
 
@@ -230,45 +239,18 @@ void BMC::readDebug(){
 
     printDebugHeader(debugInput);
     BMC_PRINTLN("EEPROM size",editor.getEepromSize(),"bytes.");
+    BMC_PRINTLN("Store:", sizeof(bmcStore),"Bytes");
     printDebugHeader(debugInput);
 
   } else if(BMC_STR_MATCH(debugInput,"build")){
 
     printDebugHeader(debugInput);
-    BMC_PRINTLN("BMC_DEVICE_NAME",BMC_DEVICE_NAME);
-    BMC_PRINT("BMC_EDITOR_SYSEX_ID",BMC_EDITOR_SYSEX_ID);
+    BMC_PRINTLN("BMC_DEVICE_NAME:",BMC_DEVICE_NAME);
+    BMC_PRINT("BMC_EDITOR_SYSEX_ID:",BMC_EDITOR_SYSEX_ID);
     BMC_PRINTNS("0x");
     BMC_PRINT_HEX(BMC_EDITOR_SYSEX_ID);
     BMC_PRINTLN("");
-    BMC_PRINTLN("");
-    BMC_PRINTLN("*** GLOBAL ***");
-    BMC_PRINTLN("BMC_MAX_PRESETS", BMC_MAX_PRESETS);
-    BMC_PRINTLN("BMC_MAX_PRESET_ITEMS", BMC_MAX_PRESET_ITEMS);
-    BMC_PRINTLN("BMC_MAX_CUSTOM_SYSEX", BMC_MAX_CUSTOM_SYSEX);
-    BMC_PRINTLN("BMC_MAX_TRIGGERS", BMC_MAX_TRIGGERS);
-    BMC_PRINTLN("BMC_MAX_TIMED_EVENTS", BMC_MAX_TIMED_EVENTS);
-    BMC_PRINTLN("BMC_MAX_TEMPO_TO_TAP", BMC_MAX_TEMPO_TO_TAP);
-    BMC_PRINTLN("BMC_MAX_SKETCH_BYTES", BMC_MAX_SKETCH_BYTES);
-    BMC_PRINTLN("BMC_MAX_GLOBAL_BUTTONS", BMC_MAX_GLOBAL_BUTTONS);
-    BMC_PRINTLN("BMC_MAX_BUTTON_EVENTS", BMC_MAX_BUTTON_EVENTS);
-    BMC_PRINTLN("BMC_MAX_GLOBAL_ENCODERS", BMC_MAX_GLOBAL_ENCODERS);
-    BMC_PRINTLN("BMC_MAX_GLOBAL_POTS", BMC_MAX_GLOBAL_POTS);
-    BMC_PRINTLN("BMC_MAX_GLOBAL_LEDS", BMC_MAX_GLOBAL_LEDS);
-    BMC_PRINTLN("BMC_MAX_NL_RELAYS", BMC_MAX_NL_RELAYS);
-    BMC_PRINTLN("BMC_MAX_L_RELAYS", BMC_MAX_L_RELAYS);
-    BMC_PRINTLN("");
-    BMC_PRINTLN("*** LAYERS ***");
-    BMC_PRINTLN("BMC_MAX_LAYERS", BMC_MAX_LAYERS);
-    BMC_PRINTLN("BMC_MAX_BUTTONS", BMC_MAX_BUTTONS);
-    BMC_PRINTLN("BMC_MAX_BUTTON_EVENTS", BMC_MAX_BUTTON_EVENTS);
-    BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
-    BMC_PRINTLN("BMC_MAX_POTS", BMC_MAX_POTS);
-    BMC_PRINTLN("BMC_MAX_LEDS", BMC_MAX_LEDS);
-    BMC_PRINTLN("BMC_MAX_ENCODERS", BMC_MAX_ENCODERS);
-    BMC_PRINTLN("BMC_MAX_POTS", BMC_MAX_POTS);
-    BMC_PRINTLN("BMC_MAX_PIXELS", BMC_MAX_PIXELS);
-    BMC_PRINTLN("BMC_MAX_RGB_PIXELS", BMC_MAX_RGB_PIXELS);
-
+    editor.printDevicesInfo();
     BMC_PRINTLN("");
     printDebugHeader(debugInput);
 #ifdef BMC_HAS_HARDWARE
@@ -545,9 +527,31 @@ void BMC::printBoardInfo(){
   BMC_PRINTLNNS("Teensy ", BMC_TEENSY_MODEL_STR," @ ",F_CPU/1000000.0,"MHz (",F_CPU,")");
   BMC_PRINTLN("RAM:", BMC_TEENSY_RAM_SIZE,"Bytes");
   BMC_PRINTLN("EEPROM:", BMC_TEENSY_EEPROM_SIZE,"Bytes");
+  BMC_PRINTLN("Store:", sizeof(bmcStore),"Bytes");
   BMC_PRINTLN("USB Host:", BMC_TEENSY_HAS_USB_HOST?"Yes":"No");
   BMC_PRINTLN("SD Card:", BMC_TEENSY_HAS_SD_CARD?"Yes":"No");
   BMC_PRINTLN("Hardware Serial Ports:", BMC_TEENSY_TOTAL_SERIAL_PORTS);
+}
+void BMC::printSyncInfo(){
+  #if defined(BMC_USE_SYNC)
+    #if defined(BMC_USE_DAW_LC)
+      BMC_PRINTLN("DAW SYNC ENABLED");
+    #endif
+    #if defined(BMC_USE_FAS)
+      BMC_PRINTLN("FAS SYNC ENABLED");
+    #endif
+    #if defined(BMC_USE_HELIX)
+      BMC_PRINTLN("HELIX SYNC ENABLED");
+    #endif
+    #if defined(BMC_USE_BEATBUDDY)
+      BMC_PRINTLN("BEATBUDDY SYNC ENABLED");
+    #endif
+    #if defined(BMC_USE_KEMPER)
+      BMC_PRINTLN("KEMPER SYNC ENABLED");
+    #endif
+  #else
+    BMC_PRINTLN("SYNC UNAVAILABLE");
+  #endif
 }
 void BMC::midiInDebug(BMCMidiMessage message){
   if(!globals.getMidiInDebug() || message.getStatus()==BMC_NONE){

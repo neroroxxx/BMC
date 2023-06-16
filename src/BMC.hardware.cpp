@@ -128,17 +128,30 @@ void BMC::readHardware(){
 
 #if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
 if(oneMillisecondPassed()){
+  if(globals.offset == 0){
+    BMC_PRINTLN("???????????????");
+  }
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    if(!globals.pauseIli()){
+      for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
+        uint16_t eIndex = store.layers[layer].ili[index].events[0];
+        processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
+      }
+    }
+    #if (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+      if(globals.getRenderDisplayList()){
+        display.renderDisplayLists();
+      } else if(globals.displayListsComplete()){
+        globals.exitDisplayListMode();
+        display.reassign();
+      }
+    #endif
+  #endif
+
   #if BMC_MAX_OLED > 0
     for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
       uint16_t eIndex = store.layers[layer].oled[index].events[0];
       processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, index, eIndex);
-    }
-  #endif
-
-  #if BMC_MAX_ILI9341_BLOCKS > 0
-    for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
-      uint16_t eIndex = store.layers[layer].ili[index].events[0];
-      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
     }
   #endif
 }

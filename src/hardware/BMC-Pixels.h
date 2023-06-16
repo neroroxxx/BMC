@@ -107,7 +107,6 @@ public:
       BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_PIXEL, i);
       setDimColor(i, ui.style);
       #if !defined(BMC_NO_LED_TEST_AT_LAUNCH)
-        BMC_PRINTLN("test pixel", i);
         test(BMC_DEVICE_ID_PIXEL, i, true);
       #endif
     }

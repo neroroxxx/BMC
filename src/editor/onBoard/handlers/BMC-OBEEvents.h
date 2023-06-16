@@ -592,7 +592,7 @@ private:
 
       case BMC_EVENT_TYPE_LAYER:
         if(request==0){ /* available */ return BMC_MAX_LAYERS > 1; }
-        else if(request==1){ /* fields */ return 4; }
+        else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Layer #"); return 1;}
@@ -601,7 +601,7 @@ private:
 
       case BMC_EVENT_TYPE_PRESET:
         if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 4; }
+        else if(request==1){ /* fields */ return 6; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Preset #"); return 1;}
@@ -610,7 +610,7 @@ private:
 
       case BMC_EVENT_TYPE_BANK:
         if(request==0){ /* available */ return BMC_MAX_PRESETS > 0; }
-        else if(request==1){ /* fields */ return 4; }
+        else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Bank #"); return 1;}
@@ -621,7 +621,7 @@ private:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
         else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
-        else if(request==3){ /* ports */ return true; }
+        else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "SetList #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeSetlist(str, fieldRequest, field);}
         break;
@@ -630,7 +630,7 @@ private:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
         else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
-        else if(request==3){ /* ports */ return true; }
+        else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Song #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeSong(str, fieldRequest, field);}
         break;
@@ -639,7 +639,7 @@ private:
         if(request==0){ /* available */ return BMC_MAX_SETLISTS > 0; }
         else if(request==1){ /* fields */ return 5; }
         else if(request==2){ /* scroll */ return true; }
-        else if(request==3){ /* ports */ return true; }
+        else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Song Part #"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypePart(str, fieldRequest, field);}
         break;
@@ -1460,25 +1460,44 @@ private:
       case 0:
         return eventNameField(str, fieldRequest, field);
       case 1:
-        return eventGetField16BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
+        return eventGetField8BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Layer B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_LAYERS; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 4:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 5:
         return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeLayerName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField16BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeLayerName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField16BitValueRange(str, "Layer", fieldRequest, 0, 0, BMC_MAX_LAYERS-1, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypePreset(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
@@ -1486,34 +1505,109 @@ private:
       case 1:
         return eventGetField8BitValueRange(str, "Preset", fieldRequest, 0, 0, BMC_MAX_PRESETS_PER_BANK-1, true);
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Preset B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_PRESETS_PER_BANK; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+            }
+            return 1;
+        }
+        break;
+
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Scroll ALL"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return 1; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(2, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 2);
+            return 1;
+          case 5: /* formatted value */
+            switch(BMC_GET_BYTE(2, tempEvent.event)){
+              case 0: strcpy(str, "OFF"); return 1;
+              case 1: strcpy(str, "ON"); return 1;
+            }
+            return 1;
+        }
+        break;
       case 4:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 5:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 6:
         return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypePresetName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "Preset", fieldRequest, 0, 0, BMC_MAX_PRESETS_PER_BANK-1, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypePresetName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField8BitValueRange(str, "Preset", fieldRequest, 0, 0, BMC_MAX_PRESETS_PER_BANK-1, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeBank(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
+      // case 1:
+        // return eventGetField8BitValueRange(str, "Bank", fieldRequest, 0, 0, BMC_MAX_PRESET_BANKS-1, true);
       case 1:
-        return eventGetField8BitValueRange(str, "Bank", fieldRequest, 0, 0, BMC_MAX_PRESET_BANKS-1, true);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Bank"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_PRESET_BANKS-1; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(0, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
+            return 1;
+          case 5: /* formatted value */
+            // char letter[3] = "";
+            BMCTools::getBankLetter(BMC_GET_BYTE(0, tempEvent.event), str);
+            // sprintf(str, "%s", letter);
+            return 1;
+        }
+        break;
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Bank B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_PRESET_BANKS; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              // sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+              BMCTools::getBankLetter(BMC_GET_BYTE(1, tempEvent.event)-1, str);
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 4:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 5:
         return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
@@ -1525,34 +1619,51 @@ private:
       case 1:
         return eventGetField8BitValueRange(str, "SetList", fieldRequest, 0, 0, BMC_MAX_SETLISTS-1, true);
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Setlist B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_SETLISTS; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 4:
-        return eventGetScrollWrapField(str, fieldRequest);
+        return eventGetScrollDirectionField(str, fieldRequest);
       case 5:
-        return eventGetPortsField(str, fieldRequest, field);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeSetlistName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "SetList", fieldRequest, 0, 0, BMC_MAX_SETLISTS-1, true);
-    }
-    return 0;
-  }
-  uint16_t eventBmcEventTypeSetlistSelectedName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "SetList", fieldRequest, 0, 0, BMC_MAX_SETLISTS-1, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeSetlistName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField8BitValueRange(str, "SetList", fieldRequest, 0, 0, BMC_MAX_SETLISTS-1, true);
+  //   }
+  //   return 0;
+  // }
+  // uint16_t eventBmcEventTypeSetlistSelectedName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField8BitValueRange(str, "SetList", fieldRequest, 0, 0, BMC_MAX_SETLISTS-1, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeSong(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
@@ -1560,25 +1671,42 @@ private:
       case 1:
         return eventGetField8BitValueRange(str, "Song", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONGS-1, true);
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Song B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_SETLISTS_SONGS; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 4:
-        return eventGetScrollWrapField(str, fieldRequest);
+        return eventGetScrollDirectionField(str, fieldRequest);
       case 5:
-        return eventGetPortsField(str, fieldRequest, field);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypeSongName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "Song", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONGS-1, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypeSongName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField8BitValueRange(str, "Song", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONGS-1, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypePart(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
@@ -1586,25 +1714,42 @@ private:
       case 1:
         return eventGetField8BitValueRange(str, "Part", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONG_PARTS-1, true);
       case 2:
-        return eventGetScrollEnableField(str, fieldRequest);
+        switch(fieldRequest){
+          case 0: strcpy(str, "Part B"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_SETLISTS_SONG_PARTS; /* max */
+          case 3: /* get stored value */
+            return BMC_GET_BYTE(1, tempEvent.event);
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
+            return 1;
+          case 5: /* formatted value */
+            if(BMC_GET_BYTE(1, tempEvent.event) == 0){
+              strcpy(str, "OFF");
+            } else {
+              sprintf(str, "%u", (uint16_t)((BMC_GET_BYTE(1, tempEvent.event)-1)+offset));
+            }
+            return 1;
+        }
+        break;
       case 3:
-        return eventGetScrollDirectionField(str, fieldRequest);
+        return eventGetScrollEnableField(str, fieldRequest);
       case 4:
-        return eventGetScrollWrapField(str, fieldRequest);
+        return eventGetScrollDirectionField(str, fieldRequest);
       case 5:
-        return eventGetPortsField(str, fieldRequest, field);
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }
-  uint16_t eventBmcEventTypePartName(char* str, uint8_t fieldRequest, uint8_t field){
-    switch(field){
-      case 0:
-        return eventNameField(str, fieldRequest, field);
-      case 1:
-        return eventGetField8BitValueRange(str, "Part", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONG_PARTS-1, true);
-    }
-    return 0;
-  }
+  // uint16_t eventBmcEventTypePartName(char* str, uint8_t fieldRequest, uint8_t field){
+  //   switch(field){
+  //     case 0:
+  //       return eventNameField(str, fieldRequest, field);
+  //     case 1:
+  //       return eventGetField8BitValueRange(str, "Part", fieldRequest, 0, 0, BMC_MAX_SETLISTS_SONG_PARTS-1, true);
+  //   }
+  //   return 0;
+  // }
   uint16_t eventBmcEventTypeNlRelay(char* str, uint8_t fieldRequest, uint8_t field){
     switch(field){
       case 0:
@@ -2072,7 +2217,7 @@ private:
               return value;
               // return (tempEvent.event >> 16) & 0x3FF;
             case 4: /* set stored value */
-              BMC_WRITE_BITS(tempEvent.event, tempValue, 0x3FF, 16);
+              BMC_WRITE_BITS(tempEvent.event, tempValue, 0x7FF, 16);
               return 1;
             case 5: /* formatted value */
               if(value == 0){

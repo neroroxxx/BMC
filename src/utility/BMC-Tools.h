@@ -413,6 +413,7 @@ public:
       strcpy(str, buff);
     }
   }
+  
   static void getBankLetter(uint8_t n, char* buff){
     strcpy(buff, "");
     if(n < 32){
@@ -427,6 +428,55 @@ public:
     }
     return p;
   }
+
+  static void formatKnobValue(BMCDataContainer d, uint16_t t_value, char * buff){
+    if(d.type == BMC_EVENT_TYPE_BANK){
+      char letter[3] = "";
+      BMCTools::getBankLetter(t_value, letter);
+      sprintf(buff, "%s", letter);
+    } else if(d.type == BMC_EVENT_TYPE_PRESET && d.byteC == 1){
+      char letter[3] = "";
+      // all presets
+      BMCTools::getPresetLabelNoName(t_value, letter, d.offset);
+      sprintf(buff, "%s", letter);
+    } else {
+      sprintf(buff, "%u", t_value+(d.useOffset ? d.offset : 0));
+    }
+  }
+  static void makePlural(char * buff){
+    uint8_t strL = strlen(buff);
+    char lastChar = buff[strL-1];
+    if(lastChar!='s' && lastChar!='x' && lastChar!='p'){
+      buff[strL] = 's';
+    }
+  }
+
+
+
+  
+  static void getPresetLabelNoName(uint8_t t_bank, uint8_t t_preset, char * str, bool offset=false){
+    uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
+    getPresetLabelNoName(t_presetAndBank, str, offset);
+  }
+  static void getPresetLabelNoName(uint16_t t_presetAndBank, char * str, bool offset=false){
+    if(t_presetAndBank < BMC_MAX_PRESETS){
+#if BMC_MAX_PRESETS > 0
+      char bankStr[2] = "";
+      getBankLetter(getBankFromPresetIndex(t_presetAndBank), bankStr);
+      sprintf(str, "%s%u", bankStr, getPresetInBankFromPresetIndex(t_presetAndBank)+offset);
+#endif
+    }
+  }
+  static uint8_t getBankFromPresetIndex(uint16_t t_presetAndBank){
+    return ((t_presetAndBank >> BMC_PRESET_BANK_MASK) & 0x1F);
+    
+  }
+  static uint8_t getPresetInBankFromPresetIndex(uint16_t t_presetAndBank){
+    return (t_presetAndBank & (BMC_MAX_PRESETS_PER_BANK-1));
+  }
+
+
+
   static void getPresetLabel(uint8_t t_bank, uint8_t t_preset, char * str, bmcStoreGlobal& t_store){
     uint16_t t_presetAndBank = toPresetIndex(t_bank, t_preset);
     if(t_presetAndBank < BMC_MAX_PRESETS){

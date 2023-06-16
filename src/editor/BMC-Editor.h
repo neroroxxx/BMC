@@ -783,8 +783,42 @@ public:
         break;
     }
   }
+#if defined(BMC_DEBUG)
+  void printDevicesInfo(){
+    Serial.println("");
+    Serial.println("----------------------------");
+    Serial.println("        DEVICES DATA        ");
+    Serial.println("----------------------------");
+    for(uint8_t i = 0 ; i < totalDevices ; i++){
+      if(devicesData[i].id == 0){
+        break;
+      }
+      Serial.print(devicesData[i].length);
+      Serial.print(" ");
+      if(devicesData[i].hardware){
+        Serial.print("*");
+      }
+      if(devicesData[i].global && devicesData[i].hardware){
+        Serial.print("Global ");
+      }
+      if(devicesData[i].length > 1){
+        char buff[20] = "";
+        strcpy(buff, devicesData[i].label);
+        BMCTools::makePlural(buff);
+        Serial.print(buff);
+      } else {
+        Serial.print(devicesData[i].label);
+      }
+      Serial.println("");
+    }
+    Serial.println("----------------------------");
+    Serial.println("* is hardware");
+    Serial.println("----------------------------");
+  }
+  #endif
+  const uint8_t totalDevices = 40;
   const BMCDeviceData devicesData[40] = {
-    {BMC_DEVICE_ID_LAYER, "Layer", -1, 1, false, false, 0, BMC_MAX_LAYER_EVENTS},
+    {BMC_DEVICE_ID_LAYER, "Layer", -1, BMC_MAX_LAYERS, false, false, 0, BMC_MAX_LAYER_EVENTS},
     {BMC_DEVICE_ID_EVENT, "Event", -1, BMC_MAX_EVENTS_LIBRARY, true, false, 0, 0},
     {BMC_DEVICE_ID_NAME, "Name", -1, BMC_MAX_NAMES_LIBRARY, true, false, 0, 0},
     #if BMC_MAX_BUTTONS > 0
@@ -792,7 +826,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_BUTTONS > 0
-    {BMC_DEVICE_ID_GLOBAL_BUTTON, "Global Button", 1, BMC_MAX_GLOBAL_BUTTONS, true, true, BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS},
+    {BMC_DEVICE_ID_GLOBAL_BUTTON, "Button", 1, BMC_MAX_GLOBAL_BUTTONS, true, true, BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS},
     #endif
 
     #if BMC_MAX_LEDS > 0
@@ -800,7 +834,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_LEDS > 0
-    {BMC_DEVICE_ID_GLOBAL_LED, "Global Led", 2, BMC_MAX_GLOBAL_LEDS, true, true, 1, 1},
+    {BMC_DEVICE_ID_GLOBAL_LED, "Led", 2, BMC_MAX_GLOBAL_LEDS, true, true, 1, 1},
     #endif
 
     #if BMC_MAX_BI_LEDS > 0
@@ -808,7 +842,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_BI_LEDS > 0
-    {BMC_DEVICE_ID_GLOBAL_BI_LED, "Global Bi Led", 2, BMC_MAX_GLOBAL_BI_LEDS, true, true, 2, 2},
+    {BMC_DEVICE_ID_GLOBAL_BI_LED, "Bi Led", 2, BMC_MAX_GLOBAL_BI_LEDS, true, true, 2, 2},
     #endif
 
     #if BMC_MAX_TRI_LEDS > 0
@@ -816,15 +850,15 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_TRI_LEDS > 0
-    {BMC_DEVICE_ID_GLOBAL_TRI_LED, "Global Tri Led", 2, BMC_MAX_GLOBAL_TRI_LEDS, true, true, 3, 3},
+    {BMC_DEVICE_ID_GLOBAL_TRI_LED, "Tri Led", 2, BMC_MAX_GLOBAL_TRI_LEDS, true, true, 3, 3},
     #endif
 
     #if BMC_MAX_ENCODERS > 0
-    {BMC_DEVICE_ID_ENCODER, "Encoder", 3, BMC_MAX_ENCODERS, false, true, 0, 1},
+    {BMC_DEVICE_ID_ENCODER, "Encoder", 3, BMC_MAX_ENCODERS, false, true, 1, 1},
     #endif
 
     #if BMC_MAX_GLOBAL_ENCODERS > 0
-    {BMC_DEVICE_ID_GLOBAL_ENCODER, "Global Encoder", 3, BMC_MAX_GLOBAL_ENCODERS, true, true, 0, 1},
+    {BMC_DEVICE_ID_GLOBAL_ENCODER, "Encoder", 3, BMC_MAX_GLOBAL_ENCODERS, true, true, 1, 1},
     #endif
 
     #if BMC_MAX_POTS > 0
@@ -832,11 +866,11 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_POTS > 0
-    {BMC_DEVICE_ID_GLOBAL_POT, "Global Pot", 4, BMC_MAX_GLOBAL_POTS, true, true, 1, 3},
+    {BMC_DEVICE_ID_GLOBAL_POT, "Pot", 4, BMC_MAX_GLOBAL_POTS, true, true, 1, 3},
     #endif
 
     #if BMC_TOTAL_POTS_AUX_JACKS > 0
-    {BMC_DEVICE_ID_POT_CALIBRATION, "Analog Calibration", -1, BMC_TOTAL_POTS_AUX_JACKS, true, true, 0, 2},
+    {BMC_DEVICE_ID_POT_CALIBRATION, "Calibration", -1, BMC_TOTAL_POTS_AUX_JACKS, true, true, 0, 2},
     #endif
 
     #if BMC_MAX_PIXELS > 0
@@ -844,7 +878,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_PIXELS > 0
-    {BMC_DEVICE_ID_GLOBAL_PIXEL, "Global Pixel", 2, BMC_MAX_GLOBAL_PIXELS, true, true, 1, 1},
+    {BMC_DEVICE_ID_GLOBAL_PIXEL, "Pixel", 2, BMC_MAX_GLOBAL_PIXELS, true, true, 1, 1},
     #endif
 
     #if BMC_MAX_RGB_PIXELS > 0
@@ -852,7 +886,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_RGB_PIXELS > 0
-    {BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, "Global RGB Pixel", 2, BMC_MAX_GLOBAL_RGB_PIXELS, true, true, 0, 3},
+    {BMC_DEVICE_ID_GLOBAL_RGB_PIXEL, "RGB Pixel", 2, BMC_MAX_GLOBAL_RGB_PIXELS, true, true, 0, 3},
     #endif
 
     #if BMC_MAX_PIXEL_STRIP > 0
@@ -860,11 +894,11 @@ public:
     #endif
 
     #if BMC_MAX_NL_RELAYS > 0
-    {BMC_DEVICE_ID_NL_RELAY, "Non-Latching Relay", 6, BMC_MAX_NL_RELAYS, true, true, 1, 1},
+    {BMC_DEVICE_ID_NL_RELAY, "NoLatch Relay", 6, BMC_MAX_NL_RELAYS, true, true, 1, 1},
     #endif
 
     #if BMC_MAX_L_RELAYS > 0
-    {BMC_DEVICE_ID_L_RELAY, "Latching Relay", 6, BMC_MAX_L_RELAYS, true, true, 1, 1},
+    {BMC_DEVICE_ID_L_RELAY, "Latch Relay", 6, BMC_MAX_L_RELAYS, true, true, 1, 1},
     #endif
 
     #if BMC_MAX_AUX_JACKS > 0
@@ -888,7 +922,7 @@ public:
     #endif
 
     #if BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
-    {BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, "Gbl Magic Encoder", 5, BMC_MAX_GLOBAL_MAGIC_ENCODERS, true, true, 3, 3},
+    {BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER, "Magic Encoder", 5, BMC_MAX_GLOBAL_MAGIC_ENCODERS, true, true, 3, 3},
     #endif
 
     #if BMC_MAX_PRESETS > 0
@@ -908,7 +942,7 @@ public:
     #endif
 
     #if BMC_MAX_TEMPO_TO_TAP > 0
-    {BMC_DEVICE_ID_TEMPO_TO_TAP, "Tempo to Tap", -1, BMC_MAX_TEMPO_TO_TAP, true, false, 0, 1},
+    {BMC_DEVICE_ID_TEMPO_TO_TAP, "Tempo 2 Tap", -1, BMC_MAX_TEMPO_TO_TAP, true, false, 0, 1},
     #endif
 
     #if BMC_MAX_CUSTOM_SYSEX > 0

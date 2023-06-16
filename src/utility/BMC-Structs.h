@@ -37,18 +37,151 @@ struct __attribute__ ((packed)) BMCDeviceData {
   uint8_t settings = 0;
   uint8_t events = 0;
 };
-struct __attribute__ ((packed)) BMCEventData {
-  uint8_t type = BMC_NONE;
-  char label[35] = "";
-  bool available = false;
-  bool scroll = false;
-  bool ports = false;
-  uint8_t fields = 0;
-};
+
+// struct __attribute__ ((packed)) BMCEventData {
+//   uint8_t type = BMC_NONE;
+//   char label[35] = "";
+//   bool available = false;
+//   bool scroll = false;
+//   bool ports = false;
+//   uint8_t fields = 0;
+// };
 struct bmcXY {
   int16_t x = 0;
   int16_t y = 0;
 };
+
+struct BMCEventScrollData {
+  bool enabled = false;
+  bool direction = false;
+  bool wrap = true;
+  uint8_t amount = 1;
+  void set(uint8_t settings, uint8_t ticks, bool forceEnable=false){
+    enabled = bitRead(settings, 0);
+    direction = bitRead(settings, 1);
+    wrap = bitRead(settings, 2);
+    if(forceEnable){
+      if(!enabled){
+        wrap = true;
+      }
+      enabled = true; 
+    }
+    if(ticks > 0 || forceEnable){
+      direction = bitRead(ticks, 7);
+    }
+    amount = ticks & 0x7F;
+    if(amount == 0){
+      amount = 1;
+    }
+  }
+  // BMCEventScrollData(uint8_t settings, uint8_t ticks, bool forceEnable=false){
+  //   enabled = bitRead(settings, 0);
+  //   direction = bitRead(settings, 1);
+  //   wrap = bitRead(settings, 2);
+  //   if(forceEnable){
+  //     if(!enabled){
+  //       wrap = true;
+  //     }
+  //     enabled = true; 
+  //   }
+  //   if(ticks > 0){
+  //     direction = bitRead(ticks, 7);
+  //   }
+  //   amount = ticks & 0x7F;
+  //   if(amount==0){
+  //     amount = 1;
+  //   }
+  // }
+};
+struct __attribute__ ((packed)) BMCDataContainer {
+  uint8_t index = 0;
+  uint8_t crc = 0;
+  uint8_t settings = 0;
+  uint8_t type = 0;
+  uint8_t byteA = 0;
+  uint8_t byteB = 0;
+  uint8_t byteC = 0;
+  uint8_t byteD = 0;
+  uint8_t value = 0;
+  uint16_t min = 0;
+  uint16_t max = 0;
+  
+  bool highlight = false;
+  bool oled = false;
+  bool useOffset = true;
+  bool noScroll = false;
+  bool offset = 0;
+
+  char str[32] = "";
+  char label[32] = "";
+  BMCEventScrollData scroll;
+  uint16_t setMinMax(uint16_t t_currentValue, uint16_t t_min, uint16_t t_max, uint16_t t_min2, uint16_t t_max2){
+    min = t_min;
+    max = t_max;
+    uint16_t outVal = t_min2;
+    if(t_max2 > 0){
+      // scrolling max or toggle enabled
+      min = t_min2;
+      max = t_max2-1;
+      if(min > max){
+        max = t_min2;
+        min = t_max2-1;
+      } else if(min == max){
+        min = t_min;
+        max = t_max-1;
+      }
+      if(!scroll.enabled){
+        outVal = t_currentValue != min ? min : max;
+      }
+    }
+    if(noScroll){
+      outVal = scroll.direction ? max : min;
+      scroll.enabled = false;
+    }
+    return outVal;
+  }
+  void setNoScroll(bool t_value){
+    noScroll = t_value;
+  }
+  uint8_t getChannel(){
+    return BMC_TO_MIDI_CHANNEL(byteA);
+  }
+  bool showLabel(){
+    return bitRead(settings, 0);
+  }
+  bool showBorder(){
+    return bitRead(settings, 1);
+  }
+  bool useSelected(){
+    return bitRead(settings, 2);
+  }
+  bool useName(){
+    return bitRead(settings, 3);
+  }
+  bool useMeter(bool additionalCheck=true){
+    return bitRead(settings, 4) && additionalCheck;
+  }
+  bool useOnOffSwitch(){
+    return bitRead(settings, 4) && bitRead(settings, 5);
+  }
+  void setScroll(uint8_t t_settings, uint8_t t_ticks, bool t_forceEnable=false){
+    scroll.set(t_settings, t_ticks, t_forceEnable);
+  }
+  bool scrollEnabled(){
+    return scroll.enabled;
+  }
+  bool scrollDirection(){
+    return scroll.direction;
+  }
+  bool scrollWrap(){
+    return scroll.wrap;
+  }
+  bool scrollAmount(){
+    return scroll.amount;
+  }
+};
+
+
 
 #if defined(BMC_HAS_TOUCH_SCREEN)
 struct bmcTouchArea {
@@ -151,30 +284,7 @@ struct BMCLinkData {
   uint8_t index4 = 0;
 };
 
-struct BMCEventScrollData {
-  bool enabled = false;
-  bool direction = false;
-  bool endless = true;
-  uint8_t amount = 1;
-  BMCEventScrollData(uint8_t settings, uint8_t ticks, bool forceEnable=false){
-    enabled = bitRead(settings, 0);
-    direction = bitRead(settings, 1);
-    endless = bitRead(settings, 2);
-    if(forceEnable){
-      enabled = true;
-    }
-    if(ticks > 0){
-      direction = bitRead(ticks, 7);
-    }
-    if(!enabled){
-      endless = true;
-    }
-    amount = ticks & 0x7F;
-    if(amount==0){
-      amount = 1;
-    }
-  }
-};
+
 template <uint16_t len>
 struct BMCBitStates {
   uint16_t value[((len >> 4) & 0x0F)+1];

@@ -191,7 +191,6 @@ public:
     reset();
     setBlinkMode(t_settings > 0);
     setBlinkSpeed(t_settings);
-    BMC_PRINTLN("LED reassign", t_settings);
   }
   // set weather the LED will blink when on
   void setBlinkMode(bool t_mode){

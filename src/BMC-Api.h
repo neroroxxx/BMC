@@ -678,7 +678,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the last setlist is reached BMC will
   // ignore this function
   void setListNext(bool t_wrap){
-    setLists.scrollSet(BMC_NEXT, t_wrap, 1);
+    setLists.scrollSet(BMC_NEXT, t_wrap, 1, 0, BMC_MAX_SETLISTS-1);
   }
   // * GROUP: SETLISTS
   // go to the previous setlist
@@ -687,7 +687,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the first setlist is reached BMC will
   // ignore this function
   void setListPrevious(bool t_wrap){
-    setLists.scrollSet(BMC_PREV, t_wrap, 1);
+    setLists.scrollSet(BMC_PREV, t_wrap, 1, 0, BMC_MAX_SETLISTS-1);
   }
   // * GROUP: SETLISTS
   // returns the current song number in the setlist
@@ -706,7 +706,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the last song is reached BMC will
   // ignore this function
   void setListSongNext(bool t_wrap){
-    setLists.scrollSong(BMC_NEXT, t_wrap, 1);
+    setLists.scrollSong(BMC_NEXT, t_wrap, 1, 0, BMC_MAX_SETLISTS_SONGS-1);
   }
   // * GROUP: SETLISTS
   // go to previous song in the list
@@ -715,7 +715,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the first song is reached BMC will
   // ignore this function
   void setListSongPrevious(bool t_wrap){
-    setLists.scrollSong(BMC_PREV, t_wrap, 1);
+    setLists.scrollSong(BMC_PREV, t_wrap, 1, 0, BMC_MAX_SETLISTS_SONGS-1);
   }
   // * GROUP: SETLISTS
   // get the current song number in the setlist
@@ -734,7 +734,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the last song is reached BMC will
   // ignore this function
   void setListSongPartNext(bool t_wrap){
-    setLists.scrollPart(BMC_NEXT, t_wrap, 1);
+    setLists.scrollPart(BMC_NEXT, t_wrap, 1, 0, BMC_MAX_SETLISTS_SONG_PARTS-1);
   }
   // * GROUP: SETLISTS
   // go to previous song in the list
@@ -743,7 +743,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // otherwise once the first song is reached BMC will
   // ignore this function
   void setListSongPartPrevious(bool t_wrap){
-    setLists.scrollPart(BMC_PREV, t_wrap, 1);
+    setLists.scrollPart(BMC_PREV, t_wrap, 1, 0, BMC_MAX_SETLISTS_SONG_PARTS-1);
   }
   // * GROUP: SETLISTS
   // move a song within a setlist, you can move the song up or down

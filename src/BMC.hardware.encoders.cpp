@@ -52,6 +52,11 @@ void BMC::readEncoders(){
     if(encoders[i].update()){
       bool increased = encoders[i].increased();
       uint8_t ticks = encoders[i].getTicks();
+      #if defined(BMC_USE_ON_BOARD_EDITOR)
+      if(obe.checkDeviceAssignment(BMC_DEVICE_ID_ENCODER, i, increased, ticks)){
+        break;
+      }
+      #endif
       processEvent(BMC_DEVICE_GROUP_ENCODER,
                   BMC_DEVICE_ID_ENCODER,
                   i,
@@ -86,6 +91,11 @@ void BMC::readEncoders(){
     if(globalEncoders[i].update()){
       bool increased = globalEncoders[i].increased();
       uint8_t ticks = globalEncoders[i].getTicks();
+      #if defined(BMC_USE_ON_BOARD_EDITOR)
+      if(obe.checkDeviceAssignment(BMC_DEVICE_ID_GLOBAL_ENCODER, i, increased, ticks)){
+        break;
+      }
+      #endif
       processEvent(BMC_DEVICE_GROUP_ENCODER,
                   BMC_DEVICE_ID_GLOBAL_ENCODER,
                   i,

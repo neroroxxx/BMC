@@ -359,12 +359,20 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_UP 1
 #define BMC_PREV BMC_DOWN
 #define BMC_NEXT BMC_UP
+
+#define BMC_DEC BMC_DOWN
+#define BMC_INC BMC_UP
+
 #define BMC_SCROLL_DOWN BMC_DOWN
 #define BMC_SCROLL_UP BMC_UP
 #define BMC_SCROLL_PREV BMC_DOWN
 #define BMC_SCROLL_NEXT BMC_UP
 #define BMC_SCROLL_LIMITED BMC_DOWN
 #define BMC_SCROLL_ENDLESS BMC_UP
+
+#define BMC_NO_WRAP BMC_UP
+#define BMC_WRAP BMC_UP
+
 
 // for menu
 #define BMC_MENU_TOGGLE         	 1

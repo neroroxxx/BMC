@@ -136,10 +136,18 @@ public:
     if(output != 0){
       //BMC_PRINTLN(output, readB(), readA());
       flags.on(BMC_ENCODER_FLAG_ACTIVITY);
+      // encoders reading can be tricky, you may turn the knob clockwise
+      // and sometimes it will also trigger a counter-clockwise reading
+      // and vice-versa to avoid this noise BMC will ignore the very
+      // first turn in the oposite direction, if you turn the encoder right
+      // and the last turn was to the right BMC will read it as usual
+      // if the the last turn was to the left BMC will ignore that reading
+      // however the next time you rotate left BMC will continue to read as usual.
+      bool allowReading = false;
       flags.write(BMC_ENCODER_FLAG_INCREASED,(output>0));
       uint16_t currentTurn = millis()&0xFFFF;
       uint16_t subs = (currentTurn-lastTurn);
-      if(lastTurnDirection==flags.read(BMC_ENCODER_FLAG_INCREASED)){
+      if(bitRead(lastTurnDirection, 0) == flags.read(BMC_ENCODER_FLAG_INCREASED)){
         if(subs < 10){
           ticks = 6;
         } else if(subs < 20){
@@ -149,10 +157,11 @@ public:
         } else if(subs < 40){
           ticks = 2;
         }
+        allowReading = true;
       }
-      lastTurnDirection = (output>0)?1:0;
+      bitWrite(lastTurnDirection, 0, (output>0));
       lastTurn = millis()&0xFFFF;
-      return true;
+      return allowReading;
     }
     if((millis()&0xFFFF)-lastTurn>50){
       lastTurn = 0;
