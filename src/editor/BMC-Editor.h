@@ -698,6 +698,23 @@ public:
           }
         #endif
         break;
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+        #if BMC_MAX_MINI_DISPLAY > 0
+          if(index < BMC_MAX_MINI_DISPLAY){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].miniDisplay[index].name, str);
+          }
+        #endif
+        break;
+      
+      case BMC_DEVICE_ID_LCD:
+        #if BMC_MAX_LCD > 0
+          if(index < BMC_MAX_LCD){
+            getDeviceNameFromIndex(store.layers[midi.globals.layer].lcd[index].name, str);
+          }
+        #endif
+        break;
+
+        
       case BMC_DEVICE_ID_LFO:
         #if BMC_MAX_LFO > 0
           if(index < BMC_MAX_LFO){
@@ -816,8 +833,8 @@ public:
     Serial.println("----------------------------");
   }
   #endif
-  const uint8_t totalDevices = 40;
-  const BMCDeviceData devicesData[40] = {
+  const uint8_t totalDevices = 42;
+  const BMCDeviceData devicesData[42] = {
     {BMC_DEVICE_ID_LAYER, "Layer", -1, BMC_MAX_LAYERS, false, false, 0, BMC_MAX_LAYER_EVENTS},
     {BMC_DEVICE_ID_EVENT, "Event", -1, BMC_MAX_EVENTS_LIBRARY, true, false, 0, 0},
     {BMC_DEVICE_ID_NAME, "Name", -1, BMC_MAX_NAMES_LIBRARY, true, false, 0, 0},
@@ -916,6 +933,16 @@ public:
     #if BMC_MAX_ILI9341_BLOCKS > 0
     {BMC_DEVICE_ID_ILI, "ILI9341 Block", 8, BMC_MAX_ILI9341_BLOCKS, false, true, 0, 1},
     #endif
+
+    #if BMC_MAX_MINI_DISPLAY > 0
+    {BMC_DEVICE_ID_MINI_DISPLAY, "Mini Display", 8, BMC_MAX_MINI_DISPLAY, false, true, 0, 1},
+    #endif
+
+    #if BMC_MAX_LCD > 0
+    {BMC_DEVICE_ID_LCD, "LCD", 8, BMC_DEVICE_ID_LCD, false, true, 0, 1},
+    #endif
+
+    
 
     #if BMC_MAX_MAGIC_ENCODERS > 0
     {BMC_DEVICE_ID_MAGIC_ENCODER, "Magic Encoder", 5, BMC_MAX_MAGIC_ENCODERS, false, 3, 3},
@@ -1060,6 +1087,14 @@ public:
     #endif
 
     #if BMC_MAX_ILI9341_BLOCKS > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_MINI_DISPLAY > 0
+    devicesDataLength++;
+    #endif
+
+    #if BMC_MAX_LCD > 0
     devicesDataLength++;
     #endif
 
@@ -1688,6 +1723,13 @@ private:
       store.global.sketchBytes[0].events[i] = data.getInitialValue();
     }
 #endif
+#if BMC_MAX_ILI9341_BLOCKS > 0 && BMC_ILI_S_COUNT > 1
+    for(uint8_t i=0;i<BMC_MAX_LAYERS;i++){
+      for(uint8_t e=0;e<BMC_MAX_ILI9341_BLOCKS;e++){
+        store.layers[i].ili[e].settings[1] = 1;
+      }
+    }
+#endif
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
     for(uint16_t i = 0 ; i < BMC_TOTAL_POTS_AUX_JACKS ; i++){
       store.global.potCalibration[i].events[0] = 0;
@@ -1828,6 +1870,8 @@ private:
   void incomingMessageDevice(bool write);
   void incomingMessageLinks();
 
+  
+
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer=-1);
 
@@ -1840,6 +1884,8 @@ private:
   void layerProcessMessage();
   void layerMessage(bool write);
   void layerNameMessage(bool write);
+  void layerMessageLayerCopySwap(bool write);
+  
 
 public:
   void layerSendChangeMessage(bool onlyIfConnected=true);

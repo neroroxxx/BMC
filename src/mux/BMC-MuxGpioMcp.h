@@ -30,7 +30,7 @@
 #if BMC_MAX_MUX_GPIO == 1
   #define BMC_MUX_GPIO_CHIP_COUNT 1
 #else
-  #define BMC_MUX_GPIO_CHIP_COUNT ((BMC_MAX_MUX_GPIO-1) >> 3)+1
+  #define BMC_MUX_GPIO_CHIP_COUNT ((BMC_MAX_MUX_GPIO-1) >> 4)+1
 #endif
 
 // #if BMC_MUX_GPIO_CHIP_COUNT == 1
@@ -88,16 +88,18 @@ public:
   void initializePins(){
     // check which pins are inputs and outputs
 #if BMC_MAX_BUTTONS > 0
-    for(uint8_t i=0;i<BMC_MAX_BUTTONS;i++){
-      uint8_t pin = BMCBuildData::getButtonPin(i);
+    for(uint8_t i = 0 ; i < BMC_MAX_BUTTONS ; i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, i);
+      uint8_t pin = ui.pins[0];
       if(BMCBuildData::isMuxGpioPin(pin)){
         setupPin(pin, INPUT);
       }
     }
 #endif
 #if BMC_MAX_GLOBAL_BUTTONS > 0
-    for(uint8_t i=0;i<BMC_MAX_GLOBAL_BUTTONS;i++){
-      uint8_t pin = BMCBuildData::getGlobalButtonPin(i);
+    for(uint8_t i = 0 ; i < BMC_MAX_GLOBAL_BUTTONS ; i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
+      uint8_t pin = ui.pins[0];
       if(BMCBuildData::isMuxGpioPin(pin)){
         setupPin(pin, INPUT);
       }
@@ -105,31 +107,31 @@ public:
 #endif
 #if BMC_MAX_ENCODERS > 0
     for(uint8_t i=0;i<BMC_MAX_ENCODERS;i++){
-      uint8_t pinA = BMCBuildData::getEncoderPinA(i);
-      uint8_t pinB = BMCBuildData::getEncoderPinB(i);
-      if(BMCBuildData::isMuxGpioPin(pinA)){
-        setupPin(pinA, INPUT);
-      }
-      if(BMCBuildData::isMuxGpioPin(pinB)){
-        setupPin(pinB, INPUT);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ENCODER, i);
+      for(uint8_t e=0;e<2;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, INPUT);
+        }
       }
     }
 #endif
 #if BMC_MAX_GLOBAL_ENCODERS > 0
     for(uint8_t i=0;i<BMC_MAX_GLOBAL_ENCODERS;i++){
-      uint8_t pinA = BMCBuildData::getGlobalEncoderPinA(i);
-      uint8_t pinB = BMCBuildData::getGlobalEncoderPinB(i);
-      if(BMCBuildData::isMuxGpioPin(pinA)){
-        setupPin(pinA, INPUT);
-      }
-      if(BMCBuildData::isMuxGpioPin(pinB)){
-        setupPin(pinB, INPUT);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
+      for(uint8_t e=0;e<2;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, INPUT);
+        }
       }
     }
 #endif
 #if BMC_MAX_LEDS > 0
     for(uint8_t i=0;i<BMC_MAX_LEDS;i++){
-      uint8_t pin = BMCBuildData::getLedPin(i);
+      // uint8_t pin = BMCBuildData::getLedPin(i);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
+      uint8_t pin = ui.pins[0];
       if(BMCBuildData::isMuxGpioPin(pin)){
         setupPin(pin, OUTPUT);
       }
@@ -137,9 +139,55 @@ public:
 #endif
 #if BMC_MAX_GLOBAL_LEDS > 0
     for(uint8_t i=0;i<BMC_MAX_GLOBAL_LEDS;i++){
-      uint8_t pin = BMCBuildData::getGlobalLedPin(i);
+      // uint8_t pin = BMCBuildData::getGlobalLedPin(i);
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_LED, i);
+      uint8_t pin = ui.pins[0];
       if(BMCBuildData::isMuxGpioPin(pin)){
         setupPin(pin, OUTPUT);
+      }
+    }
+#endif
+#if BMC_MAX_BI_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_BI_LEDS;i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BI_LED, i);
+      for(uint8_t e=0;e<2;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, OUTPUT);
+        }
+      }
+    }
+#endif
+#if BMC_MAX_GLOBAL_BI_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_GLOBAL_BI_LEDS;i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BI_LED, i);
+      for(uint8_t e=0;e<2;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, OUTPUT);
+        }
+      }
+    }
+#endif
+#if BMC_MAX_TRI_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_TRI_LEDS;i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_TRI_LED, i);
+      for(uint8_t e=0;e<3;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, OUTPUT);
+        }
+      }
+    }
+#endif
+#if BMC_MAX_GLOBAL_TRI_LEDS > 0
+    for(uint8_t i=0;i<BMC_MAX_GLOBAL_TRI_LEDS;i++){
+      BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_TRI_LED, i);
+      for(uint8_t e=0;e<3;e++){
+        uint8_t pin = ui.pins[e];
+        if(BMCBuildData::isMuxGpioPin(pin)){
+          setupPin(pin, OUTPUT);
+        }
       }
     }
 #endif
@@ -156,14 +204,12 @@ public:
     delay(5);
   }
   void setupPin(uint8_t t_pin, uint8_t t_mode){
-    if(t_pin>=64+BMC_MAX_MUX_GPIO){
+    if(t_pin >= (64+BMC_MAX_MUX_GPIO)){
       return;
     }
     t_pin -= 64;
-    // uint8_t mux = (uint8_t) (t_pin/16);
-    // uint8_t pin = t_pin-(mux*16);
-    uint8_t mux = (t_pin >> 4);
-    uint8_t pin = t_pin & 0x0F;
+    uint8_t mux = toMux(t_pin);
+    uint8_t pin = toMuxPin(t_pin);
     if(t_mode==OUTPUT){
       bitWrite(pinDirection[mux], pin, 0);
       bitWrite(states[mux], pin, 0);
@@ -175,7 +221,7 @@ public:
   }
 
   void update(){
-    if((flags.read()&0x0F)>0){
+    if((flags.read()&0x0F) > 0){
       // a mux has been updated so write the values only to the mux that was updated
       for(uint8_t i=0;i<BMC_MUX_GPIO_CHIP_COUNT;i++){
         if(flags.toggleIfTrue(BMC_MUX_GPIO_FLAGS_UPDATE+i)){
@@ -198,16 +244,17 @@ public:
     return false;
   }
   void writePin(uint8_t t_pin, bool state){
-    if(t_pin>=BMC_MAX_MUX_GPIO){
+    if(t_pin >= BMC_MAX_MUX_GPIO){
       return;
     }
-    // uint8_t mux = (uint8_t) (t_pin/16);
-    // uint8_t pin = t_pin-(mux*16);
-    uint8_t mux = (t_pin >> 4);
-    uint8_t pin = t_pin & 0x0F;
+    uint8_t mux = toMux(t_pin);
+    uint8_t pin = toMuxPin(t_pin);
     // check if pin is an output pin, we don't write to input pins.
     if(bitRead(pinDirection[mux], pin) == 0){
       // prepare to update a mux pin on the next update
+      // if(pin==6){
+      //   BMC_PRINTLN("writePin: pin", 6,"state", state);
+      // }
       if(bitRead(states[mux], pin) != state){
         bitWrite(states[mux], pin, state);
         flags.on(BMC_MUX_GPIO_FLAGS_UPDATE+mux);
@@ -235,32 +282,34 @@ public:
     if(t_pin>=BMC_MAX_MUX_GPIO){
       return false;
     }
+    
     // uint8_t mux = (uint8_t) (t_pin/16);
     // uint8_t pin = t_pin-(mux*16);
     // return bitRead(states[mux], pin);
-    return bitRead(states[t_pin>>4], t_pin & 0x0F);
+    return bitRead(states[toMux(t_pin)], toMuxPin(t_pin));
   }
 
 private:
   BMCFlags <uint8_t> flags;
 
   // const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = BMC_MUX_GPIO_CHIP_ADDR;
-    const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = {
-      BMC_MUX_GPIO_ADDR_1
-  #if BMC_MUX_GPIO_CHIP_COUNT == 2
-      ,BMC_MUX_GPIO_ADDR_2
-  #endif
-  #if BMC_MUX_GPIO_CHIP_COUNT == 3
-      ,BMC_MUX_GPIO_ADDR_3
-  #endif
-  #if BMC_MUX_GPIO_CHIP_COUNT == 4
-      ,BMC_MUX_GPIO_ADDR_4
-  #endif
-    };
-
-
+  const uint8_t addrList[BMC_MUX_GPIO_CHIP_COUNT] = {
+    BMC_MUX_GPIO_ADDR_1
+#if BMC_MUX_GPIO_CHIP_COUNT == 2
+    ,BMC_MUX_GPIO_ADDR_2
+#endif
+#if BMC_MUX_GPIO_CHIP_COUNT == 3
+    ,BMC_MUX_GPIO_ADDR_3
+#endif
+#if BMC_MUX_GPIO_CHIP_COUNT == 4
+    ,BMC_MUX_GPIO_ADDR_4
+#endif
+  };
   uint16_t states[BMC_MUX_GPIO_CHIP_COUNT];
   uint16_t pinDirection[BMC_MUX_GPIO_CHIP_COUNT];
+
+
+  
 
   void readAllPins(){
     for(uint8_t i=0;i<BMC_MUX_GPIO_CHIP_COUNT;i++){
@@ -321,6 +370,12 @@ private:
   void controlSetValue(uint8_t n){
     writeData(addrList[n], BMC_MCP2301X_IO, states[n] & 0xFF); // writes a state to the pin
     writeData(addrList[n], BMC_MCP2301X_IO+1, (states[n]>>8) & 0xFF);
+  }
+  uint8_t toMux(uint8_t n){
+    return ((n >> 4) & 0x0F);
+  }
+  uint8_t toMuxPin(uint8_t n){
+    return (n & 0x0F);
   }
 
 };

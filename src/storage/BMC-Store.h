@@ -70,7 +70,13 @@
       bmcStoreDevice <1, 1> oled[BMC_MAX_OLED];
     #endif
     #if BMC_MAX_ILI9341_BLOCKS > 0
-      bmcStoreDevice <1, 1> ili[BMC_MAX_ILI9341_BLOCKS];
+      bmcStoreDevice <BMC_ILI_S_COUNT, 1> ili[BMC_MAX_ILI9341_BLOCKS];
+    #endif
+    #if BMC_MAX_MINI_DISPLAY > 0
+      bmcStoreDevice <2, 1> miniDisplay[BMC_MAX_MINI_DISPLAY];
+    #endif
+    #if BMC_MAX_LCD > 0
+      bmcStoreDevice <1, 1> lcd[BMC_MAX_LCD];
     #endif
   };
 

@@ -1,0 +1,56 @@
+#ifndef BMC_ILI9341_t3_font_BMCLiberationSansNarrowBold_
+#define BMC_ILI9341_t3_font_BMCLiberationSansNarrowBold_
+
+
+#include "display/drivers/BMC-ILI9341_fonts.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_8_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_9_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_10_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_11_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_12_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_13_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_14_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_16_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_18_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_20_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_24_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_28_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_32_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_40_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_48_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_60_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_72_Bold;
+extern const BMC_ILI9341_t3_font_t BMCLiberationSansNarrow_96_Bold;
+
+
+
+
+extern const BMC_ILI9341_t3_font_t BMCArial_8_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_9_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_10_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_11_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_12_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_13_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_14_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_16_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_18_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_20_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_24_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_28_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_32_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_40_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_48_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_60_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_72_Bold;
+extern const BMC_ILI9341_t3_font_t BMCArial_96_Bold;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif

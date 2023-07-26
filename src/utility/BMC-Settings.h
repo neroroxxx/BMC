@@ -64,8 +64,12 @@
         bits 00-03  Buttons Threshold
         bits 04-04  Trigger first song
         bits 05-05  Trigger first song part
-        bits 06-09  Typer Channel
-        bits 10-12  DisplayListMode
+        bits 06-09  getTyperChannel
+        bits 10-12  getDisplayListMode
+        bits 13-16  getFas3MidiChannel
+        bits 17-20  getLcdBacklight
+        
+
 
       [3]: *Reserved for future updates*
       [4]: *Reserved for future updates*
@@ -422,14 +426,31 @@ public:
     return (settings.data[2]>>6) & 0x0F;
   }
   void setTyperChannel(uint8_t value){
-    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 6); //0-3
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 6);
   }
+
   uint8_t getDisplayListMode(){
-    return (settings.data[2]>>12) & 0x07;
+    return (settings.data[2]>>10) & 0x07;
   }
   void setDisplayListMode(uint8_t value){
-    BMC_WRITE_BITS(settings.data[2],value, 0x07, 12); //0-3
+    BMC_WRITE_BITS(settings.data[2],value, 0x07, 10);
   }
+
+  uint8_t getFas3MidiChannel(){
+    return (settings.data[2]>>13) & 0x0F;
+  }
+  void setFas3MidiChannel(uint8_t value){
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 13);
+  }
+
+  uint8_t getLcdBacklight(){
+    return (settings.data[2]>>17) & 0x0F;
+  }
+  void setLcdBacklight(uint8_t value){
+    BMC_WRITE_BITS(settings.data[2],value, 0x0F, 17);
+  }
+
+  
   
   // tft touch calibration
   float getTouchTftCalibration(uint8_t n){

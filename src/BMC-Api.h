@@ -386,10 +386,6 @@ public:
   }
 
 #ifdef BMC_HAS_DISPLAY
-  // * GROUP: HARDWARE
-  void displayHorizontalMeter(uint8_t n, uint8_t value){
-    display.printHorizontalMeter(n, value);
-  }
 #if BMC_MAX_OLED > 0
   // * GROUP: HARDWARE
   BMC_SSD1306 & displayGetOled(uint8_t n){
@@ -970,6 +966,13 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
 
 #if BMC_MAX_SKETCH_BYTES > 0
   // * GROUP: SYSTEM
+  // get the value of a sketch byte
+  uint8_t getSketchByte(uint8_t n){
+    if(n < BMC_MAX_SKETCH_BYTES){
+      return store.global.sketchBytes[0].events[n];
+    }
+    return 0;
+  }
   // scroll thru sketch bytes, you must pass the initial value "n"
   // this function will then return the next value up or down
   // this function is to scroll the index of a sketch byte, useful for editors
@@ -1111,9 +1114,11 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // so a number from 0 to 5 will be returned
   // the AX8 has 512 presets, 64 banks of 8 presets per bank
   // so a number from 0 to 63 will be returned
+
   uint8_t getFasPresetBankNumber(){
     return sync.fas.getPresetBankNumber();
   }
+
   // * GROUP: SYNC/FAS
   // get the synced preset number within it's bank (0 index)
   // on Axe FX there are 128 presets per bank so a number from 000 to 127
@@ -1152,14 +1157,39 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   }
   // * GROUP: SYNC/FAS
   // check if a FAS block is in X State
+  // if using FAS 3 sync return true if channel is A
+  // this is only here for compatibility,
+  // when you use FAS 3 sync use the getFasBlockChannel call instead
   bool getFasIsBlockX(uint8_t n){
-    return sync.fas.isBlockX(n);
+    #if !defined(BMC_USE_FAS3)
+      return sync.fas.isBlockX(n);
+    #else
+      return sync.fas.getBlockChannel(n) == 0;
+    #endif
   }
   // * GROUP: SYNC/FAS
   // check if a FAS block is in Y State
+  // if using FAS 3 sync return true if channel is B
+  // this is only here for compatibility,
+  // when you use FAS 3 sync use the getFasBlockChannel call instead
   bool getFasIsBlockY(uint8_t n){
-    return sync.fas.isBlockY(n);
+    #if !defined(BMC_USE_FAS3)
+      return sync.fas.isBlockY(n);
+    #else
+      return sync.fas.getBlockChannel(n) == 1;
+    #endif
   }
+  // * GROUP: SYNC/FAS
+  // get the channel of a specified block
+  // returns 0 for channel A, 1 for channel B, etc.
+  uint8_t getFasBlockChannel(uint8_t n){
+    #if defined(BMC_USE_FAS3)
+      return sync.fas.getBlockChannel(n);
+    #else
+      return 0;
+    #endif
+  }
+  
   // * GROUP: SYNC/FAS
   // get FAS Tuner Data
   void getFasTuner(BMCTunerData& buff){
@@ -1190,6 +1220,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   void fasTapTempo(){
     sync.fas.tapTempo();
   }
+#if !defined(BMC_USE_FAS3)
   // * GROUP: SYNC/FAS
   void fasSendSetBlockParameter(uint8_t blockId, uint8_t parameterId, uint16_t value){
     sync.fas.sendSetBlockParameter(blockId, parameterId, value);
@@ -1214,6 +1245,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   void fasChangeSyncedParameter(uint8_t slot, uint16_t value){
     sync.fas.sendChangeSyncedParameter(slot, value);
   }
+#endif
 #endif
 
 #ifdef BMC_USE_BEATBUDDY

@@ -20,24 +20,35 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
   // Check if we should render a display's name
   if(eventIndex == 0 && group == BMC_DEVICE_GROUP_DISPLAY){
-    data.oled = (deviceId == BMC_DEVICE_ID_OLED);
+    data.setDisplayType(deviceId);
     if(settings.getDisplayNames()){
       #if BMC_MAX_OLED > 0
-        if(data.oled && store.layers[layer].oled[deviceIndex].name == 0){
+        if(data.isOled() && store.layers[layer].oled[deviceIndex].name == 0){
           return false;
         }
       #endif
       #if BMC_MAX_ILI9341_BLOCKS > 0
-        if(!data.oled && store.layers[layer].ili[deviceIndex].name == 0){
+        if(data.isIli() && store.layers[layer].ili[deviceIndex].name == 0){
+          return false;
+        }
+      #endif
+      #if BMC_MAX_MINI_DISPLAY > 0
+        if(data.isMiniDisplay() && store.layers[layer].miniDisplay[deviceIndex].name == 0){
+          return false;
+        }
+      #endif
+      #if BMC_MAX_LCD > 0
+        if(data.isLcd() && store.layers[layer].lcd[deviceIndex].name == 0){
           return false;
         }
       #endif
       bmcStoreName t;
       editor.getDeviceNameText(deviceId, deviceIndex, t.name);
-      data.crc = 254;
+      data.crc = 255;
+      data.type = 255;
       strcpy(data.str, t.name);
-      display.renderText(data);
-      // display.renderText(deviceIndex, data.oled, 254, t.name, "");
+      data.forceOnlyString();
+      display.renderBlock(data);
     }
     return false;
   }
@@ -61,24 +72,31 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
   data.byteD = BMC_GET_BYTE(3, event);
   data.setScroll(e.settings, value, group==BMC_DEVICE_GROUP_ENCODER);
 
-  // uint8_t data.byteA = BMC_GET_BYTE(0, event);
-  // uint8_t data.byteB = BMC_GET_BYTE(1, event);
-  // uint8_t data.byteC = BMC_GET_BYTE(2, event);
-  // uint8_t data.byteD = BMC_GET_BYTE(3, event);
-
-  // BMCEventScrollData scroll(e.settings, value, group==BMC_DEVICE_GROUP_ENCODER);
-
 #if defined(BMC_HAS_DISPLAY)
   if(group == BMC_DEVICE_GROUP_DISPLAY){
-    data.oled = (deviceId == BMC_DEVICE_ID_OLED);
+    data.setDisplayType(deviceId);
 #if BMC_MAX_OLED > 0
-    if(data.oled){
+    if(data.isOled()){
       data.settings = store.layers[layer].oled[deviceIndex].settings[0]+0;
     }
 #endif
 #if BMC_MAX_ILI9341_BLOCKS > 0
-    if(!data.oled){
+    if(data.isIli()){
       data.settings = store.layers[layer].ili[deviceIndex].settings[0]+0;
+      #if BMC_ILI_S_COUNT > 1
+        data.colors = store.layers[layer].ili[deviceIndex].settings[1]+0;
+      #endif
+    }
+#endif
+#if BMC_MAX_MINI_DISPLAY > 0
+    if(data.isMiniDisplay()){
+      data.settings = store.layers[layer].miniDisplay[deviceIndex].settings[0]+0;
+      data.colors   = store.layers[layer].miniDisplay[deviceIndex].settings[1]+0;
+    }
+#endif
+#if BMC_MAX_LCD > 0
+    if(data.isLcd()){
+      data.settings = store.layers[layer].lcd[deviceIndex].settings[0]+0;
     }
 #endif
   }
@@ -124,7 +142,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         if(data.useSelected()){
           data.byteB = currentPC;
         }
-        display.renderProgramChangeValue(data);
+        sprintf(data.str, "CH%u PC%u", data.getChannel(), data.byteB);
+        data.type = BMC_MIDI_PROGRAM_CHANGE;
+        display.renderMidi(data);
 #endif
 
       } else {
@@ -161,7 +181,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         if(data.useSelected()){
           data.byteC = currentCC;
         }
-        display.renderControlChangeValue(data);
+        sprintf(data.str, "CH%u CC%u V%u", data.getChannel(), data.byteB, data.byteC);
+        data.type = BMC_MIDI_CONTROL_CHANGE;
+        display.renderMidi(data);
 #endif
 
       } else {
@@ -185,8 +207,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
         } else if(group==BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
-        // display.renderNoteValue(deviceIndex, data.oled, data.type, data.getChannel(), data.byteB, data.byteC, false);
-        display.renderNoteValue(data);
+        sprintf(data.str, "CH%u N%u V%u", data.getChannel(), data.byteB, data.byteC);
+        data.type = BMC_MIDI_NOTE_ON;
+        display.renderMidi(data);
   #endif
         }
       }
@@ -209,8 +232,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
         } else if(group==BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
-        // display.renderNoteValue(deviceIndex, data.oled, data.type, data.getChannel(), data.byteB, data.byteC, false);
-        display.renderNoteValue(data);
+        sprintf(data.str, "CH%u N%u V%u", data.getChannel(), data.byteB, data.byteC);
+        data.type = BMC_MIDI_NOTE_OFF;
+        display.renderMidi(data);
   #endif
         }
       }
@@ -267,12 +291,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           data.value = newPitch;
           data.min = 0;
           data.min = 100;
-          // display.renderSlider(deviceIndex, data.oled, data.type, newPitch, 0, 100, data.label);
           display.renderSlider(data);
         } else {
-          // display.renderText(deviceIndex, data.oled, data.type, data.label);
+          data.forceOnlyString();
           strcpy(data.str, data.label);
-          display.renderText(data);
+          display.renderBlock(data);
         }
 #endif
       }
@@ -289,8 +312,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         data.useOffset = false;
         strcpy(data.str, "A.T. POLY");
-        display.renderText(data);
-        // display.renderText(deviceIndex, data.oled, data.type, "A.T. POLY");
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
 
       }
@@ -307,8 +330,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         data.useOffset = false;
         strcpy(data.str, "A.T.");
-        display.renderText(data);
-        // display.renderText(deviceIndex, data.oled, data.type, "A.T.");
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
       }
       return false;
@@ -341,13 +364,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         data.value = (data.useSelected()) ? programBank : data.byteB;
-        strcpy(data.label, "PROGRAM");
-        display.renderNumber(data);
-        // if(data.useSelected()){ // selected
-        //   display.renderNumber(deviceIndex, data.oled, data.type, programBank, "%03u", "PROGRAM");
-        // } else {
-        //   display.renderNumber(deviceIndex, data.oled, data.type, data.byteB, "%03u", "PROGRAM");
-        // }
+        data.forceOnlyString();
+        sprintf(data.str, "%03u", data.value);
+        strcpy(data.label, "PGM BNK");
+        display.renderBlock(data);
 #endif
 
       }
@@ -362,9 +382,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "TRIGGER");
+        data.forceOnlyString();
         strcpy(data.str, "TRIGGER");
-        display.renderText(data);
+        strcpy(data.label, "PGM BNK");
+        display.renderBlock(data);
 #endif
 
       }
@@ -394,9 +415,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "R.T. BLOCK");
+        data.forceOnlyString();
         strcpy(data.str, "R.T. BLOCK");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       } else {
         if(data.byteA==0){
@@ -412,9 +433,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         midi.sendProgramChange(e.ports, channel, data.byteC & 0x7F);
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "LSB PGM");
+        data.forceOnlyString();
         strcpy(data.str, "LSB PGM");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -425,9 +446,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         midi.sendProgramChange(e.ports, channel, data.byteC & 0x7F);
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "MSB PGM");
+        data.forceOnlyString();
         strcpy(data.str, "MSB PGM");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -438,9 +459,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         midi.sendControlChange(e.ports, channel, 32, data.byteC & 0x7F);
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "MSB LSB");
+        data.forceOnlyString();
         strcpy(data.str, "MSB LSB");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -452,9 +473,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         midi.sendProgramChange(e.ports, channel, data.byteD & 0x7F);
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "MSB LSB PGM");
+        data.forceOnlyString();
         strcpy(data.str, "MSB LSB PGM");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -468,10 +489,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "ACTIVE SENSE", "", midiActiveSense.active());
+        data.forceOnlyString();
         strcpy(data.str, "ACTIVE SENSE");
         data.highlight = midiActiveSense.active();
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       } else {
         return midiActiveSense.active();
@@ -486,10 +507,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderNumber(deviceIndex, data.oled, data.type, midiClock.getBpm(), "%u", "BPM");
         data.value = midiClock.getBpm();
+        data.forceOnlyString();
+        sprintf(data.str, "%03u", data.value);
         strcpy(data.label, "BPM");
-        display.renderNumber(data);
+        display.renderBlock(data);
 #endif
       } else {
         return BMC_IGNORE_LED_EVENT;
@@ -500,9 +522,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         midiClock.tap();
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "TAP");
+        data.forceOnlyString();
         strcpy(data.str, "TAP");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       } else {
         return BMC_IGNORE_LED_EVENT;
@@ -541,58 +563,58 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         switch(data.byteA){
           case BMC_LED_STATUS_ALWAYS_ON:
           case BMC_LED_STATUS_BMC:
-            // display.renderText(deviceIndex, data.oled, data.type, "BMC");
             strcpy(data.str, "BMC");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_EDITOR_CONNECTED:
-            // display.renderText(deviceIndex, data.oled, data.type, "EDITOR","STATUS",globals.editorConnected());
             strcpy(data.str, "EDITOR");
             strcpy(data.label, "STATUS");
             data.highlight = globals.editorConnected();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_HOST_CONNECTED:
-            // display.renderText(deviceIndex, data.oled, data.type, "HOST","STATUS",globals.hostConnected());
             strcpy(data.str, "HOST");
             strcpy(data.label, "STATUS");
             data.highlight = globals.hostConnected();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_BLE_CONNECTED:
-            // display.renderText(deviceIndex, data.oled, data.type, "BLE","STATUS",globals.bleConnected());
             strcpy(data.str, "BLE");
             strcpy(data.label, "STATUS");
             data.highlight = globals.bleConnected();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_ACTIVE_SENSE_SENDING:
-            // display.renderText(deviceIndex, data.oled, data.type, "A.S. SEND","STATUS", midiActiveSense.active());
             strcpy(data.str, "A.S. SEND");
             strcpy(data.label, "STATUS");
             data.highlight = midiActiveSense.active();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_ACTIVE_SENSE_READING:
-            // display.renderText(deviceIndex, data.oled, data.type, "A.S. READ","STATUS", midiActiveSense.reading());
             strcpy(data.str, "A.S. READ");
             strcpy(data.label, "STATUS");
             data.highlight = midiActiveSense.reading();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_INPUT:
-            // display.renderText(deviceIndex, data.oled, data.type, "R.T. IN","STATUS", midi.getRealTimeBlockInput());
             strcpy(data.str, "R.T. IN");
             strcpy(data.label, "STATUS");
             data.highlight = midi.getRealTimeBlockInput();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_MIDI_REAL_TIME_BLOCK_OUTPUT:
-            // display.renderText(deviceIndex, data.oled, data.type, "R.T. OUT","STATUS", midi.getRealTimeBlockOutput());
             strcpy(data.str, "R.T. OUT");
             strcpy(data.label, "STATUS");
             data.highlight = midi.getRealTimeBlockOutput();
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_LED_STATUS_STOPWATCH_ACTIVE:
           case BMC_LED_STATUS_STOPWATCH_STATE:
@@ -600,10 +622,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           {
             sprintf(data.str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
             strcpy(data.label, "STOPWATCH");
-            display.renderText(data);
-            // char str[13] = "";
-            // sprintf(str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
-            // display.renderText(deviceIndex, data.oled, data.type, str, "STOPWATCH");
+            data.forceOnlyString();
+            display.renderBlock(data);
           }
             return 1;
         }
@@ -615,9 +635,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         return globals.hasMidiActivity(data.byteA) ? BMC_PULSE_LED_EVENT : BMC_IGNORE_LED_EVENT;
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "MIDI IO");
         strcpy(data.str, "MIDI IO");
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
 
       }
@@ -630,9 +650,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         }
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "SAVE EEPROM");
         strcpy(data.str, "SAVE EEPROM");
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
         
 #endif
 
@@ -649,44 +669,44 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         switch(data.byteA){
           case BMC_MENU_TOGGLE:
-            // display.renderText(deviceIndex, data.oled, data.type, "TOGGLE");
             strcpy(data.str, "TOGGLE");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_SELECT:
-            // display.renderText(deviceIndex, data.oled, data.type, "SELECT");
             strcpy(data.str, "SELECT");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_BACK:
-            // display.renderText(deviceIndex, data.oled, data.type, "BACK");
             strcpy(data.str, "BACK");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_PREV:
-            // display.renderText(deviceIndex, data.oled, data.type, "PREV");
             strcpy(data.str, "PREV");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_NEXT:
-            // display.renderText(deviceIndex, data.oled, data.type, "NEXT");
             strcpy(data.str, "NEXT");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_SHIFT:
-            // display.renderText(deviceIndex, data.oled, data.type, "SHIFT");
             strcpy(data.str, "SHIFT");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_CANCEL:
-            // display.renderText(deviceIndex, data.oled, data.type, "CANCEL");
             strcpy(data.str, "CANCEL");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
           case BMC_MENU_SAVE:
-            // display.renderText(deviceIndex, data.oled, data.type, "SAVE");
             strcpy(data.str, "SAVE");
-            display.renderText(data);
+            data.forceOnlyString();
+            display.renderBlock(data);
             return 1;
         }
 #endif
@@ -790,13 +810,13 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           }
         } else {
           sprintf(data.str, "%03u", valueTyper.getOutput());
-          display.setSelChar(deviceIndex, data.oled, valueTyper.getSelChar());
+          display.setSelChar(deviceIndex, data.isOled(), valueTyper.getSelChar());
         }
-        // display.renderText(deviceIndex, data.oled, data.type, str, "TYPER");
-
-        // strcpy(data.str, "SAVE");
         strcpy(data.label, "TYPER");
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
+
+        
         
 #endif
       }
@@ -808,11 +828,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       } else {
         if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-          // display.renderText(deviceIndex, data.oled, data.type, "BLE","STATUS",globals.bleConnected());
           strcpy(data.str, "BLE");
           strcpy(data.label, "STATUS");
           data.highlight = globals.bleConnected();
-          display.renderText(data);
+          data.forceOnlyString();
+          display.renderBlock(data);
 #endif
         } else {
           return globals.bleConnected();
@@ -831,10 +851,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         // char str[13] = "";
         sprintf(data.str, "%02u:%02u", stopwatch.hours, stopwatch.minutes);
-        // display.renderText(deviceIndex, data.oled, data.type, str, "STOPWATCH");
-        // strcpy(data.str, "BLE");
         strcpy(data.label, "STOPWATCH");
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
       } else {
         return (stopwatch.getState() == 1);
@@ -857,9 +876,9 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         // char str[10] = "";
         sprintf(data.str, "LFO %u", data.byteA+data.offset);
-        // display.renderText(deviceIndex, data.oled, data.type, str, "", lfo[data.byteA].isEnabled());
         data.highlight = lfo[data.byteA].isEnabled();
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
         
 #endif
       } else {
@@ -891,11 +910,10 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         // char str[26] = "";
         BMCSketchByteData sbData = BMCBuildData::getSketchByteData(data.byteA);
         BMCTools::getSketchByteFormat(data.str, data.byteA, getSketchByte(data.byteA));
-        // getSketchByteFormat(char* str, uint8_t n, uint8_t value)
-        // display.renderText(deviceIndex, data.oled, data.type, str, sbData.name);
 
         strcpy(data.label, sbData.name);
-        display.renderText(data);
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
       }
 #endif
@@ -904,23 +922,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
     // LAYERS
     case BMC_EVENT_TYPE_LAYER:
       {
-        // data.min = 0;
-        // data.max = BMC_MAX_LAYERS-1;
-        // uint8_t outVal = data.byteA;
-        // if(data.byteB > 0){
-        //   // scrolling max or toggle enabled
-        //   if((data.byteB-1) > data.byteA){
-        //     data.min = data.byteA;
-        //     data.max = data.byteB-1;
-        //   } else if((data.byteB-1) != data.byteA){
-        //     data.max = data.byteA;
-        //     data.min = data.byteB-1;
-        //   }
-
-        //   if(!data.scrollEnabled()){
-        //     outVal = layer != data.byteA ? data.byteA : (data.byteB-1);
-        //   }
-        // }
         uint8_t outVal = data.setMinMax(layer, 0, BMC_MAX_LAYERS-1, data.byteA, data.byteB);
         if(group == BMC_DEVICE_GROUP_BUTTON || group == BMC_DEVICE_GROUP_ENCODER){
           if(data.scrollEnabled()){
@@ -935,27 +936,36 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           
   #if defined(BMC_HAS_DISPLAY)
           if(data.byteA < BMC_MAX_LAYERS && data.byteB <= BMC_MAX_LAYERS){
-            data.highlight = (layer == data.byteA);
-            if(!data.useSelected()){ // selected
-              data.highlight = false;
-            }
+            // set display settings
             strcpy(data.label, "LAYER");
-            if(data.useMeter()){
-              data.value = layer;
-              display.renderSlider(data);
-              // display.renderSlider(deviceIndex, data.oled, data.type, layer, data.min, data.max, data.label);
-            } else {
-              bmcStoreName t;
-              if(data.useName()){ // name
-                t = (data.useSelected()) ? getLayerName() : getLayerName(data.byteA);
-              } else {
-                t = (data.useSelected()) ? getLayerStr() : getLayerStr(data.byteA);
-              }
-              // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label, highlight);
-              strcpy(data.str, t.name);
-              display.renderText(data);
+            // bmcStoreName name;
+            // bmcStoreName selName;
 
-            }
+            
+            data.value          = data.byteA;
+            data.valueSelected  = layer;
+            data.highlight      = (data.valueSelected == data.byteA);
+            data.allowMeter     = true;
+            data.prependValue   = settings.getAppendPresetNumberToPresetName();
+            // assign Name and Selected Name
+            getLayerName(data.value, data.str);
+            getLayerName(data.valueSelected, data.strSelected);
+            // digits
+            #if BMC_MAX_LAYERS >= 100
+            data.digits = 3;
+            strcpy(data.format, "L %03u");
+            #elif BMC_MAX_LAYERS >= 10
+            data.digits = 2;
+            strcpy(data.format, "L %02u");
+            #else
+            data.digits = 1;
+            strcpy(data.format, "L %01u");
+            #endif
+            
+            // strcpy(data.str, name.name);
+            // strcpy(data.strSelected, selName.name);
+
+            display.renderBlock(data);
           }
   #endif        
         } else {
@@ -1010,30 +1020,43 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
   #if defined(BMC_HAS_DISPLAY)
           if(data.byteA < BMC_MAX_PRESETS_PER_BANK){
+            // set display settings
             strcpy(data.label, "PRESET");
-            if(data.useMeter()){
-              // display.renderSlider(deviceIndex, data.oled, data.type, presets.get(), data.min, data.max, data.label);
+            // bmcStoreName name;
+            // bmcStoreName selName;
 
-              // BMCTools::getPresetLabelNoName(presets.getBank(), presets.get(), data.str);
+            
+            data.value          = data.byteA;
+            data.valueSelected  = presets.get();
+            data.highlight      = (data.valueSelected == data.byteA);
+            data.allowMeter     = true;
+            if(data.useMeter()){
               if(data.byteC == 1){
-                data.value = presets.getIndex();
+                data.value      = presets.getIndex();
               } else {
-                data.value = presets.get();
+                data.value      = presets.get();
               }
-              
+              data.valueSelected = data.value;
               data.byteD = presets.getBank();
-              display.renderSlider(data);
-            } else {
-              bmcStoreName t;
-              if(data.useName()){ // name
-                t = (data.useSelected()) ? presets.getName() : presets.getName(data.byteA);
-              } else {
-                t = (data.useSelected()) ? presets.getPresetStr() : presets.getPresetStr(data.byteA);
-              }
-              // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label);
-              strcpy(data.str, t.name);
-              display.renderText(data);
             }
+            // not needed here as the name will append it automatically
+            // data.prependValue   = settings.getAppendPresetNumberToPresetName();
+            // assign Name and Selected Name
+            presets.getName(data.value, data.str);
+            presets.getName(data.valueSelected, data.strSelected);
+            // digits
+            #if BMC_MAX_PRESETS_PER_BANK >= 10
+            data.digits = 2;
+            strcpy(data.format, "P %02u");
+            #else
+            data.digits = 1;
+            strcpy(data.format, "P %01u");
+            #endif
+            
+            // strcpy(data.str, name.name);
+            // strcpy(data.strSelected, selName.name);
+
+            display.renderBlock(data);
           }
   #endif
         } else {
@@ -1076,18 +1099,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
-          
+          // set display settings
           strcpy(data.label, "BANK");
-          if(data.useMeter()){
-            data.value = presets.getBank();
-            display.renderSlider(data);
-            // display.renderSlider(deviceIndex, data.oled, data.type, presets.getBank(), data.min, data.max, data.label);
-          } else {
-            bmcStoreName t = (data.useSelected()) ? presets.getBankStr() : presets.getBankStr(data.byteA);
-            // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label);
-            strcpy(data.str, t.name);
-            display.renderText(data);
-          }
+          // bmcStoreName name;
+          // bmcStoreName selName;
+
+          
+          data.value          = data.byteA;
+          data.valueSelected  = presets.getBank();
+          data.highlight      = (data.valueSelected == data.byteA);
+          data.allowMeter     = true;
+          // data.prependValue   = settings.getAppendPresetNumberToPresetName();
+          // assign Name and Selected Name
+          presets.getBankStr(data.value, data.str);
+          presets.getBankStr(data.valueSelected, data.strSelected);
+          // digits
+          #if BMC_MAX_PRESET_BANKS >= 10
+          data.digits = 2;
+          strcpy(data.format, "Bk %02u");
+          #else
+          data.digits = 1;
+          strcpy(data.format, "Bk %01u");
+          #endif
+          
+          // strcpy(data.str, name.name);
+          // strcpy(data.strSelected, selName.name);
+          
+          display.renderBlock(data);
   #endif
         } else {
           return data.byteA == presets.getBank();
@@ -1130,22 +1168,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
           if(data.byteA < BMC_MAX_SETLISTS){
+
+            // set display settings
             strcpy(data.label, "SET");
-            if(data.useMeter()){
-              data.value = setLists.get();
-              display.renderSlider(data);
-              // display.renderSlider(deviceIndex, data.oled, data.type, setLists.get(), data.min, data.max, data.label);
-            } else {
-              bmcStoreName t;
-              if(data.useName()){ // display name
-                t = (data.useSelected()) ? setLists.getSetName() : setLists.getSetName(data.byteA);
-              } else { // display number
-                t = (data.useSelected()) ? setLists.getSetStr() : setLists.getSetStr(data.byteA);
-              }
-              // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label);
-              strcpy(data.str, t.name);
-              display.renderText(data);
-            }
+            // bmcStoreName name;
+            // bmcStoreName selName;
+
+            data.value          = data.byteA;
+            data.valueSelected  = setLists.get();
+            data.highlight      = (data.valueSelected == data.byteA);
+            data.allowMeter     = true;
+            data.prependValue   = settings.getAppendPresetNumberToPresetName();
+            // assign Name and Selected Name
+            setLists.getSetName(data.value, data.str);
+            setLists.getSetName(data.valueSelected, data.strSelected);
+            // digits
+            #if BMC_MAX_SETLISTS >= 10
+            data.digits = 2;
+            strcpy(data.format, "St %02u");
+            #else
+            data.digits = 1;
+            strcpy(data.format, "St %01u");
+            #endif
+            
+            // strcpy(data.str, name.name);
+            // strcpy(data.strSelected, selName.name);
+            
+            display.renderBlock(data);
           }
   #endif
         } else {
@@ -1190,22 +1239,32 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
           if(data.byteA < BMC_MAX_SETLISTS_SONGS){
+            // set display settings
             strcpy(data.label, "SONG");
-            if(data.useMeter()){
-              data.value = setLists.getSong();
-              display.renderSlider(data);
-              // display.renderSlider(deviceIndex, data.oled, data.type, setLists.getSong(), data.min, data.max, data.label);
-            } else {
-              bmcStoreName t;
-              if(data.useName()){ // display name
-                t = (data.useSelected()) ? setLists.getSongName() : setLists.getSongName(data.byteA);
-              } else { // display number
-                t = (data.useSelected()) ? setLists.getSongStr() : setLists.getSongStr(data.byteA);
-              }
-              // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label);
-              strcpy(data.str, t.name);
-              display.renderText(data);
-            }
+            // bmcStoreName name;
+            // bmcStoreName selName;
+
+            data.value          = data.byteA;
+            data.valueSelected  = setLists.getSong();
+            data.highlight      = (data.valueSelected == data.byteA);
+            data.allowMeter     = true;
+            data.prependValue   = settings.getAppendPresetNumberToPresetName();
+            // assign Name and Selected Name
+            setLists.getSongName(data.value, data.str);
+            setLists.getSongName(data.valueSelected, data.strSelected);
+            // digits
+            #if BMC_MAX_SETLISTS_SONGS >= 10
+            data.digits = 2;
+            strcpy(data.format, "Sg %02u");
+            #else
+            data.digits = 1;
+            strcpy(data.format, "Sg %01u");
+            #endif
+            
+            // strcpy(data.str, name.name);
+            // strcpy(data.strSelected, selName.name);
+            
+            display.renderBlock(data);
             
           }
   #endif
@@ -1251,22 +1310,32 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
           if(data.byteA < BMC_MAX_SETLISTS_SONG_PARTS){
+            // set display settings
             strcpy(data.label, "PART");
-            if(data.useMeter()){
-              data.value = setLists.getPart();
-              display.renderSlider(data);
-              // display.renderSlider(deviceIndex, data.oled, data.type, setLists.getPart(), data.min, data.max, data.label);
-            } else {
-              bmcStoreName t;
-              if(data.useName()){ // display name
-                t = (data.useSelected()) ? setLists.getPartName() : setLists.getPartName(data.byteA);
-              } else { // display number
-                t = (data.useSelected()) ? setLists.getPartStr() : setLists.getPartStr(data.byteA);
-              }
-              // display.renderText(deviceIndex, data.oled, data.type, t.name, data.label);
-              strcpy(data.str, t.name);
-              display.renderText(data);
-            }
+            // bmcStoreName name;
+            // bmcStoreName selName;
+
+            data.value          = data.byteA;
+            data.valueSelected  = setLists.getPart();
+            data.highlight      = (data.valueSelected == data.byteA);
+            data.allowMeter     = true;
+            data.prependValue   = settings.getAppendPresetNumberToPresetName();
+            // assign Name and Selected Name
+            setLists.getPartName(data.value, data.str);
+            setLists.getPartName(data.valueSelected, data.strSelected);
+            // digits
+            #if BMC_MAX_SETLISTS_SONG_PARTS >= 10
+            data.digits = 2;
+            strcpy(data.format, "Pt %02u");
+            #else
+            data.digits = 1;
+            strcpy(data.format, "Pt %01u");
+            #endif
+            
+            // strcpy(data.str, name.name);
+            // strcpy(data.strSelected, selName.name);
+            
+            display.renderBlock(data);
           }
   #endif
         } else {
@@ -1323,16 +1392,19 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // char str[13] = "";
-        if(auxJacks[data.byteA].isPotMode()){
-          sprintf(data.str, "Exp %u", data.byteA+data.offset);
-        } else {
-          sprintf(data.str, "Ctrl %u", data.byteA+data.offset);
-        }
-        // display.renderText(deviceIndex, data.oled, data.type, str, "AUX JACK", auxJacks[data.byteA].isConnected());
+
+        // set display settings
         strcpy(data.label, "AUX JACK");
-        data.highlight = auxJacks[data.byteA].isConnected();
-        display.renderText(data);
+        data.value          = data.byteA;
+        data.valueSelected  = data.value;
+        data.highlight      = auxJacks[data.value].isConnected();
+        data.forceOnlyString();
+        if(auxJacks[data.value].isPotMode()){
+          sprintf(data.str, "Exp %u", data.value+data.offset);
+        } else {
+          sprintf(data.str, "Ctrl %u", data.value+data.offset);
+        }
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -1341,12 +1413,27 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
     case BMC_EVENT_TYPE_DEVICE_NAME:
       if(group == BMC_DEVICE_GROUP_DISPLAY){
+
+        // set display settings
+        strcpy(data.label, "NAME");
+        data.forceOnlyString();
+
         bmcStoreName t;
         editor.getDeviceNameText(data.byteA, BMC_GET_BYTE_2(1, event), t.name);
-        // display.renderText(deviceIndex, data.oled, data.type, t.name, "NAME");
         strcpy(data.str, t.name);
+        display.renderBlock(data);
+      }
+      break;
+    case BMC_EVENT_TYPE_NAME:
+      if(group == BMC_DEVICE_GROUP_DISPLAY){
+        
+        // set display settings
         strcpy(data.label, "NAME");
-        display.renderText(data);
+        data.forceOnlyString();
+        if((event & 0xFFFF) < BMC_MAX_NAMES_LIBRARY){
+          strcpy(data.str, store.global.names[(event & 0xFFFF)].name);
+        }
+        display.renderBlock(data);
       }
       break;
 #endif
@@ -1385,22 +1472,25 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         if(data.byteA==0){
           #if BMC_MAX_ILI9341_BLOCKS > 0
             if(deviceId==BMC_DEVICE_ID_ILI){
-              display.updateDawMeters();
+              display.renderDaw8Meters(data);
             }
           #endif
         } else if(data.byteA == 1){
           #if BMC_MAX_ILI9341_BLOCKS > 0
             if(deviceId==BMC_DEVICE_ID_ILI){
-              display.updateDawChannels();
+              display.renderDaw8Channel(data);
             }
           #endif
         } else if(data.byteA == 2){
-          display.updateDawChannelInfo(data.byteB);
+          // display.updateDawChannelInfo(data.byteB);
+          display.renderDawChannel(data);
         } else if(data.byteA == 3){
-          // char str[3] = "";
+          
+          // set display settings
+          strcpy(data.label, "DAW");
+          data.forceOnlyString();
           sync.daw.getTwoDigitDisplay(data.str);
-          // display.renderText(deviceIndex, data.oled, data.type, str);
-          display.renderText(data);
+          display.renderBlock(data);
         }
       }
 #endif
@@ -1499,15 +1589,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #if defined(BMC_HAS_DISPLAY)
         
         if(data.byteA>=BMC_BEATBUDDY_CMD_TRANS_PART_1 && data.byteA<=BMC_BEATBUDDY_CMD_TRANS_PART_125){
-          if(data.useSelected()){ // selected
-            uint8_t s = sync.beatBuddy.getSongPart();
-            sprintf(data.str,"PT %u", s+data.offset);
-            data.highlight = true;
-          } else {
-            sprintf(data.str,"PT %u",(data.byteA-BMC_BEATBUDDY_CMD_TRANS_PART_1)+data.offset);
-            data.highlight = sync.beatBuddy.isSongPart(data.byteA-BMC_BEATBUDDY_CMD_TRANS_PART_1);
-          }
+          // set display settings
+            bmcStoreName name;
+            bmcStoreName selName;
+
+            data.value          = data.byteA-BMC_BEATBUDDY_CMD_TRANS_PART_1;
+            data.valueSelected  = sync.beatBuddy.getSongPart();
+            data.highlight      = sync.beatBuddy.isSongPart(data.value);
+            data.allowMeter     = true;
+            // digits
+            data.digits = 3;
+            strcpy(data.format, "PT %03u");
+            
+            sprintf(data.str, "Part %03u", data.value);
+            sprintf(data.strSelected, "Part %03u", data.valueSelected);
+            data.forceOnlyString();
+
+
+          // if(data.useSelected()){ // selected
+          //   uint8_t s = sync.beatBuddy.getSongPart();
+          //   sprintf(data.str,"PT %u", s+data.offset);
+          //   data.highlight = true;
+          // } else {
+          //   sprintf(data.str,"PT %u",(data.byteA-BMC_BEATBUDDY_CMD_TRANS_PART_1)+data.offset);
+          //   data.highlight = sync.beatBuddy.isSongPart(data.byteA-BMC_BEATBUDDY_CMD_TRANS_PART_1);
+          // }
         } else {
+          data.forceOnlyString();
           switch(data.byteA){
             case BMC_BEATBUDDY_CMD_START:
               strcpy(data.str, "Start");
@@ -1593,9 +1701,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
               break;
           }
         }
-        // display.renderText(deviceIndex, data.oled, data.type, str, "BEATBUDDY", highlight); 
         strcpy(data.label, "BEATBUDDY");
-        display.renderText(data);
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -1609,10 +1716,12 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        // display.renderText(deviceIndex, data.oled, data.type, "BB BPM", "BEATBUDDY"); 
+        // set display settings
+        data.forceOnlyString();
         strcpy(data.str, "BB BPM");
         strcpy(data.label, "BEATBUDDY");
-        display.renderText(data);
+        
+        display.renderBlock(data);
 #endif
       }
       break;
@@ -1624,27 +1733,46 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 #endif
 #ifdef BMC_USE_FAS
     case BMC_EVENT_TYPE_FAS:
+      switch(data.byteA){
+        case BMC_FAS_CMD_LOOPER_PLAY:
+        case BMC_FAS_CMD_LOOPER_REC:
+        case BMC_FAS_CMD_LOOPER_DUB:
+        case BMC_FAS_CMD_LOOPER_REV:
+        case BMC_FAS_CMD_LOOPER_HALF:
+        case BMC_FAS_CMD_LOOPER_UNDO:
+        case BMC_FAS_CMD_LOOPER_ONCE:
+        case BMC_FAS_CMD_LOOPER_RDP:
+        case BMC_FAS_CMD_LOOPER_RPD:
+        case BMC_FAS_CMD_LOOPER_STOP:
+        case BMC_FAS_CMD_LOOPER_CLEAR:
+          sync.fas.enableLooperFetch(true);
+          break;
+      }
       if(group == BMC_DEVICE_GROUP_LED){
         switch(data.byteA){
           case BMC_FAS_CMD_CONNECTION:          return sync.fas.connected();
-          case BMC_FAS_CMD_TUNER_ON:            return sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_OFF:           return !sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_TOGGLE:        return sync.fas.isTunerActive();
-          case BMC_FAS_CMD_TUNER_IN_TUNE:       return sync.fas.tunerInTune();
-          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:   return sync.fas.tunerOutOfTune();
-          case BMC_FAS_CMD_TUNER_FLAT:          return sync.fas.tunerFlat();
-          case BMC_FAS_CMD_TUNER_FLATTER:       return sync.fas.tunerFlatter();
-          case BMC_FAS_CMD_TUNER_FLATTEST:      return sync.fas.tunerFlattest();
-          case BMC_FAS_CMD_TUNER_SHARP:         return sync.fas.tunerSharp();
-          case BMC_FAS_CMD_TUNER_SHARPER:       return sync.fas.tunerSharper();
-          case BMC_FAS_CMD_TUNER_SHARPEST:      return sync.fas.tunerSharpest();
+          case BMC_FAS_CMD_TUNER_ON:            return sync.fas.tuner.isOn();
+          case BMC_FAS_CMD_TUNER_OFF:           return !sync.fas.tuner.isOn();
+          case BMC_FAS_CMD_TUNER_TOGGLE:        return sync.fas.tuner.isOn();
+          case BMC_FAS_CMD_TUNER_IN_TUNE:       return sync.fas.tuner.inTune();
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:   return sync.fas.tuner.outOfTune();
+          case BMC_FAS_CMD_TUNER_FLAT:          return sync.fas.tuner.isFlat();
+          case BMC_FAS_CMD_TUNER_FLATTER:       return sync.fas.tuner.isFlatter();
+          case BMC_FAS_CMD_TUNER_FLATTEST:      return sync.fas.tuner.isFlattest();
+          case BMC_FAS_CMD_TUNER_SHARP:         return sync.fas.tuner.isSharp();
+          case BMC_FAS_CMD_TUNER_SHARPER:       return sync.fas.tuner.isSharper();
+          case BMC_FAS_CMD_TUNER_SHARPEST:      return sync.fas.tuner.isSharpest();
           case BMC_FAS_CMD_LOOPER_PLAY:         return sync.fas.looperPlaying();
           case BMC_FAS_CMD_LOOPER_REC:          return sync.fas.looperRecording();
           case BMC_FAS_CMD_LOOPER_DUB:          return sync.fas.looperDubbing();
           case BMC_FAS_CMD_LOOPER_REV:          return sync.fas.looperReversed();
           case BMC_FAS_CMD_LOOPER_HALF:         return sync.fas.looperHalf();
           case BMC_FAS_CMD_LOOPER_UNDO:         return 0; // looper undo
-          case BMC_FAS_CMD_TAP:                 return 0; // tap tempo
+          case BMC_FAS_CMD_LOOPER_RDP:          return sync.fas.looperPlaying() || sync.fas.looperRecording();
+          case BMC_FAS_CMD_LOOPER_RPD:          return sync.fas.looperPlaying() || sync.fas.looperRecording();
+          case BMC_FAS_CMD_LOOPER_STOP:         return sync.fas.looperStopped();
+          case BMC_FAS_CMD_LOOPER_CLEAR:        return sync.fas.looperTrackRecorded();
+          case BMC_FAS_CMD_TAP:                 return sync.fas.tempoBeat(); // only works on FAS3
         }
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
         switch(data.byteA){
@@ -1664,17 +1792,17 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case BMC_FAS_CMD_TUNER_SHARP:
           case BMC_FAS_CMD_TUNER_SHARPER:
           case BMC_FAS_CMD_TUNER_SHARPEST:
-            sync.fas.toggleTuner();
+            if(bitRead(value, 7)){
+              sync.fas.tunerOn();
+            } else {
+              sync.fas.tunerOff();
+            }
             break;
         }
       } else if(group == BMC_DEVICE_GROUP_BUTTON){
         switch(data.byteA){
           case BMC_FAS_CMD_CONNECTION:
-            if(sync.fas.connected()){
-              sync.fas.disconnect();
-            } else {
-              sync.fas.connect();
-            }
+            sync.fas.toggleConnection();
             break;
           case BMC_FAS_CMD_TUNER_ON:
             sync.fas.tunerOn();
@@ -1699,113 +1827,203 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case BMC_FAS_CMD_LOOPER_REV:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_REVERSE); break;
           case BMC_FAS_CMD_LOOPER_HALF:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_HALF); break;
           case BMC_FAS_CMD_LOOPER_UNDO:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_UNDO); break;
+          case BMC_FAS_CMD_LOOPER_RDP:    sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_REC_DUB_PLAY); break;
+          case BMC_FAS_CMD_LOOPER_RPD:    sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_REC_PLAY_DUB); break;
+          case BMC_FAS_CMD_LOOPER_STOP:   sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_STOP); break;
+          case BMC_FAS_CMD_LOOPER_CLEAR:  sync.fas.looperControl(BMC_FAS_LOOPER_CONTROL_CLEAR); break;
           case BMC_FAS_CMD_TAP:  sync.fas.tapTempo(); break;
         }
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
+        
         switch(data.byteA){
           case BMC_FAS_CMD_CONNECTION:
-            // display.renderText(deviceIndex, data.oled, data.type, "FAS", "", sync.fas.connected());
-            strcpy(data.str, "FAS");
-            data.highlight = sync.fas.connected();
-            display.renderText(data);
+            display.renderFasStatus(data);
             break;
           case BMC_FAS_CMD_TUNER_ON:
           case BMC_FAS_CMD_TUNER_OFF:
           case BMC_FAS_CMD_TUNER_TOGGLE:
-          case BMC_FAS_CMD_TUNER_IN_TUNE:
-          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:
-          case BMC_FAS_CMD_TUNER_FLAT:
-          case BMC_FAS_CMD_TUNER_FLATTER:
-          case BMC_FAS_CMD_TUNER_FLATTEST:
-          case BMC_FAS_CMD_TUNER_SHARP:
-          case BMC_FAS_CMD_TUNER_SHARPER:
-          case BMC_FAS_CMD_TUNER_SHARPEST:
-            display.updateFasTuner();
+            display.renderFasTuner(data);
             break;
+          case BMC_FAS_CMD_TUNER_IN_TUNE:
+            strcpy(data.str, "In Tune"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.inTune();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:
+            strcpy(data.str, "Out of Tune"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.outOfTune();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_FLAT:
+            strcpy(data.str, "Flat"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isFlat();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_FLATTER:
+            strcpy(data.str, "Flatter"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isFlatter();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_FLATTEST:
+            strcpy(data.str, "Flattest"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isFlattest();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_SHARP:
+            strcpy(data.str, "Sharp"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isSharp();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_SHARPER:
+            strcpy(data.str, "Sharper"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isSharper();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+          case BMC_FAS_CMD_TUNER_SHARPEST:
+            strcpy(data.str, "Sharpest"); strcpy(data.label, "TUNER");
+            data.highlight = sync.fas.tuner.isSharpest();
+            data.forceOnlyString();
+            display.renderBlock(data);
+            break;
+
+
+
+
+
+
+          // case BMC_FAS_CMD_TUNER_OUT_OF_TUNE:   return sync.fas.tuner.();
+          // case BMC_FAS_CMD_TUNER_FLAT:          return sync.fas.tuner.();
+          // case BMC_FAS_CMD_TUNER_FLATTER:       return sync.fas.tuner.isFlatter();
+          // case BMC_FAS_CMD_TUNER_FLATTEST:      return sync.fas.tuner.isFlattest();
+          // case BMC_FAS_CMD_TUNER_SHARP:         return sync.fas.tuner.();
+          // case BMC_FAS_CMD_TUNER_SHARPER:       return sync.fas.tuner.isSharper();
+
+
+
+
           case BMC_FAS_CMD_LOOPER_PLAY:
-            // display.renderText(deviceIndex, data.oled, data.type, "PLAY","LOOPER",sync.fas.looperPlaying());
-            strcpy(data.str, "PLAY");
-            strcpy(data.label, "LOOPER");
-            data.highlight = sync.fas.connected();
-            display.renderText(data);
+            strcpy(data.str, "PLAY"); strcpy(data.label, "LOOPER");
+            data.highlight = sync.fas.looperPlaying();
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_LOOPER_REC:
-            // display.renderText(deviceIndex, data.oled, data.type, "REC","LOOPER",sync.fas.looperRecording());
-            strcpy(data.str, "PLARECY");
-            strcpy(data.label, "LOOPER");
+            strcpy(data.str, "REC"); strcpy(data.label, "LOOPER");
             data.highlight = sync.fas.looperRecording();
-            display.renderText(data);
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_LOOPER_DUB:
-            // display.renderText(deviceIndex, data.oled, data.type, "DUB","LOOPER",sync.fas.looperDubbing());
-            strcpy(data.str, "DUB");
-            strcpy(data.label, "LOOPER");
+            strcpy(data.str, "DUB"); strcpy(data.label, "LOOPER");
             data.highlight = sync.fas.looperDubbing();
-            display.renderText(data);
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_LOOPER_REV:
-            // display.renderText(deviceIndex, data.oled, data.type, "REVERSE","LOOPER",sync.fas.looperReversed());
-            strcpy(data.str, "REVERSE");
-            strcpy(data.label, "LOOPER");
+            strcpy(data.str, "REVERSE"); strcpy(data.label, "LOOPER");
             data.highlight = sync.fas.looperReversed();
-            display.renderText(data);
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_LOOPER_HALF:
-            // display.renderText(deviceIndex, data.oled, data.type, "HALF","LOOPER",sync.fas.looperHalf());
-            strcpy(data.str, "HALF");
-            strcpy(data.label, "LOOPER");
+            strcpy(data.str, "HALF"); strcpy(data.label, "LOOPER");
             data.highlight = sync.fas.looperHalf();
-            display.renderText(data);
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_LOOPER_UNDO:
-            // display.renderText(deviceIndex, data.oled, data.type, "UNDO","LOOPER");
-            strcpy(data.str, "UNDO");
-            strcpy(data.label, "LOOPER");
-            display.renderText(data);
+            strcpy(data.str, "UNDO"); strcpy(data.label, "LOOPER");
+            display.renderFasLooperIcon(data);
+            break;
+          case BMC_FAS_CMD_LOOPER_ONCE:
+            strcpy(data.str, "ONCE"); strcpy(data.label, "LOOPER");
+            data.highlight = sync.fas.looperHalf();
+            display.renderFasLooperIcon(data);
+            break;
+          case BMC_FAS_CMD_LOOPER_RDP:
+            strcpy(data.str, "R/D/P"); strcpy(data.label, "LOOPER");
+            display.renderFasLooper(data);
+            break;
+          case BMC_FAS_CMD_LOOPER_RPD:
+            strcpy(data.str, "R/P/D"); strcpy(data.label, "LOOPER");
+            display.renderFasLooper(data);
+            break;
+          case BMC_FAS_CMD_LOOPER_STOP:
+            strcpy(data.str, "STOP"); strcpy(data.label, "LOOPER");
+            data.highlight = sync.fas.looperTrackRecorded();
+            display.renderFasLooperIcon(data);
+            break;
+          case BMC_FAS_CMD_LOOPER_CLEAR:
+            strcpy(data.str, "CLEAR"); strcpy(data.label, "LOOPER");
+            data.highlight = sync.fas.looperTrackRecorded();
+            display.renderFasLooperIcon(data);
             break;
           case BMC_FAS_CMD_TAP:
-            // display.renderText(deviceIndex, data.oled, data.type, "TAP");
+            data.forceOnlyString();
             strcpy(data.str, "TAP");
-            display.renderText(data);
+            display.renderBlock(data);
             break;
         }
 #endif
       }
       break;
     case BMC_EVENT_TYPE_FAS_SCENE:
-      if(group==BMC_DEVICE_GROUP_BUTTON){
-        if(data.byteB > 0){
-          if(sync.fas.getSceneNumber() != data.byteA){
-            sync.fas.setSceneNumber(data.byteA, bitRead(event, 16));
-          } else {
-            sync.fas.setSceneNumber(data.byteB-1, bitRead(event, 16));
+      {
+        data.min = 0;
+        data.max = 7;
+        uint8_t p1 = BMC_GET_BYTE(0, event) & 0x07;
+        uint8_t p2 = BMC_GET_BYTE(1, event) & 0x07;
+        uint8_t outVal = p1;
+        if(p2 > 0){
+          // scrolling max or toggle enabled
+          if((p2 - 1) > p1){
+            data.min = p1;
+            data.max = p2 - 1;
+          } else if((p2 - 1) != p1){
+            data.max = p1;
+            data.min = p2 - 1;
           }
-        } else {
-          sync.fas.setSceneNumber(data.byteA, bitRead(event, 16));
+          if(!data.scrollEnabled()){
+            outVal = sync.fas.getSceneNumber() != p1 ? p1: (p2 - 1);
+          }
         }
+        if(group==BMC_DEVICE_GROUP_BUTTON || group == BMC_DEVICE_GROUP_ENCODER){
+          if(data.scrollEnabled()){
+            sync.fas.sceneScroll(data.scrollDirection(), data.scrollWrap(), data.min, data.max);
+          } else {
+            sync.fas.setSceneNumber(outVal);
+          }
 
-      } else if(group == BMC_DEVICE_GROUP_ENCODER){
-        sync.fas.sceneScroll(data.scrollDirection(), data.scrollWrap(), bitRead(event, 16), 0, 7);
+        } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+  #if defined(BMC_HAS_DISPLAY)
 
-      } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-#if defined(BMC_HAS_DISPLAY)
-        // char str[12] = "";
-        data.highlight = sync.fas.getSceneNumber() == data.byteA;
-        // display the selected scene number
-        if(data.useSelected()){ // selected
-          data.highlight = true;
-          sprintf(data.str, "S %u", (sync.fas.getSceneNumber()+data.offset));
-        } else {
+          // set display settings
+          strcpy(data.label, "SCENE");
+
+          data.value          = (data.byteA & 0x07);
+          data.valueSelected  = sync.fas.getSceneNumber();
+          data.highlight      = data.valueSelected == data.value;
+          // data.allowMeter     = true;
+          data.prependValue   = settings.getAppendPresetNumberToPresetName();
+          // assign Name and Selected Name
+          #if defined(BMC_USE_FAS3)
+          sync.fas.getSceneName(data.value, data.str);
+          sync.fas.getSceneName(data.strSelected);
+          #endif
+          // digits
+          data.digits = 1;
+          strcpy(data.format, "S %01u");
           
-          sprintf(data.str, "S %u", (data.byteA+data.offset));
+          display.renderBlock(data);
+
+  #endif
+        } else {
+          return sync.fas.getSceneNumber() == p1;
+          // return true;
         }
-        // display.renderText(deviceIndex, data.oled, data.type, str, "SCENE", highlight);
-        strcpy(data.label, "SCENE");
-        display.renderText(data);
-#endif
-      } else {
-        return sync.fas.getSceneNumber() == data.byteA;
       }
 
       break;
@@ -1837,27 +2055,21 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           }
         } else if(group == BMC_DEVICE_GROUP_DISPLAY){
   #if defined(BMC_HAS_DISPLAY)
-          data.highlight = sync.fas.getPresetNumber() == p1;
-          if(p2 > 0){
-            // if p2 is more than 0 we are in toggle mode
-            data.highlight = false;
-            uint16_t current = sync.fas.getPresetNumber();
-            sprintf(data.str, "P %u", ((current != p1) ? p1 : (p2-1))+data.offset);
-          } else {
-            if(data.useSelected()){ // selected
-              data.highlight = true;
-              if(data.useName()){ // name
-                sync.fas.getPresetName(data.str);
-              } else {
-                sprintf(data.str, "P %u", sync.fas.getPresetNumber() + data.offset);
-              }
-            } else {
-              sprintf(data.str, "P %u", (uint16_t)(p1 + data.offset));
-            }
-          }
-          // display.renderText(deviceIndex, data.oled, data.type, str, "PRESET", highlight);
+          // set display settings
           strcpy(data.label, "PRESET");
-          display.renderText(data);
+
+          data.value          = p1;
+          data.valueSelected  = sync.fas.getPresetNumber();
+          data.highlight      = data.valueSelected == p1;
+          // data.allowMeter     = true;
+          data.prependValue   = settings.getAppendPresetNumberToPresetName();
+          // assign Name and Selected Name
+          sprintf(data.str, "P %04u", data.value);
+          sync.fas.getPresetName(data.strSelected);
+          // digits
+          data.digits = 4;
+          strcpy(data.format, "P %04u");
+          display.renderBlock(data);
   #endif
         } else {
           return sync.fas.getPresetNumber() == p1;
@@ -1870,6 +2082,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           return 0;
         }
         switch(data.byteA){
+#if !defined(BMC_USE_FAS3)
           case 0:
             sync.fas.setBlockBypass(data.byteB); // bypass block
             break;
@@ -1888,10 +2101,35 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case 5:
             sync.fas.toggleBlockXY(data.byteB); // toggle XY block
             break;
+#else
+          // fas 3 code
+          case 0:
+            sync.fas.setBlockBypass(data.byteB); // bypass block
+            break;
+          case 1:
+            sync.fas.setBlockEngage(data.byteB); // engage block
+            break;
+          case 2:
+            sync.fas.toggleBlockState(data.byteB); // toggle bypass block
+            break;
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            sync.fas.setBlockChannel(data.byteB, data.byteA-3);
+            break;
+          case 7:
+            sync.fas.toggleBlockChannel(data.byteB, 0, 1);
+            break;
+          case 8:
+            sync.fas.toggleBlockChannel(data.byteB, 2, 3);
+            break;
+#endif
         }
         return 1;
       } else if(group == BMC_DEVICE_GROUP_LED){
         switch(data.byteA){
+#if !defined(BMC_USE_FAS3)
           case 0:
             return sync.fas.isBlockBypassed(data.byteB); // block bypass state
           case 1:
@@ -1902,35 +2140,62 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           case 4:
           case 5:
             return sync.fas.isBlockY(data.byteB); // block x/y state 
+#else
+          // fas 3 code
+          case 0:
+            return sync.fas.isBlockBypassed(data.byteB); // block bypass state
+          case 1:
+          case 2:
+            return sync.fas.isBlockEngaged(data.byteB); // block bypass state
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+            return (data.byteA-3) == sync.fas.getBlockChannel(data.byteB);
+          case 7:
+            return sync.fas.getBlockChannel(data.byteB) == 1;
+          case 8:
+            return sync.fas.getBlockChannel(data.byteB) == 3;
+#endif
         }
       } else if(group == BMC_DEVICE_GROUP_MAGIC_ENCODER){
         switch(data.byteA){
+#if !defined(BMC_USE_FAS3)
           case 0:
-            return sync.fas.isBlockBypassed(data.byteB) ? 100 : 0; // block bypass state
+            return sync.fas.isBlockBypassed(data.byteB) ? 100 : 0;
           case 1:
           case 2:
-            return sync.fas.isBlockEngaged(data.byteB) ? 100 : 0; // block bypass state
+            return sync.fas.isBlockEngaged(data.byteB) ? 100 : 0;
           case 3:
-            return sync.fas.isBlockX(data.byteB) ? 100 : 0; // block x/y state
+            return sync.fas.isBlockX(data.byteB) ? 100 : 0;
           case 4:
           case 5:
-            return sync.fas.isBlockY(data.byteB) ? 100 : 0; // block x/y state 
+            return sync.fas.isBlockY(data.byteB) ? 100 : 0;
+#else
+          // fas 3 code
+          case 0:
+            return sync.fas.isBlockBypassed(data.byteB) ? 100 : 0;
+          case 1:
+          case 2:
+            return sync.fas.isBlockEngaged(data.byteB) ? 100 : 0;
+          case 3:
+          case 4:
+          case 5:
+          case 6:
+          case 7:
+          case 8:
+            return (sync.fas.getBlockChannel(data.byteB)+1) * 25;
+#endif
         }
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
-        if(!sync.fas.connected()){
-          return 0;
-        }
-        data.highlight = sync.fas.isBlockEngaged(data.byteB);
-        char blockName[5] = "";
-        char blockXY[5] = "";
-        // char str[10] = "";
-        
-        sync.fas.getBlockName(data.byteB, blockName);
-        sprintf(blockXY, "%s", sync.fas.isBlockX(data.byteB)?"x":"y");
-        sprintf(data.str, "%s %s", blockName, blockXY);
-        // display.renderText(deviceIndex, data.oled, data.type, str, "BLOCK", blockState);
+#if defined(BMC_HAS_DISPLAY)
+        // set display settings
         strcpy(data.label, "BLOCK");
-        display.renderText(data);
+        data.highlight      = sync.fas.isBlockEngaged(data.byteB);
+        data.forceOnlyString();
+        sync.fas.getBlockName(data.byteB, data.str, true);
+        display.renderFasFxBlock(data);
+#endif
       }
       break;
     case BMC_EVENT_TYPE_FAS_BLOCK_PARAM:
@@ -1955,32 +2220,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         // char str[12] = "";
-        if(data.useName()){ // display name
-          switch(data.byteA){
-            case BMC_HELIX_CMD_TAP:
-              strcpy(data.str, "HX TAP");
-              break;
-            case BMC_HELIX_CMD_TUNER:
-              strcpy(data.str, "HX TUNNER");
-              break;
-            case BMC_HELIX_CMD_SNAPSHOT:
-              sprintf(data.str, "SN %u", data.byteB+data.offset);
-              break;
-            case BMC_HELIX_CMD_SNAPSHOT_TOGGLE:
-              sprintf(data.str, "SN %u %u", data.byteB+data.offset, data.byteC+data.offset);
-              break;
-          }
-        } else { // display number
-          if(data.useSelected()){// selected
-            sprintf(data.str, "SN %u", sync.helix.getSnapshot()+data.offset);
-          } else {
-            sprintf(data.str, "SN %u", data.byteB+data.offset);
-          }
-        }
-        // display.renderText(deviceIndex, data.oled, data.type, str, "HELIX", sync.helix.isSnapshot(data.byteB));
+
+        // set display settings
         strcpy(data.label, "HELIX");
-        data.highlight = sync.helix.isSnapshot(data.byteB);
-        display.renderText(data);
+        
+        switch(data.byteA){
+          case BMC_HELIX_CMD_TAP:
+            strcpy(data.str, "HX TAP");
+            break;
+          case BMC_HELIX_CMD_TUNER:
+            strcpy(data.str, "HX TUNNER");
+            break;
+          case BMC_HELIX_CMD_SNAPSHOT:
+            
+            if(data.useSelected()){
+              sprintf(data.str, "SN %u", sync.helix.getSnapshot()+data.offset);
+            } else {
+              data.highlight = sync.helix.isSnapshot(data.byteB);
+              sprintf(data.str, "SN %u", data.byteB+data.offset);
+            }
+            break;
+          case BMC_HELIX_CMD_SNAPSHOT_TOGGLE:
+            data.highlight = sync.helix.isSnapshot(data.byteB);
+            sprintf(data.str, "SN %u %u", data.byteB+data.offset, data.byteC+data.offset);
+            break;
+        }
+        data.forceOnlyString();
+        display.renderBlock(data);
 #endif
       } else {
         return sync.helix.isSnapshot(data.byteB);

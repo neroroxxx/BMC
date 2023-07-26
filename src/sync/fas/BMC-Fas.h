@@ -32,7 +32,7 @@
 
 #include "utility/BMC-Def.h"
 
-#if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS) && !defined(BMC_USE_FAS3)
 
 #include "midi/BMC-Midi.h"
 #include "sync/fas/BMC-Fas-Def.h"
@@ -54,13 +54,13 @@
 #define BMC_FAS_FLAG_CONNECTION_LOST              13
 
 
-#define BMC_FAS_TUNER_FLAG_ACTIVE                 0
-#define BMC_FAS_TUNER_FLAG_FLAT                   1
-#define BMC_FAS_TUNER_FLAG_FLATTER                2
-#define BMC_FAS_TUNER_FLAG_FLATTEST               3
-#define BMC_FAS_TUNER_FLAG_SHARP                  4
-#define BMC_FAS_TUNER_FLAG_SHARPER                5
-#define BMC_FAS_TUNER_FLAG_SHARPEST               6
+// #define BMC_FAS_TUNER_FLAG_ACTIVE                 0
+// #define BMC_FAS_TUNER_FLAG_FLAT                   1
+// #define BMC_FAS_TUNER_FLAG_FLATTER                2
+// #define BMC_FAS_TUNER_FLAG_FLATTEST               3
+// #define BMC_FAS_TUNER_FLAG_SHARP                  4
+// #define BMC_FAS_TUNER_FLAG_SHARPER                5
+// #define BMC_FAS_TUNER_FLAG_SHARPEST               6
 
 
 #define BMC_FAS_RESYNC_TIMEOUT 250
@@ -85,38 +85,21 @@
 #define BMC_FAS_FUNC_ID_DISCONNECT            0x42
 #define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
 
-#if defined(BMC_FAS3)
-// for Axe Fx 3
-#define BMC_FAS_FUNC_ID_BLOCK_PARAM           0x02
-#define BMC_FAS_FUNC_ID_FIRMWARE              0x08
-#define BMC_FAS_FUNC_ID_TUNER_INFO            0x0D
-#define BMC_FAS_FUNC_ID_BLOCKS_DATA           0x0E
-#define BMC_FAS_FUNC_ID_PRESET_NAME           0x0F
-#define BMC_FAS_FUNC_ID_MIDI_TEMPO_BEAT       0x10
-#define BMC_FAS_FUNC_ID_BLOCK_CHANNEL         0x11
-#define BMC_FAS_FUNC_ID_GET_MIDI_CHANNEL      0x17
-#define BMC_FAS_FUNC_ID_RESYNC                0x21
-#define BMC_FAS_FUNC_ID_LOOPER                0x23
-#define BMC_FAS_FUNC_ID_SCENE_NUMBER          0x29
-#define BMC_FAS_FUNC_ID_SET_PRESET_NUMBER     0x3C
-#define BMC_FAS_FUNC_ID_DISCONNECT            0x42
-#define BMC_FAS_FUNC_ID_GENERAL_PURPOSE       0x64
-#endif
 
 class BMCFas {
 private:
   BMCMidi& midi;
   BMCGlobals& globals;
   BMCFlags <uint16_t> flags;
-  BMCFlags <uint8_t> tunerFlags;
+  // BMCFlags <uint8_t> tunerFlags;
   BMCTimer findDeviceTimer;
   BMCTimer startSyncTimer;
   BMCTimer resyncTimer;
-  BMCTimer tunerTimeout;
+  // BMCTimer tunerTimeout;
   BMCTimer looperTimeout;
   BMCTimer connectionLost;
   BMCFasData device;
-  BMCTunerData tunerData;
+  
   uint8_t attempts = 0;
   bool isAxe3(uint8_t id){
     return (id==BMC_FAS_DEVICE_ID_AXE_FX_III || id==BMC_FAS_DEVICE_ID_FM3);
@@ -135,10 +118,14 @@ private:
   }
 
 public:
+  BMCTunerData tuner;
   BMCFas(BMCMidi& t_midi);
 
   void begin();
   void update();
+  void reassign(){
+
+  }
   bool incoming(BMCMidiMessage& message);
 
   void setSyncedParameter(uint8_t slot, uint8_t block, uint8_t parameter){
@@ -163,38 +150,40 @@ public:
     controlBlockParameter(block, param, value, true);
   }
 
-  bool isTunerActive(){
-    return tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE);
-  }
-  bool tunerInTune(){
-    return isTunerActive() && (!tunerFlat() && !tunerSharp());
-  }
-  bool tunerOutOfTune(){
-    return isTunerActive() && (tunerFlat() || tunerSharp());
-  }
-  bool tunerFlat(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLAT);
-  }
-  bool tunerFlatter(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTER);
-  }
-  bool tunerFlattest(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTEST);
-  }
-  bool tunerSharp(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARP);
-  }
-  bool tunerSharper(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPER);
-  }
-  bool tunerSharpest(){
-    return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPEST);
+  // bool isTunerActive(){
+  //   return tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE);
+  // }
+  // bool tunerInTune(){
+  //   return isTunerActive() && (!tunerFlat() && !tunerSharp());
+  // }
+  // bool tunerOutOfTune(){
+  //   return isTunerActive() && (tunerFlat() || tunerSharp());
+  // }
+  // bool tunerFlat(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLAT);
+  // }
+  // bool tunerFlatter(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTER);
+  // }
+  // bool tunerFlattest(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_FLATTEST);
+  // }
+  // bool tunerSharp(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARP);
+  // }
+  // bool tunerSharper(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPER);
+  // }
+  // bool tunerSharpest(){
+  //   return isTunerActive() && tunerFlags.read(BMC_FAS_TUNER_FLAG_SHARPEST);
+  // }
+
+
+  void getTunerData(BMCTunerData& buff){
+    buff = tuner;
   }
   bool tempoReceived(){
     return flags.toggleIfTrue(BMC_FAS_FLAG_TEMPO_RECEIVED);
-  }
-  void getTunerData(BMCTunerData& buff){
-    buff = tunerData;
   }
   bool connected(){
     return flags.read(BMC_FAS_FLAG_CONNECTED);
@@ -202,8 +191,13 @@ public:
   bool syncing(){
     return flags.read(BMC_FAS_FLAG_SYNCING);
   }
+  void enableLooperFetch(bool t_value){
+    if(t_value){
+      t_value = !t_value;
+    }
+  }
   bool looperEnable(bool value){
-    if(value!=device.getLooperState()){
+    if(value != device.getLooperState()){
       device.looper.changeState(value);
       sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, value?1:0);
       return true;
@@ -303,11 +297,14 @@ public:
       }
     }
   }
-  void getBlockName(uint8_t id, char* str){
-    findBlockName(id, str);
+  void getBlockName(uint8_t id, char* str, bool fullName=false){
+    findBlockName(id, str, fullName);
   }
   bool looperGetState(){
     return device.looper.isEnabled();
+  }
+  uint8_t looperGetData(){
+    return device.looper.getData();
   }
   bool looperStatus(uint8_t cmd=255){
     return device.looper.getStates(cmd);
@@ -330,6 +327,9 @@ public:
   bool looperHalf(){
     return looperStatus(BMC_FAS_LOOPER_STATE_HALF);
   }
+  bool looperOnce(){
+    return looperStatus(BMC_FAS_LOOPER_STATE_ONCE);
+  }
   bool looperStoppedWithTrack(){
     return looperStopped() && looperTrackRecorded();
   }
@@ -338,6 +338,13 @@ public:
   }
   bool looperTrackRecorded(){
     return flags.read(BMC_FAS_FLAG_LOOPER_TRACK_AVAILABLE);
+  }
+  void toggleConnection(){
+    if(connected()){
+      disconnect();
+    } else {
+      connect();
+    }
   }
   bool connect(){
     if(connected()){
@@ -359,13 +366,13 @@ public:
     sendBasicSysEx(BMC_FAS_FUNC_ID_DISCONNECT);
     device.reset();
     flags.reset();
-    tunerFlags.reset();
+    // tunerFlags.reset();
     findDeviceTimer.stop();
     startSyncTimer.stop();
     resyncTimer.stop();
-    tunerTimeout.stop();
+    // tunerTimeout.stop();
     looperTimeout.stop();
-    tunerData.reset();
+    tuner.reset();
     device.reset();
     attempts = 0;
     flags.on(BMC_FAS_FLAG_CONNECTION_CHANGED);
@@ -412,19 +419,22 @@ public:
 
   // Toggle the tuner state
   void toggleTuner(){
-    sendControlChange(BMC_FAS_CC_TUNER, isTunerActive()?0:127);
+    sendControlChange(BMC_FAS_CC_TUNER, tuner.isOn()?0:127);
   }
   // Turn tuner on
   void tunerOn(){
-    if(!isTunerActive()){
+    if(!tuner.isOn()){
       sendControlChange(BMC_FAS_CC_TUNER, 127);
     }
   }
   // Turn tuner off
   void tunerOff(){
-    if(isTunerActive()){
+    if(tuner.isOn()){
       sendControlChange(BMC_FAS_CC_TUNER, 0);
     }
+  }
+  bool tempoBeat(){
+    return false;
   }
   // send a tap tempo cc
   void tapTempo(){
@@ -448,12 +458,12 @@ public:
     }
     return controlScene(scene);
   }
-  void sceneScroll(bool t_up=true, bool t_endless=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
+  void sceneScroll(bool t_up=true, bool t_wrap=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
     if(!connected()){
       return;
     }
     BMCScroller <uint8_t> scroller(0, 7);
-    setSceneNumber(scroller.scroll(1, t_up, t_endless, device.scene, t_min, t_max), t_revert);
+    setSceneNumber(scroller.scroll(1, t_up, t_wrap, device.scene, t_min, t_max), t_revert);
   }
   // Control Effect/Block XY State
   bool setBlockXY(uint8_t blockId, bool y){
@@ -523,12 +533,12 @@ public:
     // Send Program Change
     sendProgramChange((value & 0x7F));
   }
-  void presetScroll(bool t_up=true, bool t_endless=true, uint16_t t_min=0, uint16_t t_max=7){
+  void presetScroll(bool t_up=true, bool t_wrap=true, uint16_t t_min=0, uint16_t t_max=7){
     if(!connected()){
       return;
     }
     BMCScroller <uint16_t> scroller(0, device.maxPresets);
-    uint16_t inc = scroller.scroll(1, t_up, t_endless, device.preset, t_min, t_max);
+    uint16_t inc = scroller.scroll(1, t_up, t_wrap, device.preset, t_min, t_max);
     // only send a preset change if we changed to a new preset
     if(device.preset!=inc){
       setPreset(inc);
@@ -578,7 +588,7 @@ private:
   void sendDeviceSearch(){
     if(!flags.read(BMC_FAS_FLAG_DEVICE_SEARCH)){
       return;
-    }
+    } 
     //F0 00 01 74 7F 00 7A F7
     BMCMidiMessage message;
     message.setStatus(BMC_MIDI_SYSTEM_EXCLUSIVE);
@@ -791,11 +801,21 @@ private:
     block.flags = blocksGlobalData[id].flags;
     strcpy(block.name, blocksGlobalData[id].name);
   }
-  void findBlockName(uint8_t id, char* str){
+  void findBlockName(uint8_t id, char* str, bool fullName=false){
     if(!isValidBlockId(id)){
       return;
     }
-    strcpy(str, blocksGlobalData[id-100].name);
+    if(fullName){
+      char letter[2] = "";
+      if(isBlockY(id)){
+        letter[0] = 'X'; 
+      } else {
+        letter[0] = 'Y'; 
+      }
+      sprintf(str, "%s %u%s", blocksGlobalData[id-100].name, blocksGlobalData[id-100].index, letter);
+    } else {
+      strcpy(str, blocksGlobalData[id-100].name);
+    }
   }
   bool findBlockIndex(uint8_t id){
     if(!isValidBlockId(id)){
@@ -872,24 +892,23 @@ private:
     // 0x10 Axe-Fx III
     return (id==3 || (id>=6 && id<=8));
   }
-  void tunerNote(uint8_t note, char* str){
-		switch(note){
-			case 0: strcpy(str, "A "); break;
-			case 1: strcpy(str, "Bb"); break;
-			case 2: strcpy(str, "B "); break;
-			case 3: strcpy(str, "C "); break;
-			case 4: strcpy(str, "C#"); break;
-			case 5: strcpy(str, "D "); break;
-			case 6: strcpy(str, "Eb"); break;
-			case 7: strcpy(str, "E "); break;
-			case 8: strcpy(str, "F "); break;
-			case 9: strcpy(str, "F#"); break;
-			case 10: strcpy(str, "G "); break;
-			case 11: strcpy(str, "G#"); break;
-      default: strcpy(str, "??"); break;
-		}
-    
-	}
+  // void tunerNote(uint8_t note, char* str){
+	// 	switch(note){
+	// 		case 0: strcpy(str, "A "); break;
+	// 		case 1: strcpy(str, "Bb"); break;
+	// 		case 2: strcpy(str, "B "); break;
+	// 		case 3: strcpy(str, "C "); break;
+	// 		case 4: strcpy(str, "C#"); break;
+	// 		case 5: strcpy(str, "D "); break;
+	// 		case 6: strcpy(str, "Eb"); break;
+	// 		case 7: strcpy(str, "E "); break;
+	// 		case 8: strcpy(str, "F "); break;
+	// 		case 9: strcpy(str, "F#"); break;
+	// 		case 10: strcpy(str, "G "); break;
+	// 		case 11: strcpy(str, "G#"); break;
+  //     default: strcpy(str, "??"); break;
+	// 	}
+	// }
   // this is the data for blocks, this is used to determine if
   // block is available on the device loaded then to either bypass/XY the block
   // total: 71, totalUsable: 64

@@ -112,7 +112,7 @@ public:
     beatBuddyBeatLocation = 0;
 #endif
 
-#ifdef BMC_USE_FAS
+#if defined(BMC_USE_FAS)
     fasConnection = 0;
     fasPresetChange = 0;
     fasPresetName = 0;
@@ -126,7 +126,7 @@ public:
     fasBlockParameterReceived = 0;
 #endif
 
-#ifdef BMC_USE_FAS
+#ifdef BMC_USE_KEMPER
     kemperParamReceived = 0;
     kemperStringReceived = 0;
 #endif
@@ -232,7 +232,7 @@ public:
   void (*beatBuddyBeatLocation)(uint8_t t_location, uint8_t numerator);
 #endif
 
-#ifdef BMC_USE_FAS
+#if defined(BMC_USE_FAS)
   void (*fasConnection)(bool state);
   void (*fasPresetChange)(uint16_t n);
   void (*fasPresetName)(char* str);
@@ -247,7 +247,7 @@ public:
 
 #endif
 
-#ifdef BMC_USE_FAS
+#ifdef BMC_USE_KEMPER
   void (*kemperParamReceived)(uint16_t param, uint16_t value);
   void (*kemperStringReceived)(uint16_t param, char* str, uint8_t len);
 #endif

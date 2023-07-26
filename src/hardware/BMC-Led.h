@@ -108,6 +108,9 @@ public:
   }
 
 #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
+  bool isMuxPin(){
+    return flags.read(BMC_FLAG_LED_MUX);
+  }
   uint8_t getMuxPin(){
 #if defined(BMC_MUX_OUTPUTS_AVAILABLE)
     if(flags.read(BMC_FLAG_LED_MUX)){

@@ -43,9 +43,9 @@ void BMC::readMidi(){
     incomingMidi(midi.readSerial(3));// Read the Serial D MIDI Port
   #endif
 
-  #ifdef BMC_USE_BEATBUDDY
-    sync.beatBuddy.update();
-  #endif
+  // #ifdef BMC_USE_BEATBUDDY
+  //   sync.beatBuddy.update();
+  // #endif
 }
 void BMC::incomingMidi(BMCMidiMessage message){
   if(message.getStatus()==BMC_NONE){
@@ -72,21 +72,24 @@ void BMC::incomingMidi(BMCMidiMessage message){
   readTrigger();
 #endif
 
-#ifdef BMC_USE_DAW_LC
-  sync.daw.incoming(message);
+#if defined(BMC_USE_SYNC)
+    sync.incoming(message);
 #endif
+// #ifdef BMC_USE_DAW_LC
+//   sync.daw.incoming(message);
+// #endif
 
-#ifdef BMC_USE_BEATBUDDY
-  sync.beatBuddy.incoming(message);
-#endif
+// #ifdef BMC_USE_BEATBUDDY
+//   sync.beatBuddy.incoming(message);
+// #endif
 
-#ifdef BMC_USE_FAS
-  sync.fas.incoming(message);
-#endif
+// #ifdef BMC_USE_FAS
+//   sync.fas.incoming(message);
+// #endif
 
-#ifdef BMC_USE_KEMPER
-  sync.kemper.incoming(message);
-#endif
+// #ifdef BMC_USE_KEMPER
+//   sync.kemper.incoming(message);
+// #endif
 
   if(midi.isIncoming()){
     if(message.isProgramChange()){

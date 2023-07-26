@@ -20,7 +20,7 @@ public:
 
   }
   void setup(){
-    delay(2000);
+    delay(1000);
     flags = 0;
   }
   bool read(char *buff){

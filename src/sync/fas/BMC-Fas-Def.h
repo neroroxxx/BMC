@@ -11,123 +11,448 @@
 #define BMC_FAS_DEF_H
 
 // Fractal Compatible Device IDs
-#define BMC_FAS_DEVICE_ID_AXE_FX_II 0x03
-#define BMC_FAS_DEVICE_ID_AXE_FX_II_XL 0x06
-#define BMC_FAS_DEVICE_ID_AXE_FX_II_XL_PLUS 0x07
-#define BMC_FAS_DEVICE_ID_AX8 0x08
-#define BMC_FAS_DEVICE_ID_AXE_FX_III 0x10
-#define BMC_FAS_DEVICE_ID_FM3 0x11
 
+
+#define BMC_FAS_DEVICE_ID_AXE_FX_II        	 0x03
+#define BMC_FAS_DEVICE_ID_AXE_FX_II_XL     	 0x06
+#define BMC_FAS_DEVICE_ID_AXE_FX_II_XL_PLUS	 0x07
+#define BMC_FAS_DEVICE_ID_AX8              	 0x08
+#define BMC_FAS_DEVICE_ID_AXE_FX_III       	 0x10
+#define BMC_FAS_DEVICE_ID_FM3              	 0x11
+#define BMC_FAS_DEVICE_ID_FM9              	 0x12
+
+
+// *******************************************************
+// *******************************************************
+// *******************************************************
+// *
+// *               AXE FX 3, FM3 & FM9
+// *
+// *******************************************************
+// *******************************************************
+// *******************************************************
+
+
+#define BMC_FAS_MAX_PRESET_NAME      33
+
+#if defined(BMC_USE_FAS3)
+  // sysex function id
+  #define BMC_FAS3_FUNC_ID_BYPASS           0x0A
+  #define BMC_FAS3_FUNC_ID_CHANNEL          0x0B
+  #define BMC_FAS3_FUNC_ID_SCENE            0x0C
+  #define BMC_FAS3_FUNC_ID_PRESET_NAME      0x0D
+  #define BMC_FAS3_FUNC_ID_SCENE_NAME       0x0E
+  #define BMC_FAS3_FUNC_ID_LOOPER           0x0F
+  #define BMC_FAS3_FUNC_ID_TEMPO            0x10 // same as tap
+  #define BMC_FAS3_FUNC_ID_TAP              0x10 // same as push data tempo
+  #define BMC_FAS3_FUNC_ID_TUNER            0x11 // same as push data tuner
+  #define BMC_FAS3_FUNC_ID_BLOCKS           0x13
+  #define BMC_FAS3_FUNC_ID_SET_TEMPO        0x14
+
+  // looper bit positions
+  // #define BMC_FAS3_LOOPER_CMD_RECORD 	 0
+  // #define BMC_FAS3_LOOPER_CMD_PLAY   	 1
+  // #define BMC_FAS3_LOOPER_CMD_DUB   	 2
+  // #define BMC_FAS3_LOOPER_CMD_UNDO   	 2
+  // #define BMC_FAS3_LOOPER_CMD_ONCE   	 3
+  // #define BMC_FAS3_LOOPER_CMD_REVERSE	 4
+  // #define BMC_FAS3_LOOPER_CMD_HALF   	 5
+
+  // other
+  #define BMC_FAS3_MAX_SCENE_NAME    	 17
+
+  // block id
+  #define BMC_FAS_BLOCK_IN_1         	 37
+  #define BMC_FAS_BLOCK_IN_2         	 38
+  #define BMC_FAS_BLOCK_IN_3         	 39
+  #define BMC_FAS_BLOCK_IN_4         	 40
+  #define BMC_FAS_BLOCK_IN_5         	 41
+  #define BMC_FAS_BLOCK_OUT_1        	 42
+  #define BMC_FAS_BLOCK_OUT_2        	 43
+  #define BMC_FAS_BLOCK_OUT_3        	 44
+  #define BMC_FAS_BLOCK_OUT_4        	 45
+  #define BMC_FAS_BLOCK_CMP_1        	 46
+  #define BMC_FAS_BLOCK_CMP_2        	 47
+  #define BMC_FAS_BLOCK_CMP_3        	 48
+  #define BMC_FAS_BLOCK_CMP_4        	 49
+  #define BMC_FAS_BLOCK_GEQ_1        	 50
+  #define BMC_FAS_BLOCK_GEQ_2        	 51
+  #define BMC_FAS_BLOCK_GEQ_3        	 52
+  #define BMC_FAS_BLOCK_GEQ_4        	 53
+  #define BMC_FAS_BLOCK_PEQ_1        	 54
+  #define BMC_FAS_BLOCK_PEQ_2        	 55
+  #define BMC_FAS_BLOCK_PEQ_3        	 56
+  #define BMC_FAS_BLOCK_PEQ_4        	 57
+  #define BMC_FAS_BLOCK_AMP_1        	 58
+  #define BMC_FAS_BLOCK_AMP_2        	 59
+  #define BMC_FAS_BLOCK_CAB_1        	 62
+  #define BMC_FAS_BLOCK_CAB_2        	 63
+  #define BMC_FAS_BLOCK_REV_1        	 66
+  #define BMC_FAS_BLOCK_REV_2        	 67
+  #define BMC_FAS_BLOCK_DLY_1        	 70
+  #define BMC_FAS_BLOCK_DLY_2        	 71
+  #define BMC_FAS_BLOCK_DLY_3        	 72
+  #define BMC_FAS_BLOCK_DLY_4        	 73
+  #define BMC_FAS_BLOCK_MTD_1        	 74
+  #define BMC_FAS_BLOCK_MTD_2        	 75
+  #define BMC_FAS_BLOCK_CHO_1        	 78
+  #define BMC_FAS_BLOCK_CHO_2        	 79
+  #define BMC_FAS_BLOCK_FLG_1        	 82
+  #define BMC_FAS_BLOCK_FLG_2        	 83
+  #define BMC_FAS_BLOCK_ROT_1        	 86
+  #define BMC_FAS_BLOCK_ROT_2        	 87
+  #define BMC_FAS_BLOCK_PHA_1        	 90
+  #define BMC_FAS_BLOCK_PHA_2        	 91
+  #define BMC_FAS_BLOCK_WAH_1        	 94
+  #define BMC_FAS_BLOCK_WAH_2        	 95
+  #define BMC_FAS_BLOCK_FOR_1        	 98
+  #define BMC_FAS_BLOCK_FOR_2        	 99
+  #define BMC_FAS_BLOCK_VOL_1        	 102
+  #define BMC_FAS_BLOCK_VOL_2        	 103
+  #define BMC_FAS_BLOCK_VOL_3        	 104
+  #define BMC_FAS_BLOCK_VOL_4        	 105
+  #define BMC_FAS_BLOCK_TRM_1        	 106
+  #define BMC_FAS_BLOCK_TRM_2        	 107
+  #define BMC_FAS_BLOCK_PIT_1        	 110
+  #define BMC_FAS_BLOCK_PIT_2        	 111
+  #define BMC_FAS_BLOCK_FIL_1        	 114
+  #define BMC_FAS_BLOCK_FIL_2        	 115
+  #define BMC_FAS_BLOCK_FIL_3        	 116
+  #define BMC_FAS_BLOCK_FIL_4        	 117
+  #define BMC_FAS_BLOCK_DRV_1        	 118
+  #define BMC_FAS_BLOCK_DRV_2        	 119
+  #define BMC_FAS_BLOCK_DRV_3        	 120
+  #define BMC_FAS_BLOCK_DRV_4        	 121
+  #define BMC_FAS_BLOCK_ENH_1        	 122
+  #define BMC_FAS_BLOCK_ENH_2        	 123
+  #define BMC_FAS_BLOCK_SYN_1        	 130
+  #define BMC_FAS_BLOCK_SYN_2        	 131
+  #define BMC_FAS_BLOCK_VOC_1        	 134
+  #define BMC_FAS_BLOCK_MGT_1        	 138
+  #define BMC_FAS_BLOCK_MGT_2        	 139
+  #define BMC_FAS_BLOCK_XVR_1        	 142
+  #define BMC_FAS_BLOCK_XVR_2        	 143
+  #define BMC_FAS_BLOCK_GTE_1        	 146
+  #define BMC_FAS_BLOCK_GTE_2        	 147
+  #define BMC_FAS_BLOCK_GTE_3        	 148
+  #define BMC_FAS_BLOCK_GTE_4        	 149
+  #define BMC_FAS_BLOCK_RNG_1        	 150
+  #define BMC_FAS_BLOCK_MBC_1        	 154
+  #define BMC_FAS_BLOCK_MBC_2        	 155
+  #define BMC_FAS_BLOCK_TTD_1        	 158
+  #define BMC_FAS_BLOCK_TTD_2        	 159
+  #define BMC_FAS_BLOCK_RES_1        	 162
+  #define BMC_FAS_BLOCK_RES_2        	 163
+  #define BMC_FAS_BLOCK_LPR_1        	 166
+  #define BMC_FAS_BLOCK_TMA_1        	 170
+  #define BMC_FAS_BLOCK_PLX_1        	 178
+  #define BMC_FAS_BLOCK_PLX_2        	 179
+  #define BMC_FAS_BLOCK_SND_1        	 182
+  #define BMC_FAS_BLOCK_SND_2        	 183
+  #define BMC_FAS_BLOCK_RTN_1        	 186
+  #define BMC_FAS_BLOCK_RTN_2        	 187
+  #define BMC_FAS_BLOCK_IRP_1        	 195
+  #define BMC_FAS_BLOCK_IRP_2        	 196
+#endif
+
+
+
+
+// typedef enum EFFECT_ID_ {
+//   ID_CONTROL = 2,
+//   ID_TUNER = 35,
+//   ID_IRCAPTURE,
+//   ID_INPUT1,
+//   ID_INPUT2,
+//   ID_INPUT3,
+//   ID_INPUT4,
+//   ID_INPUT5, // USB Input
+//   ID_OUTPUT1,
+//   ID_OUTPUT2,
+//   ID_OUTPUT3,
+//   ID_OUTPUT4,
+//   ID_COMP1,
+//   ID_COMP2,
+//   ID_COMP3,
+//   ID_COMP4,
+//   ID_GRAPHEQ1,
+//   ID_GRAPHEQ2,
+//   ID_GRAPHEQ3,
+//   ID_GRAPHEQ4,
+//   ID_PARAEQ1,
+//   ID_PARAEQ2,
+//   ID_PARAEQ3,
+//   ID_PARAEQ4,
+//   ID_DISTORT1,
+//   ID_DISTORT2,
+//   ID_DISTORT3,
+//   ID_DISTORT4,
+//   ID_CAB1,
+//   ID_CAB2,
+//   ID_CAB3,
+//   ID_CAB4,
+//   ID_REVERB1,
+//   ID_REVERB2,
+//   ID_REVERB3,
+//   ID_REVERB4,
+//   ID_DELAY1,
+//   ID_DELAY2,
+//   ID_DELAY3,
+//   ID_DELAY4,
+//   ID_MULTITAP1,
+//   ID_MULTITAP2,
+//   ID_MULTITAP3,
+//   ID_MULTITAP4,
+//   ID_CHORUS1,
+//   ID_CHORUS2,
+//   ID_CHORUS3,
+//   ID_CHORUS4,
+//   ID_FLANGER1,
+//   ID_FLANGER2,
+//   ID_FLANGER3,
+//   ID_FLANGER4,
+//   ID_ROTARY1,
+//   ID_ROTARY2,
+//   ID_ROTARY3,
+//   ID_ROTARY4,
+//   ID_PHASER1,
+//   ID_PHASER2,
+//   ID_PHASER3,
+//   ID_PHASER4,
+//   ID_WAH1,
+//   ID_WAH2,
+//   ID_WAH3,
+//   ID_WAH4,
+//   ID_FORMANT1,
+//   ID_FORMANT2,
+//   ID_FORMANT3,
+//   ID_FORMANT4,
+//   ID_VOLUME1,
+//   ID_VOLUME2,
+//   ID_VOLUME3,
+//   ID_VOLUME4,
+//   ID_TREMOLO1,
+//   ID_TREMOLO2,
+//   ID_TREMOLO3,
+//   ID_TREMOLO4,
+//   ID_PITCH1,
+//   ID_PITCH2,
+//   ID_PITCH3,
+//   ID_PITCH4,
+//   ID_FILTER1,
+//   ID_FILTER2,
+//   ID_FILTER3,
+//   ID_FILTER4,
+//   ID_FUZZ1,
+//   ID_FUZZ2,
+//   ID_FUZZ3,
+//   ID_FUZZ4,
+//   ID_ENHANCER1,
+//   ID_ENHANCER2,
+//   ID_ENHANCER3,
+//   ID_ENHANCER4,
+//   ID_MIXER1,
+//   ID_MIXER2,
+//   ID_MIXER3,
+//   ID_MIXER4,
+//   ID_SYNTH1,
+//   ID_SYNTH2,
+//   ID_SYNTH3,
+//   ID_SYNTH4,
+//   ID_VOCODER1,
+//   ID_VOCODER2,
+//   ID_VOCODER3,
+//   ID_VOCODER4,
+//   ID_MEGATAP1,
+//   ID_MEGATAP2,
+//   ID_MEGATAP3,
+//   ID_MEGATAP4,
+//   ID_CROSSOVER1,
+//   ID_CROSSOVER2,
+//   ID_CROSSOVER3,
+//   ID_CROSSOVER4,
+//   ID_GATE1,
+//   ID_GATE2,
+//   ID_GATE3,
+//   ID_GATE4,
+//   ID_RINGMOD1,
+//   ID_RINGMOD2,
+//   ID_RINGMOD3,
+//   ID_RINGMOD4,
+//   ID_MULTICOMP1,
+//   ID_MULTICOMP2,
+//   ID_MULTICOMP3,
+//   ID_MULTICOMP4,
+//   ID_TENTAP1,
+//   ID_TENTAP2,
+//   ID_TENTAP3,
+//   ID_TENTAP4,
+//   ID_RESONATOR1,
+//   ID_RESONATOR2,
+//   ID_RESONATOR3,
+//   ID_RESONATOR4,
+//   ID_LOOPER1,
+//   ID_LOOPER2,
+//   ID_LOOPER3,
+//   ID_LOOPER4,
+//   ID_TONEMATCH1,
+//   ID_TONEMATCH2,
+//   ID_TONEMATCH3,
+//   ID_TONEMATCH4,
+//   ID_RTA1,
+//   ID_RTA2,
+//   ID_RTA3,
+//   ID_RTA4,
+//   ID_PLEX1,
+//   ID_PLEX2,
+//   ID_PLEX3,
+//   ID_PLEX4,
+//   ID_FBSEND1,
+//   ID_FBSEND2,
+//   ID_FBSEND3,
+//   ID_FBSEND4,
+//   ID_FBRETURN1,
+//   ID_FBRETURN2,
+//   ID_FBRETURN3,
+//   ID_FBRETURN4,
+//   ID_MIDIBLOCK,
+//   ID_MULTIPLEXER1,
+//   ID_MULTIPLEXER2,
+//   ID_MULTIPLEXER3,
+//   ID_MULTIPLEXER4,
+//   ID_IRPLAYER1,
+//   ID_IRPLAYER2,
+//   ID_IRPLAYER3,
+//   ID_IRPLAYER4,
+//   ID_FOOTCONTROLLER,
+//   ID_PRESET_FC
+// } EFFECT_ID;
+
+
+
+
+// *******************************************************
+// *******************************************************
+// *******************************************************
+// *
+// *               AXE FX 2 & AX8 Data
+// *
+// *******************************************************
+// *******************************************************
+// *******************************************************
+
+#if !defined(BMC_USE_FAS3)
 // Fractal Block IDs
-#define BMC_FAS_BLOCK_CPR 100
-#define BMC_FAS_BLOCK_CPR_1 100
-#define BMC_FAS_BLOCK_CPR_2 101
-#define BMC_FAS_BLOCK_GEQ 102
-#define BMC_FAS_BLOCK_GEQ_1 102
-#define BMC_FAS_BLOCK_GEQ_2 103
-#define BMC_FAS_BLOCK_PEQ 104
-#define BMC_FAS_BLOCK_PEQ_1 104
-#define BMC_FAS_BLOCK_PEQ_2 105
-#define BMC_FAS_BLOCK_AMP 106
-#define BMC_FAS_BLOCK_AMP_1 106
-#define BMC_FAS_BLOCK_AMP_2 107
-#define BMC_FAS_BLOCK_CAB 108
-#define BMC_FAS_BLOCK_CAB_1 108
-#define BMC_FAS_BLOCK_CAB_2 109
-#define BMC_FAS_BLOCK_REV 110
-#define BMC_FAS_BLOCK_REV_1 110
-#define BMC_FAS_BLOCK_REV_2 111
-#define BMC_FAS_BLOCK_DLY 112
-#define BMC_FAS_BLOCK_DLY_1 112
-#define BMC_FAS_BLOCK_DLY_2 113
-#define BMC_FAS_BLOCK_MTD 114
-#define BMC_FAS_BLOCK_MTD_1 114
-#define BMC_FAS_BLOCK_MTD_2 115
-#define BMC_FAS_BLOCK_CHO 116
-#define BMC_FAS_BLOCK_CHO_1 116
-#define BMC_FAS_BLOCK_CHO_2 117
-#define BMC_FAS_BLOCK_FLG 118
-#define BMC_FAS_BLOCK_FLG_1 118
-#define BMC_FAS_BLOCK_FLG_2 119
-#define BMC_FAS_BLOCK_ROT 120
-#define BMC_FAS_BLOCK_ROT_1 120
-#define BMC_FAS_BLOCK_ROT_2 121
-#define BMC_FAS_BLOCK_PHA 122
-#define BMC_FAS_BLOCK_PHA_1 122
-#define BMC_FAS_BLOCK_PHA_2 123
-#define BMC_FAS_BLOCK_WAH 124
-#define BMC_FAS_BLOCK_WAH_1 124
-#define BMC_FAS_BLOCK_WAH_2 125
-#define BMC_FAS_BLOCK_FRM 126
-#define BMC_FAS_BLOCK_FRM_1 126
-#define BMC_FAS_BLOCK_VOL 127
-#define BMC_FAS_BLOCK_VOL_1 127
-#define BMC_FAS_BLOCK_TRM 128
-#define BMC_FAS_BLOCK_TRM_1 128
-#define BMC_FAS_BLOCK_TRM_2 129
-#define BMC_FAS_BLOCK_PIT 130
-#define BMC_FAS_BLOCK_PIT_1 130
-#define BMC_FAS_BLOCK_FIL 131
-#define BMC_FAS_BLOCK_FIL_1 131
-#define BMC_FAS_BLOCK_FIL_2 132
-#define BMC_FAS_BLOCK_DRV 133
-#define BMC_FAS_BLOCK_DRV_1 133
-#define BMC_FAS_BLOCK_DRV_2 134
-#define BMC_FAS_BLOCK_ENH 135
-#define BMC_FAS_BLOCK_ENH_1 135
-#define BMC_FAS_BLOCK_FXL 136
-#define BMC_FAS_BLOCK_FXL_1 136
-#define BMC_FAS_BLOCK_MIX 137
-#define BMC_FAS_BLOCK_MIX_1 137
-#define BMC_FAS_BLOCK_MIX_2 138
-#define BMC_FAS_BLOCK_ING 139
-#define BMC_FAS_BLOCK_ING_1 139
-#define BMC_FAS_BLOCK_OUT 140
-#define BMC_FAS_BLOCK_OUT_1 140
-#define BMC_FAS_BLOCK_CTR 141
-#define BMC_FAS_BLOCK_CTR_1 141
-#define BMC_FAS_BLOCK_SND 142
-#define BMC_FAS_BLOCK_SND_1 142
-#define BMC_FAS_BLOCK_RTN 143
-#define BMC_FAS_BLOCK_RTN_1 143
-#define BMC_FAS_BLOCK_SYN 144
-#define BMC_FAS_BLOCK_SYN_1 144
-#define BMC_FAS_BLOCK_SYN_2 145
-#define BMC_FAS_BLOCK_VOC 146
-#define BMC_FAS_BLOCK_VOC_1 146
-#define BMC_FAS_BLOCK_MGT 147
-#define BMC_FAS_BLOCK_MGT_1 147
-#define BMC_FAS_BLOCK_XVR 148
-#define BMC_FAS_BLOCK_XVR_1 148
-#define BMC_FAS_BLOCK_XVR_2 149
-#define BMC_FAS_BLOCK_GTE 150
-#define BMC_FAS_BLOCK_GTE_1 150
-#define BMC_FAS_BLOCK_GTE_2 151
-#define BMC_FAS_BLOCK_RNG 152
-#define BMC_FAS_BLOCK_RNG_1 152
-#define BMC_FAS_BLOCK_PIT_2 153
-#define BMC_FAS_BLOCK_MBC 154
-#define BMC_FAS_BLOCK_MBC_1 154
-#define BMC_FAS_BLOCK_MBC_2 155
-#define BMC_FAS_BLOCK_QCH 156
-#define BMC_FAS_BLOCK_QCH_1 156
-#define BMC_FAS_BLOCK_QCH_2 157
-#define BMC_FAS_BLOCK_RES 158
-#define BMC_FAS_BLOCK_RES_1 158
-#define BMC_FAS_BLOCK_RES_2 159
-#define BMC_FAS_BLOCK_GEQ_3 160
-#define BMC_FAS_BLOCK_GEQ_4 161
-#define BMC_FAS_BLOCK_PEQ_3 162
-#define BMC_FAS_BLOCK_PEQ_4 163
-#define BMC_FAS_BLOCK_FIL_3 164
-#define BMC_FAS_BLOCK_FIL_4 165
-#define BMC_FAS_BLOCK_VOL_2 166
-#define BMC_FAS_BLOCK_VOL_3 167
-#define BMC_FAS_BLOCK_VOL_4 168
-#define BMC_FAS_BLOCK_LPR 169
-#define BMC_FAS_BLOCK_LPR_1 169
-#define BMC_FAS_BLOCK_TMA 170
-#define BMC_FAS_BLOCK_TMA_1 170
+  #define BMC_FAS_BLOCK_CPR        	 100
+  #define BMC_FAS_BLOCK_CPR_1      	 100
+  #define BMC_FAS_BLOCK_CPR_2      	 101
+  #define BMC_FAS_BLOCK_GEQ        	 102
+  #define BMC_FAS_BLOCK_GEQ_1      	 102
+  #define BMC_FAS_BLOCK_GEQ_2      	 103
+  #define BMC_FAS_BLOCK_PEQ        	 104
+  #define BMC_FAS_BLOCK_PEQ_1      	 104
+  #define BMC_FAS_BLOCK_PEQ_2      	 105
+  #define BMC_FAS_BLOCK_AMP        	 106
+  #define BMC_FAS_BLOCK_AMP_1      	 106
+  #define BMC_FAS_BLOCK_AMP_2      	 107
+  #define BMC_FAS_BLOCK_CAB        	 108
+  #define BMC_FAS_BLOCK_CAB_1      	 108
+  #define BMC_FAS_BLOCK_CAB_2      	 109
+  #define BMC_FAS_BLOCK_REV        	 110
+  #define BMC_FAS_BLOCK_REV_1      	 110
+  #define BMC_FAS_BLOCK_REV_2      	 111
+  #define BMC_FAS_BLOCK_DLY        	 112
+  #define BMC_FAS_BLOCK_DLY_1      	 112
+  #define BMC_FAS_BLOCK_DLY_2      	 113
+  #define BMC_FAS_BLOCK_MTD        	 114
+  #define BMC_FAS_BLOCK_MTD_1      	 114
+  #define BMC_FAS_BLOCK_MTD_2      	 115
+  #define BMC_FAS_BLOCK_CHO        	 116
+  #define BMC_FAS_BLOCK_CHO_1      	 116
+  #define BMC_FAS_BLOCK_CHO_2      	 117
+  #define BMC_FAS_BLOCK_FLG        	 118
+  #define BMC_FAS_BLOCK_FLG_1      	 118
+  #define BMC_FAS_BLOCK_FLG_2      	 119
+  #define BMC_FAS_BLOCK_ROT        	 120
+  #define BMC_FAS_BLOCK_ROT_1      	 120
+  #define BMC_FAS_BLOCK_ROT_2      	 121
+  #define BMC_FAS_BLOCK_PHA        	 122
+  #define BMC_FAS_BLOCK_PHA_1      	 122
+  #define BMC_FAS_BLOCK_PHA_2      	 123
+  #define BMC_FAS_BLOCK_WAH        	 124
+  #define BMC_FAS_BLOCK_WAH_1      	 124
+  #define BMC_FAS_BLOCK_WAH_2      	 125
+  #define BMC_FAS_BLOCK_FRM        	 126
+  #define BMC_FAS_BLOCK_FRM_1      	 126
+  #define BMC_FAS_BLOCK_VOL        	 127
+  #define BMC_FAS_BLOCK_VOL_1      	 127
+  #define BMC_FAS_BLOCK_TRM        	 128
+  #define BMC_FAS_BLOCK_TRM_1      	 128
+  #define BMC_FAS_BLOCK_TRM_2      	 129
+  #define BMC_FAS_BLOCK_PIT        	 130
+  #define BMC_FAS_BLOCK_PIT_1      	 130
+  #define BMC_FAS_BLOCK_FIL        	 131
+  #define BMC_FAS_BLOCK_FIL_1      	 131
+  #define BMC_FAS_BLOCK_FIL_2      	 132
+  #define BMC_FAS_BLOCK_DRV        	 133
+  #define BMC_FAS_BLOCK_DRV_1      	 133
+  #define BMC_FAS_BLOCK_DRV_2      	 134
+  #define BMC_FAS_BLOCK_ENH        	 135
+  #define BMC_FAS_BLOCK_ENH_1      	 135
+  #define BMC_FAS_BLOCK_FXL        	 136
+  #define BMC_FAS_BLOCK_FXL_1      	 136
+  #define BMC_FAS_BLOCK_MIX        	 137
+  #define BMC_FAS_BLOCK_MIX_1      	 137
+  #define BMC_FAS_BLOCK_MIX_2      	 138
+  #define BMC_FAS_BLOCK_ING        	 139
+  #define BMC_FAS_BLOCK_ING_1      	 139
+  #define BMC_FAS_BLOCK_OUT        	 140
+  #define BMC_FAS_BLOCK_OUT_1      	 140
+  #define BMC_FAS_BLOCK_CTR        	 141
+  #define BMC_FAS_BLOCK_CTR_1      	 141
+  #define BMC_FAS_BLOCK_SND        	 142
+  #define BMC_FAS_BLOCK_SND_1      	 142
+  #define BMC_FAS_BLOCK_RTN        	 143
+  #define BMC_FAS_BLOCK_RTN_1      	 143
+  #define BMC_FAS_BLOCK_SYN        	 144
+  #define BMC_FAS_BLOCK_SYN_1      	 144
+  #define BMC_FAS_BLOCK_SYN_2      	 145
+  #define BMC_FAS_BLOCK_VOC        	 146
+  #define BMC_FAS_BLOCK_VOC_1      	 146
+  #define BMC_FAS_BLOCK_MGT        	 147
+  #define BMC_FAS_BLOCK_MGT_1      	 147
+  #define BMC_FAS_BLOCK_XVR        	 148
+  #define BMC_FAS_BLOCK_XVR_1      	 148
+  #define BMC_FAS_BLOCK_XVR_2      	 149
+  #define BMC_FAS_BLOCK_GTE        	 150
+  #define BMC_FAS_BLOCK_GTE_1      	 150
+  #define BMC_FAS_BLOCK_GTE_2      	 151
+  #define BMC_FAS_BLOCK_RNG        	 152
+  #define BMC_FAS_BLOCK_RNG_1      	 152
+  #define BMC_FAS_BLOCK_PIT_2      	 153
+  #define BMC_FAS_BLOCK_MBC        	 154
+  #define BMC_FAS_BLOCK_MBC_1      	 154
+  #define BMC_FAS_BLOCK_MBC_2      	 155
+  #define BMC_FAS_BLOCK_QCH        	 156
+  #define BMC_FAS_BLOCK_QCH_1      	 156
+  #define BMC_FAS_BLOCK_QCH_2      	 157
+  #define BMC_FAS_BLOCK_RES        	 158
+  #define BMC_FAS_BLOCK_RES_1      	 158
+  #define BMC_FAS_BLOCK_RES_2      	 159
+  #define BMC_FAS_BLOCK_GEQ_3      	 160
+  #define BMC_FAS_BLOCK_GEQ_4      	 161
+  #define BMC_FAS_BLOCK_PEQ_3      	 162
+  #define BMC_FAS_BLOCK_PEQ_4      	 163
+  #define BMC_FAS_BLOCK_FIL_3      	 164
+  #define BMC_FAS_BLOCK_FIL_4      	 165
+  #define BMC_FAS_BLOCK_VOL_2      	 166
+  #define BMC_FAS_BLOCK_VOL_3      	 167
+  #define BMC_FAS_BLOCK_VOL_4      	 168
+  #define BMC_FAS_BLOCK_LPR        	 169
+  #define BMC_FAS_BLOCK_LPR_1      	 169
+  #define BMC_FAS_BLOCK_TMA        	 170
+  #define BMC_FAS_BLOCK_TMA_1      	 170
+
 
 
 #ifndef BMC_FAS_CC_TAP_TEMPO
@@ -1380,5 +1705,7 @@
 #define BMC_FAS_PARAM_LPR_IMMEDIATE_PLAY_SW 12 // range 0 to 1
 #define BMC_FAS_PARAM_LPR_RECORD_BEATS 13 // range 0 to 65534
 
+
+#endif
 
 #endif

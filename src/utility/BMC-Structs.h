@@ -74,46 +74,37 @@ struct BMCEventScrollData {
       amount = 1;
     }
   }
-  // BMCEventScrollData(uint8_t settings, uint8_t ticks, bool forceEnable=false){
-  //   enabled = bitRead(settings, 0);
-  //   direction = bitRead(settings, 1);
-  //   wrap = bitRead(settings, 2);
-  //   if(forceEnable){
-  //     if(!enabled){
-  //       wrap = true;
-  //     }
-  //     enabled = true; 
-  //   }
-  //   if(ticks > 0){
-  //     direction = bitRead(ticks, 7);
-  //   }
-  //   amount = ticks & 0x7F;
-  //   if(amount==0){
-  //     amount = 1;
-  //   }
-  // }
 };
 struct __attribute__ ((packed)) BMCDataContainer {
-  uint8_t index = 0;
+  uint16_t index = 0;
   uint8_t crc = 0;
   uint8_t settings = 0;
+  uint8_t colors = 0;
   uint8_t type = 0;
   uint8_t byteA = 0;
   uint8_t byteB = 0;
   uint8_t byteC = 0;
   uint8_t byteD = 0;
-  uint8_t value = 0;
+  uint16_t value = 0;
+  uint16_t valueSelected = 0;
   uint16_t min = 0;
   uint16_t max = 0;
   
+  uint8_t offset = 0;
+  uint8_t displayType = 0;
   bool highlight = false;
-  bool oled = false;
+  // bool oled = false;
   bool useOffset = true;
   bool noScroll = false;
-  bool offset = 0;
+  bool allowMeter = false;
+  bool prependValue = false;
 
-  char str[32] = "";
-  char label[32] = "";
+  char str[41] = "";
+  char strSelected[41] = "";
+  char label[33] = "";
+  // sprintf format
+  char format[16] = "";
+  uint8_t digits = 1;
   BMCEventScrollData scroll;
   uint16_t setMinMax(uint16_t t_currentValue, uint16_t t_min, uint16_t t_max, uint16_t t_min2, uint16_t t_max2){
     min = t_min;
@@ -139,6 +130,21 @@ struct __attribute__ ((packed)) BMCDataContainer {
       scroll.enabled = false;
     }
     return outVal;
+  }
+  void setDisplayType(uint8_t t_value){
+    displayType = t_value;
+  }
+  bool isOled(){
+    return displayType == BMC_DEVICE_ID_OLED;
+  }
+  bool isIli(){
+    return displayType == BMC_DEVICE_ID_ILI;
+  }
+  bool isMiniDisplay(){
+    return displayType == BMC_DEVICE_ID_MINI_DISPLAY;
+  }
+  bool isLcd(){
+    return displayType == BMC_DEVICE_ID_LCD;
   }
   void setNoScroll(bool t_value){
     noScroll = t_value;
@@ -178,6 +184,13 @@ struct __attribute__ ((packed)) BMCDataContainer {
   }
   bool scrollAmount(){
     return scroll.amount;
+  }
+  void forceOnlyString(){
+    bitWrite(settings, 2, 0);
+    bitWrite(settings, 3, 1);
+  }
+  bool useStringOnly(){
+    return !bitRead(settings, 2) && bitRead(settings, 3);
   }
 };
 
@@ -226,7 +239,7 @@ struct bmcTouchArea {
 #endif
 struct bmcDawChannelsInfo {
   int8_t index = -1;
-  bool isOled = false;
+  // bool isOled = false;
   char name[10];
   char value[10];
   char twoDigitDisplay[3];
@@ -235,9 +248,10 @@ struct bmcDawChannelsInfo {
   uint16_t vuBits = 0;
   uint8_t vPotLevel = 0;
   uint16_t vPotBits = 0;
+  uint8_t type;
   void reset(){
     index = -1;
-    isOled = false;
+    type = 0;
     strcpy(name, "");
     strcpy(value, "");
     stateBits = 0;
@@ -246,19 +260,39 @@ struct bmcDawChannelsInfo {
     vPotLevel = 0;
     vPotBits = 0;
   }
+  bool isOled(){
+    return type == BMC_DEVICE_ID_OLED;
+  }
+  bool isIli(){
+    return type == BMC_DEVICE_ID_ILI;
+  }
+  bool isMiniDisplay(){
+    return type == BMC_DEVICE_ID_MINI_DISPLAY;
+  }
 };
 
-#if defined(BMC_USE_FAS)
-struct bmcDisplayFasTunerInfo {
+struct bmcDisplayIndexSel {
   int8_t index = -1;
-  bool isOled = false;
+  uint8_t type = 0;
   bool active = false;
   void reset(){
     index = -1;
-    isOled = false;
+    type = 0;
+    active = false;
+  }
+  bool isOled(){
+    return type == BMC_DEVICE_ID_OLED;
+  }
+  bool isLcd(){
+    return type == BMC_DEVICE_ID_LCD;
+  }
+  bool isIli(){
+    return type == BMC_DEVICE_ID_ILI;
+  }
+  bool isMiniDisplay(){
+    return type == BMC_DEVICE_ID_MINI_DISPLAY;
   }
 };
-#endif
 
 // pin, pinB, x, y, style, rotation, mergeType, mergeIndex, address,
 struct BMCUIData {
@@ -351,12 +385,99 @@ struct BMCRunTime {
     return seconds;
   }
 };
+
 struct BMCTunerData {
   uint8_t stringNumber = 0;
   uint8_t note = 0;
   uint8_t pitchRaw = 0;
   int pitch = 0;
   char noteName[3] = "";
+  BMCFlags <uint8_t> flags;
+  BMCTimer timeout;
+  void setData(uint8_t t_note, uint8_t t_string, uint8_t t_pitch){
+    note = t_note & 0x7F;
+    stringNumber = t_string & 0x7F;
+    pitchRaw = t_pitch & 0x7F;
+    pitch = map(t_pitch, 0, 127, -63, 64);
+    switch(note){
+			case 0: strcpy(noteName, "A "); break;
+			case 1: strcpy(noteName, "Bb"); break;
+			case 2: strcpy(noteName, "B "); break;
+			case 3: strcpy(noteName, "C "); break;
+			case 4: strcpy(noteName, "C#"); break;
+			case 5: strcpy(noteName, "D "); break;
+			case 6: strcpy(noteName, "Eb"); break;
+			case 7: strcpy(noteName, "E "); break;
+			case 8: strcpy(noteName, "F "); break;
+			case 9: strcpy(noteName, "F#"); break;
+			case 10: strcpy(noteName, "G "); break;
+			case 11: strcpy(noteName, "G#"); break;
+      default: strcpy(noteName, "??"); break;
+		}
+    
+    timeout.start(250);
+    // flags:
+    // 0 > flattest
+    // 1 > flatter
+    // 2 > flat
+    // 3 > sharp
+    // 4 > sharper
+    // 5 > sharpest
+    flags.reset();
+    flags.on(0);
+    if(pitchRaw<62){
+      flags.on(2); // flat
+      if(pitchRaw < 42){
+        flags.on(1); // flatter
+      }
+      if(pitchRaw < 21){
+        flags.on(0); // flatest
+      }
+    } else if(pitchRaw > 64){
+      flags.on(3); // sharp
+      if(pitchRaw > 84){
+        flags.on(4); // sharper
+      }
+      if(pitchRaw > 105){
+        flags.on(5); // sharpest
+      }
+    }
+  }
+  bool isOn(){
+    return flags.read(0);
+  }
+  bool timedout(){
+    bool state = timeout.complete();
+    if(state){
+      reset();
+    }
+    return state;
+  }
+
+  bool inTune(){
+    return isOn() && (!isFlat() && !isSharp());
+  }
+  bool outOfTune(){
+    return isOn() && (isFlat() || isSharp());
+  }
+  bool isFlat(){
+    return isOn() && flags.read(2);
+  }
+  bool isFlatter(){
+    return isOn() && flags.read(1);
+  }
+  bool isFlattest(){
+    return isOn() && flags.read(0);
+  }
+  bool isSharp(){
+    return isOn() && flags.read(3);
+  }
+  bool isSharper(){
+    return isOn() && flags.read(4);
+  }
+  bool isSharpest(){
+    return isOn() && flags.read(5);
+  }
 
   void reset(){
     stringNumber = 0;
@@ -364,6 +485,48 @@ struct BMCTunerData {
     pitchRaw = 0;
     note = 0;
     strcpy(noteName, "");
+    timeout.stop();
+    flags.reset();
+  }
+};
+struct BMCLooperData {
+  bool enabled = false;
+  uint8_t data;
+  uint8_t position;
+  void set(uint8_t t_data, uint8_t t_position){
+    data = t_data;
+    position = t_position;
+  }
+  void changeState(bool value){
+    enabled = value;
+  }
+  bool getStates(uint8_t bit=255){
+    if(bit<=6){
+      return  bitRead(data, bit);
+    } else {
+      return data;
+    }
+    return false;
+  }
+  uint8_t getData(){
+    return data;
+  }
+  bool isEnabled(){   return enabled; }
+  bool recording(){   return bitRead(data, BMC_FAS_LOOPER_STATE_RECORDING); }
+  bool playing(){     return bitRead(data, BMC_FAS_LOOPER_STATE_PLAYING); }
+  bool once(){        return bitRead(data, BMC_FAS_LOOPER_STATE_ONCE); }
+  bool overdubbing(){ return bitRead(data, BMC_FAS_LOOPER_STATE_OVERDUBBING); }
+  bool reversed(){    return bitRead(data, BMC_FAS_LOOPER_STATE_REVERSED); }
+  bool half(){        return bitRead(data, BMC_FAS_LOOPER_STATE_HALF); }
+  bool undo(){        return bitRead(data, BMC_FAS_LOOPER_STATE_UNDO); }
+
+
+  uint8_t getPosition(){ return position; }
+  void reset(){
+    data = 0;
+    position = 0;
+    // do not reset the enabled as it's controller by BMC Settings.
+    //enabled = false;
   }
 };
 struct BMCStopwatch {
@@ -796,9 +959,6 @@ struct BMCLogicControlChannelVU {
     lastPeak = 0;
   }
 
-  BMCLogicControlChannelVU(){
-    // meterDecayTimer.start(300);
-  }
   void update(){
     // if(meter>0 && meterDecayTimer){
     //   meter--;

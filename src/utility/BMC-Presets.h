@@ -139,6 +139,8 @@ public:
     set(value, preset);
     return value;
   }
+
+  
   bmcStoreName getName(){
     return getName(preset);
   }
@@ -162,6 +164,8 @@ public:
     }
     return t;
   }
+
+  
   bmcStoreName getBankStr(){
     return getBankStr(bank);
   }
@@ -184,6 +188,55 @@ public:
     }
     return t;
   }
+
+
+
+
+
+
+
+
+
+  void getName(char * str){
+    getName(preset, str);
+  }
+  void getName(uint16_t t_preset, char * str){
+    if(midi.globals.settings.getAppendPresetNumberToPresetName()){
+      char bankBuff[2] = "";
+      BMCTools::getBankLetter(bank, bankBuff);
+      sprintf(str, "%s%u ", bankBuff, t_preset+midi.globals.offset);
+    }
+    uint16_t p = toPresetIndex(bank, t_preset);
+    if(p < BMC_MAX_PRESETS && midi.globals.store.global.presets[p].name > 0){
+      bmcName_t n = midi.globals.store.global.presets[p].name;
+      strcat(str, midi.globals.store.global.names[n-1].name);
+    }
+    if(BMC_STR_MATCH(str, "")){
+      getPresetStr(t_preset, str);
+    }
+  }
+  void getBankStr(char * str){
+    getBankStr(bank, str);
+  }
+  void getBankStr(uint16_t t_bank, char * str){
+    BMCTools::getBankLetter(t_bank, str);
+  }
+  void getPresetStr(char * buff){
+    getPresetStr(preset, buff);
+  }
+  void getPresetStr(uint16_t t_preset, char * str){
+    if(midi.globals.settings.getDisplayBankWithPreset()){
+      char bankBuff[3] = "";
+      BMCTools::getBankLetter(bank, bankBuff);
+      sprintf(str, "%s%u", bankBuff, t_preset+midi.globals.offset);
+    } else {
+      sprintf(str, "%u", t_preset+midi.globals.offset);
+    }
+  }
+
+
+
+
 
   bool presetChanged(){
     return flags.toggleIfTrue(BMC_FLAG_PRESETS_CHANGED);

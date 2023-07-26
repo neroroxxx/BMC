@@ -83,7 +83,7 @@ void BMC::readButtons(){
     if(buttonTrigger != BMC_NONE && !dual){
       handleButton(device, BMC_DEVICE_ID_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
-        printButtonTrigger(i, buttonTrigger, false);
+        printButtonTrigger(BMC_DEVICE_ID_BUTTON, i, buttonTrigger);
       #endif
     }
     globals.buttonStates.setBit(i, buttons[i].isClosed());
@@ -117,7 +117,7 @@ void BMC::readButtons(){
     if(buttonTrigger != BMC_NONE && !dual){
       handleButton(device, BMC_DEVICE_ID_GLOBAL_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)
-        printButtonTrigger(i, buttonTrigger, true);
+        printButtonTrigger(BMC_DEVICE_ID_GLOBAL_BUTTON, i, buttonTrigger);
       #endif
     }
     globals.globalButtonStates.setBit(i, globalButtons[i].isClosed());

@@ -126,15 +126,22 @@ void BMC::readHardware(){
 #endif
 
 
-#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
+#if defined(BMC_HAS_DISPLAY)
 if(oneMillisecondPassed()){
-  if(globals.offset == 0){
-    BMC_PRINTLN("???????????????");
-  }
+  
+  #if defined(BMC_DEBUG)
+  // time how long it takes to render all displays
+  unsigned long t = millis();
+  #endif
+
   #if BMC_MAX_ILI9341_BLOCKS > 0
     if(!globals.pauseIli()){
       for(uint8_t index = 0 ; index < BMC_MAX_ILI9341_BLOCKS ; index++){
         uint16_t eIndex = store.layers[layer].ili[index].events[0];
+        if(eIndex == 0 && !settings.getDisplayNames()){
+          display.blackoutIli(index);
+          continue;
+        }
         processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
       }
     }
@@ -151,9 +158,44 @@ if(oneMillisecondPassed()){
   #if BMC_MAX_OLED > 0
     for(uint8_t index = 0 ; index < BMC_MAX_OLED ; index++){
       uint16_t eIndex = store.layers[layer].oled[index].events[0];
+      if(eIndex == 0 && !settings.getDisplayNames()){
+        display.blackoutOled(index);
+        continue;
+      }
       processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_OLED, index, eIndex);
     }
   #endif
+
+  #if BMC_MAX_MINI_DISPLAY > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_MINI_DISPLAY ; index++){
+      uint16_t eIndex = store.layers[layer].miniDisplay[index].events[0];
+      if(eIndex == 0 && !settings.getDisplayNames()){
+        display.blackoutMiniDisplay(index);
+        continue;
+      }
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_MINI_DISPLAY, index, eIndex);
+    }
+  #endif
+
+  #if BMC_MAX_LCD > 0
+    for(uint8_t index = 0 ; index < BMC_MAX_LCD ; index++){
+      uint16_t eIndex = store.layers[layer].lcd[index].events[0];
+      if(eIndex == 0 && !settings.getDisplayNames()){
+        display.blackoutLcd(index);
+        continue;
+      }
+      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_LCD, index, eIndex);
+    }
+  #endif
+
+  #if defined(BMC_DEBUG)
+  // time how long it takes to render all displays
+  unsigned long y = millis()-t;
+  if(y>1){
+    BMC_PRINTLN("display render time",y,"ms");
+  }
+  #endif
+  
 }
 #endif
 

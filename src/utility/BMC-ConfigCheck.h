@@ -10,7 +10,11 @@
 
   // disable the ILI display on teensy 3.2 as it will not fit
   #if BMC_TEENSY_MODEL == 32 && BMC_MAX_ILI9341_BLOCKS > 0
-    #error "ILI NO SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
+    #error "ILI BMC_IS_NOTE_OFF SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
+  #endif
+
+  #if BMC_TEENSY_MODEL == 32 && BMC_MAX_MINI_DISPLAY > 0
+    #error "MINI DISPLAY NOT SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
   #endif
 
   // the min/max values that can ever be used
@@ -323,7 +327,9 @@
     #define BMC_DEVICE_NAME "BMC"
   #endif
 
-  
+  #if !defined(BMC_ILI_S_COUNT)
+    #define BMC_ILI_S_COUNT 1
+  #endif
 
   
 
@@ -534,7 +540,7 @@
     #define BMC_MAX_BUTTON_EVENTS BMC_LIMIT_MAX_BUTTON_EVENTS
   #endif
 
-  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0 && BMC_MAX_BI_LEDS == 0 && BMC_MAX_GLOBAL_BI_LEDS == 0 && BMC_MAX_TRI_LEDS == 0 && BMC_MAX_GLOBAL_TRI_LEDS == 0 && BMC_MAX_PIXEL_STRIP == 0
+  #if BMC_MAX_BUTTONS == 0 && BMC_MAX_LEDS == 0 && BMC_MAX_PIXELS == 0 && BMC_MAX_RGB_PIXELS == 0 && BMC_MAX_POTS == 0 && BMC_MAX_ENCODERS == 0 && BMC_MAX_OLED == 0 && BMC_MAX_ILI9341_BLOCKS == 0 && BMC_MAX_MINI_DISPLAY == 0 && BMC_MAX_LCD == 0 && BMC_MAX_BI_LEDS == 0 && BMC_MAX_GLOBAL_BI_LEDS == 0 && BMC_MAX_TRI_LEDS == 0 && BMC_MAX_GLOBAL_TRI_LEDS == 0 && BMC_MAX_PIXEL_STRIP == 0
     #if BMC_MAX_LAYERS != BMC_LIMIT_MIN_LAYERS
       #undef BMC_MAX_LAYERS
       #define BMC_MAX_LAYERS BMC_LIMIT_MIN_LAYERS
@@ -900,7 +906,15 @@
   #undef BMC_HAS_DISPLAY
 #endif
 
-#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0
+#if BMC_MAX_LCD > 0 && !defined(BMC_LCD_CHARS)
+  #error "BMC_LCD_CHARS Missing"
+#endif
+
+#if !defined(BMC_LCD_CHARS)
+  #define BMC_LCD_CHARS 0
+#endif
+
+#if BMC_MAX_OLED > 0 || BMC_MAX_ILI9341_BLOCKS > 0 || BMC_MAX_MINI_DISPLAY > 0 || BMC_MAX_LCD > 0
   #define BMC_HAS_DISPLAY
 #endif
 
@@ -910,15 +924,21 @@
   #define BMC_SSD1306_INVERSE             2    ///< Invert pixels
 #endif
 
-#ifndef BMC_OLED_BLACK
-  #define BMC_OLED_BLACK               0    ///< Draw 'off' pixels
-  #define BMC_OLED_WHITE               1    ///< Draw 'on' pixels
-  #define BMC_OLED_INVERSE             2    ///< Invert pixels
+
+#if defined(BMC_USE_FAS3) && !defined(BMC_USE_FAS)
+  #define BMC_USE_FAS
 #endif
+
+#if defined(BMC_USE_FAS) && !defined(BMC_USE_FAS3)
+  #define BMC_USE_FAS2
+#endif
+
 
 #if defined(BMC_USE_DAW_LC) || defined(BMC_USE_BEATBUDDY) || defined(BMC_USE_HELIX) || defined(BMC_USE_FAS) || defined(BMC_USE_KEMPER)
   #define BMC_USE_SYNC
 #endif
+
+
 
 
 
@@ -956,13 +976,22 @@
 #if BMC_TFT_SIZE == 1
   #define BMC_TFT_WIDTH 320
   #define BMC_TFT_HEIGHT 240
-  #define BMC_TFT ILI9341_t3
+  // #define BMC_TFT BMC_ILI9341_t3
+  #define BMC_TFT BMC_ILI9341
 #else
   #define BMC_TFT_WIDTH 480
   #define BMC_TFT_HEIGHT 320
-  #define BMC_TFT ILI9488_t3
+  #define BMC_TFT BMC_ILI9488
 #endif
 
+#endif
+
+#if defined(BMC_ILI_RESET_PIN) && !defined(BMC_TFT_RESET_PIN)
+  #define BMC_TFT_RESET_PIN BMC_ILI_RESET_PIN
+#endif
+
+#if !defined(BMC_TFT_RESET_PIN)
+  #define BMC_TFT_RESET_PIN 255
 #endif
 
 
@@ -975,7 +1004,7 @@
 
 
   // #define BMC_MAX_LED_TEST_DELAY 15
-  #define BMC_MAX_LED_TEST_DELAY 50
+  #define BMC_MAX_LED_TEST_DELAY 25
 
   
 
@@ -983,7 +1012,7 @@
 
   // Create a CRC based on the current build
   #define _____BMC_LAYERS (uint16_t)((((BMC_MAX_LAYER_EVENTS*3)+(BMC_MAX_BUTTONS*11)+(BMC_MAX_LEDS*22)+(BMC_MAX_BI_LEDS*23)+(BMC_MAX_TRI_LEDS*24)+(BMC_MAX_POTS*55)+(BMC_MAX_ENCODERS*66)+(BMC_MAX_BUTTON_EVENTS*77)+(BMC_MAX_PIXELS*88)+(BMC_MAX_RGB_PIXELS*99)+(BMC_MAX_PIXEL_STRIP*49)+(BMC_MAX_GLOBAL_MAGIC_ENCODERS*37)) * BMC_MAX_LAYERS))
-  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_LFO*87) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*77) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
+  #define _____BMC_GLOBAL (uint16_t)((_____BMC_GLOBAL_HARDWARE)+(BMC_MAX_CUSTOM_SYSEX*11) + (BMC_MAX_TRIGGERS*22) + (BMC_MAX_TEMPO_TO_TAP*33) + (BMC_MAX_SKETCH_BYTES*44) + (BMC_MAX_PRESETS*66) + (BMC_MAX_PRESET_ITEMS*77) + (BMC_MAX_SETLISTS*88) + (BMC_MAX_SETLISTS_SONGS*99) + (BMC_MAX_SETLISTS_SONGS_LIBRARY*69)  + (BMC_MAX_TIMED_EVENTS*32) + (BMC_MAX_LFO*87) + (BMC_MAX_PIXEL_PROGRAMS*12)+(BMC_MAX_OLED*66)+(BMC_MAX_ILI9341_BLOCKS*(77*BMC_ILI_S_COUNT)) +(BMC_MAX_MINI_DISPLAY*88) +(BMC_MAX_LCD*97) +(BMC_MAX_GLOBAL_PIXELS*88)+(BMC_MAX_GLOBAL_RGB_PIXELS*99))
   #define BMC_CRC (uint16_t)((((_____BMC_GLOBAL)+(sizeof(bmcStore))) & 0xFFFF))
 
 #endif

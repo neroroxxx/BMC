@@ -15,11 +15,11 @@
 
 #include "utility/BMC-Def.h"
 
-#if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS) && !defined(BMC_USE_FAS3)
 
 #include "sync/fas/BMC-Fas-Def.h"
 
-// Fractal Device ID, only AX8 supported at the moment
+// Fractal Device ID
 // ------------------------
 // 0x00 Axe-Fx Standard
 // 0x01 Axe-Fx Ultra
@@ -127,43 +127,7 @@ struct BMCFasBlockStates {
     return bitRead(arr[a], b);
   }
 };
-struct BMCFasLooper {
-  bool enabled = false;
-  uint8_t data;
-  uint8_t position;
-  void set(uint8_t t_data, uint8_t t_position){
-    data = t_data;
-    position = t_position;
-  }
-  void changeState(bool value){
-    enabled = value;
-  }
-  bool getStates(uint8_t bit=255){
-    if(bit<=6){
-      return  bitRead(data, bit);
-    } else {
-      return data;
-    }
-    return false;
-  }
-  bool isEnabled(){   return enabled; }
-  bool recording(){   return bitRead(data, BMC_FAS_LOOPER_STATE_RECORDING); }
-  bool playing(){     return bitRead(data, BMC_FAS_LOOPER_STATE_PLAYING); }
-  bool once(){        return bitRead(data, BMC_FAS_LOOPER_STATE_ONCE); }
-  bool overdubbing(){ return bitRead(data, BMC_FAS_LOOPER_STATE_OVERDUBBING); }
-  bool reversed(){    return bitRead(data, BMC_FAS_LOOPER_STATE_REVERSED); }
-  bool half(){        return bitRead(data, BMC_FAS_LOOPER_STATE_HALF); }
-  bool undo(){        return bitRead(data, BMC_FAS_LOOPER_STATE_UNDO); }
 
-
-  uint8_t getPosition(){ return position; }
-  void reset(){
-    data = 0;
-    position = 0;
-    // do not reset the enabled as it's controller by BMC Settings.
-    //enabled = false;
-  }
-};
 
 struct BMCFasData {
   //BMCFlags <uint8_t> flags;
@@ -176,7 +140,7 @@ struct BMCFasData {
   uint16_t maxPresets = 0;
   char presetName[32] = "";
   BMCFasBlockStates blocks;
-  BMCFasLooper looper;
+  BMCLooperData looper;
 
   uint16_t parameters[8];
   uint16_t parametersX[8];
@@ -216,32 +180,6 @@ struct BMCFasData {
       case 16: data = (BMC_FAS_BLOCK_AMP<<8) | paramId; break;
     }
     parameters[slot & 0x07] = data;
-
-    /*
-#define BMC_FAS_PARAM_AMP_INPUT_DRIVE 1 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_BASS 2 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_MIDDLE 3 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_TREBLE 4 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_BRIGHT 97 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_PRESENCE 20 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_DEPTH 16 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_MASTER_VOLUME 5 // range 0 to 65534
-
-#define BMC_FAS_PARAM_AMP_INPUT_TRIM 47 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_BOOST_SW 40 // range 0 to 1
-#define BMC_FAS_PARAM_AMP_CUT_SW 45 // range 0 to 1
-#define BMC_FAS_PARAM_AMP_FAT_SW 78 // range 0 to 1
-#define BMC_FAS_PARAM_AMP_BRIGHT_SWITCH_SW 39 // range 0 to 1
-#define BMC_FAS_PARAM_AMP_MASTER_TRIM 77 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_LEVEL 21 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_BALANCE 22 // range 0 to 65534
-#define BMC_FAS_PARAM_AMP_OVERDRIVE 74 // range 0 to 65534
-
-
-
-
-    */
-
     // parameters[slot] = (block<<8) | param;
     bitWrite(parametersSyncedX, slot, 0);
     bitWrite(parametersSyncedY, slot, 0);

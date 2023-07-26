@@ -367,7 +367,7 @@ private:
         else if(request==1){ /* fields */ return 0; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "*Inactive*"); return 1;}
+        else if(request==4){ /* name */ strcpy(str, "None"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeNameOnly(str, fieldRequest, field);}
         break;
 
@@ -688,6 +688,15 @@ private:
         else if(request==3){ /* ports */ return false; }
         else if(request==4){ /* name */ strcpy(str, "Device Name"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeDeviceName(str, fieldRequest, field);}
+        break;
+
+      case BMC_EVENT_TYPE_NAME:
+        if(request==0){ /* available */ return true; }
+        else if(request==1){ /* fields */ return 1; }
+        else if(request==2){ /* scroll */ return false; }
+        else if(request==3){ /* ports */ return false; }
+        else if(request==4){ /* name */ strcpy(str, "Name"); return 1;}
+        else if(request==5){ /* field */ return eventBmcEventTypeName(str, fieldRequest, field);}
         break;
 #endif
 
@@ -1843,6 +1852,39 @@ private:
     }
     return 0;
   }
+  
+  uint16_t eventBmcEventTypeName(char* str, uint8_t fieldRequest, uint8_t field){
+switch(field){
+      case 0:
+        return eventNameField(str, fieldRequest, field);
+      case 1:
+        switch(fieldRequest){
+          case 0: strcpy(str, "Text"); return 1; /* label */
+          case 1: return 0; /* min */
+          case 2: return BMC_MAX_NAMES_LIBRARY; /* max */
+          case 3: /* get stored value */
+            return tempEvent.event & 0xFFFF;
+          case 4: /* set stored value */
+            BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFFFF, 0);
+            return 1;
+          case 5: /* formatted value */
+            {
+              uint16_t index = tempEvent.event & 0xFFFF;
+              if(index<BMC_MAX_NAMES_LIBRARY){
+                if(strlen(display.midi.globals.store.global.names[index].name)>0){
+                  sprintf(str, "#%u %s", index, display.midi.globals.store.global.names[index].name);
+                } else {
+                  sprintf(str, "#%u *EMPTY*", index);
+                }
+              }
+            }
+            
+            return 0;
+        }
+        break;
+    }
+    return 0;
+  }
   uint16_t eventBmcEventTypeDeviceName(char* str, uint8_t fieldRequest, uint8_t field){
     uint16_t len = 0;
     for(uint8_t i = 0, n = editor.devicesDataLength ; i < n ; i++){
@@ -2125,7 +2167,7 @@ private:
         switch(fieldRequest){
           case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return BMC_FAS_CMD_TAP; /* max */
+          case 2: return BMC_FAS_CMD_LOOPER_ONCE; /* max */
           case 3: /* get stored value */
             return BMC_GET_BYTE(0, tempEvent.event);
           case 4: /* set stored value */
@@ -2151,6 +2193,11 @@ private:
               case BMC_FAS_CMD_LOOPER_REV:  strcpy(str, "Looper REVERSE");return 1;
               case BMC_FAS_CMD_LOOPER_HALF:  strcpy(str, "Looper HALF");return 1;
               case BMC_FAS_CMD_LOOPER_UNDO:  strcpy(str, "Looper UNDO");return 0; // looper undo
+              case BMC_FAS_CMD_LOOPER_RDP:  strcpy(str, "Rec/Dub/Ply");return 0; // looper undo
+              case BMC_FAS_CMD_LOOPER_RPD:  strcpy(str, "Rec/Ply/Dub");return 0; // looper undo
+              case BMC_FAS_CMD_LOOPER_STOP:  strcpy(str, "Looper STOP");return 0; // looper undo
+              case BMC_FAS_CMD_LOOPER_CLEAR:  strcpy(str, "Looper CLEAR");return 0; // looper undo
+              case BMC_FAS_CMD_LOOPER_ONCE:  strcpy(str, "Looper ONCE");return 0; // looper once
               case BMC_FAS_CMD_TAP:  strcpy(str, "Tap Tempo");return 0; // tap tempo
             }
             return 0;
@@ -2238,6 +2285,16 @@ private:
     return 0;
   }
   uint16_t eventBmcEventTypeFasBlock(char* str, uint8_t fieldRequest, uint8_t field){
+    
+    #if !defined(BMC_USE_FAS3)
+      uint8_t paramCount = 5;
+      uint16_t blockMin = 100;
+      uint16_t blockMax = 170;
+    #else
+      uint8_t paramCount = 8;
+      uint16_t blockMin = 37;
+      uint16_t blockMax = 196;
+    #endif
     switch(field){
       case 0:
         return eventNameField(str, fieldRequest, field);
@@ -2245,36 +2302,50 @@ private:
         switch(fieldRequest){
           case 0: strcpy(str, "Cmd/Status"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return 5; /* max */
+          case 2: return paramCount; /* max */
           case 3: /* get stored value */
             {
               uint8_t b = BMC_GET_BYTE(0, tempEvent.event);
-              return constrain(b, 0, 5);
+              return constrain(b, 0, paramCount);
             }
           case 4: /* set stored value */
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 0);
             return 1;
           case 5: /* formatted value */
-            switch(BMC_GET_BYTE(0, tempEvent.event)){
-              case 0: strcpy(str, "Bypass"); return 1;
-              case 1: strcpy(str, "Engage"); return 1;
-              case 2: strcpy(str, "Toggle Bypass"); return 1;
-              case 3: strcpy(str, "Set to X"); return 1;
-              case 4: strcpy(str, "Set to Y"); return 1;
-              case 5: strcpy(str, "Toggle X/Y"); return 1;
-            }
+            #if !defined(BMC_USE_FAS3)
+              switch(BMC_GET_BYTE(0, tempEvent.event)){
+                case 0: strcpy(str, "Bypass"); return 1;
+                case 1: strcpy(str, "Engage"); return 1;
+                case 2: strcpy(str, "Toggle Bypass"); return 1;
+                case 3: strcpy(str, "Set to X"); return 1;
+                case 4: strcpy(str, "Set to Y"); return 1;
+                case 5: strcpy(str, "Toggle X/Y"); return 1;
+              }
+            #else
+              switch(BMC_GET_BYTE(0, tempEvent.event)){
+                case 0: strcpy(str, "Bypass"); return 1;
+                case 1: strcpy(str, "Engage"); return 1;
+                case 2: strcpy(str, "Toggle Bypass"); return 1;
+                case 3: strcpy(str, "Set Channel A"); return 1;
+                case 4: strcpy(str, "Set Channel B"); return 1;
+                case 5: strcpy(str, "Set Channel C"); return 1;
+                case 6: strcpy(str, "Set Channel D"); return 1;
+                case 7: strcpy(str, "Toggle Channel A / B"); return 1;
+                case 8: strcpy(str, "Toggle Channel C / D"); return 1;
+              }
+            #endif
             return 0;
         }
         break;
       case 2:
         switch(fieldRequest){
           case 0: strcpy(str, "Block"); return 1; /* label */
-          case 1: return 100; /* min */
-          case 2: return 170; /* max */
+          case 1: return blockMin; /* min */
+          case 2: return blockMax; /* max */
           case 3: /* get stored value */
             {
               uint8_t b = BMC_GET_BYTE(1, tempEvent.event);
-              return constrain(b, 100, 170);
+              return constrain(b, blockMin, blockMax);
             }
           case 4: /* set stored value */
             BMC_WRITE_BITS(tempEvent.event, tempValue, 0xFF, 8);
@@ -2282,8 +2353,10 @@ private:
           case 5: /* formatted value */
             {
               uint8_t b = BMC_GET_BYTE(1, tempEvent.event);
-              b = constrain(b, 100, 170);
+              b = constrain(b, blockMin, blockMax);
+
               switch(b){
+              #if !defined(BMC_USE_FAS3)
                 case 100: strcpy(str, "CPR"); return 1;
                 case 101: strcpy(str, "CPR 2"); return 1;
                 case 102: strcpy(str, "GEQ"); return 1;
@@ -2355,9 +2428,101 @@ private:
                 case 168: strcpy(str, "VOL 4"); return 1;
                 case 169: strcpy(str, "LPR"); return 1;
                 case 170: strcpy(str, "TMA"); return 1;
+              #else
+                case 37: strcpy(str, "IN 1"); return 1;
+                case 38: strcpy(str, "IN 2"); return 1;
+                case 39: strcpy(str, "IN 3"); return 1;
+                case 40: strcpy(str, "IN 4"); return 1;
+                case 41: strcpy(str, "IN 5"); return 1;
+                case 42: strcpy(str, "OUT 1"); return 1;
+                case 43: strcpy(str, "OUT 2"); return 1;
+                case 44: strcpy(str, "OUT 3"); return 1;
+                case 45: strcpy(str, "OUT 4"); return 1;
+                case 46: strcpy(str, "CMP 1"); return 1;
+                case 47: strcpy(str, "CMP 2"); return 1;
+                case 48: strcpy(str, "CMP 3"); return 1;
+                case 49: strcpy(str, "CMP 4"); return 1;
+                case 50: strcpy(str, "GEQ 1"); return 1;
+                case 51: strcpy(str, "GEQ 2"); return 1;
+                case 52: strcpy(str, "GEQ 3"); return 1;
+                case 53: strcpy(str, "GEQ 4"); return 1;
+                case 54: strcpy(str, "PEQ 1"); return 1;
+                case 55: strcpy(str, "PEQ 2"); return 1;
+                case 56: strcpy(str, "PEQ 3"); return 1;
+                case 57: strcpy(str, "PEQ 4"); return 1;
+                case 58: strcpy(str, "AMP 1"); return 1;
+                case 59: strcpy(str, "AMP 2"); return 1;
+                case 62: strcpy(str, "CAB 1"); return 1;
+                case 63: strcpy(str, "CAB 2"); return 1;
+                case 66: strcpy(str, "REV 1"); return 1;
+                case 67: strcpy(str, "REV 2"); return 1;
+                case 70: strcpy(str, "DLY 1"); return 1;
+                case 71: strcpy(str, "DLY 2"); return 1;
+                case 72: strcpy(str, "DLY 3"); return 1;
+                case 73: strcpy(str, "DLY 4"); return 1;
+                case 74: strcpy(str, "MTD 1"); return 1;
+                case 75: strcpy(str, "MTD 2"); return 1;
+                case 78: strcpy(str, "CHO 1"); return 1;
+                case 79: strcpy(str, "CHO 2"); return 1;
+                case 82: strcpy(str, "FLG 1"); return 1;
+                case 83: strcpy(str, "FLG 2"); return 1;
+                case 86: strcpy(str, "ROT 1"); return 1;
+                case 87: strcpy(str, "ROT 2"); return 1;
+                case 90: strcpy(str, "PHA 1"); return 1;
+                case 91: strcpy(str, "PHA 2"); return 1;
+                case 94: strcpy(str, "WAH 1"); return 1;
+                case 95: strcpy(str, "WAH 2"); return 1;
+                case 98: strcpy(str, "FOR 1"); return 1;
+                case 99: strcpy(str, "FOR 2"); return 1;
+                case 102: strcpy(str, "VOL 1"); return 1;
+                case 103: strcpy(str, "VOL 2"); return 1;
+                case 104: strcpy(str, "VOL 3"); return 1;
+                case 105: strcpy(str, "VOL 4"); return 1;
+                case 106: strcpy(str, "TRM 1"); return 1;
+                case 107: strcpy(str, "TRM 2"); return 1;
+                case 110: strcpy(str, "PIT 1"); return 1;
+                case 111: strcpy(str, "PIT 2"); return 1;
+                case 114: strcpy(str, "FIL 1"); return 1;
+                case 115: strcpy(str, "FIL 2"); return 1;
+                case 116: strcpy(str, "FIL 3"); return 1;
+                case 117: strcpy(str, "FIL 4"); return 1;
+                case 118: strcpy(str, "DRV 1"); return 1;
+                case 119: strcpy(str, "DRV 2"); return 1;
+                case 120: strcpy(str, "DRV 3"); return 1;
+                case 121: strcpy(str, "DRV 4"); return 1;
+                case 122: strcpy(str, "ENH 1"); return 1;
+                case 123: strcpy(str, "ENH 2"); return 1;
+                case 130: strcpy(str, "SYN 1"); return 1;
+                case 131: strcpy(str, "SYN 2"); return 1;
+                case 134: strcpy(str, "VOC 1"); return 1;
+                case 138: strcpy(str, "MGT 1"); return 1;
+                case 139: strcpy(str, "MGT 2"); return 1;
+                case 142: strcpy(str, "XVR 1"); return 1;
+                case 143: strcpy(str, "XVR 2"); return 1;
+                case 146: strcpy(str, "GTE 1"); return 1;
+                case 147: strcpy(str, "GTE 2"); return 1;
+                case 148: strcpy(str, "GTE 3"); return 1;
+                case 149: strcpy(str, "GTE 4"); return 1;
+                case 150: strcpy(str, "RNG 1"); return 1;
+                case 154: strcpy(str, "MBC 1"); return 1;
+                case 155: strcpy(str, "MBC 2"); return 1;
+                case 158: strcpy(str, "TTD 1"); return 1;
+                case 159: strcpy(str, "TTD 2"); return 1;
+                case 162: strcpy(str, "RES 1"); return 1;
+                case 163: strcpy(str, "RES 2"); return 1;
+                case 166: strcpy(str, "LPR 1"); return 1;
+                case 170: strcpy(str, "TMA 1"); return 1;
+                case 178: strcpy(str, "PLX 1"); return 1;
+                case 179: strcpy(str, "PLX 2"); return 1;
+                case 182: strcpy(str, "SND 1"); return 1;
+                case 183: strcpy(str, "SND 2"); return 1;
+                case 186: strcpy(str, "RTN 1"); return 1;
+                case 187: strcpy(str, "RTN 2"); return 1;
+                case 195: strcpy(str, "IRP 1"); return 1;
+                case 196: strcpy(str, "IRP 2"); return 1;
+              #endif
               }
             }
-            
             return 0;
         }
         break;

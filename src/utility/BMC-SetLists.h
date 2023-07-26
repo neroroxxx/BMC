@@ -318,6 +318,100 @@ public:
     sprintf(t.name, "%u", t_songPart+midi.globals.offset);
     return t;
   }
+
+
+
+  void getSetName(char * str){
+    getSetName(setList, str);
+  }
+  void getSetName(uint8_t t_set, char * str){
+    if(t_set < BMC_MAX_SETLISTS && presets.midi.globals.store.global.setLists[t_set].name != 0){
+      bmcStoreName t;
+      t = presets.midi.globals.getDeviceName(presets.midi.globals.store.global.setLists[t_set].name);
+      strcpy(str, t.name);
+      return;
+    }
+    sprintf(str, "Set # %02u", t_set+midi.globals.offset);
+  }
+  void getSetStr(char * str){
+    getSetStr(setList, str);
+  }
+  void getSetStr(uint16_t t_setList, char * str){
+    sprintf(str, "%u", t_setList+midi.globals.offset);
+  }
+
+  void getSongName(char * str){
+    getSongName(song, str);
+  }
+  void getSongName(uint8_t t_song, char * str){
+    if(presets.midi.globals.store.global.setLists[setList].settings[0] > t_song){
+      uint16_t s = presets.midi.globals.store.global.setLists[setList].events[t_song]-1;
+      if(presets.midi.globals.store.global.songLibrary[s].name != 0){
+        bmcStoreName t;
+        presets.midi.globals.getDeviceName(presets.midi.globals.store.global.songLibrary[s].name);
+        strcpy(str, t.name);
+        return;
+      }
+    }
+    sprintf(str, "Song # %02u", t_song+midi.globals.offset);
+  }
+
+  void getSongStr(char * str){
+    getSongStr(song, str);
+  }
+  void getSongStr(uint16_t t_song, char * str){
+    sprintf(str, "%u", t_song+midi.globals.offset);
+  }
+
+  void getPartName(char * str){
+    getPartName(songPart, str);
+  }
+  void getPartName(uint8_t t_part, char * str){
+    if(presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > t_part){
+      uint16_t p = presets.midi.globals.store.global.songLibrary[songInLibrary].events[t_part]-1;
+      if(p < BMC_MAX_PRESETS && presets.midi.globals.store.global.presets[p].name != 0){
+        bmcStoreName t;
+        presets.midi.globals.getDeviceName(presets.midi.globals.store.global.presets[p].name);
+        strcpy(str, t.name);
+        return;
+      }
+    }
+    sprintf(str, "Part # %02u", t_part+midi.globals.offset);
+  }
+  void getPartStr(char * str){
+    getPartStr(songPart, str);
+  }
+  void getPartStr(uint16_t t_songPart, char * str){
+    sprintf(str, "%u", t_songPart+midi.globals.offset);
+  }
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   // setlist
   bool setListEmpty(bool state){
     bitWrite(songFlags, BMC_SETLIST_FLAG_EMPTY_SET, state);

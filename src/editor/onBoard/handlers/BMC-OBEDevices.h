@@ -90,7 +90,7 @@ public:
       case BMC_DEVICE_ID_BUTTON:
       case BMC_DEVICE_ID_GLOBAL_BUTTON:
         // !add name field
-        data.totalRows = 2;
+        data.totalRows = 3;
         data.totalRows += data.activeDevice.settings;
         data.totalRows += data.activeDevice.events;
         break;
@@ -141,8 +141,21 @@ public:
         // for all devices that only have a name and single event
         data.totalRows = 2;// one for name and one for event
         break;
-      case BMC_DEVICE_ID_OLED:
+      
       case BMC_DEVICE_ID_ILI:
+        #if BMC_ILI_S_COUNT == 1
+          // without color fields
+          data.totalRows = 7;
+        #else
+          // with color fields
+          data.totalRows = 9;
+        #endif
+        break;
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+        data.totalRows = 9;
+        break;
+      case BMC_DEVICE_ID_OLED:
+      case BMC_DEVICE_ID_LCD:
         data.totalRows = 7;
         break;
       case BMC_DEVICE_ID_LFO:
@@ -203,6 +216,8 @@ public:
       case BMC_DEVICE_ID_GLOBAL_ENCODER:
       case BMC_DEVICE_ID_OLED:
       case BMC_DEVICE_ID_ILI:
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+      case BMC_DEVICE_ID_LCD:
       case BMC_DEVICE_ID_NL_RELAY:
       case BMC_DEVICE_ID_L_RELAY:
       case BMC_DEVICE_ID_MAGIC_ENCODER:
@@ -266,9 +281,9 @@ public:
     return getOptionLabel(data.activeRow-1, BMC_OBE_DEVICE_OPT_POST_SAVE);
   }
   uint16_t getOptionLabel(uint16_t index, uint8_t valueType=BMC_OBE_DEVICE_OPT_LABEL){
-    // if(index > 512){
-    //   index = 0;
-    // }
+    if(index > 512){
+      index = 0;
+    }
     offset = settings.getDisplayOffset()?0:1;
     uint16_t dIndex = data.deviceIndex-1;
     switch(data.activeDevice.id){
@@ -337,15 +352,24 @@ public:
           return getEncoderOption<1,1>(store.global.encoders[dIndex], index, valueType);
         #endif
         break;
+      case BMC_DEVICE_ID_ILI:
+        #if BMC_MAX_ILI9341_BLOCKS > 0
+          return getIliDisplayOption<BMC_ILI_S_COUNT,1>(store.layers[globals.layer].ili[dIndex], index, valueType);
+        #endif
+        break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
-          // return getSingleEventDeviceOption<1,1>(store.layers[globals.layer].oled[dIndex], index, valueType);
           return getDisplayOption<1,1>(store.layers[globals.layer].oled[dIndex], index, valueType);
         #endif
         break;
-      case BMC_DEVICE_ID_ILI:
-        #if BMC_MAX_ILI9341_BLOCKS > 0
-          return getDisplayOption<1,1>(store.layers[globals.layer].ili[dIndex], index, valueType);
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+        #if BMC_MAX_MINI_DISPLAY > 0
+          return getMiniDisplayOption<2,1>(store.layers[globals.layer].miniDisplay[dIndex], index, valueType);
+        #endif
+        break;
+      case BMC_DEVICE_ID_LCD:
+        #if BMC_MAX_LCD > 0
+          return getDisplayOption<1,1>(store.layers[globals.layer].lcd[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PIXEL:
@@ -397,7 +421,7 @@ public:
         #endif
       case BMC_DEVICE_ID_TRIGGER:
         #if BMC_MAX_TRIGGERS > 0
-          return getTriggerOption<1, 2, uint8_t>(store.global.triggers[dIndex], index, valueType);
+          return getTriggerOption<1, 2>(store.global.triggers[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_TEMPO_TO_TAP:
@@ -427,7 +451,7 @@ public:
         break;
       case BMC_DEVICE_ID_AUX_JACK:
         #if BMC_MAX_AUX_JACKS > 0
-          return getAuxJackOption(dIndex, index, valueType);
+          return getAuxJackOption<2,3>(store.global.auxJacks[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_PORT_PRESET:
@@ -448,7 +472,7 @@ public:
     #if BMC_MAX_PRESETS > 0
     if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
       bmcEvent_t list[BMC_MAX_PRESET_ITEMS];
-      memset(list, 0, BMC_MAX_PRESET_ITEMS);
+      memset(list, 0, sizeof(bmcEvent_t)*BMC_MAX_PRESET_ITEMS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_PRESET_ITEMS ; i++){
         if(store.global.presets[deviceIndex].events[i]>0){
@@ -482,7 +506,7 @@ public:
     #if BMC_MAX_SETLISTS > 0
     if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
       bmcEvent_t list[BMC_MAX_SETLISTS_SONGS];
-      memset(list, 0, BMC_MAX_SETLISTS_SONGS);
+      memset(list, 0, sizeof(bmcEvent_t)*BMC_MAX_SETLISTS_SONGS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONGS ; i++){
         if(store.global.setLists[deviceIndex].events[i]>0){
@@ -511,8 +535,9 @@ public:
     #endif
     return 0;
   }
-  
-  uint16_t getAuxJackOption(uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
+
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getAuxJackOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t deviceIndex, uint16_t index, uint8_t valueType=0){
     #if BMC_MAX_AUX_JACKS > 0
     strcpy(str,"");
     uint16_t optionId = data.visibleRowId[index]-1;
@@ -648,7 +673,7 @@ public:
     #if BMC_MAX_SETLISTS > 0
     if(valueType == BMC_OBE_DEVICE_OPT_POST_SAVE){
       bmcEvent_t list[BMC_MAX_SETLISTS_SONG_PARTS];
-      memset(list, 0, BMC_MAX_SETLISTS_SONG_PARTS);
+      memset(list, 0, sizeof(bmcEvent_t)*BMC_MAX_SETLISTS_SONG_PARTS);
       uint8_t counter = 0;
       for(uint8_t i = 0 ; i < BMC_MAX_SETLISTS_SONG_PARTS ; i++){
         if(store.global.songLibrary[deviceIndex].events[i]>0){
@@ -777,15 +802,17 @@ public:
         } else {
           data.triggerHeaderRender = true;
           if(data.cursorPrev()){
-            // renderEventsEditor();
             renderEventsEditorRow(data.visibleRowId[data.activeRowPrev-1], data.activeRowPrev-1);
-            renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+            if(data.activeRow > 0){
+              renderEventsEditorRow(data.visibleRowId[data.activeRow-1], data.activeRow-1);
+            } else {
+              renderEventsEditorRow(data.visibleRowId[0], 0);
+            }
           } else {
             data.prevListPage();
             data.visibleRowIdLength = 0;
             renderEventsEditor();
           }
-          
         }
         return 1;
       default:
@@ -803,7 +830,6 @@ public:
         data.maxRowPages = 1;
       }
       data.rowEditValue = 0;
-      // tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, BMC_OBE_ROW_AREA, BMC_ILI9341_BLACK);
       data.visibleRowIdLength = 0;
     }
     bool addToVisList = data.visibleRowIdLength == 0;
@@ -826,6 +852,9 @@ public:
   }
   void renderEventsEditorRow(uint8_t row, uint8_t rowIndex){
     bool activeItem = (row == data.getActiveVisibleRow());
+    if(data.activeRow == 0){
+      activeItem = false;
+    }
     
     uint16_t background = activeItem ? BMC_OBE_SEL_BACKGROUND : BMC_OBE_ROW_BACKGROUND;
     uint16_t color = activeItem ? BMC_OBE_SEL_COLOR : BMC_OBE_ROW_COLOR;
@@ -833,10 +862,21 @@ public:
     if(data.eventEditorEditMode && activeItem){
       background = BMC_OBE_ROW_EDITABLE_BACKGROUND;
     }
-    tft.fillRect(0, y, BMC_OBE_W, BMC_OBE_ROW_H, background);
+    tft.fillRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
+#if BMC_OBE_BORDER_RADIUS > 0
+    if(background == BMC_OBE_ROW_BACKGROUND){
+      tft.drawRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, background);
+    } else {
+      tft.drawRoundRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, BMC_OBE_BORDER_RADIUS, background);
+    }
+#else
+    tft.drawRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, background);
+#endif
     tft.setFont(BMC_OBE_ROW_VALUE_FONT);
     tft.setTextColor(color);
-    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, y+5);
+    BMCTextPixelSize tt = tft.getCurrentCenteredXY("Abc", 0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, 2);
+    // tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, y+5);
+    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, y+tt.h+4);
     char str[40] = "";
     if(row == 0){
       // row 0 is the first 
@@ -850,14 +890,23 @@ public:
       eventsData.getFieldValueLabel(str, row-1);
       renderEventsEditorRowValue(y, activeItem, str);
     }
-    tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
+#if BMC_OBE_DRAW_ROW_DIVIDER == true
+    tft.drawFastHLine(BMC_OBE_BORDER_RADIUS, y+(BMC_OBE_ROW_H-1), (BMC_OBE_W-6)-BMC_OBE_BORDER_RADIUS, BMC_OBE_ROW_LINE_DIVIDER_COLOR);
+#endif
+    // tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
   }
   void renderEventsEditorRowValue(uint16_t y, bool activeItem, char * str){
     int16_t textWidth = BMC_TFT_STR_LEN(tft, str);
     int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
     x = (x < 0) ? 0 : x-6;
-    tft.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
-    tft.setCursor(x, (y + 29));
+    if(data.eventEditorEditMode && activeItem){
+      tft.setTextColor(BMC_OBE_ROW_EDITING_COLOR);
+    } else {
+      tft.setTextColor(BMC_OBE_ROW_EDITABLE_COLOR);
+    }
+    // BMCTextPixelSize tt = tft.getCurrentCenteredXY("Abc", 0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, 2);
+    // tft.setCursor(x, (y + 29));
+    tft.setCursor(x, y+BMC_OBE_ROW_H-4);
     tft.print(str);
   }
 
@@ -1044,7 +1093,7 @@ public:
     uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
     uint16_t charX = charIndex - (charPage*charPerPage);
     x += (charX*fontWidth);
-    tft.setFontAdafruit();
+    tft.setFont();
     tft.setTextSize(fontSize);
     tft.setCursor(x, y);
     if(charEditActive){
@@ -1053,6 +1102,7 @@ public:
       tft.setTextColor(BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
     }
     tft.print(nameBuff[charIndex]);
+    tft.setTextSize(1);
     charIndexState = true;
     updateNamesEditorCursor();
   }
@@ -1065,7 +1115,7 @@ public:
     uint8_t fontHeight = 8*fontSize;
     uint16_t x = 10;
     uint16_t y = (BMC_OBE_ROW_HEAD_H+((BMC_OBE_ROW_AREA/2)-fontHeight));
-    tft.setFontAdafruit();
+    tft.setFont();
     tft.setTextSize(fontSize);
     tft.setCursor(x, y);
     charPerPage = floor(BMC_OBE_W/(fontWidth+0.0));
@@ -1086,6 +1136,7 @@ public:
         }
       }
     }
+    tft.setTextSize(1);
     charBlinker.start(300);
     renderNamesEditorCursor();
     #if defined(BMC_HAS_TOUCH_SCREEN)
@@ -1098,16 +1149,24 @@ public:
     if(charIndex == -1){
       return;
     }
+
     tft.fillRect(0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, 30, BMC_ILI9341_RED);
     char buff[23] = "";
     sprintf(buff, "Char %u of %u", charIndex+offset, BMC_MAX_NAMES_LENGTH-1);
     tft.setTextColor(BMC_ILI9341_WHITE);
-    tft.setFont(BMCLiberationSansNarrow_18);
-    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
-    int16_t x = (BMC_OBE_W-textWidth) / 2;
-    tft.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
+    tft.setFont(BMC_FONT_SM);
+
+    BMCTextPixelSize tt = tft.getCurrentCenteredXY(buff, 0, BMC_OBE_ROW_HEAD_H, BMC_OBE_W, 30, 2);
+    tft.setCursor(tt.x, tt.y);
+    // tft.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
+
+
+    // int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
+    // int16_t x = (BMC_OBE_W-textWidth) / 2;
+    // tft.setCursor(((x < 0) ? 0 : x), BMC_OBE_ROW_HEAD_H+5);
     tft.print(buff);
-    tft.setFontAdafruit();
+    tft.setFont();
+    tft.setTextSize(1);
   }
   void renderNamesEditorCursor(){
     updateCharTitle();
@@ -1147,11 +1206,11 @@ public:
     uint16_t optionId = data.visibleRowId[index]-1;
     switch(optionId){
       case 0:
-        return getSettingsBitField<sLen,eLen,tname>(item, 0, 5, "NoHoldOnContinuous", valueType);
-        break;
+        return getNameField<sLen,eLen,tname>(item, valueType);
       case 1:
+        return getSettingsBitField<sLen,eLen,tname>(item, 0, 5, "NoHoldOnContinuous", valueType);
+      case 2:
         return getSettingsBitField<sLen,eLen,tname>(item, 0, 6, "NoReleaseOnDblPress", valueType);
-        break;
       default:
         break;
     }
@@ -1686,7 +1745,7 @@ public:
     uint16_t optionId = data.visibleRowId[index]-1;
     switch(optionId){
       case 0:
-        return getNameField<sLen,eLen,tname>(item, valueType);
+        return getNameField<sLen, eLen, tname>(item, valueType);
       case 1:
         switch(valueType){
           case BMC_OBE_DEVICE_OPT_LABEL:
@@ -1862,6 +1921,613 @@ public:
         break;
       default:
         break;
+    }
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getIliDisplayOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+
+    #if BMC_ILI_S_COUNT == 1
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Show Label");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0],0) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 0) != data.rowEditValue){
+              bitWrite(item.settings[0], 0, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 3:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Add Border");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 1) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 1) != data.rowEditValue){
+              bitWrite(item.settings[0], 1, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 4:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Selected");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 2) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 2) != data.rowEditValue){
+              bitWrite(item.settings[0], 2, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+      case 5:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Names");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 3) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 3) != data.rowEditValue){
+              bitWrite(item.settings[0], 3, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 6:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Value Knob");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 4) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 4) != data.rowEditValue){
+              bitWrite(item.settings[0], 4, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 7:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "On/Off");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 5) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 5) != data.rowEditValue){
+              bitWrite(item.settings[0], 5, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      default:
+        break;
+    }
+    #else
+    // adds block color
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Text Color");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[1]&0x0F) : data.rowEditValue;
+              return getIliColorName(value, str);
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 15;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if((item.settings[1]&0x0F) != data.rowEditValue){
+              BMC_WRITE_BITS(item.settings[1], (data.rowEditValue & 0x0F), 0x0F, 0);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 3:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Background Color");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? ((item.settings[1]>>4)&0x0F) : data.rowEditValue;
+              return getIliColorName(value, str);
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 15;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(((item.settings[1]>>4)&0x0F) != data.rowEditValue){
+              BMC_WRITE_BITS(item.settings[1], (data.rowEditValue & 0x0F), 0x0F, 4);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 4:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Show Label");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0],0) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 0) != data.rowEditValue){
+              bitWrite(item.settings[0], 0, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 5:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Add Border");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 1) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 1) != data.rowEditValue){
+              bitWrite(item.settings[0], 1, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 6:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Selected");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 2) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 2) != data.rowEditValue){
+              bitWrite(item.settings[0], 2, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+      case 7:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Names");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 3) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 3) != data.rowEditValue){
+              bitWrite(item.settings[0], 3, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 8:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Value Knob");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 4) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 4) != data.rowEditValue){
+              bitWrite(item.settings[0], 4, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 9:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "On/Off");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 5) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 5) != data.rowEditValue){
+              bitWrite(item.settings[0], 5, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      default:
+        break;
+    }
+    #endif
+    return 0;
+  }
+  template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+  uint16_t getMiniDisplayOption(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, uint8_t valueType=0){
+    strcpy(str,"");
+    uint16_t optionId = data.visibleRowId[index]-1;
+
+    switch(optionId){
+      case 0:
+        return getNameField<sLen,eLen,tname>(item, valueType);
+      case 1:
+        return getEventField<sLen,eLen,tname>(item, 0, 0, valueType);
+      case 2:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Text Color");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? (item.settings[1]&0x0F) : data.rowEditValue;
+              return getIliColorName(value, str);
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 15;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if((item.settings[1]&0x0F) != data.rowEditValue){
+              BMC_WRITE_BITS(item.settings[1], (data.rowEditValue & 0x0F), 0x0F, 0);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 3:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Background Color");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? ((item.settings[1]>>4)&0x0F) : data.rowEditValue;
+              return getIliColorName(value, str);
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 15;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(((item.settings[1]>>4)&0x0F) != data.rowEditValue){
+              BMC_WRITE_BITS(item.settings[1], (data.rowEditValue & 0x0F), 0x0F, 4);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 4:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Show Label");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0],0) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 0) != data.rowEditValue){
+              bitWrite(item.settings[0], 0, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 5:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Add Border");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 1) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 1) != data.rowEditValue){
+              bitWrite(item.settings[0], 1, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 6:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Selected");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 2) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 2) != data.rowEditValue){
+              bitWrite(item.settings[0], 2, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+      case 7:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Display Names");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 3) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 3) != data.rowEditValue){
+              bitWrite(item.settings[0], 3, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 8:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "Value Knob");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 4) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 4) != data.rowEditValue){
+              bitWrite(item.settings[0], 4, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      case 9:
+        switch(valueType){
+          case BMC_OBE_DEVICE_OPT_LABEL:
+            strcpy(str, "On/Off");
+            return 0;
+          case BMC_OBE_DEVICE_OPT_VALUE:
+          case BMC_OBE_DEVICE_OPT_EDITED_VALUE:
+            {
+              uint8_t value = (valueType==BMC_OBE_DEVICE_OPT_VALUE) ? bitRead(item.settings[0], 5) : data.rowEditValue;
+              strcpy(str, data.yesNoLabels[value]);
+              return value;
+            }
+            break;
+          case BMC_OBE_DEVICE_OPT_MIN: return 0;
+          case BMC_OBE_DEVICE_OPT_MAX: return 1;
+          case BMC_OBE_DEVICE_OPT_CHANGED:
+            if(bitRead(item.settings[0], 5) != data.rowEditValue){
+              bitWrite(item.settings[0], 5, data.rowEditValue);
+              return 1;
+            }
+            return 0;
+          default:
+            return 0;
+        }
+        break;
+      default:
+        break;
+    }
+    return 0;
+  }
+  uint8_t getIliColorName(uint8_t value, char* str){
+    switch(value){
+      case 0: strcpy(str, "Black"); return value;
+      case 1: strcpy(str, "White"); return value;
+      case 2: strcpy(str, "Navy Blue"); return value;
+      case 3: strcpy(str, "Dark Green"); return value;
+      case 4: strcpy(str, "Dark Cyan"); return value;
+      case 5: strcpy(str, "Maroon"); return value;
+      case 6: strcpy(str, "Purple"); return value;
+      case 7: strcpy(str, "Olive"); return value;
+      case 8: strcpy(str, "Gray"); return value;
+      case 9: strcpy(str, "Orange"); return value;
+      case 10: strcpy(str, "Blue"); return value;
+      case 11: strcpy(str, "Green"); return value;
+      case 12: strcpy(str, "Cyan"); return value;
+      case 13: strcpy(str, "Red"); return value;
+      case 14: strcpy(str, "Magenta"); return value;
+      case 15: strcpy(str, "Yellow"); return value;
+      default: return 1;
     }
     return 0;
   }

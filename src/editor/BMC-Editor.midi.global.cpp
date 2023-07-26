@@ -469,13 +469,29 @@ void BMCEditor::incomingMessageDevice(bool write){
           }
         #endif
         break;
-      case BMC_DEVICE_ID_ILI:
-        #if BMC_MAX_ILI9341_BLOCKS > 0
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+        #if BMC_MAX_MINI_DISPLAY > 0
           for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
-            incomingMessageDeviceWrite<1,1>(store.layers[p].ili[index], index, p);
+            incomingMessageDeviceWrite<2,1>(store.layers[p].miniDisplay[index], index, p);
           }
         #endif
         break;
+      case BMC_DEVICE_ID_ILI:
+        #if BMC_MAX_ILI9341_BLOCKS > 0
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<BMC_ILI_S_COUNT,1>(store.layers[p].ili[index], index, p);
+          }
+        #endif
+        break;
+      case BMC_DEVICE_ID_LCD:
+        #if BMC_MAX_LCD > 0
+          for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
+            incomingMessageDeviceWrite<1, 1>(store.layers[p].lcd[index], index, p);
+          }
+        #endif
+        break;
+
+        
       case BMC_DEVICE_ID_LFO:
         #if BMC_MAX_LFO > 0
           incomingMessageDeviceWrite<3, 5, uint8_t>
@@ -765,12 +781,25 @@ void BMCEditor::incomingMessageDevice(bool write){
         (store.layers[layer].oled[index], buff, index, deviceType);
       #endif
       break;
+    case BMC_DEVICE_ID_MINI_DISPLAY:
+      #if BMC_MAX_MINI_DISPLAY > 0
+        deviceResponseData <2, 1>
+        (store.layers[layer].miniDisplay[index], buff, index, deviceType);
+      #endif
+      break;
+    case BMC_DEVICE_ID_LCD:
+      #if BMC_MAX_LCD > 0
+        deviceResponseData <1, 1>
+        (store.layers[layer].lcd[index], buff, index, deviceType);
+      #endif
+      break;
+
     case BMC_DEVICE_ID_ILI:
       {
         // write new data and save, starts at byte 9
         #if BMC_MAX_ILI9341_BLOCKS > 0
           //BMC_PRINTLN("BMC_DEVICE_ID_ILI");
-          bmcStoreDevice <1,1>& item = store.layers[layer].ili[index];
+          bmcStoreDevice <BMC_ILI_S_COUNT,1>& item = store.layers[layer].ili[index];
           BMCUIData ui = BMCBuildData::getUIData(deviceType, -1);
           buff.appendToSysEx16Bits(ui.x);
           buff.appendToSysEx16Bits(ui.y);
@@ -784,10 +813,10 @@ void BMCEditor::incomingMessageDevice(bool write){
           buff.appendToSysEx16Bits(uiBlock.other2); // block color
           // name
           buff.appendToSysEx14Bits(item.name);
-          buff.appendToSysEx7Bits(1);// settings length
+          buff.appendToSysEx7Bits(BMC_ILI_S_COUNT);// settings length
           buff.appendToSysEx7Bits(1);// events length
           // settings bytes
-          for(uint8_t i=0;i<1;i++){
+          for(uint8_t i=0;i<BMC_ILI_S_COUNT;i++){
             buff.appendToSysEx8Bits(item.settings[i]);
           }
           // events bytes
@@ -922,6 +951,7 @@ void BMCEditor::deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item,
   buff.appendToSysEx14Bits(ui.pins[0]);
   buff.appendToSysEx14Bits(ui.pins[1]);
   buff.appendToSysEx14Bits(ui.pins[2]);
+  
   buff.appendToSysEx16Bits(ui.x);
   buff.appendToSysEx16Bits(ui.y);
   buff.appendToSysEx7Bits(ui.style);
@@ -1088,12 +1118,14 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #ifdef BMC_USE_KEMP
       bitWrite(buildData,15,1);
     #endif
-    
-    // bit 16 available
-    // bit 17 available
     #ifdef BMC_USE_FAS3
-      bitWrite(buildData, 18, 1);
+      bitWrite(buildData, 16, 1);
     #endif
+
+    bitWrite(buildData, 17, BMC_ILI_S_COUNT == 2 ? 1 : 0);
+
+    // bit 18 available
+    
     #ifdef BMC_USE_DAW_LC
       bitWrite(buildData, 19, 1);
     #endif
@@ -1175,6 +1207,10 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_GLOBAL_MAGIC_ENCODERS);
     buff.appendToSysEx7Bits(BMC_MAX_LAYER_EVENTS);
     buff.appendToSysEx7Bits(BMC_MAX_LINKS);
+    buff.appendToSysEx7Bits(BMC_MAX_MINI_DISPLAY);
+    buff.appendToSysEx7Bits(BMC_MAX_LCD);
+    buff.appendToSysEx7Bits(BMC_LCD_CHARS);
+    
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_DEVICE_NAME){
     String name = BMC_DEVICE_NAME;

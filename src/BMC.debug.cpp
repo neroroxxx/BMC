@@ -20,9 +20,6 @@ void BMC::setupDebug(){
     "line '#define BMC_DEBUG' from your config"
   );
   printBoardInfo();
-  #ifdef BMC_USE_DAW_LC
-  BMC_PRINTLN(">>>>> BMC_USE_DAW_LC <<<<<");
-#endif
   BMC_PRINTLN("");
 }
 void BMC::printDebugHeader(char* str){
@@ -48,7 +45,9 @@ void BMC::readDebug(){
     BMC_PRINTLN("board = Print Board Info");
     BMC_PRINTLN("eeprom = Displays EEPROM.length()");
     BMC_PRINTLN("objects = Displays the sizes of many objects used by BMC");
+    #if defined(BMC_USE_SYNC)
     BMC_PRINTLN("sync = Displays the Sync Features Available");
+    #endif
     
 
     #ifdef BMC_HAS_HARDWARE
@@ -79,10 +78,14 @@ void BMC::readDebug(){
     BMC_PRINTLN("midiInClock = Toggles displaying Incoming Clock Messages & Active Sense (midiIn must be on)");
     BMC_PRINTLN("midiOutClock = Toggles displaying Outgoing Clock Messages & Active Sense (midiOut must be on)");
     #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
-    BMC_PRINTLN("buttons = Toggles displaying when buttons are triggered");
+    BMC_PRINTLN("buttons = Toggles displaying buttons activity");
+    #endif
+    #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERSS > 0
+    BMC_PRINTLN("encoders = Toggles displaying encoder activity");
     #endif
     BMC_PRINTLN("runTime = Displays how long BMC has been running.");
     BMC_PRINTLN("stopwatch = Displays Stopwatch info.");
+    BMC_PRINTLN("flush = flush midi buffers.");
     printDebugHeader(debugInput);
 
 #ifdef BMC_USE_FAS
@@ -98,6 +101,10 @@ void BMC::readDebug(){
   } else if(BMC_STR_MATCH(debugInput,"fasDebug")){
     printDebugHeader(debugInput);
     BMC_PRINTLN("FAS Debug:",globals.toggleFasDebug());
+    printDebugHeader(debugInput);
+  } else if(BMC_STR_MATCH(debugInput,"flush")){
+    printDebugHeader(debugInput);
+    midi.flush();
     printDebugHeader(debugInput);
 
 #endif
@@ -141,9 +148,11 @@ void BMC::readDebug(){
     printDebugHeader(debugInput);
 
   } else if(BMC_STR_MATCH(debugInput,"sync")){
+    #if defined(BMC_USE_SYNC)
     printDebugHeader(debugInput);
-    printSyncInfo();
+    sync.printDebug();
     printDebugHeader(debugInput);
+    #endif
 
     
 
@@ -152,6 +161,13 @@ void BMC::readDebug(){
   } else if(BMC_STR_MATCH(debugInput,"buttons")){
     printDebugHeader(debugInput);
     BMC_PRINTLN("buttons debug", globals.toggleButtonsDebug());
+    printDebugHeader(debugInput);
+#endif
+
+#if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS> 0
+  } else if(BMC_STR_MATCH(debugInput,"encoders")){
+    printDebugHeader(debugInput);
+    BMC_PRINTLN("encoders debug", globals.toggleEncodersDebug());
     printDebugHeader(debugInput);
 #endif
 
@@ -458,8 +474,12 @@ void BMC::readDebug(){
       BMC_PRINTLN("sizeof BMCHelix",sizeof(BMCHelix),"bytes");
     #endif
 
-    #ifdef BMC_USE_FAS
-      BMC_PRINTLN("fas",sizeof(BMCFas),"BMCFasBlocks",sizeof(BMCFasBlocks),"BMCFasData",sizeof(BMCFasData));
+    #if defined(BMC_USE_FAS)
+      #if defined(BMC_USE_FAS3)
+        // BMC_PRINTLN("fas",sizeof(BMCFas),"BMCFasBlocks",sizeof(BMCFasBlocks),"BMCFasData",sizeof(BMCFasData));
+      #else
+        BMC_PRINTLN("fas",sizeof(BMCFas),"BMCFasBlocks",sizeof(BMCFasBlocks),"BMCFasData",sizeof(BMCFasData));
+      #endif
     #endif
 
     #ifdef BMC_USE_KEMPER
@@ -531,27 +551,17 @@ void BMC::printBoardInfo(){
   BMC_PRINTLN("USB Host:", BMC_TEENSY_HAS_USB_HOST?"Yes":"No");
   BMC_PRINTLN("SD Card:", BMC_TEENSY_HAS_SD_CARD?"Yes":"No");
   BMC_PRINTLN("Hardware Serial Ports:", BMC_TEENSY_TOTAL_SERIAL_PORTS);
-}
-void BMC::printSyncInfo(){
-  #if defined(BMC_USE_SYNC)
-    #if defined(BMC_USE_DAW_LC)
-      BMC_PRINTLN("DAW SYNC ENABLED");
+  #if BMC_MAX_ILI9341_BLOCKS > 0
+    #if BMC_TFT_SIZE == 1
+      BMC_PRINTLN("Using ILI9341 Driver");
+    #else
+      BMC_PRINTLN("Using ILI9844 Driver");
     #endif
-    #if defined(BMC_USE_FAS)
-      BMC_PRINTLN("FAS SYNC ENABLED");
+    #if defined(BMC_USE_ON_BOARD_EDITOR)
+      BMC_PRINTLN("On-Board Editor (OBE) Active");
     #endif
-    #if defined(BMC_USE_HELIX)
-      BMC_PRINTLN("HELIX SYNC ENABLED");
-    #endif
-    #if defined(BMC_USE_BEATBUDDY)
-      BMC_PRINTLN("BEATBUDDY SYNC ENABLED");
-    #endif
-    #if defined(BMC_USE_KEMPER)
-      BMC_PRINTLN("KEMPER SYNC ENABLED");
-    #endif
-  #else
-    BMC_PRINTLN("SYNC UNAVAILABLE");
   #endif
+  
 }
 void BMC::midiInDebug(BMCMidiMessage message){
   if(!globals.getMidiInDebug() || message.getStatus()==BMC_NONE){
@@ -630,40 +640,50 @@ void BMC::midiInDebug(BMCMidiMessage message){
     );
   }
 }
-void BMC::printButtonTrigger(uint8_t n, uint8_t t_trigger, bool t_global){
-  if(globals.getButtonsDebug()){
-    if(t_global){
-      BMC_PRINT("Global");
-    }
-    BMC_PRINT("Button", n);
-    switch(t_trigger){
-      case BMC_BUTTON_PRESS_TYPE_PRESS:
-        BMC_PRINT("PRESS");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE:
-        BMC_PRINT("RELEASE (Always)");break;
-      case BMC_BUTTON_PRESS_TYPE_HOLD:
-        BMC_PRINT("HOLD");break;
-      case BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS:
-        BMC_PRINT("DOUBLE PRESS");break;
-      case BMC_BUTTON_PRESS_TYPE_CONTINUOUS:
-        BMC_PRINT("CONTINUOUS");break;
-      case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
-        BMC_PRINT("2ND PRESS");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
-        BMC_PRINT("RELEASE (only after Press)");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
-        BMC_PRINT("RELEASE (only after Hold)");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
-        BMC_PRINT("RELEASE (only after Double Press)");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
-        BMC_PRINT("RELEASE (only after Continuous)");break;
-      case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
-        BMC_PRINT("RELEASE (only after Alt Press)");break;
-      case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
-        BMC_PRINT("STATE CHANGE");break;
-    }
-    BMC_PRINTLN("");
+void BMC::printButtonTrigger(uint8_t deviceId, uint8_t n, uint8_t t_trigger){
+  if(!globals.getButtonsDebug()){
+    return;
   }
+  BMC_PRINT((deviceId == BMC_DEVICE_ID_GLOBAL_BUTTON ? "Global Button" : "Button"), n + globals.offset);
+  switch(t_trigger){
+    case BMC_BUTTON_PRESS_TYPE_PRESS:
+      BMC_PRINTLN("PRESS");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE:
+      BMC_PRINTLN("RELEASE (Always)");break;
+    case BMC_BUTTON_PRESS_TYPE_HOLD:
+      BMC_PRINTLN("HOLD");break;
+    case BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS:
+      BMC_PRINTLN("DOUBLE PRESS");break;
+    case BMC_BUTTON_PRESS_TYPE_CONTINUOUS:
+      BMC_PRINTLN("CONTINUOUS");break;
+    case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
+      BMC_PRINTLN("2ND PRESS");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS:
+      BMC_PRINTLN("RELEASE (only after Press)");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD:
+      BMC_PRINTLN("RELEASE (only after Hold)");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS:
+      BMC_PRINTLN("RELEASE (only after Double Press)");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS:
+      BMC_PRINTLN("RELEASE (only after Continuous)");break;
+    case BMC_BUTTON_PRESS_TYPE_RELEASE_ALT:
+      BMC_PRINTLN("RELEASE (only after Alt Press)");break;
+    case BMC_BUTTON_PRESS_TYPE_STATE_CHANGE:
+      BMC_PRINTLN("STATE CHANGE");break;
+    default:
+      BMC_PRINTLN(""); break;
+  }
+}
+void BMC::printEncoderTrigger(uint8_t t_deviceId, uint8_t t_n, uint8_t t_direction, uint8_t t_ticks){
+  if(!globals.getEncodersDebug()){
+    return;
+  }
+  if(t_deviceId == BMC_DEVICE_ID_ENCODER){
+    BMC_PRINT("Encoder");
+  } else if(t_deviceId == BMC_DEVICE_ID_GLOBAL_ENCODER){
+    BMC_PRINT("Global Encoder");
+  }
+  BMC_PRINTLN((t_n + globals.offset), (t_direction ? "INC" : "----- DEC -----"), "ticks:", t_ticks);
 }
 void BMC::debugStartTiming(uint8_t n, bool t_micros){
   if(n>=BMC_DEBUG_MAX_TIMING){

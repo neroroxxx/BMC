@@ -34,6 +34,8 @@
 #define BMC_OBE_SEL_CHAR_ARROW_DOWN 25
 #define BMC_OBE_SEL_CHAR_ARROW_RIGHT 26
 #define BMC_OBE_SEL_CHAR_ARROW_LEFT 27
+#define BMC_OBE_SEL_CHAR_SHIFT 94
+#define BMC_OBE_SEL_CHAR_X 120
 
 #define BMC_OBE_SEL_CHAR BMC_OBE_SEL_CHAR_ARROW
 
@@ -50,9 +52,7 @@
 #if BMC_TFT_SIZE == 1
   #define BMC_OBE_ROW_HEAD_H 32
   // y coordinate of header text
-  #define BMC_OBE_HEAD_TXT_Y 7
-  // header font
-  #define BMC_OBE_HEAD_FONT Arial_20_Bold
+  #define BMC_OBE_HEAD_TXT_Y 6
   // y coordinate of text inside each list item
   #define BMC_OBE_ROW_TEXT_Y 16
   // toolbar button count
@@ -61,8 +61,6 @@
   #define BMC_OBE_ROW_HEAD_H 60
   // y coordinate of header text
   #define BMC_OBE_HEAD_TXT_Y 20
-  // header font
-  #define BMC_OBE_HEAD_FONT Arial_20_Bold
   // y coordinate of text inside each list item
   #define BMC_OBE_ROW_TEXT_Y 16
   // toolbar button count
@@ -70,30 +68,14 @@
 #endif
 
 
-#define BMC_OBE_BUTTON_COLOR 0xCC21
-#define BMC_OBE_BUTTON_BACKGROUND 0xCC21
 
 
-// header background color
-#define BMC_OBE_HEAD_BACKGROUND 0xCC21
-// header text color
-#define BMC_OBE_HEAD_COLOR BMC_ILI9341_BLACK
-// header text color
-#define BMC_OBE_HEAD_SEL_COLOR BMC_ILI9341_WHITE
+
+
 
 // ********************************************************
-// MENU ITEMS LIST
-// height of area that list fits into
-#define BMC_OBE_ROW_AREA (BMC_OBE_H-BMC_OBE_ROW_HEAD_H)
 
-// list font
-//#define BMC_OBE_ROW_FONT BMCLiberationSansNarrow_18
-#define BMC_OBE_ROW_FONT Arial_16
-#define BMC_OBE_ROW_SEL_FONT Arial_16_Bold
 
-// height of every list item
-#define BMC_OBE_ROW_H 52
-// how many items will fit in the list, this must be a float
 
 #if defined(BMC_HAS_TOUCH_SCREEN)
   #define BMC_OBE_ROWS_PER_PAGE ((uint16_t)(((BMC_OBE_ROW_AREA)-BMC_OBE_ROW_H)/BMC_OBE_ROW_H))
@@ -103,52 +85,118 @@
   #define BMC_OBE_SCROLL_BAR_AREA_H (BMC_OBE_ROW_AREA)
 #endif
 
-// header background color
-//#define BMC_OBE_ROW_BACKGROUND 0x0841
-#define BMC_OBE_ROW_BACKGROUND 0x0000
-// header text color
-//#define BMC_OBE_ROW_COLOR BMC_ILI9341_WHITE
-#define BMC_OBE_ROW_COLOR BMC_ILI9341_GRAY_22
-// lines between rows
-#define BMC_OBE_ROW_DIVIDER BMC_ILI9341_BLACK
 
-// #define BMC_OBE_ROW_VALUE_FONT BMCLiberationSansNarrow_12_Bold
-#define BMC_OBE_ROW_VALUE_FONT Arial_14
-#define BMC_OBE_ROW_SEL_VALUE_FONT Arial_14_Bold
+
 
 #define BMC_OBE_SIDEBAR_WIDTH 8
 #define BMC_OBE_CARET_BOX_X (BMC_OBE_W - BMC_OBE_SIDEBAR_WIDTH - 24)
 #define BMC_OBE_CARET_CHAR_X (BMC_OBE_W - BMC_OBE_SIDEBAR_WIDTH - 20)
 
 
+// ************************************
+// ************* Header
+// ************************************
+// header background color
+// #define BMC_OBE_HEAD_BACKGROUND 0xCC21
+#define BMC_OBE_HEAD_BACKGROUND BMC_ILI9341_BLACK
+// header text color
+// #define BMC_OBE_HEAD_COLOR BMC_ILI9341_BLACK
+#define BMC_OBE_HEAD_COLOR BMC_ILI9341_YELLOW
+// font
+#define BMC_OBE_HEAD_FONT BMC_FONT_SM
+
+// ************************************
+// ************* Selected Header
+// ************************************
+// header text color
+#define BMC_OBE_HEAD_SEL_COLOR BMC_ILI9341_WHITE
+// selected head background
 #define BMC_OBE_HEAD_SEL_BACKGROUND  0xfa80
 
-// background color when you select an item for editing
-#define BMC_OBE_ROW_EDITABLE_BACKGROUND 0x680d
 
-//#define BMC_OBE_ROW_EDITABLE_BACKGROUND 0xA801
+// ************************************
+// ************* Rows Area
+// ************************************
+// height of area that list fits into
+#define BMC_OBE_ROW_AREA (BMC_OBE_H-BMC_OBE_ROW_HEAD_H)
+// height of every list item
+#define BMC_OBE_ROW_H 52
+
+// ************************************
+// ************* Rows
+// ************************************
+// row background color
+//#define BMC_OBE_ROW_BACKGROUND 0x0841
+#define BMC_OBE_ROW_BACKGROUND 0x0000
+// row text color
+#define BMC_OBE_ROW_COLOR BMC_ILI9341_WHITE
+// #define BMC_OBE_ROW_COLOR BMC_ILI9341_GRAY_22
+// lines between rows
+#define BMC_OBE_ROW_DIVIDER BMC_ILI9341_BLACK
+// list font
+
+// #define BMC_OBE_ROW_FONT BMCArial_16
+#define BMC_OBE_ROW_FONT BMC_FONT_XS
+// row border radius
+#define BMC_OBE_BORDER_RADIUS 10
+// row divider line color
+#define BMC_OBE_ROW_LINE_DIVIDER_COLOR BMC_ILI9341_WHITE
+
+// ************************************
+// ************* Selected Row
+// ************************************
+// selected row background
+#define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_11
+// selected row text color
+// #define BMC_OBE_SEL_COLOR BMC_OBE_ROW_COLOR
+#define BMC_OBE_SEL_COLOR BMC_ILI9341_ORANGE
+// draw a horizontal line as a divider between rows
+#define BMC_OBE_DRAW_ROW_DIVIDER false
+// font
+#define BMC_OBE_ROW_SEL_FONT BMC_FONT_XS
+
+// ************************************
+// ************* Editable Value Row
+// ************************************
+// background color when you select an item for editing
+// #define BMC_OBE_ROW_EDITABLE_BACKGROUND 0x680d
+#define BMC_OBE_ROW_EDITABLE_BACKGROUND BMC_ILI9341_GREEN
 // header text color
-#define BMC_OBE_ROW_EDITABLE_COLOR 0xDEFB
+#define BMC_OBE_ROW_EDITABLE_COLOR BMC_ILI9341_WHITE
 //#define BMC_OBE_ROW_EDITABLE_COLOR 0x0194
 // header text color
-#define BMC_OBE_ROW_EDITING_COLOR 0xfe60
+#define BMC_OBE_ROW_EDITING_COLOR BMC_ILI9341_GREEN
+
+// 
+// #define BMC_OBE_ROW_VALUE_FONT BMCArial_14
+#define BMC_OBE_ROW_VALUE_FONT BMC_FONT_XS
+// change the font of the editable row when it's active
+// uncomment to enable it
+// #define BMC_OBE_ROW_SEL_VALUE_FONT BMC_FONT_SM
+
+// font for the confirmation save or cancel message
+#define BMC_OBE_CONFIRMATION_FONT BMC_FONT_LG
 
 
-// header background color
-//#define BMC_OBE_SEL_BACKGROUND 0xB801
-//#define BMC_OBE_SEL_BACKGROUND 0x3186
-//#define BMC_OBE_SEL_BACKGROUND 0x0841
-// #define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_1
-#define BMC_OBE_SEL_BACKGROUND BMC_ILI9341_GRAY_2
 
-// header text color
-#define BMC_OBE_SEL_COLOR 0xFFFF
+#if defined(BMC_USE_FAS2)
+  #define BMC_OBE_FAS2 1
+#else
+  #define BMC_OBE_FAS2 0
+#endif
 
-#define BMC_OBE_BORDER_RADIUS 9
+#if defined(BMC_USE_FAS3)
+  #define BMC_OBE_FAS3 1
+#else
+  #define BMC_OBE_FAS3 0
+#endif
 
+#if BMC_MAX_LCD
+  #define BMC_OBE_LCD 15
+#else
+  #define BMC_OBE_LCD 0
+#endif
 
-// header font
-#define BMC_OBE_CONFIRMATION_FONT BMCLiberationSansNarrow_24_Bold
 
 #define BMC_OBE_LEVEL_MAIN 0
 #define BMC_OBE_LEVEL_SETTINGS 1
@@ -181,88 +229,103 @@
 #define BMC_OBE_ID_CP_GO_TO_SETLIST   	 5
 #define BMC_OBE_ID_CP_GO_TO_SONG      	 6
 #define BMC_OBE_ID_CP_GO_TO_PART      	 7
+#define BMC_OBE_ID_CP_GO_TO_FAS       	 8
 // edit
-#define BMC_OBE_ID_EDIT               	 8
+#define BMC_OBE_ID_EDIT               	 9
 // main
-#define BMC_OBE_ID_SETTINGS           	 9
+#define BMC_OBE_ID_SETTINGS           	 10
 // main > settings
-#define BMC_OBE_ID_SETTINGS_GENERAL   	 10
+#define BMC_OBE_ID_SETTINGS_GENERAL   	 11
 // main > settings > general
-#define BMC_OBE_ID_S_BTN_HOLD_TIME    	 11
-#define BMC_OBE_ID_S_TYPER_CHANNEL    	 12
-#define BMC_OBE_ID_S_DISPLAY_OFFSET   	 13
-#define BMC_OBE_ID_S_DISPLAY_BANNERS  	 14
-#define BMC_OBE_ID_S_DISPLAY_NAMES    	 15
-#define BMC_OBE_ID_S_PREPEND_PRESET   	 16
-#define BMC_OBE_ID_S_PREPEND_BANK     	 17
-#define BMC_OBE_ID_S_DIM_LEDS         	 18
-#define BMC_OBE_ID_S_STARTUP_PRESET   	 19
-#define BMC_OBE_ID_S_TRIG_1ST_SONG    	 20
-#define BMC_OBE_ID_S_TRIG_1ST_PART    	 21
-#define BMC_OBE_ID_S_DISPLAY_LIST_MODE	 22
-#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 23
+#define BMC_OBE_ID_S_BTN_HOLD_TIME    	 12
+#define BMC_OBE_ID_S_TYPER_CHANNEL    	 13
+#define BMC_OBE_ID_S_FAS_CHANNEL      	 14
+#define BMC_OBE_ID_S_LCD_BACKLIGHT    	 15
+#define BMC_OBE_ID_S_DISPLAY_OFFSET   	 16
+#define BMC_OBE_ID_S_DISPLAY_BANNERS  	 17
+#define BMC_OBE_ID_S_DISPLAY_NAMES    	 18
+#define BMC_OBE_ID_S_PREPEND_PRESET   	 19
+#define BMC_OBE_ID_S_PREPEND_BANK     	 20
+#define BMC_OBE_ID_S_DIM_LEDS         	 21
+#define BMC_OBE_ID_S_STARTUP_PRESET   	 22
+#define BMC_OBE_ID_S_TRIG_1ST_SONG    	 23
+#define BMC_OBE_ID_S_TRIG_1ST_PART    	 24
+#define BMC_OBE_ID_S_DISPLAY_LIST_MODE	 25
+#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 26
 // main > settings
-#define BMC_OBE_ID_SETTINGS_MIDI      	 24
+#define BMC_OBE_ID_SETTINGS_MIDI      	 27
 // main > settings > general
-#define BMC_OBE_ID_S_IN_CTRL          	 25
-#define BMC_OBE_ID_S_IN_CTRL_CH       	 26
-#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 27
-#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 28
-#define BMC_OBE_ID_S_MASTER_CLOCK     	 29
-#define BMC_OBE_ID_S_ACTIVE_SENSE     	 30
-#define BMC_OBE_ID_S_BLOCK_RT_IN      	 31
-#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 32
+#define BMC_OBE_ID_S_IN_CTRL          	 28
+#define BMC_OBE_ID_S_IN_CTRL_CH       	 29
+#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 30
+#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 31
+#define BMC_OBE_ID_S_MASTER_CLOCK     	 32
+#define BMC_OBE_ID_S_ACTIVE_SENSE     	 33
+#define BMC_OBE_ID_S_BLOCK_RT_IN      	 34
+#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 35
 // main
-#define BMC_OBE_ID_GLOBAL             	 33
+#define BMC_OBE_ID_GLOBAL             	 36
 // main > global
-#define BMC_OBE_ID_GLOBAL_ITEMS       	 34
+#define BMC_OBE_ID_GLOBAL_ITEMS       	 37
 // main > global > items
-#define BMC_OBE_ID_G_ITEM_LIST        	 35
+#define BMC_OBE_ID_G_ITEM_LIST        	 38
 // main > global > items > editor
-#define BMC_OBE_ID_G_ITEM_EDIT        	 36
+#define BMC_OBE_ID_G_ITEM_EDIT        	 39
 // main
-#define BMC_OBE_ID_LAYERS             	 37
+#define BMC_OBE_ID_LAYERS             	 40
 // main > layers
-#define BMC_OBE_ID_LAYERS_ITEMS       	 38
+#define BMC_OBE_ID_LAYERS_ITEMS       	 41
 // main > layers > items
-#define BMC_OBE_ID_P_ITEM_LIST        	 39
+#define BMC_OBE_ID_P_ITEM_LIST        	 42
 // main > layers > items > editor
-#define BMC_OBE_ID_P_ITEM_EDIT        	 40
+#define BMC_OBE_ID_P_ITEM_EDIT        	 43
 
 
 class bmcRenderButton {
   public:
-  void render(BMC_TFT& tft, uint16_t x, uint16_t y, uint16_t w, uint16_t h, const char*str, uint16_t color){
-    tft.drawRoundRect(x, y, w, h, 9, color);
-    tft.setFont(BMCLiberationSansNarrow_20_Bold);
-    uint16_t yAdd = (h-20)/2;
+  void render(BMC_TFT& tft, uint16_t x, uint16_t y, uint16_t w, uint16_t h, const char*str, uint16_t color, uint16_t fill=0){
+    if(fill > 0){
+      tft.fillRoundRect(x, y, w, h, 9, fill);
+    } else {
+      tft.fillRoundRect(x, y, w, h, 9, color);
+    }
+
+    BMCTextPixelSize tt = tft.getCenteredXY(str, x, y, w, h, 2);
+    
     tft.setTextColor(color);
-    uint16_t nX = getCenteredX(tft, str, w);
-    tft.setCursor(x+nX, y+yAdd);
+    
+    // tft.setFont(BMC_FONT_MD);
+    // uint16_t yAdd = (h-20)/2;
+    
+    // uint16_t nX = getCenteredX(tft, str, w);
+    // tft.setCursor(x+nX, y+yAdd);
+
+    tft.setCursor(tt.x, tt.y);
     tft.print(str);
   }
-  uint16_t getCenteredX(BMC_TFT& tft, const char * buff, uint16_t w){
-    char str[strlen(buff)+1];
-    strcpy(str, buff);
-    return getCenteredX(tft, str, w);
-  }
-  uint16_t getCenteredX(BMC_TFT& tft, char * buff, uint16_t w){
-    int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
-    int16_t x = (w-textWidth) / 2;
-    return (x < 0) ? 0 : x;
-  }
+  // uint16_t getCenteredX(BMC_TFT& tft, const char * buff, uint16_t w){
+  //   char str[strlen(buff)+1];
+  //   strcpy(str, buff);
+  //   return getCenteredX(tft, str, w);
+  // }
+  // uint16_t getCenteredX(BMC_TFT& tft, char * buff, uint16_t w){
+  //   int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
+  //   int16_t x = (w-textWidth) / 2;
+  //   return (x < 0) ? 0 : x;
+  // }
 };
 class bmcRenderCharButton {
   public:
-  void render(BMC_TFT& tft, int16_t x, int16_t y, uint16_t w, uint16_t h, char c, uint16_t color){
-    tft.drawRoundRect(x, y, w, h, 9, color);
-    tft.setFontAdafruit();
-
-    #if BMC_TFT_SIZE == 1
-      tft.drawChar(x+((w - 15)/2), y+((h-21)/2), c, color, BMC_ILI9341_BLACK, 3);
-    #else
-      tft.drawChar(x+((w - 15)/2), y+((h-21)/2), c, color, BMC_ILI9341_BLACK, 3, 3);
-    #endif
+  void render(BMC_TFT& tft, int16_t x, int16_t y, uint16_t w, uint16_t h, char c, uint16_t color, uint16_t bg=BMC_ILI9341_BLACK){
+    if(bg==BMC_ILI9341_BLACK){
+      tft.drawRoundRect(x, y, w, h, 9, color);
+    } else {
+      tft.fillRoundRect(x, y, w, h, 9, bg);
+    }
+    
+    // tft.setFontAdafruit();
+    tft.setFont();
+    tft.drawChar(x+((w - 15)/2), y+((h-21)/2), c, color, bg, 3);
   }
 };
 class bmcRenderTouchButtons {
@@ -275,29 +338,26 @@ class bmcRenderTouchButtons {
       char l = type==0 ? BMC_OBE_SEL_CHAR_ARROW_UP : BMC_OBE_SEL_CHAR_ARROW_LEFT;
       char r = type==0 ? BMC_OBE_SEL_CHAR_ARROW_DOWN : BMC_OBE_SEL_CHAR_ARROW_RIGHT;
       uint16_t space = (BMC_TFT_WIDTH-(w*BMC_OBE_TOOLBAR_BUTTON_COUNT))/(BMC_OBE_TOOLBAR_BUTTON_COUNT-1);
-      // add a 5th button on larger displays 480x320
-
-      tft.fillRect(0, BMC_OBE_H-BMC_OBE_ROW_H, BMC_OBE_W, BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
-      
+      // to avoid flickering the button bar do not blackout the button bar area
+      // tft.fillRect(0, BMC_OBE_H-BMC_OBE_ROW_H, BMC_OBE_W, BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
       // arrow up
-      button.render(tft, 0, y, w, h, l, BMC_OBE_BUTTON_COLOR);
-
+      button.render(tft, 0, y, w, h, l, BMC_ILI9341_WHITE, BMC_ILI9341_BLUE);
       #if BMC_OBE_TOOLBAR_BUTTON_COUNT == 4
-        // exit
-        button.render(tft, space+w, y, w, h, 120, BMC_ILI9341_RED);
-        // enter
-        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_GREEN);
-      #else
-        // exit
-        button.render(tft, space+w, y, w, h, 120, BMC_ILI9341_RED);
         // back
-        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_ARROW_LEFT, BMC_ILI9341_BLUE);
+        button.render(tft, space+w, y, w, h, BMC_OBE_SEL_CHAR_ARROW_LEFT, BMC_ILI9341_WHITE, BMC_ILI9341_GRAY_13);
         // enter
-        button.render(tft, (space*3)+(w*3), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_GREEN);
+        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_WHITE, 0x2e05);
+      #else
+        // add a 5th button on larger displays 480x320
+        // shift
+        button.render(tft, space+w, y, w, h, BMC_OBE_SEL_CHAR_SHIFT, BMC_ILI9341_WHITE, BMC_ILI9341_GRAY_16);
+        // back
+        button.render(tft, (space*2)+(w*2), y, w, h, BMC_OBE_SEL_CHAR_ARROW_LEFT, BMC_ILI9341_WHITE, BMC_ILI9341_GRAY_16);
+        // enter
+        button.render(tft, (space*3)+(w*3), y, w, h, BMC_OBE_SEL_CHAR_CARET_RIGHT, BMC_ILI9341_WHITE, 0x2e05);
       #endif
-      
       // arrow down
-      button.render(tft, BMC_TFT_WIDTH-52, y, 52, h, r, BMC_OBE_BUTTON_COLOR);
+      button.render(tft, BMC_TFT_WIDTH-52, y, 52, h, r, BMC_ILI9341_WHITE, BMC_ILI9341_BLUE);
     }
   public:
   void renderV(BMC_TFT& tft){
@@ -313,9 +373,14 @@ class bmcRenderTouchButtons {
 #else
   #define BMC_OBE_SAVE_CONFIRM_Y 80
 #endif
-#define BMC_OBE_SAVE_BTN_Y (BMC_OBE_SAVE_CONFIRM_Y+50)
+
 #define BMC_OBE_SAVE_BTN_W 100
 #define BMC_OBE_SAVE_BTN_H 60
+
+// #define BMC_OBE_SAVE_BTN_Y (BMC_OBE_SAVE_CONFIRM_Y+50)
+#define BMC_OBE_SAVE_BTN_Y ((BMC_TFT_HEIGHT*0.75) - (BMC_OBE_SAVE_BTN_H/2))
+
+
 #define BMC_OBE_SAVE_BTN_X ((BMC_TFT_WIDTH*0.75)-(BMC_OBE_SAVE_BTN_W/2))
 #define BMC_OBE_CANCEL_BTN_X ((BMC_TFT_WIDTH*0.25)-(BMC_OBE_SAVE_BTN_W/2))
 
@@ -323,8 +388,14 @@ class bmcRenderExitButtons {
   public:
   void render(BMC_TFT& tft, uint8_t value){
     bmcRenderButton button;
-    button.render(tft, BMC_OBE_CANCEL_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H, "No", value==0 ? BMC_OBE_BUTTON_COLOR : BMC_ILI9341_GRAY_15);
-    button.render(tft, BMC_OBE_SAVE_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H, "Yes", value==1 ? BMC_OBE_BUTTON_COLOR : BMC_ILI9341_GRAY_15);
+    
+    uint16_t color = value==0 ? BMC_ILI9341_WHITE : BMC_ILI9341_BLACK;
+    uint16_t background = value==0 ? BMC_ILI9341_BLUE : BMC_ILI9341_GRAY_15;
+    button.render(tft, BMC_OBE_CANCEL_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H, "No", color, background);
+
+    color = value==1 ? BMC_ILI9341_WHITE : BMC_ILI9341_BLACK;
+    background = value==1 ? BMC_ILI9341_BLUE : BMC_ILI9341_GRAY_15;
+    button.render(tft, BMC_OBE_SAVE_BTN_X, BMC_OBE_SAVE_BTN_Y, BMC_OBE_SAVE_BTN_W, BMC_OBE_SAVE_BTN_H, "Yes", color, background);
   }
 };
 
@@ -404,7 +475,7 @@ class BMCOBEData {
       uint8_t t_queueAction = queueAction;
       queueAction = 0;
       if(t_queueAction!=0){
-        encoderQueue.start(activeRow == 1 && t_queueAction==1 ? 500 : 200);
+        encoderQueue.start(activeRow == 1 && t_queueAction==1 ? 350 : 150);
       }
       return t_queueAction;
     }
@@ -413,13 +484,13 @@ class BMCOBEData {
   void queuePrev(){
     if(!encoderQueue.active()){
       queueAction = 1;
-      encoderQueue.start(50);
+      encoderQueue.start(25);
     }
   }
   void queueNext(){
     if(!encoderQueue.active()){
       queueAction = 2;
-      encoderQueue.start(50);
+      encoderQueue.start(25);
     }
   }
   void resetQueue(){
@@ -427,7 +498,7 @@ class BMCOBEData {
     encoderQueue.stop();
   }
   uint16_t getActiveVisibleListItem(){
-    if(activeRow>0){
+    if(activeRow > 0){
       return visibleRowId[activeRow-1];
     }
     return 0;
@@ -436,7 +507,10 @@ class BMCOBEData {
     visibleRowId[visibleRowIdLength++] = value;
   }
   uint16_t getActiveVisibleRow(){
-    return visibleRowId[activeRow-1];
+    if(activeRow > 0){
+      return visibleRowId[activeRow-1];
+    }
+    return 0;
   }
   bool updatePreviousRow(){
     return activeRow != activeRowPrev;
@@ -480,13 +554,19 @@ class BMCOBEData {
     } else {
       activeRow = visibleRowIdLength;
       if(rowPage == maxRowPages-1){
-        activeRow = 3;
+        activeRow = BMC_OBE_ROWS_PER_PAGE;
       }
+
       if(rowPage > 0){
         rowPage--;
       } else {
+        uint16_t totalItems = (floor(totalRows / BMC_OBE_ROWS_PER_PAGE))*BMC_OBE_ROWS_PER_PAGE;
+        if(totalRows > totalItems){
+          activeRow = totalRows-totalItems;
+        }
         rowPage = maxRowPages-1;
       }
+
       return true;
     }
     return false;

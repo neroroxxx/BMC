@@ -1,6 +1,6 @@
 #include "sync/fas/BMC-Fas.h"
 
-#if defined(BMC_USE_FAS)
+#if defined(BMC_USE_FAS) && !defined(BMC_USE_FAS3)
 
 BMCFas::BMCFas(BMCMidi& t_midi):
   midi(t_midi),
@@ -10,8 +10,10 @@ BMCFas::BMCFas(BMCMidi& t_midi):
   findDeviceTimer.stop();
 }
 void BMCFas::begin(){
-  BMC_INFO("FAS Sync Version 1.0");
-  BMC_INFO("On Axe FX II to use the tuner toggle or tempo beat you MUST enable Real Time MIDI");
+  
+  BMC_INFO("FAS Sync Version 1.0",
+  "On Axe FX II to use the tuner toggle or tempo beat",
+  "you MUST enable Real Time MIDI");
   flags.on(BMC_FAS_FLAG_DEVICE_SEARCH);
   findDeviceTimer.start(1000);
 }
@@ -54,8 +56,9 @@ void BMCFas::update(){
       }
     }
   }
-  if(tunerTimeout.complete()){
-    tunerFlags.reset();
+  // if(tunerTimeout.complete()){
+  if(tuner.timedout()){
+    // tunerFlags.reset();
     sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, true);
     if(midi.callback.fasTunerStateChange){
       midi.callback.fasTunerStateChange(false);
@@ -115,46 +118,48 @@ bool BMCFas::incoming(BMCMidiMessage& message){
         return false;
       }
       globals.clearMidiInActivity();
-      tunerData.note = message.sysex[6];
-      tunerData.stringNumber = message.sysex[7];
-      tunerData.pitchRaw = message.sysex[8] & 0x7F;
-      tunerData.pitch = map(tunerData.pitchRaw, 0, 127, -63, 64);
-      tunerNote(tunerData.note, tunerData.noteName);
-      tunerTimeout.start(250);
+      tuner.setData(message.sysex[6], message.sysex[7], message.sysex[8]);
+      // tuner.note = message.sysex[6];
+      // tuner.stringNumber = message.sysex[7];
+      // tuner.pitchRaw = message.sysex[8] & 0x7F;
+      // tuner.pitch = map(tuner.pitchRaw, 0, 127, -63, 64);
+      // BMCTools::fasTunerNote(tuner.note, tuner.noteName);
+      // tunerTimeout.start(250);
 
-      if(!tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE)){
+      // if(!tunerFlags.read(BMC_FAS_TUNER_FLAG_ACTIVE)){
+      if(tuner.isOn()){
         if(midi.callback.fasTunerStateChange){
           midi.callback.fasTunerStateChange(true);
         }
-        tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
+        // tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
         // turn off looper data while tuning
         sendBasicSysEx(BMC_FAS_FUNC_ID_LOOPER, false);
-        BMC_PRINTLN("--> FAS TUNER: ON");
+        // BMC_PRINTLN("--> FAS TUNER: ON");
       }
       if(midi.callback.fasTunerReceived){
-        midi.callback.fasTunerReceived(tunerData);
+        midi.callback.fasTunerReceived(tuner);
       }
-      //BMC_PRINTLN("--> FAS TUNER: ", tunerData.pitch);
+      //BMC_PRINTLN("--> FAS TUNER: ", tuner.pitch);
       //reset tuner flags but keep state flag on
-      tunerFlags.reset();
-      tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
-      if(tunerData.pitchRaw<62){
-        tunerFlags.on(BMC_FAS_TUNER_FLAG_FLAT);
-        if(tunerData.pitchRaw < 42){
-          tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTER);
-        }
-        if(tunerData.pitchRaw < 21){
-          tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTEST);
-        }
-      } else if(tunerData.pitchRaw>64){
-        tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARP);
-        if(tunerData.pitchRaw > 84){
-          tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPER);
-        }
-        if(tunerData.pitchRaw > 105){
-          tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPEST);
-        }
-      }
+      // tunerFlags.reset();
+      // tunerFlags.on(BMC_FAS_TUNER_FLAG_ACTIVE);
+      // if(tuner.pitchRaw<62){
+      //   tunerFlags.on(BMC_FAS_TUNER_FLAG_FLAT);
+      //   if(tuner.pitchRaw < 42){
+      //     tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTER);
+      //   }
+      //   if(tuner.pitchRaw < 21){
+      //     tunerFlags.on(BMC_FAS_TUNER_FLAG_FLATTEST);
+      //   }
+      // } else if(tuner.pitchRaw>64){
+      //   tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARP);
+      //   if(tuner.pitchRaw > 84){
+      //     tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPER);
+      //   }
+      //   if(tuner.pitchRaw > 105){
+      //     tunerFlags.on(BMC_FAS_TUNER_FLAG_SHARPEST);
+      //   }
+      // }
     }
       return true;
     case BMC_FAS_FUNC_ID_LOOPER:{
@@ -394,7 +399,7 @@ bool BMCFas::incoming(BMCMidiMessage& message){
       if(!isFractMessage(message, 10)){
         return false;
       }
-      BMC_PRINTLN("--> FAS GENERAL PURPOSE FUNC:", message.get7Bits(6),"CODE:", message.get7Bits(7));
+      // BMC_PRINTLN("--> FAS GENERAL PURPOSE FUNC:", message.get7Bits(6),"CODE:", message.get7Bits(7));
     }
       return true;
   }

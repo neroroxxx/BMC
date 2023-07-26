@@ -40,6 +40,7 @@
 #define BMC_BTN_FLAG_CONTINUOUS_ENABLED 2
 #define BMC_BTN_FLAG_ALTERNATE_PRESS_ENABLED 3
 #define BMC_BTN_FLAG_IS_ALT 4
+#define BMC_BTN_FLAG_DBL_PRESS_TEMP_DISABLE 5
 
 // @buttonFlags:
 #define BMC_BTN_FLAG_MUX_STATE 0
@@ -178,6 +179,7 @@ public:
   }
   void enableDoublePress(){
     assignedFlags.on(BMC_BTN_FLAG_DOUBLE_PRESS_ENABLED);
+    assignedFlags.off(BMC_BTN_FLAG_DBL_PRESS_TEMP_DISABLE);
     doublePressTimer.stop();
   }
   void enableContinuous(){
@@ -240,7 +242,8 @@ public:
       // if a press was detected trigger it, additionally if the double press
       // has timed out (you didn't press it at the right time) then we treat
       // it as a press so any other events as triggered
-      if(pressed() || doublePressedTimeoutPress()){
+      bool dblPressT = doublePressedTimeoutPress();
+      if(pressed() || dblPressT){
         buttonFlags.on(BMC_BTN_FLAG_STATE_HAS_CHANGED);
         if(assignedFlags.read(BMC_BTN_FLAG_ALTERNATE_PRESS_ENABLED)){
           if(assignedFlags.toggleIfTrue(BMC_BTN_FLAG_IS_ALT)){
@@ -249,6 +252,15 @@ public:
           }
           assignedFlags.on(BMC_BTN_FLAG_IS_ALT);
         }
+        // if(dblPressT){
+        //   if((releaseType != BMC_BTN_REL_TYPE_HOLD && releaseType != BMC_BTN_REL_TYPE_CONTINUOUS)){
+        //     releaseType = BMC_BTN_REL_TYPE_PRESS;
+        //   } else {
+        //     return 0;
+        //   }
+        // } else {
+        //   releaseType = BMC_BTN_REL_TYPE_PRESS;
+        // }
         releaseType = BMC_BTN_REL_TYPE_PRESS;
         return BMC_BUTTON_PRESS_TYPE_PRESS;
       }
@@ -317,13 +329,28 @@ public:
     }
     if(holdTimer.complete()){
       flags.on(BMC_BTN_FLAG_HOLD_COMPLETE);
+      disableDblPressTemp();
     }
     if(continuousTimer.complete()){
       continuousTimer.start(BMC_BTN_CONTINUOUS_INTERVAL);
       flags.on(BMC_BTN_FLAG_ACTIVITY);
       flags.on(BMC_BTN_FLAG_CONTINUOUS);
+      disableDblPressTemp();
+
     }
     return true;
+  }
+  void disableDblPressTemp(){
+    if(assignedFlags.toggleIfTrue(BMC_BTN_FLAG_DOUBLE_PRESS_ENABLED)){
+      assignedFlags.on(BMC_BTN_FLAG_DBL_PRESS_TEMP_DISABLE);
+      doublePressTimer.stop();
+    }
+  }
+  void reEnableDblPress(){
+    if(assignedFlags.toggleIfTrue(BMC_BTN_FLAG_DBL_PRESS_TEMP_DISABLE)){
+      assignedFlags.on(BMC_BTN_FLAG_DOUBLE_PRESS_ENABLED);
+      doublePressTimer.stop();
+    }
   }
   // check if the button has gone from being OPEN to being CLOSED (pressed)
   bool pressed(){
@@ -391,6 +418,7 @@ public:
         return false;
       }
       reset();
+      reEnableDblPress();
       return true;
     }
     return false;
@@ -471,6 +499,7 @@ private:
       doublePressTimer.stop();
     }
   }
+
   bool activityDetected(){
     return flags.read(BMC_BTN_FLAG_ACTIVITY);
   }
@@ -565,7 +594,9 @@ private:
     if(flags.read(BMC_BTN_FLAG_DOUBLE_PRESS_TIMEOUT)){
       if(!flags.read(BMC_BTN_FLAG_DOUBLE_PRESS_TIMEOUT_RELEASE)){
         flags.on(BMC_BTN_FLAG_DOUBLE_PRESS_TIMEOUT_RELEASE);
-        return true;
+        if(releaseType != BMC_BTN_REL_TYPE_HOLD || releaseType != BMC_BTN_REL_TYPE_CONTINUOUS){
+          return true;
+        }
       }
     }
     return false;
@@ -581,6 +612,14 @@ private:
       }
     }
     return false;
+  }
+  void resetDblPress(){
+    holdTimer.stop();
+    continuousTimer.stop();
+    continuousCount = 0;
+    // reset all flags except for the debouncing flag and the current state
+    // flags.reset((1<<BMC_BTN_FLAG_DEBOUNCING)|(1<<BMC_BTN_FLAG_STATE));
+    doublePressTimer.stop();
   }
 
 private:

@@ -33,7 +33,7 @@
 #define BMC_GLOBALS_FLAG_TRIGGER_SONG           	 13
 #define BMC_GLOBALS_FLAG_TRIGGER_SONG_PART      	 14
 #define BMC_GLOBALS_FLAG_PAUSE_ILI      	         15
-#define BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST      	     16
+#define BMC_GLOBALS_FLAG_RENDER_DISPLAY_LIST       16
 
 
 #define BMC_GLOBALS_DEBUG_FLAG_STORAGE            	 0
@@ -46,6 +46,7 @@
 #define BMC_GLOBALS_DEBUG_FLAG_BUTTONS            	 7
 #define BMC_GLOBALS_DEBUG_FLAG_FAS                	 8
 #define BMC_GLOBALS_DEBUG_FLAG_POTS               	 9
+#define BMC_GLOBALS_DEBUG_FLAG_ENCODERS              10
 
 
 // https://github.com/mpflaga/Arduino-MemoryFree
@@ -280,6 +281,12 @@ public:
   bool getButtonsDebug(){
     return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_BUTTONS);
   }
+  bool toggleEncodersDebug(){
+    return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_ENCODERS);
+  }
+  bool getEncodersDebug(){
+    return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_ENCODERS);
+  }
   bool toggleFasDebug(){
     return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_FAS);
   }
@@ -428,8 +435,8 @@ public:
 #endif
 
 #if BMC_MAX_LEDS > 0
-  BMCBitStates <BMC_MAX_PIXELS> ledCustomState;
-  BMCBitStates <BMC_MAX_PIXELS> ledStates;
+  BMCBitStates <BMC_MAX_LEDS> ledCustomState;
+  BMCBitStates <BMC_MAX_LEDS> ledStates;
 #endif
 
 #if BMC_MAX_GLOBAL_LEDS > 0

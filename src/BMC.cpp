@@ -70,7 +70,12 @@ BMC::BMC():
 }
 
 void BMC::begin(){
+  #ifdef BMC_DEBUG
+    Serial.begin(115200);
+  #endif
+
   BMC_PRINTLN("BMC::begin");
+
   // keep this order
   #if defined(BMC_HAS_DISPLAY)
     display.begin();
@@ -95,6 +100,8 @@ void BMC::begin(){
 
   // load intial data from EEPROM, etc.
   editor.begin();
+
+  
 
   // here we handle pin assignments during the initial setup
   setupHardware();
@@ -123,9 +130,10 @@ void BMC::begin(){
   
   delay(100);
 
-  #ifdef BMC_USE_FAS
-    sync.fas.begin();
+  #if defined(BMC_USE_SYNC)
+    sync.begin();
   #endif
+
   // this flag will allow BMC to execute some code only the first time update() runs
   // yes that code can run here instead HOWEVER by letting that code execute
   // after the first loop we are allowing other classes with a begin() method
@@ -238,24 +246,17 @@ void BMC::update(){
   if(callback.midUpdate){
     callback.midUpdate();
   }
-#ifdef BMC_USE_DAW_LC
-    sync.daw.update();
-#endif
 
-#ifdef BMC_USE_HELIX
-    sync.helix.update();
-#endif
+#if defined(BMC_USE_SYNC)
+    sync.update();
 
-#ifdef BMC_USE_FAS
-    sync.fas.update();
+  #if defined(BMC_USE_FAS)
     if(sync.fas.connectionStateChanged()){
       editor.utilitySendFasState(sync.fas.getConnectedDeviceId());
     }
+  #endif
 #endif
 
-#ifdef BMC_USE_KEMPER
-    sync.kemper.update();
-#endif
 
   // Read/Update the hardware: buttons, leds, pots, encoders
   readHardware();

@@ -40,9 +40,11 @@ void BMC::setLayer(uint8_t t_layer, bool reassignSettings, bool forced){
     
   #endif
 
-  #if defined(BMC_USE_BEATBUDDY)
-    sync.beatBuddy.reassign();
+  #if defined(BMC_USE_SYNC)
+    sync.reassign();
   #endif
+
+  
 
   if(callback.pageChanged){
     callback.pageChanged(layer);
@@ -61,14 +63,10 @@ bool BMC::layerChangedPeek(){
 uint8_t BMC::getLayer(){
   return layer;
 }
-bmcStoreName  BMC::getLayerName(){
-  bmcStoreName t = globals.getDeviceName(store.layers[layer].events[0].name);
-  if(BMC_STR_MATCH(t.name, "")){
-    sprintf(t.name, "L %u", layer+globals.offset);
-  }
-  return t;
+bmcStoreName BMC::getLayerName(){
+  return getLayerName(layer);
 }
-bmcStoreName  BMC::getLayerName(uint8_t n){
+bmcStoreName BMC::getLayerName(uint8_t n){
   bmcStoreName t = globals.getDeviceName(store.layers[n].events[0].name);
   if(BMC_STR_MATCH(t.name, "")){
     sprintf(t.name, "L %u", n+globals.offset);
@@ -76,16 +74,44 @@ bmcStoreName  BMC::getLayerName(uint8_t n){
   return t;
 }
 
-bmcStoreName  BMC::getLayerStr(){
-  bmcStoreName t;
-  sprintf(t.name, "%u", layer+midi.globals.offset);
-  return t;
+bmcStoreName BMC::getLayerStr(){
+  return getLayerStr(layer);
 }
-bmcStoreName  BMC::getLayerStr(uint8_t n){
+bmcStoreName BMC::getLayerStr(uint8_t n){
   bmcStoreName t;
   sprintf(t.name, "%u", n+midi.globals.offset);
   return t;
 }
+
+
+
+
+void BMC::getLayerName(char * str){
+  getLayerName(layer, str);
+}
+void BMC::getLayerName(uint8_t n, char * str){
+  bmcStoreName t = globals.getDeviceName(store.layers[n].events[0].name);
+  if(BMC_STR_MATCH(t.name, "")){
+    sprintf(str, "L %u", n+globals.offset);
+  } else {
+    strcpy(str, t.name);
+  }
+}
+void BMC::getLayerStr(char * str){
+  getLayerStr(layer, str);
+}
+void BMC::getLayerStr(uint8_t n, char * str){
+  sprintf(str, "%u", n+midi.globals.offset);
+}
+
+
+
+
+
+
+
+
+
 void BMC::nextLayer(){
   // BMCScroller <uint8_t> scroller(0, BMC_MAX_LAYERS-1);
   // setLayer(scroller.scroll(1, true, true, layer, 0, BMC_MAX_LAYERS-1));

@@ -160,6 +160,12 @@ public:
   bmcStoreName getLayerName(uint8_t n);
   bmcStoreName getLayerStr();
   bmcStoreName getLayerStr(uint8_t n);
+
+
+  void getLayerName(char * str);
+  void getLayerName(uint8_t n, char * str);
+  void getLayerStr(char * str);
+  void getLayerStr(uint8_t n, char * str);
   
   // go to a new layer
   // @reassignSettings if true will reassign all global settings
@@ -527,9 +533,17 @@ private:
 
 #if BMC_TOTAL_LEDS > 0
     BMCEndlessTimer ledBlinkerTimer;
+    bool blinkState = false;
     void setupLeds();
+    void handleSetupLeds(BMCLed& t_led, uint16_t t_pin);
+
     void assignLeds();
+    template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+    void handleAssignLeds(BMCLed& t_led, bmcStoreDevice<sLen, eLen, tname>& t_device, uint8_t eIndex=0);
+
     void readLeds();
+    template <uint16_t y>
+    void handleLed(BMCLed& t_led, BMCBitStates<y>& t_bitStates, uint8_t t_index, uint8_t t_state);
 #endif
 
 #endif // #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 1
@@ -672,8 +686,8 @@ private:
   void setupDebug();
   void readDebug();
   void printBoardInfo();
-  void printSyncInfo();
-  void printButtonTrigger(uint8_t n, uint8_t t_trigger, bool t_global=false);
+  void printButtonTrigger(uint8_t deviceId, uint8_t n, uint8_t t_trigger);
+  void printEncoderTrigger(uint8_t deviceId, uint8_t n, uint8_t direction, uint8_t ticks);
   void printDebugHeader(char* str);
   void midiInDebug(BMCMidiMessage midiMessage);
   void printMidiInDebug(String str, BMCMidiMessage midiMessage);

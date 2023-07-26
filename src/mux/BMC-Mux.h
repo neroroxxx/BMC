@@ -126,16 +126,19 @@ public:
   return 0;
   }
   // digitalWrite equivalent
-  void writeDigital(uint16_t n, bool on){
+  void writeDigital(uint16_t t_pin, bool t_value){
 #if BMC_MAX_MUX_GPIO > 0
-    if(n < BMC_MAX_MUX_GPIO){
-      muxGpio.writePin(n, on);
+    if(t_pin < BMC_MAX_MUX_GPIO){
+      muxGpio.writePin(t_pin, t_value);
+      // if(n == 6){
+      //   BMC_PRINTLN("writeDigital", n, t_value);
+      // }
       return;
     }
 #endif
 
 #if BMC_MAX_MUX_OUT > 0
-    muxOut.setPinValue(n, on);
+    muxOut.setPinValue(t_pin, t_value);
 #endif
   }
   // read an analog mux input pin

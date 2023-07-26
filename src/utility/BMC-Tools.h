@@ -153,12 +153,12 @@ public:
       case BMC_BUTTON_PRESS_TYPE_ALT_PRESS:
         return "Alt/2nd Press";
     }
-    return "Unknown";
+    return "None";
   }
   static void getButtonTriggerName(uint8_t value, char* str){
     switch(value){
       case BMC_NONE:
-        strcpy(str, "Inactive");
+        strcpy(str, "None");
         break;
       case BMC_BUTTON_PRESS_TYPE_PRESS:
         strcpy(str, "Press");
@@ -323,6 +323,22 @@ public:
     }
 #endif
   }
+  static uint8_t getFontSize(uint16_t w, uint16_t h, const char* str){
+    char buff[strlen(str)+1] = "";
+    strcpy(buff, str);
+    return getFontSize(w, h, str);
+  }
+  static uint8_t getFontSize(uint16_t w, uint16_t h, char* str){
+    uint8_t f = 4;
+    uint8_t len = strlen(str);
+    while(f > 1){
+      if((len * (f*6)) <= w && (f*8) <= h){
+        return f;
+      }
+      f--;
+    }
+    return 1;
+  }
   static bmcStoreEvent getDeviceEventType(bmcStore& store, uint16_t n){
     bmcStoreEvent e;
     if(n > 0 && n <= BMC_MAX_EVENTS_LIBRARY){
@@ -398,10 +414,10 @@ public:
       return;
     }
     char buff[len+1] = "";
-    for(uint8_t i = 0, e = 0 ; i < len ; i++){
-      if((removeSpaces && str[i] == 32) || (i>0 && (str[i] == 65 || str[i] == 69 || str[i] == 73 ||
+    for(uint8_t i = 1, e = 0 ; i < len ; i++){
+      if((removeSpaces && str[i] == 32) || (str[i] == 65 || str[i] == 69 || str[i] == 73 ||
          str[i] == 79 || str[i] == 85 || str[i] == 97 || str[i] == 101 ||
-         str[i] == 105 || str[i] == 111 || str[i] == 117))
+         str[i] == 105 || str[i] == 111 || str[i] == 117)
       ){
         continue;
       } else if(str[i] == 0){
@@ -450,6 +466,23 @@ public:
       buff[strL] = 's';
     }
   }
+  static void fasTunerNote(uint8_t note, char* str){
+		switch(note){
+			case 0: strcpy(str, "A "); break;
+			case 1: strcpy(str, "Bb"); break;
+			case 2: strcpy(str, "B "); break;
+			case 3: strcpy(str, "C "); break;
+			case 4: strcpy(str, "C#"); break;
+			case 5: strcpy(str, "D "); break;
+			case 6: strcpy(str, "Eb"); break;
+			case 7: strcpy(str, "E "); break;
+			case 8: strcpy(str, "F "); break;
+			case 9: strcpy(str, "F#"); break;
+			case 10: strcpy(str, "G "); break;
+			case 11: strcpy(str, "G#"); break;
+      default: strcpy(str, "??"); break;
+		}
+	}
 
 
 

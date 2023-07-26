@@ -16,6 +16,9 @@ void BMCEditor::layerProcessMessage(){
     case BMC_LAYERF_LAYER_NAME:
       layerNameMessage(isWriteMessage());
       break;
+    case BMC_LAYERF_LAYER_COPY_SWAP:
+      layerMessageLayerCopySwap(isWriteMessage());
+      break;
   }
 }
 void BMCEditor::layerMessage(bool write){
@@ -87,4 +90,48 @@ void BMCEditor::layerSendChangeMessage(bool onlyIfConnected){
   buff.appendToSysEx14Bits(BMC_MAX_LAYERS);
   buff.appendToSysEx14Bits(layer);
   sendToEditor(buff);
+}
+
+void BMCEditor::layerMessageLayerCopySwap(bool write){
+  if(!isValidLayerMessage()){
+    return;
+  }
+  uint8_t sysExLength = 14;
+  // handle backup
+  if(backupActive() || !write){
+    return;
+  }
+  uint16_t layerSource = getMessageLayerNumber();
+  uint16_t layerTarget = incoming.get14Bits(9);
+  bool isSwap = incoming.sysex[11];
+
+
+  BMC_PRINTLN("layerMessageLayerCopySwap", isSwap, layerSource, layerTarget, incoming.size());
+  if(layerSource>0 && layerSource>=BMC_MAX_LAYERS){
+    sendNotification(BMC_NOTIFY_INVALID_LAYER, layerSource, true);
+    return;
+  }
+  if(layerTarget>0 && layerTarget>=BMC_MAX_LAYERS){
+    sendNotification(BMC_NOTIFY_INVALID_LAYER, layerTarget, true);
+    return;
+  }
+  if(write && incoming.size() != sysExLength){
+    sendNotification(BMC_NOTIFY_INVALID_SIZE, sysExLength, true);
+    return;
+  }
+  if(write){
+    if(isSwap){
+      bmcStoreLayer copyOfSourceLayer = store.layers[layerSource];
+      store.layers[layerSource] = store.layers[layerTarget];
+      store.layers[layerTarget] = copyOfSourceLayer;
+    } else {
+      bmcStoreLayer copyOfSourceLayer = store.layers[layerSource];
+      store.layers[layerTarget] = copyOfSourceLayer;
+    }
+    saveLayer(layerTarget);
+    saveLayer(layerSource);
+    reloadData();
+  }
+
+  sendNotification(BMC_LAYERF_LAYER_COPY_SWAP, layerSource, false);
 }

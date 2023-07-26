@@ -40,6 +40,10 @@
 #define BMC_ENCODER_MUX_FLAG_B_IS_MUX 3
 #define BMC_ENCODER_MUX_FLAG_IS_MUX 7
 
+#if !defined(BMC_ENCODER_DENOISE_TIME)
+  #define BMC_ENCODER_DENOISE_TIME 200
+#endif
+
 class BMCEncoder {
 public:
   BMCEncoder(){
@@ -128,6 +132,9 @@ public:
 
     // check if the encoder was triggered externally
     checkTrigger();
+    #if !defined(BMC_ENCODER_DISABLE_EXTRA_DENOISING)
+    readingTimer.complete();
+    #endif
 
     // BMCEncoder will always keep the encoder at 0
     // with values ranging from -1, 0, 1
@@ -143,27 +150,51 @@ public:
       // and the last turn was to the right BMC will read it as usual
       // if the the last turn was to the left BMC will ignore that reading
       // however the next time you rotate left BMC will continue to read as usual.
-      bool allowReading = false;
+      bool allowReading = true;
       flags.write(BMC_ENCODER_FLAG_INCREASED,(output>0));
-      uint16_t currentTurn = millis()&0xFFFF;
-      uint16_t subs = (currentTurn-lastTurn);
+      
+      unsigned long timeGap = (millis()-lastTurn);
       if(bitRead(lastTurnDirection, 0) == flags.read(BMC_ENCODER_FLAG_INCREASED)){
-        if(subs < 10){
-          ticks = 6;
-        } else if(subs < 20){
-          ticks = 5;
-        } else if(subs < 30){
-          ticks = 4;
-        } else if(subs < 40){
+        // if(timeGap < 5){
+        //   ticks = 4;
+        // } else if(timeGap < 10){
+        //   ticks = 3;
+        // } else if(timeGap < 20){
+        //   ticks = 2;
+        // } else if(timeGap < 30){
+        //   ticks = 1;
+        // }
+
+
+        // if(timeGap < 5){
+        //   ticks = 3;
+        // } else if(timeGap >= 10 && timeGap <= 20){
+        //   ticks = 2;
+        // }
+        if(timeGap < 30){
           ticks = 2;
         }
-        allowReading = true;
+
+#if !defined(BMC_ENCODER_DISABLE_EXTRA_DENOISING)
+        readingTimer.start(BMC_ENCODER_DENOISE_TIME);
+        
+      } else if(readingTimer.active()){
+        // readingTimer.stop();
+        // readingTimer.start(BMC_ENCODER_DENOISE_TIME);
+        allowReading = false;
+
+        // BMC_PRINTLN("");
+        // BMC_PRINTLN("!!!!!!!!!!!!!!! SKIP ENCODER READING !!!!!!!!!!!!!!!");
+        // BMC_PRINTLN("");
+#endif
       }
-      bitWrite(lastTurnDirection, 0, (output>0));
-      lastTurn = millis()&0xFFFF;
+      if(allowReading){
+        bitWrite(lastTurnDirection, 0, (output>0));
+      }
+      lastTurn = millis();
       return allowReading;
     }
-    if((millis()&0xFFFF)-lastTurn>50){
+    if(millis()-lastTurn>50){
       lastTurn = 0;
     }
     flags.off(BMC_ENCODER_FLAG_INCREASED);
@@ -203,7 +234,12 @@ private:
   uint8_t pinB = 255;
   uint8_t ticks = 1;
   uint8_t lastTurnDirection = 0;
-  uint16_t lastTurn = 0;
+  unsigned long lastTurn = 0;
+
+#if !defined(BMC_ENCODER_DISABLE_EXTRA_DENOISING)
+  BMCTimer readingTimer;
+#endif
+
 #if defined(BMC_MUX_INPUTS_AVAILABLE)
   BMCFlags <uint8_t> states;
 #endif

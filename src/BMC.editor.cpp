@@ -102,17 +102,22 @@ void BMC::assignSettings(){
   midi.setRouting(BMC_BLE, settings.getBleRouting());
 #endif
 
-#ifdef BMC_USE_BEATBUDDY
-  sync.beatBuddy.enableSync(settings.getBeatBuddySync());
-  sync.beatBuddy.setChannel(settings.getBeatBuddyChannel()+1);
-  sync.beatBuddy.setPortBit(settings.getBeatBuddyPort());
+
+#if defined(BMC_USE_SYNC)
+  sync.assignSettings();
 #endif
 
-#ifdef BMC_USE_HELIX
-  sync.helix.setDeviceId(settings.getHelixId());
-  sync.helix.setChannel(settings.getHelixChannel()+1);
-  sync.helix.setPortBit(settings.getHelixPort());
-#endif
+// #ifdef BMC_USE_BEATBUDDY
+//   sync.beatBuddy.enableSync(settings.getBeatBuddySync());
+//   sync.beatBuddy.setChannel(settings.getBeatBuddyChannel()+1);
+//   sync.beatBuddy.setPortBit(settings.getBeatBuddyPort());
+// #endif
+
+// #ifdef BMC_USE_HELIX
+//   sync.helix.setDeviceId(settings.getHelixId());
+//   sync.helix.setChannel(settings.getHelixChannel()+1);
+//   sync.helix.setPortBit(settings.getHelixPort());
+// #endif
 
   #if BMC_MAX_LFO > 0
     if(editor.lfoUpdated()){

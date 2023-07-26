@@ -31,6 +31,7 @@
 #define BMC_OBE_FLAGS_DYNAMIC_LIST       	 5
 #define BMC_OBE_FLAGS_DYNAMIC_EDIT_LIST  	 6
 #define BMC_OBE_FLAGS_NO_SCROLL_BAR      	 7
+#define BMC_OBE_FLAGS_NO_CONFIRM_RENDERED  8
 
 // #define BMC_OBE_DISPLAY_ROW_ID
 
@@ -86,7 +87,8 @@ public:
     if(!globals.onBoardEditorActive()){
       return false;
     }
-    for(uint8_t i = 0; i < 5 ; i++){
+    bool ret = false;
+    for(uint8_t i = 0; i < 6 ; i++){
       // BMC_MENU_SELECT
       // BMC_MENU_BACK
       // BMC_MENU_PREV
@@ -97,28 +99,34 @@ public:
       }
       if(deviceAssignments[i].type == t_type && deviceAssignments[i].index == t_n){
         if(t_type == BMC_DEVICE_ID_BUTTON || t_type == BMC_DEVICE_ID_GLOBAL_BUTTON){
-          if(t_dir == BMC_BUTTON_PRESS_TYPE_PRESS){
-            // allowed
-          } else if((i==2 || i==3) && (t_dir == BMC_BUTTON_PRESS_TYPE_HOLD || t_dir == BMC_BUTTON_PRESS_TYPE_CONTINUOUS)){
-            // allowed
-          } else {
-            continue;
+          if(t_dir != BMC_BUTTON_PRESS_TYPE_PRESS){
+            if((i==2 || i==3) && (t_dir == BMC_BUTTON_PRESS_TYPE_HOLD || t_dir == BMC_BUTTON_PRESS_TYPE_CONTINUOUS)){
+              // allowed
+            } else {
+              ret = true;
+              return true;
+            }
           }
           switch(i){
             case 0: // select
               menuCommand(BMC_MENU_SELECT);
+              ret = true;
               return true;
             case 1: // back
               menuCommand(BMC_MENU_BACK);
+              ret = true;
               return true;
             case 2: // prev
               menuCommand(BMC_MENU_PREV);
+              ret = true;
               return true;
             case 3: // next
               menuCommand(BMC_MENU_NEXT);
+              ret = true;
               return true;
             case 4: // shift
               menuCommand(BMC_MENU_SHIFT);
+              ret = true;
               return true;
             default:
               break;
@@ -127,11 +135,13 @@ public:
           switch(i){
             case 2: // prev
             case 3: // next
+            case 5: // prev/next
               if(t_dir == BMC_INC){
                 data.queueNext();
               } else {
                 data.queuePrev();
               }
+              ret = true;
               return true;
             default:
               break;
@@ -140,7 +150,7 @@ public:
       }
     }
 #endif
-    return false;
+    return ret;
   }
   void render(){
     // renderHeader();
@@ -150,13 +160,19 @@ public:
     flags.off(BMC_OBE_FLAGS_DYNAMIC_LIST);
     flags.off(BMC_OBE_FLAGS_DYNAMIC_EDIT_LIST);
 
+    #if defined(BMC_HAS_TOUCH_SCREEN)
+      // render a footer with controls
+      bmcRenderTouchButtons buttons;
+      buttons.renderV(tft);
+    #endif
+
     for(uint16_t i = 0 ; i < totalMenuItems ; i++){
       bool allowed = true;
       uint8_t lenLevels = data.level[0] + 1;
       for(uint8_t e = 0 ; e < lenLevels ; e++){
         if(data.level[0] > 0 && items[i].level[0] == data.level[0]-1){
         }
-        if(items[i].id == 0 || items[i].level[e] != data.level[e]){
+        if(items[i].id == 0 || (items[i].type!=BMC_OBE_MENU_LIST && items[i].max == 0) || items[i].level[e] != data.level[e]){
           allowed = false;
           break;
         }
@@ -279,7 +295,7 @@ public:
           startAt = (i + 1);
           bool allowed = true;
           for(uint8_t e = 0 ; e < (data.level[0]+1) ; e++){
-            if(items[i].id == 0 || items[i].level[e] != data.level[e]){
+            if(items[i].id == 0 || (items[i].type!=BMC_OBE_MENU_LIST && items[i].max == 0) ||  items[i].level[e] != data.level[e]){
               allowed = false;
               break;
             }
@@ -359,7 +375,6 @@ public:
     if(!empty && data.activeRow == (n+1)){
       background = BMC_OBE_SEL_BACKGROUND;
       color = BMC_OBE_SEL_COLOR;
-      // tft.setFont(BMC_OBE_ROW_SEL_FONT);
     }
     bool activeItem = isEditModeActive() && data.activeRow == (n+1);
     if(activeItem){
@@ -375,11 +390,23 @@ public:
           }
       }
     }
-    tft.fillRect(0, y, BMC_OBE_W-6, BMC_OBE_ROW_H, background);
+    tft.fillRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, BMC_ILI9341_BLACK);
+  #if BMC_OBE_BORDER_RADIUS > 0
+    if(background == BMC_OBE_ROW_BACKGROUND){
+      tft.drawRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, background);
+    } else {
+      tft.drawRoundRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, BMC_OBE_BORDER_RADIUS, background);
+    }
+  #else
+    tft.drawRect(0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, background);
+  #endif
+
     if(empty || data.visibleRowId[n] == 0){
       return;
     }
-    tft.drawFastHLine(0, y+(BMC_OBE_ROW_H-1), BMC_OBE_W-6, BMC_OBE_SEL_BACKGROUND);
+#if BMC_OBE_DRAW_ROW_DIVIDER == true
+    tft.drawFastHLine(BMC_OBE_BORDER_RADIUS, y+(BMC_OBE_ROW_H-1), (BMC_OBE_W-6)-BMC_OBE_BORDER_RADIUS, BMC_OBE_ROW_LINE_DIVIDER_COLOR);
+#endif
     uint16_t id = data.visibleRowId[n]-1;
     bool rowIsEditable = false;
 
@@ -390,12 +417,22 @@ public:
     } else {
       rowIsEditable = (items[id].type == BMC_OBE_EDIT_LIST);
     }
+    
+    
+    BMCTextPixelSize tt;
 
     if(rowIsEditable){
-      // tft.setFont(data.activeRow == (n+1) ? BMC_OBE_ROW_SEL_VALUE_FONT : BMC_OBE_ROW_VALUE_FONT);
+#if defined(BMC_OBE_ROW_SEL_VALUE_FONT)
+      tft.setFont(data.activeRow == (n+1) ? BMC_OBE_ROW_SEL_VALUE_FONT : BMC_OBE_ROW_VALUE_FONT);
+#else
       tft.setFont(BMC_OBE_ROW_VALUE_FONT);
+#endif
+      tt = tft.getCurrentCenteredXY("Abcdefg", 0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H/2, 2);
+    } else {
+      tt = tft.getCurrentCenteredXY("Abcdefg", 0, y, BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H, 2);
     }
-    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, (y + (rowIsEditable ? BMC_OBE_ROW_TEXT_Y/2 : BMC_OBE_ROW_TEXT_Y)));
+    tft.setCursor(BMC_OBE_SIDEBAR_WIDTH, tt.y);
+
     tft.setTextColor(color);
     #if defined(BMC_OBE_DISPLAY_ROW_ID)
       tft.print(id+1);
@@ -411,7 +448,7 @@ public:
             if(dd.id != 0){
               BMCTools::makePlural(dd.label);
               tft.print(dd.label);
-              renderCaret(y, color, background);
+              renderCaret(y, color, BMC_ILI9341_BLACK);
               tft.setFont(BMC_OBE_ROW_FONT);
             }
           }
@@ -433,7 +470,7 @@ public:
             tft.print(nameStr);
           }
           
-          renderCaret(y, color, background);
+          renderCaret(y, color, BMC_ILI9341_BLACK);
           tft.setFont(BMC_OBE_ROW_FONT);
           break;
       }
@@ -458,7 +495,7 @@ public:
     }
     tft.print(items[id].label);
     if(!rowIsEditable){
-      renderCaret(y, color, background);
+      renderCaret(y, color, BMC_ILI9341_BLACK);
     } else {
       char str[40] = "";
       getEditorValueLabel(id+1, str, activeItem);
@@ -471,20 +508,14 @@ public:
     printRowValue(y, activeItem, str);
   }
   void printRowValue(uint16_t y, bool activeItem, char * str){
-    // uint16_t x = getCenteredX(str);
-    int16_t textWidth = BMC_TFT_STR_LEN(tft, str);
-    int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-textWidth;
-    x = (x < 0) ? 0 : x-6;
-    //x += (BMC_OBE_SIDEBAR_WIDTH*3);
     tft.setTextColor(activeItem?BMC_OBE_ROW_EDITING_COLOR:BMC_OBE_ROW_EDITABLE_COLOR);
-    // tft.setTextColor(BMC_OBE_ROW_EDITING_COLOR);
-    tft.setCursor(x, (y + 29));
-    // tft.setCursor(x, y+16);
+
+    BMCTextPixelSize tt = tft.getCurrentCenteredXY(str, 0, y+(BMC_OBE_ROW_H/2), BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH, BMC_OBE_ROW_H/2, 2);
+
+    int16_t x = (BMC_OBE_W-BMC_OBE_SIDEBAR_WIDTH)-tt.w;
+    x = (x < 0) ? 0 : x-6;
+    tft.setCursor(x, tt.y);
     tft.print(str);
-    // tft.setFont(BMC_OBE_ROW_FONT);
-    // tft.drawFastVLine(0, 0, 240, BMC_ILI9341_RED);
-    // tft.drawFastVLine(106, 0, 240, BMC_ILI9341_RED);
-    // tft.drawFastVLine(212, 0, 240, BMC_ILI9341_RED);
   }
   void updateRows(){
     if(data.isHeaderSelected()){
@@ -518,12 +549,8 @@ public:
     tft.fillRect(BMC_OBE_W-w, BMC_OBE_ROW_HEAD_H+pos, w, scrollHandle, 0xB596);
   }
   void renderCaret(uint16_t y, uint16_t color, uint16_t background){
-    tft.fillRect(BMC_OBE_CARET_BOX_X, y+1, 24, BMC_OBE_ROW_H-2, background);
-#if BMC_TFT_SIZE == 1
+    tft.setFont();
     tft.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET_RIGHT, color, background, 2);
-#else
-    tft.drawChar(BMC_OBE_CARET_CHAR_X , y+17, BMC_OBE_SEL_CHAR_CARET_RIGHT, color, background, 2, 2);
-#endif
   }
   // void renderHeader(const char* title){
   //   char buff[strlen(title)+1];
@@ -537,9 +564,9 @@ public:
     uint16_t level = data.level[0];
     if(data.isHeaderSelected()){
       if(level == 0){
-        strcpy(buff, "Exit Menu");
+        strcpy(buff, "Exit");
       } else {
-        strcpy(buff, "< Back");
+        strcpy(buff, "Back");
       }
     } else if(level > 0){
 
@@ -565,22 +592,54 @@ public:
     } else {
       sprintf(buff, "BMC v%s", BMC_VERSION_STR);
     }
-    tft.setFont(BMC_OBE_HEAD_FONT);
-    uint16_t x = getCenteredX(buff);
+    // tft.setFont(BMC_OBE_HEAD_FONT);
+    
+    // #if defined(BMC_HAS_TOUCH_SCREEN)
+    //   uint16_t x = getCenteredX(buff, BMC_OBE_SIDEBAR_WIDTH);
+    // #else
+    //   uint16_t x = getCenteredX(buff, BMC_OBE_SIDEBAR_WIDTH);
+    // #endif
+
     uint16_t color = BMC_OBE_HEAD_COLOR;
     uint16_t background = BMC_OBE_HEAD_BACKGROUND;
+
+
     if(data.isHeaderSelected()){
       background = BMC_OBE_HEAD_SEL_BACKGROUND;
-      color = BMC_OBE_SEL_COLOR;
+      color = BMC_ILI9341_WHITE;
     }
+    
+    // tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, background);
+    
     tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, background);
-    tft.setTextColor(color);
-    tft.setCursor(x, BMC_OBE_HEAD_TXT_Y);
-    tft.print(buff);
+    // tft.drawFastHLine(0, BMC_OBE_ROW_HEAD_H-1, BMC_OBE_W, BMC_ILI9341_WHITE);
+
+    // tft.setFont(BMC_OBE_HEAD_FONT);
+
+
+
     #if defined(BMC_HAS_TOUCH_SCREEN)
-      // render a footer with controls
-      bmcRenderTouchButtons buttons;
-      buttons.renderV(tft);
+      BMCTextPixelSize tt = tft.getCenteredXY(buff, BMC_OBE_SIDEBAR_WIDTH, 0, BMC_OBE_W-(BMC_OBE_SIDEBAR_WIDTH*2), BMC_OBE_ROW_HEAD_H, 2);
+    #else
+      BMCTextPixelSize tt = tft.getCenteredXY(buff, 0, 0, BMC_OBE_W, BMC_OBE_ROW_HEAD_H, 2);
+    #endif
+
+    
+
+
+    tft.setTextColor(color);
+    tft.setCursor(tt.x, tt.y);
+    tft.print(buff);
+
+    #if defined(BMC_HAS_TOUCH_SCREEN)
+      tft.setFont();
+      uint8_t charsY = (BMC_OBE_ROW_HEAD_H-21)/2;
+      // draw a block to cover any text that overlapped
+      tft.fillRect(BMC_OBE_W-22, 0, 22, BMC_OBE_ROW_HEAD_H, background);
+      // back icon
+      tft.drawChar(BMC_OBE_SIDEBAR_WIDTH, charsY, BMC_OBE_SEL_CHAR_ARROW_LEFT, color, background, 3);
+      // exit icon
+      tft.drawChar((BMC_OBE_W-18)-BMC_OBE_SIDEBAR_WIDTH, charsY-2, BMC_OBE_SEL_CHAR_X, color, background, 3);
     #endif
   }
   
@@ -591,6 +650,7 @@ public:
     }
     if(cmd==BMC_MENU_TOGGLE){
       if(confirmSave()){
+        BMC_PRINTLN(__LINE__);
         exitEditor();
         return;
       }
@@ -600,8 +660,10 @@ public:
       }
       globals.toggleOnBoardEditor();
       if(globals.onBoardEditorActive()){
+        BMC_PRINTLN(__LINE__);
         enterEditor();
       } else {
+        BMC_PRINTLN(__LINE__);
         exitEditor();
       }
       return;
@@ -752,7 +814,7 @@ public:
             return;
           }
         }
-      } else if(devicesEditor.isCompatible()){
+      } else if(devicesEditor.isCompatible() && data.activeRow>0){
         if(devicesEditor.handleCustomRowScroller(false, shiftActive())){
           return;
         }
@@ -772,7 +834,8 @@ public:
       updateRows();
       return;
     }
-    if(devicesEditor.isCompatible() && data.activeRow > 0){
+    // if(devicesEditor.isCompatible() && data.activeRow > 0){
+    if(devicesEditor.isCompatible()){
       if(devicesEditor.handleCustomRowScroller(false, shiftActive())){
         return;
       }
@@ -880,24 +943,28 @@ private:
   // all variables live here
   BMCOBEData data;
   BMCOBEDevices devicesEditor;
-  BMCFlags <uint8_t> flags;
-  const uint8_t totalMenuItems = 40;
-  const BMCOBEMenuItem items[40] = {
+  BMCFlags <uint16_t> flags;
+  const uint8_t totalMenuItems = 43;
+  const BMCOBEMenuItem items[43] = {
     // keep the main page at 3 items.
-    {{0}, BMC_OBE_ID_GO_TO, "Go To", BMC_OBE_MENU_LIST},
+    {{0}, BMC_OBE_ID_GO_TO, "Go To / Toggle", BMC_OBE_MENU_LIST},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_LAYER, "Layer", BMC_OBE_EDIT_LIST, 0, BMC_MAX_LAYERS-1, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_BANK, "Bank", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESET_BANKS-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_PRESET, "Preset", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS > 0?(BMC_MAX_PRESETS_PER_BANK-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_SETLIST, "Setlist", BMC_OBE_EDIT_LIST, 0, BMC_MAX_SETLISTS > 0?(BMC_MAX_SETLISTS-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_SONG, "Song", BMC_OBE_EDIT_LIST, 0, BMC_MAX_SETLISTS > 0?(BMC_MAX_SETLISTS_SONGS-1):0, 1},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_PART, "Song Part", BMC_OBE_EDIT_LIST, 0, BMC_MAX_SETLISTS > 0?(BMC_MAX_SETLISTS_SONG_PARTS-1):0, 1},
-
+      {{1,0}, BMC_OBE_ID_CP_GO_TO_FAS, "FAS Connection", BMC_OBE_EDIT_LIST, 0, BMC_OBE_FAS2, 1},
+      
     {{0}, BMC_OBE_ID_EDIT, "Editor", BMC_OBE_MENU_LIST},
 
       {{1,1}, BMC_OBE_ID_SETTINGS, "Settings", BMC_OBE_MENU_LIST},
         {{2,1,0}, BMC_OBE_ID_SETTINGS_GENERAL, "General", BMC_OBE_MENU_LIST},
           {{3,1,0,0}, BMC_OBE_ID_S_BTN_HOLD_TIME, "Button Hold Time", BMC_OBE_EDIT_LIST, 0, 15, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_TYPER_CHANNEL, "Typer Channel", BMC_OBE_EDIT_LIST, 0, 15, 1},
+          {{3,1,0,0}, BMC_OBE_ID_S_FAS_CHANNEL, "FAS Channel", BMC_OBE_EDIT_LIST, 0, BMC_OBE_FAS3==0?0:15, 1},
+          {{3,1,0,0}, BMC_OBE_ID_S_LCD_BACKLIGHT, "LCD Backlight", BMC_OBE_EDIT_LIST, 0, BMC_OBE_LCD, 1},
+          
           {{3,1,0,0}, BMC_OBE_ID_S_DISPLAY_OFFSET, "Display Offset to 0", BMC_OBE_EDIT_LIST, 0, 1, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_DISPLAY_BANNERS, "Display Banner", BMC_OBE_EDIT_LIST, 0, 3, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_DISPLAY_NAMES, "Display Names", BMC_OBE_EDIT_LIST, 0, 1, 1},
@@ -930,7 +997,7 @@ private:
             {{4,1,2,0,0}, BMC_OBE_ID_P_ITEM_EDIT, "Layers Edit", BMC_OBE_MENU_DYNAMIC_EDIT, 0, 0xFFFF, 1}
   };
 #if defined(BMC_OBE_CUSTOM_ASSIGNMENT)
-  const BMCOBEAssignments deviceAssignments[5] = BMC_OBE_CUSTOM_ASSIGNMENT;
+  const BMCOBEAssignments deviceAssignments[6] = BMC_OBE_CUSTOM_ASSIGNMENT;
 #endif
   uint16_t getEditorValue(uint16_t id){
     char str[40] = "";
@@ -960,6 +1027,7 @@ private:
         }
         sprintf(str, "%u ms", (value+2)*250);
         return value;
+
       case BMC_OBE_ID_S_TYPER_CHANNEL:
         originalValue = settings.getTyperChannel();
         value = (!active) ? originalValue : value;
@@ -968,6 +1036,25 @@ private:
         }
         sprintf(str, "%u", value+1);
         return value;
+
+      case BMC_OBE_ID_S_FAS_CHANNEL:
+        originalValue = settings.getFas3MidiChannel();
+        value = (!active) ? originalValue : value;
+        if(setValue && setChangesMade(originalValue, value)){
+          settings.setFas3MidiChannel(value);
+        }
+        sprintf(str, "%u", value+1);
+        return value;
+        
+      case BMC_OBE_ID_S_LCD_BACKLIGHT:
+        originalValue = settings.getLcdBacklight();
+        value = (!active) ? originalValue : value;
+        if(setValue && setChangesMade(originalValue, value)){
+          settings.setLcdBacklight(value);
+        }
+        sprintf(str, "%u%%", (uint16_t)floor((100/16) * (value+1)));
+        return value;
+
       case BMC_OBE_ID_S_DISPLAY_OFFSET:
         originalValue = settings.getDisplayOffset();
         value = (!active) ? originalValue : value;
@@ -976,6 +1063,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_DISPLAY_BANNERS:
         originalValue = settings.getDisplayBannerTimeout();
         value = (!active) ? originalValue : value;
@@ -988,6 +1076,7 @@ private:
           sprintf(str, "%u ms", value * 500);
         }
         return value;
+
       case BMC_OBE_ID_S_DISPLAY_NAMES:
         originalValue = settings.getDisplayNames();
         value = (!active) ? originalValue : value;
@@ -996,6 +1085,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_PREPEND_PRESET:
         originalValue = settings.getAppendPresetNumberToPresetName();
         value = (!active) ? originalValue : value;
@@ -1004,6 +1094,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_PREPEND_BANK:
         originalValue = settings.getDisplayBankWithPreset();
         value = (!active) ? originalValue : value;
@@ -1012,6 +1103,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_DIM_LEDS:
         originalValue = settings.getPwmDimWhenOff();
         value = (!active) ? originalValue : value;
@@ -1020,6 +1112,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_STARTUP_PRESET:
         originalValue = settings.getStartupPreset();
         value = (!active) ? originalValue : value;
@@ -1032,6 +1125,7 @@ private:
           BMCTools::getPresetLabel((value-1), str, store.global);
         }
         return value;
+
       case BMC_OBE_ID_S_TRIG_1ST_SONG:
         originalValue = settings.getSetListTriggerFirstSong();
         value = (!active) ? originalValue : value;
@@ -1040,6 +1134,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_TRIG_1ST_PART:
         originalValue = settings.getSetListTriggerFirstSongPart();
         value = (!active) ? originalValue : value;
@@ -1048,6 +1143,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_DISPLAY_LIST_MODE:
         originalValue = settings.getDisplayListMode();
         value = (!active) ? originalValue : value;
@@ -1060,6 +1156,7 @@ private:
           sprintf(str, "%ums", (500 + (value*500)));
         }
         return value;
+
       case BMC_OBE_ID_S_TOUCH_CALIBRATED:
         originalValue = settings.getTouchScreenIsCalibrated();
         value = (!active) ? originalValue : value;
@@ -1078,6 +1175,7 @@ private:
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_IN_CTRL_CH:
         originalValue = settings.getListenerChannel();
         value = (!active) ? originalValue : value;
@@ -1090,6 +1188,7 @@ private:
           sprintf(str, "Channel %u", value);
         }
         return value;
+
       case BMC_OBE_ID_S_IN_CTRL_ACTION:
         originalValue = settings.getIncomingProgramType();
         value = (!active) ? originalValue : value;
@@ -1102,6 +1201,7 @@ private:
           case 2: strcpy(str, "Change Preset"); break;
         }
         return value;
+
       case BMC_OBE_ID_S_CLOCK_IN_PORT:
         originalValue = settings.getClockInputPortBit();
         value = (!active) ? originalValue : value;
@@ -1118,6 +1218,7 @@ private:
           case BMC_MIDI_PORT_BLE_BIT: strcpy(str, "BLE"); break;
         }
         return value;
+
       case BMC_OBE_ID_S_MASTER_CLOCK:
         originalValue = settings.getMasterClock();
         value = (!active) ? originalValue : value;
@@ -1126,6 +1227,7 @@ private:
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_ACTIVE_SENSE:
         originalValue = settings.getActiveSenseAtStartup();
         value = (!active) ? originalValue : value;
@@ -1134,6 +1236,7 @@ private:
         }
         strcpy(str, data.onOffLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_BLOCK_RT_IN:
         originalValue = settings.getMidiRealTimeBlockInput();
         value = (!active) ? originalValue : value;
@@ -1142,6 +1245,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+
       case BMC_OBE_ID_S_BLOCK_RT_OUT:
         originalValue = settings.getMidiRealTimeBlockOutput();
         value = (!active) ? originalValue : value;
@@ -1150,6 +1254,7 @@ private:
         }
         strcpy(str, data.yesNoLabels[value]);
         return value;
+        
       // change layers
       case BMC_OBE_ID_CP_GO_TO_LAYER:
         {
@@ -1267,8 +1372,26 @@ private:
       #else
         return 0;
       #endif
+#if defined(BMC_USE_FAS)
+      case BMC_OBE_ID_CP_GO_TO_FAS:
+        if(setValue){
+          display.sync.fas.toggleConnection();
+          BMC_PRINTLN("TOGGLE FAS");
+          // globals.setReloadLayer(true);
+          forceExitEditor();
+          return value;
+        }
+        if(display.sync.fas.connected()){
+          strcpy(str, "Disconnect");
+        } else {
+          strcpy(str, "Sync");
+        }
+        
+        return value;
+      #else
+        return 0;
+      #endif
 
-      
       default:
         break;
     }
@@ -1312,12 +1435,13 @@ private:
     data.reset();
   }
   void enterEditor(){
-    BMC_PRINTLN("Enter Editor");
+    BMC_PRINTLN("Enter On-Board Editor");
     globals.exitDisplayListMode();
     globals.setDisplayRenderDisable(true);
     globals.setOnBoardEditorActive(true);
     tft.setFont(BMC_OBE_ROW_FONT);
     tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
+    
     render();
   }
   void forceExitEditor(){
@@ -1332,30 +1456,31 @@ private:
     if(confirmSave()){
       if(!waitingForConfirmation()){
         flags.on(BMC_OBE_FLAGS_WAITING_FOR_CONFIRM);
+        tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
       }
-      tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
       renderConfirmSave();
       return;
     }
+    
     BMC_PRINTLN("Exit Editor");
     globals.setDisplayRenderDisable(false);
     globals.setOnBoardEditorActive(false);
     reset();
-    tft.setFont(BMCLiberationSansNarrow_24);
+    // tft.setFont(BMC_FONT_MD);
     tft.fillRect(0, 0, BMC_OBE_W, BMC_OBE_H, BMC_ILI9341_BLACK);
-    display.reassign();
-    
+    // display.reassign(true);
+    display.clearIliBlocks(true);
   }
 
   void renderConfirmSave(){
-    tft.fillRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_BLACK);
-    char buff[18] = "Save Changes?";
-    tft.setFont(BMC_OBE_CONFIRMATION_FONT);
-    uint16_t x = getCenteredX(buff);
-    uint16_t y = BMC_OBE_SAVE_CONFIRM_Y;
-    tft.setTextColor(BMC_ILI9341_WHITE);
-    tft.setCursor(x, y);
-    tft.print(buff);
+    if(!flags.read(BMC_OBE_FLAGS_NO_CONFIRM_RENDERED)){
+      flags.on(BMC_OBE_FLAGS_NO_CONFIRM_RENDERED);
+      tft.fillRect(0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, BMC_ILI9341_BLACK);
+      char buff[18] = "Save Changes?";
+      
+      tft.printCenteredXY(buff, 0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT/2, 2, BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+    }
+    
     bmcRenderExitButtons exitButtons;
     exitButtons.render(tft, data.saveConfirmationValue);
   }
@@ -1364,11 +1489,12 @@ private:
     tft.fillScreen(BMC_ILI9341_BLACK);
     char buff[17] = "";
     strcpy(buff, data.saveConfirmationValue==1 ? "Saving..." : "No Changes Saved");
-    tft.setFont(BMC_OBE_CONFIRMATION_FONT);
-    uint16_t x = getCenteredX(buff);
-    tft.setTextColor(BMC_ILI9341_WHITE);
-    tft.setCursor(x, BMC_OBE_SAVE_CONFIRM_Y);
-    tft.print(buff);
+
+    tft.printCenteredXY(buff, 0, 0, BMC_TFT_WIDTH, BMC_TFT_HEIGHT, 8, BMC_ILI9341_WHITE, BMC_ILI9341_BLACK);
+
+    // track how long saving takes.
+    unsigned long t = millis();
+    
     if(data.saveConfirmationValue){
       editor.saveEEPROM();
     } else {
@@ -1377,17 +1503,24 @@ private:
     globals.setAssignStoreData(true);
     flags.off(BMC_OBE_FLAGS_ROW_EDIT_CHANGED);
     flags.off(BMC_OBE_FLAGS_WAITING_FOR_CONFIRM);
+    // the idea here is to keep the "Saving / No Changes Saved"
+    // message on the display for at least 1 second
+    unsigned long t2 = millis()-t;
+    BMC_PRINTLN("save time took ", t2,"milliseconds");
+    if(t2 < 1000){
+      delay(1000-t2);
+    }
     exitEditor();
   }
-  uint16_t getCenteredX(const char * buff){
+  uint16_t getCenteredX(const char * buff, uint8_t t_offset=0){
     char str[strlen(buff)];
     strcpy(str, buff);
-    return getCenteredX(str);
+    return getCenteredX(str, t_offset);
   }
-  uint16_t getCenteredX(char * buff){
+  uint16_t getCenteredX(char * buff, uint8_t t_offset=0){
     int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
-    int16_t x = (BMC_OBE_W-textWidth) / 2;
-    return (x < 0) ? 0 : x;
+    int16_t x = t_offset+(((BMC_OBE_W-(t_offset*2))-textWidth) / 2);
+    return (x < t_offset) ? t_offset : x;
   }
 };
 #endif

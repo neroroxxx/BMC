@@ -149,6 +149,12 @@ struct BMCMidiMessage {
   bool isEditorSysExId(){
     return (BMC_MERGE_BYTES(sysex[1],sysex[2],sysex[3])==BMC_EDITOR_SYSEX_ID);
   }
+  uint8_t getCrc(){
+    if(isSysEx() && size()>3){
+      return sysex[size()-2];
+    }
+    return 0;
+  }
   bool validateChecksum(){
     return validateCrc();
   }

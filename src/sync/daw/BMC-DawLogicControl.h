@@ -25,15 +25,16 @@
 
 class BMCDawLogicControl {
 private:
+  const char sevDigitChars[64] = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63};
   BMCMidi& midi;
   bmcStoreGlobal& global;
   BMCCallbacks& callback;
+  BMCTimer delayTimer;
   int16_t delayCmd = -1;
   int16_t delayCh = -1;
-  BMCTimer delayTimer;
-  char lcd[2][57];
+  char lcd[2][57] = {"", ""};
   char twoDigitDisplay[3] = "";
-  const char sevDigitChars[64] = {64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63};
+  
 public:
   BMCLogicControlData controller;
 
@@ -46,12 +47,12 @@ public:
   midi(t_midi),
   global(t_global),
   callback(t_callback)
-  {
-    memset(lcd[0], 0, sizeof(lcd[0])*57);
-    memset(lcd[1], 0, sizeof(lcd[0])*57);
+  {}
+  void begin(){
+    strcpy(lcd[0], "");
+    strcpy(lcd[1], "");
   }
   void update(){
-    // return;
     controller.update();
     if(delayTimer.complete()){
       sendButtonCommand(delayCmd, delayCh, true);
@@ -161,6 +162,10 @@ public:
         controller.setSelectState((c-0x18), (v>0));
         if(v==127){
           controller.setSelectedChannel(c-0x18);
+          for(uint8_t i = 0;i<8;i++){
+            controller.setMeter(i, 0);
+          }
+          // reset meters???
           if(callback.dawChannelVPotUpdate){
             uint8_t ch = controller.getSelectedChannel();
             uint8_t centered = controller.getVPotCentered(ch);

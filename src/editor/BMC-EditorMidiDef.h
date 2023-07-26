@@ -75,7 +75,7 @@
   #define BMC_NOTIFY_INVALID_CHECKSUM        	 9
   #define BMC_NOTIFY_INVALID_SIZE            	 10
   #define BMC_NOTIFY_INVALID_INDEX           	 11
-  #define BMC_NOTIFY_INVALID_LAYER            	 12
+  #define BMC_NOTIFY_INVALID_LAYER             12
   #define BMC_NOTIFY_INVALID_PRESET          	 13
   #define BMC_NOTIFY_INVALID_POT             	 14
   #define BMC_NOTIFY_INVALID_STORE_ADDRESS   	 15
@@ -85,8 +85,10 @@
   #define BMC_NOTIFY_INVALID_LINK           	 19
 
 // LAYER FUNCTIONS
-#define BMC_LAYERF_LAYER 0
-#define BMC_LAYERF_LAYER_NAME 1
+#define BMC_LAYERF_LAYER            0
+#define BMC_LAYERF_LAYER_NAME       1
+#define BMC_LAYERF_LAYER_COPY_SWAP  2
+#define BMC_LAYERF_LAYER_SWAP       3
 
 
 

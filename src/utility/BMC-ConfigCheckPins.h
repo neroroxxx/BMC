@@ -14637,6 +14637,468 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+#if defined(BMC_MAX_MINI_DISPLAY)
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 0
+
+#if defined(BMC_USE_MINI_DISPLAY)
+#undef BMC_USE_MINI_DISPLAY
+#endif
+
+#if BMC_TEENSY_MODEL != 32
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_1)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 1
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_2)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 2
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_3)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 3
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_4)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 4
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_5)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 5
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_6)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 6
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_7)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 7
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_8)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 8
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_9)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 9
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_10)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 10
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_11)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 11
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_12)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 12
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_13)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 13
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_14)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 14
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_15)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 15
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_16)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 16
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_17)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 17
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_18)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 18
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_19)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 19
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_20)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 20
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_21)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 21
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_22)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 22
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_23)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 23
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_24)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 24
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_25)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 25
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_26)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 26
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_27)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 27
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_28)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 28
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_29)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 29
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_30)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 30
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_31)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 31
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#if defined(BMC_DEVICE_UI_MINI_DISPLAY_32)
+#ifdef BMC_MAX_MINI_DISPLAY
+#undef BMC_MAX_MINI_DISPLAY
+#endif
+#define BMC_MAX_MINI_DISPLAY 32
+#if !defined(BMC_USE_MINI_DISPLAY)
+#define BMC_USE_MINI_DISPLAY
+#endif
+
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#if defined(BMC_MAX_LCD)
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 0
+
+#if defined(BMC_USE_LCD)
+#undef BMC_USE_LCD
+#endif
+
+#if defined(BMC_DEVICE_UI_LCD_1)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 1
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_2)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 2
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_3)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 3
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_4)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 4
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_5)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 5
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_6)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 6
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_7)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 7
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#if defined(BMC_DEVICE_UI_LCD_8)
+#ifdef BMC_MAX_LCD
+#undef BMC_MAX_LCD
+#endif
+#define BMC_MAX_LCD 8
+#if !defined(BMC_USE_LCD)
+#define BMC_USE_LCD
+#endif
+
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
 #ifdef BMC_MAX_LINKS
 #undef BMC_MAX_LINKS
 #endif

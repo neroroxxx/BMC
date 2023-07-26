@@ -6206,6 +6206,140 @@ class BMCBuildData {
             }
           #endif
           break;
+      case BMC_DEVICE_ID_MINI_DISPLAY:
+          #if BMC_MAX_MINI_DISPLAY > 0 
+            switch(n){
+              #if BMC_MAX_MINI_DISPLAY > 0 && defined(BMC_DEVICE_UI_MINI_DISPLAY_1)
+              case 0: return BMC_DEVICE_UI_MINI_DISPLAY_1;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 1 && defined(BMC_DEVICE_UI_MINI_DISPLAY_2)
+              case 1: return BMC_DEVICE_UI_MINI_DISPLAY_2;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 2 && defined(BMC_DEVICE_UI_MINI_DISPLAY_3)
+              case 2: return BMC_DEVICE_UI_MINI_DISPLAY_3;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 3 && defined(BMC_DEVICE_UI_MINI_DISPLAY_4)
+              case 3: return BMC_DEVICE_UI_MINI_DISPLAY_4;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 4 && defined(BMC_DEVICE_UI_MINI_DISPLAY_5)
+              case 4: return BMC_DEVICE_UI_MINI_DISPLAY_5;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 5 && defined(BMC_DEVICE_UI_MINI_DISPLAY_6)
+              case 5: return BMC_DEVICE_UI_MINI_DISPLAY_6;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 6 && defined(BMC_DEVICE_UI_MINI_DISPLAY_7)
+              case 6: return BMC_DEVICE_UI_MINI_DISPLAY_7;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 7 && defined(BMC_DEVICE_UI_MINI_DISPLAY_8)
+              case 7: return BMC_DEVICE_UI_MINI_DISPLAY_8;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 8 && defined(BMC_DEVICE_UI_MINI_DISPLAY_9)
+              case 8: return BMC_DEVICE_UI_MINI_DISPLAY_9;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 9 && defined(BMC_DEVICE_UI_MINI_DISPLAY_10)
+              case 9: return BMC_DEVICE_UI_MINI_DISPLAY_10;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 10 && defined(BMC_DEVICE_UI_MINI_DISPLAY_11)
+              case 10: return BMC_DEVICE_UI_MINI_DISPLAY_11;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 11 && defined(BMC_DEVICE_UI_MINI_DISPLAY_12)
+              case 11: return BMC_DEVICE_UI_MINI_DISPLAY_12;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 12 && defined(BMC_DEVICE_UI_MINI_DISPLAY_13)
+              case 12: return BMC_DEVICE_UI_MINI_DISPLAY_13;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 13 && defined(BMC_DEVICE_UI_MINI_DISPLAY_14)
+              case 13: return BMC_DEVICE_UI_MINI_DISPLAY_14;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 14 && defined(BMC_DEVICE_UI_MINI_DISPLAY_15)
+              case 14: return BMC_DEVICE_UI_MINI_DISPLAY_15;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 15 && defined(BMC_DEVICE_UI_MINI_DISPLAY_16)
+              case 15: return BMC_DEVICE_UI_MINI_DISPLAY_16;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 16 && defined(BMC_DEVICE_UI_MINI_DISPLAY_17)
+              case 16: return BMC_DEVICE_UI_MINI_DISPLAY_17;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 17 && defined(BMC_DEVICE_UI_MINI_DISPLAY_18)
+              case 17: return BMC_DEVICE_UI_MINI_DISPLAY_18;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 18 && defined(BMC_DEVICE_UI_MINI_DISPLAY_19)
+              case 18: return BMC_DEVICE_UI_MINI_DISPLAY_19;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 19 && defined(BMC_DEVICE_UI_MINI_DISPLAY_20)
+              case 19: return BMC_DEVICE_UI_MINI_DISPLAY_20;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 20 && defined(BMC_DEVICE_UI_MINI_DISPLAY_21)
+              case 20: return BMC_DEVICE_UI_MINI_DISPLAY_21;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 21 && defined(BMC_DEVICE_UI_MINI_DISPLAY_22)
+              case 21: return BMC_DEVICE_UI_MINI_DISPLAY_22;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 22 && defined(BMC_DEVICE_UI_MINI_DISPLAY_23)
+              case 22: return BMC_DEVICE_UI_MINI_DISPLAY_23;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 23 && defined(BMC_DEVICE_UI_MINI_DISPLAY_24)
+              case 23: return BMC_DEVICE_UI_MINI_DISPLAY_24;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 24 && defined(BMC_DEVICE_UI_MINI_DISPLAY_25)
+              case 24: return BMC_DEVICE_UI_MINI_DISPLAY_25;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 25 && defined(BMC_DEVICE_UI_MINI_DISPLAY_26)
+              case 25: return BMC_DEVICE_UI_MINI_DISPLAY_26;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 26 && defined(BMC_DEVICE_UI_MINI_DISPLAY_27)
+              case 26: return BMC_DEVICE_UI_MINI_DISPLAY_27;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 27 && defined(BMC_DEVICE_UI_MINI_DISPLAY_28)
+              case 27: return BMC_DEVICE_UI_MINI_DISPLAY_28;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 28 && defined(BMC_DEVICE_UI_MINI_DISPLAY_29)
+              case 28: return BMC_DEVICE_UI_MINI_DISPLAY_29;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 29 && defined(BMC_DEVICE_UI_MINI_DISPLAY_30)
+              case 29: return BMC_DEVICE_UI_MINI_DISPLAY_30;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 30 && defined(BMC_DEVICE_UI_MINI_DISPLAY_31)
+              case 30: return BMC_DEVICE_UI_MINI_DISPLAY_31;
+            #endif
+            #if BMC_MAX_MINI_DISPLAY > 31 && defined(BMC_DEVICE_UI_MINI_DISPLAY_32)
+              case 31: return BMC_DEVICE_UI_MINI_DISPLAY_32;
+            #endif
+    
+            }
+          #endif
+          break;
+      case BMC_DEVICE_ID_LCD:
+          #if BMC_MAX_LCD > 0 
+            switch(n){
+              #if BMC_MAX_LCD > 0 && defined(BMC_DEVICE_UI_LCD_1)
+              case 0: return BMC_DEVICE_UI_LCD_1;
+            #endif
+            #if BMC_MAX_LCD > 1 && defined(BMC_DEVICE_UI_LCD_2)
+              case 1: return BMC_DEVICE_UI_LCD_2;
+            #endif
+            #if BMC_MAX_LCD > 2 && defined(BMC_DEVICE_UI_LCD_3)
+              case 2: return BMC_DEVICE_UI_LCD_3;
+            #endif
+            #if BMC_MAX_LCD > 3 && defined(BMC_DEVICE_UI_LCD_4)
+              case 3: return BMC_DEVICE_UI_LCD_4;
+            #endif
+            #if BMC_MAX_LCD > 4 && defined(BMC_DEVICE_UI_LCD_5)
+              case 4: return BMC_DEVICE_UI_LCD_5;
+            #endif
+            #if BMC_MAX_LCD > 5 && defined(BMC_DEVICE_UI_LCD_6)
+              case 5: return BMC_DEVICE_UI_LCD_6;
+            #endif
+            #if BMC_MAX_LCD > 6 && defined(BMC_DEVICE_UI_LCD_7)
+              case 6: return BMC_DEVICE_UI_LCD_7;
+            #endif
+            #if BMC_MAX_LCD > 7 && defined(BMC_DEVICE_UI_LCD_8)
+              case 7: return BMC_DEVICE_UI_LCD_8;
+            #endif
+    
+            }
+          #endif
+          break;
       case BMC_DEVICE_ID_MAGIC_ENCODER:
           #if BMC_MAX_MAGIC_ENCODERS > 0 
             switch(n){

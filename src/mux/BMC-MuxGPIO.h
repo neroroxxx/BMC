@@ -105,7 +105,7 @@ public:
       // uint8_t mux = (uint8_t) (t_pin/16);
       // uint8_t pin = t_pin-(mux*16);
       // bitWrite(states[mux], pin, t_value);
-      bitWrite(states[t_pin>>4], t_pin & 0x0F, t_value);
+      bitWrite(states[(t_pin>>4) & 0x0F], t_pin & 0x0F, t_value);
 #elif BMC_MUX_GPIO_CHIPSET == BMC_MUX_GPIO_CHIPSET_MCP
       mux.writePin(t_pin, t_value);
 #endif

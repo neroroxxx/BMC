@@ -41,7 +41,7 @@ public:
       BMC_ILI9341_BLUE,
     };
     uint8_t colorSel[3] = {0,0,0};
-
+    BMC_PRINTLN("Touch Calibration Touch the center of the crosshairs with a stylus");
     printMessage("Touch Calibration", "Touch the center of the", "crosshairs with a stylus");
 
     drawCrossHair(true, BMC_ILI9341_GREEN);
@@ -76,6 +76,7 @@ public:
     // BMC_PRINTLN("cal.xM=",cal.xM, "cal.xC=",cal.xC, "cal.yM=",cal.yM, "cal.yC=",cal.yC);
 
     printMessage("Testing Time!", "Tap the blocks to test,", "use a stylus and your fingers");
+    BMC_PRINTLN("Testing Time! Tap the blocks to test, use a stylus and your fingers");
 
     bmcTouchArea left;
     bmcTouchArea middle;
@@ -167,10 +168,10 @@ public:
   }
   void printLine(const char* str, bool header, uint8_t y){
     if(header){
-      tft.setFont(BMCLiberationSansNarrow_24_Bold);
+      tft.setFont(BMC_FONT_MD);
       tft.setTextColor(BMC_ILI9341_ORANGE);
     } else {
-      tft.setFont(BMCLiberationSansNarrow_20);
+      tft.setFont(BMC_FONT_MD);
       tft.setTextColor(BMC_ILI9341_WHITE);
     }
     char buff[strlen(str)+1] = "";
@@ -186,7 +187,7 @@ public:
     strcpy(buff, text);
     tft.fillRect(x, y, width, height, background);
     tft.setTextColor(color);
-    tft.setFont(BMCLiberationSansNarrow_16);
+    tft.setFont(BMC_FONT_SM);
     int16_t textWidth = BMC_TFT_STR_LEN(tft, buff);
     uint16_t textX = (width-textWidth) / 2;
     textX = (textX < 0) ? 0 : textX;

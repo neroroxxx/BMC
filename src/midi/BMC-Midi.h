@@ -72,6 +72,11 @@ public:
 #endif
     BMC_PRINTLN("");
   }
+  void flush(){
+    #ifdef BMC_HAS_SERIAL_MIDI
+      midiSerial.flush();
+    #endif
+  }
   BMCMidiMessage read(){
     message.reset();
     if(usbMIDI.read()){
