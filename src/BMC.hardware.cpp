@@ -127,7 +127,7 @@ void BMC::readHardware(){
 
 
 #if defined(BMC_HAS_DISPLAY)
-#if (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+#if BMC_MAX_ILI9341_BLOCKS > 0 && (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
   if(globals.getRenderDisplayList()){
     display.renderDisplayLists();
   } else if(globals.displayListsComplete()){
