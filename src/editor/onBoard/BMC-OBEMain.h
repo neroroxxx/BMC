@@ -944,8 +944,8 @@ private:
   BMCOBEData data;
   BMCOBEDevices devicesEditor;
   BMCFlags <uint16_t> flags;
-  const uint8_t totalMenuItems = 43;
-  const BMCOBEMenuItem items[43] = {
+  const uint8_t totalMenuItems = 44;
+  const BMCOBEMenuItem items[44] = {
     // keep the main page at 3 items.
     {{0}, BMC_OBE_ID_GO_TO, "Go To / Toggle", BMC_OBE_MENU_LIST},
       {{1,0}, BMC_OBE_ID_CP_GO_TO_LAYER, "Layer", BMC_OBE_EDIT_LIST, 0, BMC_MAX_LAYERS-1, 1},
@@ -974,6 +974,7 @@ private:
           {{3,1,0,0}, BMC_OBE_ID_S_STARTUP_PRESET, "Startup Preset", BMC_OBE_EDIT_LIST, 0, BMC_MAX_PRESETS-1, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_TRIG_1ST_SONG, "Trigger 1st Song", BMC_OBE_EDIT_LIST, 0, 1, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_TRIG_1ST_PART, "Trigger 1st Song Part", BMC_OBE_EDIT_LIST, 0, 1, 1},
+          {{3,1,0,0}, BMC_OBE_ID_S_PART_RECALL, "Trigger 1st Song Part", BMC_OBE_EDIT_LIST, 0, 1, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_DISPLAY_LIST_MODE, "Display List Mode", BMC_OBE_EDIT_LIST, 0, 7, 1},
           {{3,1,0,0}, BMC_OBE_ID_S_TOUCH_CALIBRATED, "Touch Calibrated", BMC_OBE_EDIT_LIST, 0, 1, 1},
         {{2,1,0}, BMC_OBE_ID_SETTINGS_MIDI, "MIDI", BMC_OBE_MENU_LIST},
@@ -1144,6 +1145,15 @@ private:
         strcpy(str, data.yesNoLabels[value]);
         return value;
 
+      case BMC_OBE_ID_S_PART_RECALL:
+        originalValue = settings.getSetListAllowPartRecall();
+        value = (!active) ? originalValue : value;
+        if(setValue && setChangesMade(originalValue, value)){
+          settings.setSetListAllowPartRecall(value);
+        }
+        strcpy(str, data.yesNoLabels[value]);
+        return value;
+
       case BMC_OBE_ID_S_DISPLAY_LIST_MODE:
         originalValue = settings.getDisplayListMode();
         value = (!active) ? originalValue : value;
@@ -1199,6 +1209,7 @@ private:
           case 0: strcpy(str, "None"); break;
           case 1: strcpy(str, "Change Layer"); break;
           case 2: strcpy(str, "Change Preset"); break;
+          case 3: strcpy(str, "Change Song"); break;
         }
         return value;
 
@@ -1360,11 +1371,16 @@ private:
             return value;
           }
           char buff[BMC_MAX_NAMES_LENGTH] = "";
-          uint16_t p = store.global.songLibrary[globals.songInLibrary].events[value];
-          if(p > 0){
-            editor.getDeviceNameText(BMC_DEVICE_ID_PRESET, p, buff);
-          } else {
+
+          if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS_LIBRARY){
             strcpy(buff, "*empty");
+          } else {
+            uint16_t p = store.global.songLibrary[globals.songInLibrary].events[value];
+            if(p > 0){
+              editor.getDeviceNameText(BMC_DEVICE_ID_PRESET, p, buff);
+            } else {
+              strcpy(buff, "*empty");
+            }
           }
           sprintf(str, "#%u %s", value+(settings.getDisplayOffset()?0:1), buff);
           return value;

@@ -250,11 +250,11 @@ public:
     
     if(!globals.displayListsActive()){
       
-      tft.display.setFont(BMC_FONT_MD);
+      tft.display.setFont(BMC_FONT_SM);
       tft.display.fillRect(0, 0, BMC_TFT_WIDTH, headerHeight, BMC_ILI9341_BLACK);
       uint16_t x = (BMC_TFT_WIDTH - BMC_TFT_STR_LEN(tft.display, deviceName))/2;
       x = x < 4 ? 4 : x;
-      tft.display.setCursor(x, 5);
+      tft.display.setCursor(x, headerHeight-16);
       // title color
       tft.display.setTextColor(BMC_ILI9341_YELLOW);
       tft.display.print(deviceName);
@@ -264,7 +264,7 @@ public:
     }
 
     tft.display.setTextColor(BMC_ILI9341_ORANGE);
-    tft.display.setFont(BMC_FONT_LG);
+    tft.display.setFont(BMC_FONT_MD);
     
     // uint8_t pageTotal = (uint8_t) (BMC_MAX_SETLISTS / listCount);
     // uint8_t pageTotal = pageTotal + listCount;
@@ -273,11 +273,11 @@ public:
       listPageCurrent = pageCurrent;
       tft.display.fillRect(0, headerHeight, BMC_TFT_WIDTH, BMC_TFT_HEIGHT-headerHeight, BMC_ILI9341_BLACK);
     }
-
     for(uint16_t i = 0, e = (pageCurrent*listCount) ; i < listCount; i++, e++){
       if(i >= listCount){
         break;
       }
+      
       if(e < maxListCount){
         uint16_t borderColor = BMC_ILI9341_BLACK;
         uint16_t textColor = BMC_ILI9341_WHITE;
@@ -293,11 +293,12 @@ public:
         tft.display.drawRect(5, headerHeight + 1 + (i*listItemHeight), BMC_TFT_WIDTH-10, listItemHeight-2, borderColor);
 
         // list color
-        tft.display.setCursor(14, headerHeight + ((i*listItemHeight) + yPadding));
+        // tft.display.setCursor(14, headerHeight + ((i*listItemHeight) + yPadding));
+        tft.display.setCursor(14, (headerHeight + ((i*listItemHeight) + listItemHeight) - yPadding));
 
         bmcName_t nameIndex = 0;
-
-        #if BMC_MAX_LAYERS > 0
+        
+        #if BMC_MAX_LAYERS > 1
           if(listId == BMC_DEVICE_ID_LAYER){
             nameIndex = store.layers[e].events[0].name;
           }
@@ -307,19 +308,24 @@ public:
             nameIndex = store.global.presets[e].name;
           }
         #endif
-        #if BMC_MAX_SETSLISTS > 0
+        #if BMC_MAX_SETLISTS > 0
           if(listId == BMC_DEVICE_ID_SETLIST){
             nameIndex = store.global.setLists[e].name;
-          } else if(listId == BMC_DEVICE_ID_SETLIST_SONG){
+          }
+          if(listId == BMC_DEVICE_ID_SETLIST_SONG){
             // get the id of the song
             uint8_t currentSetlist = globals.setList;
             uint16_t songId = store.global.setLists[currentSetlist].events[e];
-            nameIndex = store.global.songList[songId].name;
+            nameIndex = store.global.songLibrary[songId-1].name;
+            BMC_PRINTLN("******************************** songId", songId);
           }
 
         #endif
 
+        
+
         if(nameIndex > 0){
+          
           #if BMC_MAX_PRESETS > 0
             if(listId == BMC_DEVICE_ID_PRESET){
               char bankLetter[3] = "";
@@ -357,7 +363,7 @@ public:
               continue;
             }
           #endif
-          #if BMC_MAX_SETSLISTS > 0
+          #if BMC_MAX_SETLISTS > 0
             if(listId == BMC_DEVICE_ID_SETLIST || listId == BMC_DEVICE_ID_SETLIST_SONG){
               tft.display.print("#");
             }
@@ -367,8 +373,6 @@ public:
         }
       }
     }
-    
-
     globals.enterDisplayListMode(500+(listModeValue*500));
 #endif
   }
@@ -433,17 +437,36 @@ public:
       return;
     }
 #if BMC_MAX_SETLISTS > 0
-    if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
-      return;
-    }
+    // if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
+    //   return;
+    // }
+    // char line1[33] = "";
+    // char line2[33] = "";
+    // sprintf(line1, "Song %u", globals.song+globals.offset);
+    // bmcName_t n = store.global.songLibrary[globals.songInLibrary].name;
+    // if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
+    //   strcpy(line2, store.global.names[n-1].name);
+    // }
+    // renderTempBanner(line1, line2);
+    
+    
     char line1[33] = "";
     char line2[33] = "";
     sprintf(line1, "Song %u", globals.song+globals.offset);
-    bmcName_t n = store.global.songLibrary[globals.songInLibrary].name;
-    if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-      strcpy(line2, store.global.names[n-1].name);
+
+    if(globals.songInLibrary > BMC_MAX_SETLISTS_SONGS_LIBRARY){
+      strcpy(line2, "No Song Assigned");
+    } else {
+      bmcName_t n = store.global.songLibrary[globals.songInLibrary].name;
+      if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
+        strcpy(line2, store.global.names[n-1].name);
+      }
     }
     renderTempBanner(line1, line2);
+
+    
+
+
 #endif
   }
   void renderSongPartBanner(){
@@ -454,17 +477,20 @@ public:
     if(globals.songPart >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    if(globals.songInLibrary >= BMC_MAX_SETLISTS_SONGS){
-      return;
-    }
     char line1[33] = "";
     char line2[33] = "";
     sprintf(line1, "Part %u", globals.songPart+globals.offset);
-    uint16_t songPart = store.global.songLibrary[globals.songInLibrary].events[globals.songPart];
-    if(songPart > 0){
-      bmcName_t n = store.global.presets[songPart-1].name;
-      if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
-        strcpy(line2, store.global.names[n-1].name);
+
+
+    if(globals.songInLibrary > BMC_MAX_SETLISTS_SONGS_LIBRARY){
+      strcpy(line2, "No Song Assigned");
+    } else {
+      uint16_t songPart = store.global.songLibrary[globals.songInLibrary].events[globals.songPart];
+      if(songPart > 0){
+        bmcName_t n = store.global.presets[songPart-1].name;
+        if(n > 0 && n <= BMC_MAX_NAMES_LIBRARY){
+          strcpy(line2, store.global.names[n-1].name);
+        }
       }
     }
     renderTempBanner(line1, line2);
@@ -579,11 +605,11 @@ public:
   }
 
   
-  void reassign(){
+  void reassign(bool full=false){
     reassignHandlers();
 
     reassignOleds();
-    reassignIliBlocks(false);
+    reassignIliBlocks(full);
     reassignMiniDisplay();
     reassignLCD();
   }
@@ -1027,6 +1053,9 @@ void blackoutIli(uint8_t index){
     block[index].blackout(tft.display);
   }
 }
+void blackoutIliScreen(){
+   tft.clear();
+}
 #endif
 
 
@@ -1252,9 +1281,9 @@ private:
   uint8_t generateCrc(BMCDataContainer d){
     uint8_t c = 0;
     if(d.useSelected() && !d.useStringOnly()){
-      c += checkLast(d.type, d.strSelected) + strlen(d.strSelected) + d.valueSelected;
+      c += checkLast(d.type, d.strSelected) + (strlen(d.strSelected) * d.valueSelected);
     } else {
-      c += checkLast(d.type, d.str) + strlen(d.str) + d.value;
+      c += checkLast(d.type, d.str) + (strlen(d.str) * d.value);
     }
     c += (d.highlight*2);
     c += d.prependValue;

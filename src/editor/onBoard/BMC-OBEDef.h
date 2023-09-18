@@ -250,35 +250,36 @@
 #define BMC_OBE_ID_S_STARTUP_PRESET   	 22
 #define BMC_OBE_ID_S_TRIG_1ST_SONG    	 23
 #define BMC_OBE_ID_S_TRIG_1ST_PART    	 24
-#define BMC_OBE_ID_S_DISPLAY_LIST_MODE	 25
-#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 26
+#define BMC_OBE_ID_S_PART_RECALL      	 25
+#define BMC_OBE_ID_S_DISPLAY_LIST_MODE	 26
+#define BMC_OBE_ID_S_TOUCH_CALIBRATED 	 27
 // main > settings
-#define BMC_OBE_ID_SETTINGS_MIDI      	 27
+#define BMC_OBE_ID_SETTINGS_MIDI      	 28
 // main > settings > general
-#define BMC_OBE_ID_S_IN_CTRL          	 28
-#define BMC_OBE_ID_S_IN_CTRL_CH       	 29
-#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 30
-#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 31
-#define BMC_OBE_ID_S_MASTER_CLOCK     	 32
-#define BMC_OBE_ID_S_ACTIVE_SENSE     	 33
-#define BMC_OBE_ID_S_BLOCK_RT_IN      	 34
-#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 35
+#define BMC_OBE_ID_S_IN_CTRL          	 29
+#define BMC_OBE_ID_S_IN_CTRL_CH       	 30
+#define BMC_OBE_ID_S_IN_CTRL_ACTION   	 31
+#define BMC_OBE_ID_S_CLOCK_IN_PORT    	 32
+#define BMC_OBE_ID_S_MASTER_CLOCK     	 33
+#define BMC_OBE_ID_S_ACTIVE_SENSE     	 34
+#define BMC_OBE_ID_S_BLOCK_RT_IN      	 35
+#define BMC_OBE_ID_S_BLOCK_RT_OUT     	 36
 // main
-#define BMC_OBE_ID_GLOBAL             	 36
+#define BMC_OBE_ID_GLOBAL             	 37
 // main > global
-#define BMC_OBE_ID_GLOBAL_ITEMS       	 37
+#define BMC_OBE_ID_GLOBAL_ITEMS       	 38
 // main > global > items
-#define BMC_OBE_ID_G_ITEM_LIST        	 38
+#define BMC_OBE_ID_G_ITEM_LIST        	 39
 // main > global > items > editor
-#define BMC_OBE_ID_G_ITEM_EDIT        	 39
+#define BMC_OBE_ID_G_ITEM_EDIT        	 40
 // main
-#define BMC_OBE_ID_LAYERS             	 40
+#define BMC_OBE_ID_LAYERS             	 41
 // main > layers
-#define BMC_OBE_ID_LAYERS_ITEMS       	 41
+#define BMC_OBE_ID_LAYERS_ITEMS       	 42
 // main > layers > items
-#define BMC_OBE_ID_P_ITEM_LIST        	 42
+#define BMC_OBE_ID_P_ITEM_LIST        	 43
 // main > layers > items > editor
-#define BMC_OBE_ID_P_ITEM_EDIT        	 43
+#define BMC_OBE_ID_P_ITEM_EDIT        	 44
 
 
 class bmcRenderButton {

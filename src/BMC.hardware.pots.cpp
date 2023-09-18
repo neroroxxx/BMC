@@ -90,6 +90,11 @@ void BMC::readPots(){
                     device.events[0],
                     value
                   );
+      #if defined(BMC_DEBUG)
+        if(globals.getPotsDebug()){
+          BMC_PRINTLN("Pot", index, auxJacks[index].getPotValue());
+        }
+      #endif
       // HANDLE CALLBACKS
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.potCustomActivity){
@@ -141,6 +146,11 @@ void BMC::readPots(){
                     device.events[0],
                     value
                   );
+      #if defined(BMC_DEBUG)
+        if(globals.getPotsDebug()){
+          BMC_PRINTLN("Globals Pot", index, auxJacks[index].getPotValue());
+        }
+      #endif
       // HANDLE CALLBACKS
       /*
       if(data.type==BMC_EVENT_TYPE_CUSTOM && callback.globalPotCustomActivity){

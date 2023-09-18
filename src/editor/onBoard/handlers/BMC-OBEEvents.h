@@ -445,7 +445,7 @@ private:
 
       case BMC_EVENT_TYPE_BANK_LSB_PROGRAM:
         if(request==0){ /* available */ return true; }
-        else if(request==1){ /* fields */ return 4; }
+        else if(request==1){ /* fields */ return 7; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return true; }
         else if(request==4){ /* name */ strcpy(str, "CC#32 + Program Change"); return 1;}
@@ -473,7 +473,7 @@ private:
       case BMC_EVENT_TYPE_BANK_MSB_LSB_PROGRAM:
         if(request==0){ /* available */ return true; }
         else if(request==1){ /* fields */ return 5; }
-        else if(request==2){ /* scroll */ return false; }
+        else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return true; }
         else if(request==4){ /* name */ strcpy(str, "CC#0 + CC#32 + Program"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeBankMsbLsbProgram(str, fieldRequest, field);}
@@ -1071,6 +1071,12 @@ private:
         return eventGetField8BitValueRange(str, "Program", fieldRequest, 2, 0, 127, false);
       case 4:
         return eventGetPortsField(str, fieldRequest, field);
+      case 5:
+        return eventGetScrollEnableField(str, fieldRequest);
+      case 6:
+        return eventGetScrollDirectionField(str, fieldRequest);
+      case 7:
+        return eventGetScrollWrapField(str, fieldRequest);
     }
     return 0;
   }

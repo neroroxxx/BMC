@@ -127,6 +127,16 @@ void BMC::readHardware(){
 
 
 #if defined(BMC_HAS_DISPLAY)
+#if (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
+  if(globals.getRenderDisplayList()){
+    display.renderDisplayLists();
+  } else if(globals.displayListsComplete()){
+    globals.exitDisplayListMode();
+    display.blackoutIliScreen();
+    display.reassign(true);
+  }
+#endif
+
 if(oneMillisecondPassed()){
   
   #if defined(BMC_DEBUG)
@@ -145,14 +155,6 @@ if(oneMillisecondPassed()){
         processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_ILI, index, eIndex);
       }
     }
-    #if (BMC_MAX_SETLISTS > 0 || BMC_MAX_LAYERS > 1 || BMC_MAX_PRESETS > 0)
-      if(globals.getRenderDisplayList()){
-        display.renderDisplayLists();
-      } else if(globals.displayListsComplete()){
-        globals.exitDisplayListMode();
-        display.reassign();
-      }
-    #endif
   #endif
 
   #if BMC_MAX_OLED > 0

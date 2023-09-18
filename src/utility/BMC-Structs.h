@@ -915,11 +915,15 @@ struct BMCMidiTimeSignature {
   // kept track of the current beat
   uint8_t beat = 0;
 
-  void setFromMidi(uint8_t n, uint8_t d, uint8_t c, uint8_t n32){
+  bool setFromMidi(uint8_t n, uint8_t d, uint8_t c, uint8_t n32){
+    uint8_t pNum = numerator;
+    uint8_t pDen = denominator;
     numerator = n;
     denominator = (uint8_t) pow((int)(-d),2);
     metClocks = c;
     notated32 = n32;
+    // return true if a change has happened
+    return (numerator != pNum || denominator != pDen);
   }
   void reset(){
     numerator = 0;

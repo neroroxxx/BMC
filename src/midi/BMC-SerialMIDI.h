@@ -2,6 +2,7 @@
   See https://www.RoxXxtar.com/bmc for more details
   Copyright (c) 2023 RoxXxtar.com
   Licensed under the MIT license.
+  Read and send MIDI over Hardware Serial
   See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_SERIAL_MIDI_H
@@ -9,11 +10,9 @@
 
 #include "utility/BMC-Def.h"
 
-#ifdef BMC_HAS_SERIAL_MIDI
+#if defined(BMC_HAS_SERIAL_MIDI) || defined(BMC_MIDI_BLE_ENABLED)
 
 #include "HardwareSerial.h"
-
-
 template <uint8_t SerBit, class S>
 class BMCSerialMIDI {
 public:
@@ -27,6 +26,8 @@ public:
   uint16_t sysexLen = 0;
   uint16_t rpnVal = 0xFFFF;
   uint16_t nrpnVal = 0xFFFF;
+  // unsigned long tConn = 0;
+  // bool connected = 0;
   bool waitForSysExClose = false;
   bool thruOn = false;
 
@@ -47,6 +48,7 @@ public:
   }
   bool read(BMCMidiMessage& message, bool ignoreRealTime){
     if(_read()){
+
       message.reset(SerBit);
       message.setStatus(status);
       if(message.isSystemRealTimeStatus()){
@@ -61,7 +63,6 @@ public:
       if(message.isSystemExclusive()){
         message.setData1(0);
         message.setData2(0);
-        
         if(sysexLen <= BMC_MIDI_SYSEX_SIZE){
           message.addSysEx(sysex, sysexLen);
         } else {
@@ -72,6 +73,9 @@ public:
       }
       return true;
     }
+    // if(connected && ((unsigned long) millis()-tConn > 6000)){
+    //   connected = false;
+    // }
     return false;
   }
   bool _read(){
@@ -167,37 +171,6 @@ public:
           }
         }
       }
-      // message.reset(SerBit);
-      // message.setStatus((uint8_t) Port.getType());
-      // if(message.isSystemRealTimeStatus()){
-      //   if(ignoreRealTime){
-      //     message.reset();
-      //     return false;
-      //   }
-      //   return true;
-      // }
-      // message.setData1(Port.getData1());
-      // message.setData2(Port.getData2());
-      // if(message.isSystemExclusive()){
-      //   message.setData1(0);
-      //   message.setData2(0);
-        
-      //   if(Port.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
-      //     message.addSysEx(Port.getSysExArray(), Port.getSysExArrayLength());
-      //     BMC_PRINTLN(message.sysex[0], message.sysex[1], message.sysex[2]);
-      //     if(message.sysex[0] == 0xF7){
-      //       BMC_PRINTLN("?????");
-      //       BMC_MIDI_SERIAL_IO_A.flush();
-      //       message.reset();
-      //       return false;
-      //     }
-      //   } else {
-      //     message.setStatus(BMC_NONE);
-      //   }
-      // } else if(message.isChannelStatus()){
-      //   message.setChannel((uint8_t) Port.getChannel());
-      // }
-      // return true;
     }
     return false;
   }
@@ -357,7 +330,6 @@ public:
     sendControlChange(98, 0x7f, channel);
     nrpnVal = 0xffff;
   }
-  // void send(const MidiMessage&);
 };
 #endif
 #endif

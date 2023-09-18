@@ -466,11 +466,21 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       }
       break;
     case BMC_EVENT_TYPE_BANK_MSB_LSB_PROGRAM:
-      if(group==BMC_DEVICE_GROUP_BUTTON){
+
+      if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
         uint8_t channel = data.getChannel();
+        
         midi.sendControlChange(e.ports, channel, 0, data.byteB & 0x7F);
         midi.sendControlChange(e.ports, channel, 32, data.byteC & 0x7F);
-        midi.sendProgramChange(e.ports, channel, data.byteD & 0x7F);
+
+        if(data.scrollEnabled()){
+          uint8_t currentPC = midi.getLocalProgram(channel);
+          data.setMinMax(currentPC, 0, 127, 0, 127);
+          midi.scrollPC(e.ports, data.getChannel(), data.scrollAmount(), data.scrollDirection(), data.scrollWrap(), data.min, data.max);
+        } else {
+          midi.sendProgramChange(e.ports, data.getChannel(), data.byteD & 0x7F);
+        }
+        // midi.sendProgramChange(e.ports, channel, data.byteD & 0x7F);
       } else if(group==BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         data.forceOnlyString();
@@ -1241,8 +1251,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           if(data.byteA < BMC_MAX_SETLISTS_SONGS){
             // set display settings
             strcpy(data.label, "SONG");
-            // bmcStoreName name;
-            // bmcStoreName selName;
 
             data.value          = data.byteA;
             data.valueSelected  = setLists.getSong();
@@ -1260,10 +1268,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
             data.digits = 1;
             strcpy(data.format, "Sg %01u");
             #endif
-            
-            // strcpy(data.str, name.name);
-            // strcpy(data.strSelected, selName.name);
-            
             display.renderBlock(data);
             
           }
@@ -1516,10 +1520,11 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
                 s--;
               }
             }
-            sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_TRANS_PART_1+s);
+            sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_TRANS_PART_1+s, data.byteB);
             return 0;
           }
         }
+        BMC_PRINTLN("event values", data.byteA, data.byteB);
         sync.beatBuddy.sendCommand(data.byteA, data.byteB);
         
       } else if(group == BMC_DEVICE_GROUP_ENCODER){
@@ -1538,7 +1543,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
               s--;
             }
           }
-          sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_TRANS_PART_1+s);
+          sync.beatBuddy.sendCommand(BMC_BEATBUDDY_CMD_TRANS_PART_1+s, data.byteB);
           return 0;
         }
         switch(data.byteA){

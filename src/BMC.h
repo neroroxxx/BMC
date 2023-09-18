@@ -307,6 +307,7 @@ private:
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
 
   void runLayerChanged(){
+    BMC_PRINTLN("runLayerChanged");
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
       globals.setRenderDisplayList(BMC_DEVICE_ID_LAYER);
       display.renderLayerBanner();
@@ -321,6 +322,14 @@ private:
                   );
     }
 
+    if(settings.getOutgoingListenerEnabled() > 0 && settings.getOutgoingProgramType() == 1){
+      uint8_t ports = settings.getOutgoingPCPort();
+      uint8_t channel = (settings.getOutgoingPCChannel() & 0x0F)+1;
+      midi.sendControlChange(ports, channel, 0, 0);
+      midi.sendControlChange(ports, channel, 32, (layer >> 7) & 0x7F);
+      midi.sendProgramChange(ports, channel, layer & 0x7F);
+    }
+
     #if BMC_MAX_BUTTONS > 1
       dualPress.layerChanged();
     #endif
@@ -333,6 +342,16 @@ private:
     #endif
 
     triggerPreset(presets.getIndex(), presets.getLength());
+
+    if(settings.getOutgoingListenerEnabled() > 0 && settings.getOutgoingProgramType() == 2){
+      uint8_t ports = settings.getOutgoingPCPort();
+      uint8_t channel = (settings.getOutgoingPCChannel() & 0x0F)+1;
+      uint16_t presetIndex = presets.getIndex();
+
+      midi.sendControlChange(ports, channel, 0, 0);
+      midi.sendControlChange(ports, channel, 32, (presetIndex >> 7) & 0x7F);
+      midi.sendProgramChange(ports, channel, presetIndex & 0x7F);
+    }
 
     if(callback.presetChanged){
       callback.presetChanged(presets.getBank(), presets.get());
@@ -394,9 +413,19 @@ private:
   void runSongChanged(){
 #if BMC_MAX_SETLISTS > 0
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
-      globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST);
+      globals.setRenderDisplayList(BMC_DEVICE_ID_SETLIST_SONG);
       display.renderSongBanner();
     #endif
+
+    if(settings.getOutgoingListenerEnabled() > 0 && settings.getOutgoingProgramType() == 3){
+      uint8_t ports = settings.getOutgoingPCPort();
+      uint8_t channel = (settings.getOutgoingPCChannel() & 0x0F)+1;
+      uint16_t songIndex = (setLists.get() * BMC_MAX_SETLISTS_SONGS) + setLists.getSong();
+
+      midi.sendControlChange(ports, channel, 0, 0);
+      midi.sendControlChange(ports, channel, 32, (songIndex >> 7) & 0x7F);
+      midi.sendProgramChange(ports, channel, songIndex & 0x7F);
+    }
 
 /*
     char songName[30] = "";
@@ -413,15 +442,6 @@ private:
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
       display.renderSongPartBanner();
     #endif
-
-    uint16_t songInLibrary = setLists.getSongInLibrary();
-    uint8_t part = setLists.getPart();
-    uint8_t len = store.global.songLibrary[songInLibrary].settings[0];
-    uint16_t p = store.global.songLibrary[songInLibrary].events[part];
-    if(len > 0 && p < BMC_MAX_PRESETS){
-      bmcStoreDevice <1, BMC_MAX_PRESET_ITEMS>& device = store.global.presets[p];
-      triggerPreset(device.events[part], device.settings[0]);
-    }
     if(callback.setListSongPartChanged){
       callback.setListSongPartChanged(setLists.getPart());
     }

@@ -142,8 +142,9 @@ public:
         bbStopped();
 
       } else if(isTimeSignatureMessage(m)){
-        timeSignature.setFromMidi(m.sysex[6],m.sysex[7],m.sysex[8],m.sysex[9]);
-        BMC_PRINTLN("BeatBuddy Time Signature",timeSignature.numerator,"/",timeSignature.denominator);
+        if(timeSignature.setFromMidi(m.sysex[6],m.sysex[7],m.sysex[8],m.sysex[9])){
+          BMC_PRINTLN("BeatBuddy Time Signature",timeSignature.numerator,"/",timeSignature.denominator);
+        }
       }
     }
   }
@@ -181,7 +182,8 @@ public:
       return;
     }
     if(value>=BMC_BEATBUDDY_CMD_TRANS_END && value<=BMC_BEATBUDDY_CMD_TRANS_NEXT){
-      transition(value-100);
+      BMC_PRINTLN("************************** BEATBUDDY SEND COMMAND", value, data);
+      transition(value-100, data);
       return;
     }
     switch(value){
@@ -375,8 +377,18 @@ public:
   void drumFill(){
     sendControl(BMC_BEATBUDDY_CC_DRUM_FILL, 127);
   }
-  void transition(uint8_t value){
+  void transition(uint8_t value, uint8_t data=0){
+    // if(!isPlaying()){
+
+    // }
     sendControl(BMC_BEATBUDDY_CC_TRANSITION, value);
+    BMC_PRINTLN("************************** BEATBUDDY TRANSITION", value, data);
+    if(value > 0 && data == 127){
+      // if it's not the transition end message
+      // and if data is 127
+      // send transition end
+      sendControl(BMC_BEATBUDDY_CC_TRANSITION, 0);
+    }
     if(isSyncEnabled() && songPart==0 && !flags.read(BMC_BEATBUDDY_FLAG_PLAYING)){
       songPart = value;
     }

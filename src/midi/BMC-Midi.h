@@ -170,7 +170,7 @@ public:
 
   void disconnectBLE(){
 #ifdef BMC_MIDI_BLE_ENABLED
-    midiBle.disconnectBLE();
+    // midiBle.disconnectBLE();
 #endif
   }
 

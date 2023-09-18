@@ -32,6 +32,7 @@
       bit 9 getAppendPresetNumberToPresetName
       bit 10 getDisplayBankWithPreset
       bit 11 getDisplayNames
+      bit 12 getOutgoingListenerEnabled
 
 
 
@@ -62,16 +63,23 @@
 
       [2]:
         bits 00-03  Buttons Threshold
-        bits 04-04  Trigger first song
-        bits 05-05  Trigger first song part
+        bits 04-04  getSetListTriggerFirstSong
+        bits 05-05  getSetListTriggerFirstSongPart
         bits 06-09  getTyperChannel
         bits 10-12  getDisplayListMode
         bits 13-16  getFas3MidiChannel
         bits 17-20  getLcdBacklight
+        bits 21-21  getSetListAllowPartRecall
+        bits 22-25  getOutgoingProgramType
         
 
 
-      [3]: *Reserved for future updates*
+      [3]: 
+        bits 00-03  getOutgoingPCPort
+        bits 04-10  getOutgoingPCChannel
+
+
+
       [4]: *Reserved for future updates*
       [5]: *Reserved for future updates*
       [6]: *Reserved for future updates*
@@ -137,6 +145,19 @@ public:
   void setIncomingListenerEnabled(bool value){
     writeFlag(3,value);
   }
+
+
+  // Enable outgoing MIDI messages
+  bool getOutgoingListenerEnabled(){
+    return readFlag(12);
+  }
+  void setOutgoingListenerEnabled(bool value){
+    writeFlag(12,value);
+  }
+
+  
+
+
   // Enable BeatBuddy Syncing
   bool getBeatBuddySync(){
     return readFlag(4);
@@ -283,6 +304,7 @@ public:
   // @value: 0 do nothing
   //         1 change layers
   //         2 trigger presets
+  //         3 songs
   uint8_t getIncomingProgramType(){
     return settings.data[1] & 0x03;
   }
@@ -448,6 +470,40 @@ public:
   }
   void setLcdBacklight(uint8_t value){
     BMC_WRITE_BITS(settings.data[2],value, 0x0F, 17);
+  }
+
+
+  uint8_t getSetListAllowPartRecall(){
+    return bitRead(settings.data[2], 6);
+  }
+  void setSetListAllowPartRecall(uint8_t value){
+    bitWrite(settings.data[2], 6, value);
+  }
+
+  // Incoming midi programs
+  // @value: 0 do nothing
+  //         1 change layers
+  //         2 trigger presets
+  //         3 songs
+  uint8_t getOutgoingProgramType(){
+    return (settings.data[2]>>22) & 0x0F;
+  }
+  void setOutgoingProgramType(bool value){
+    BMC_WRITE_BITS(settings.data[2],value,0x0F,22);
+  }
+
+
+  uint8_t getOutgoingPCPort(){
+    return (settings.data[3]>>0) & 0xFF;
+  }
+  void setOutgoingPCPort(uint8_t value){
+    BMC_WRITE_BITS(settings.data[3],value, 0xFF, 0);
+  }
+  uint8_t getOutgoingPCChannel(){
+    return (settings.data[3]>>8) & 0x0F;
+  }
+  void setOutgoingPCChannel(uint8_t value){
+    BMC_WRITE_BITS(settings.data[3],value, 0x0F, 8);
   }
 
   

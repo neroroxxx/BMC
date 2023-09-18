@@ -51,6 +51,11 @@ void BMC::readAuxJacks(){
     }
 
     if(cmd == 1){ // pot
+      #if defined(BMC_DEBUG)
+        if(globals.getPotsDebug()){
+          BMC_PRINTLN("Aux Jack Pot", index, auxJacks[index].getPotValue());
+        }
+      #endif
       processEvent(BMC_DEVICE_GROUP_POT,
                     BMC_DEVICE_ID_POT,
                     index,

@@ -16,6 +16,7 @@
 #define BMC_SETLIST_FLAG_EMPTY_SET  0
 #define BMC_SETLIST_FLAG_EMPTY_SONG 1
 #define BMC_SETLIST_FLAG_EMPTY_PART 2
+#define BMC_SETLIST_FLAG_PART_RECALL 3
 
 #include "utility/BMC-Def.h"
 
@@ -35,6 +36,10 @@ public:
   }
   void update(){
     
+  }
+  void setPartRecall(bool value){
+    BMC_PRINTLN("BMC_SETLIST_FLAG_PART_RECALL", value)
+    flags.write(BMC_SETLIST_FLAG_PART_RECALL, value);
   }
   void set(uint8_t n){
     if(n >= BMC_MAX_SETLISTS){
@@ -59,29 +64,38 @@ public:
     if(song != n || flags.read(BMC_FLAG_SETLISTS_CHANGED)){
       flags.on(BMC_FLAG_SETLISTS_SONG_CHANGED);
       song = n;
-      songInLibrary = presets.midi.globals.store.global.setLists[setList].events[song];
+      uint16_t s = presets.midi.globals.store.global.setLists[setList].events[song];
+      if(s > 0 && s < BMC_MAX_SETLISTS_SONGS_LIBRARY){
+        songInLibrary = s-1;
+      } else {
+        songInLibrary = 0xFFFF;
+      }
       songEmpty(setHasSong(n)); // song has parts
       if(autoTriggerFirstPart()){
         // trigger first part
         setPart(0);
       }
-      BMC_PRINTLN("Song #", n);
+      BMC_PRINTLN("Song #", n, "songInLibrary", songInLibrary);
     }
   }
   void setPart(uint8_t n){
     if(n >= BMC_MAX_SETLISTS_SONG_PARTS){
       return;
     }
-    if(songPart != n || flags.read(BMC_FLAG_SETLISTS_SONG_CHANGED)){
+    if(songPart != n || flags.read(BMC_SETLIST_FLAG_PART_RECALL) || flags.read(BMC_FLAG_SETLISTS_SONG_CHANGED)){
       songPart = n;
       if(songHasPart(songPart)){
         partEmpty(false);
-        uint16_t value = presets.midi.globals.store.global.songLibrary[songInLibrary].events[songPart];
-        presets.setByIndex(value);
+        if(songInLibrary < BMC_MAX_SETLISTS_SONGS_LIBRARY){
+          uint16_t value = presets.midi.globals.store.global.songLibrary[songInLibrary].events[songPart];
+          if(value > 0){
+            presets.setByIndex(value-1, true);
+          }
+        }
       } else {
         partEmpty(true);
       }
-      BMC_PRINTLN("Part #", n);
+      BMC_PRINTLN("Part #", songPart);
       flags.on(BMC_FLAG_SETLISTS_SONG_PART_CHANGED);
     }
   }
@@ -230,10 +244,11 @@ public:
     return presets.midi.globals.store.global.setLists[setList].settings[0] > n;
   }
 
-
-
   // check if the current song has any parts
   bool songHasParts(){
+    if(songInLibrary > BMC_MAX_SETLISTS_SONGS_LIBRARY){
+      return false;
+    }
     return presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > 0;
   }
   // check if the current song has any parts
@@ -300,7 +315,7 @@ public:
     return getPartName(songPart);
   }
   bmcStoreName getPartName(uint8_t t_part){
-    if(presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > t_part){
+    if(songHasParts() && presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > t_part){
       uint16_t p = presets.midi.globals.store.global.songLibrary[songInLibrary].events[t_part]-1;
       if(p < BMC_MAX_PRESETS && presets.midi.globals.store.global.presets[p].name != 0){
         return presets.midi.globals.getDeviceName(presets.midi.globals.store.global.presets[p].name);
@@ -347,8 +362,8 @@ public:
     if(presets.midi.globals.store.global.setLists[setList].settings[0] > t_song){
       uint16_t s = presets.midi.globals.store.global.setLists[setList].events[t_song]-1;
       if(presets.midi.globals.store.global.songLibrary[s].name != 0){
-        bmcStoreName t;
-        presets.midi.globals.getDeviceName(presets.midi.globals.store.global.songLibrary[s].name);
+        uint16_t nameIndex = presets.midi.globals.store.global.songLibrary[s].name;
+        bmcStoreName t = presets.midi.globals.getDeviceName(nameIndex);
         strcpy(str, t.name);
         return;
       }
@@ -367,11 +382,11 @@ public:
     getPartName(songPart, str);
   }
   void getPartName(uint8_t t_part, char * str){
-    if(presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > t_part){
+    if(songHasParts() && presets.midi.globals.store.global.songLibrary[songInLibrary].settings[0] > t_part){
       uint16_t p = presets.midi.globals.store.global.songLibrary[songInLibrary].events[t_part]-1;
       if(p < BMC_MAX_PRESETS && presets.midi.globals.store.global.presets[p].name != 0){
-        bmcStoreName t;
-        presets.midi.globals.getDeviceName(presets.midi.globals.store.global.presets[p].name);
+        uint16_t nameIndex = presets.midi.globals.store.global.presets[p].name;
+        bmcStoreName t = presets.midi.globals.getDeviceName(nameIndex);
         strcpy(str, t.name);
         return;
       }

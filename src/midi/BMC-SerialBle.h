@@ -153,7 +153,7 @@ private:
         flags.reset();
       }
       flags.on(BMC_MIDI_BLE_FLAG_STATE_CHANGED);
-      BMC_PRINTLN("BLE MIDI Connection State",value);
+      BMC_PRINTLN("BLE MIDI Connection State", value);
     }
   }
 
