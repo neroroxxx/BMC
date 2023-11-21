@@ -219,7 +219,9 @@ public:
       scenePolled = 0;
       BMC_PRINTLN("FAS3 Connection Lost!");
       midi.flush();
-      
+      if(midi.callback.fasConnection){
+        midi.callback.fasConnection(false);
+      }
     }
     if(tempoLedTimeout.complete()){
       flags.off(BMC_FAS3_FLAG_TEMPO_BEAT);
@@ -294,6 +296,9 @@ public:
             scenePolled = 0;
             fetchScene(scenePolled);
             flags.on(BMC_FAS3_FLAG_POLL_SCENE_NAMES);
+            if(midi.callback.fasPresetChange){
+              midi.callback.fasPresetChange(preset.getPresetNumber());
+            }
           } else {
             fetchScene();
             flags.off(BMC_FAS3_FLAG_POLL_SCENE_NAMES);
@@ -308,7 +313,12 @@ public:
         break;
 
       case BMC_FAS3_FUNC_ID_SCENE:{
-          preset.setScene(message.sysex[6]);
+          if(preset.setScene(message.sysex[6])){
+            // setScene returns true if the scene number has changed.
+            if(midi.callback.fasSceneChange){
+              midi.callback.fasSceneChange(preset.getSceneNumber());
+            }
+          }
           fetchScene();
           
           #if defined(BMC_DEBUG)
@@ -346,7 +356,12 @@ public:
         break;
 
       case BMC_FAS3_FUNC_ID_BLOCKS:{
-          preset.setLastBlocksCrc(message.getCrc());
+          if(preset.setLastBlocksCrc(message.getCrc())){
+            if(midi.callback.fasBlocksChange){
+              midi.callback.fasBlocksChange();
+            }
+          }
+          
           for(uint16_t i = 6, n = (message.size()-2); i < n; i += 3){
             uint8_t id = message.get14BitsLSBFirst(i);
             uint8_t flags = message.sysex[i+2];
@@ -363,6 +378,7 @@ public:
               }
             }
           }
+          
           #if defined(BMC_DEBUG)
             if(globals.getFasDebug()){
               BMC_PRINTLN("FAS3 Blocks Received");

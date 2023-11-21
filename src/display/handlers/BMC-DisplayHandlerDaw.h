@@ -121,6 +121,7 @@ public:
     if(d.byteB > 8){
       return false;
     }
+
     bool reset = false;
     uint8_t n = d.byteB;
     if(chInfo[n].index < 0){
@@ -130,11 +131,9 @@ public:
       chInfo[n].type = BMC_DEVICE_ID_MINI_DISPLAY;
       BMC_PRINTLN("Setting Channel Block to", d.index, "channel", n)
     }
-
     if(chInfo[n].index != d.index || !chInfo[n].isMiniDisplay()){
       return false;
     }
-
     uint8_t channel = n==8 ? sync.daw.controller.getSelectedChannel() : n;
     uint8_t vPotValue = sync.daw.controller.getVPot(channel);
     uint8_t vuValue = sync.daw.controller.getMeter(channel);
@@ -148,47 +147,73 @@ public:
     if(strlen(t2.name)>6){
       t2.name[6] = 0;
     }
-
-    // uint8_t index = chInfo[n].index;
-    uint16_t x = block.getX();
-    // add some space to center the graphics
-    // this was designed originally for an 80px max height
-    // however the ST7735 is 128px high
-    uint16_t y = block.getY()+10;
     uint16_t w = block.getWidth();
     uint16_t h = block.getHeight();
+    uint16_t x = block.getX();
+#if BMC_MINI_DISPLAY_H == 128
+    // 10 pixel padding
+    uint16_t y = block.getY()+10;
+    uint16_t vPotYPos = 92;
+#else
+    uint16_t y = block.getY();
+    uint16_t vPotYPos = y + 55;
+#endif
+
     uint16_t txtArea = w-20;
-    txtArea = (txtArea > 140) ? 140 : txtArea;
-    uint16_t xVPot = x + 20 + ((txtArea-92)/2);
+    uint16_t xVPot = x + 20;
+
     if(reset){
       vPotValue = 0xFF;
       vuValue = 0xFF;
       chInfo[n].vPotBits = 0xFFFF;
       chInfo[n].vuBits = 0xFFFF;
       chInfo[n].stateBits = 0xFF;
-      display.fillRect(x, y, w, h, BMC_ILI9341_BLACK);
-      display.drawRect(xVPot, y+68, 92, 8, BMC_ILI9341_VU_GREY);
+      display.fillRect(x, block.getY(), w, h, BMC_ILI9341_BLACK);
+      display.drawRect(xVPot, vPotYPos, w-24, 8, BMC_ILI9341_VU_GREY);
     }
+
+    // channel name
     if(!BMC_STR_MATCH(t.name, chInfo[n].name)){
       strcpy(chInfo[n].name, t.name);
+#if BMC_MINI_DISPLAY_H == 128
+      uint16_t tY = y+3;
+      uint8_t tH = 48;
       display.setFont(BMC_FONT_MD);
+#else
+      uint16_t tY = y+5;
+      uint8_t tH = 30;
+      display.setFont(BMC_FONT_SM);
+#endif
       uint16_t bX = 20+(txtArea-BMC_TFT_STR_LEN(display, t.name))/2;
       while(BMC_TFT_STR_LEN(display, t.name) >= (w-20)){
         t.name[strlen(t.name)-1] = 0;
         bX = 20+((w-20)-BMC_TFT_STR_LEN(display, t.name))/2;
       }
-      display.fillRect(x+20, y+1, txtArea, 30, BMC_ILI9341_BLACK);
-      display.setCursor(x+bX, y+3);
+      display.fillRect(x+20, block.getY(), txtArea, tH, BMC_ILI9341_BLACK);
+      display.setCursor(x+bX, tY);
       display.setTextColor(BMC_ILI9341_WHITE);
       display.setTextWrap(false);
       display.print(t.name);
     }
+
+    // vPot Value
     if(!BMC_STR_MATCH(t2.name, chInfo[n].value)){
       strcpy(chInfo[n].value, t2.name);
+      
+#if BMC_MINI_DISPLAY_H == 128
+      uint16_t tY = y+38; // account for padding
+      uint16_t tY2 = y+48;
+      uint8_t tH = 40;
       display.setFont(BMC_FONT_SM);
+#else
+      uint16_t tY = y+30;
+      uint16_t tY2 = y+37;
+      uint8_t tH = 24;
+      display.setFont(BMC_FONT_XS);
+#endif
       uint16_t bX = 20+(txtArea-BMC_TFT_STR_LEN(display, t2.name))/2;
-      display.fillRect(x+20, y+31, txtArea, 30, BMC_ILI9341_BLACK);
-      display.setCursor(x+bX, y+40);
+      display.fillRect(x+20, tY, txtArea, tH, BMC_ILI9341_BLACK);
+      display.setCursor(x+bX, tY2);
       display.setTextColor(BMC_ILI9341_GRAY_22);
       display.setTextWrap(false);
       display.print(t2.name);
@@ -196,15 +221,27 @@ public:
     if(vPotValue != chInfo[n].vPotLevel){
       chInfo[n].vPotLevel = vPotValue;
       xVPot += 2;
+      uint16_t vpotDot = (w-24)/11;
       for(uint8_t e = 0 ; e < 11 ; e++){
         bool l = sync.daw.controller.getVPotValue(channel, e+1)>0;
         if(bitRead(chInfo[n].vPotBits, e) != l){
           bitWrite(chInfo[n].vPotBits, e, l);
-          display.fillRect(xVPot+(e*8), y+70, 8, 4, l ? BMC_ILI9341_GREEN : BMC_ILI9341_BLACK);
+          display.fillRect(xVPot+(e*vpotDot), vPotYPos+2, vpotDot, 4, l ? BMC_ILI9341_GREEN : BMC_ILI9341_BLACK);
         }
       }
     }
     if(vuValue != chInfo[n].vuValue){
+#if BMC_MINI_DISPLAY_H == 128
+      uint16_t meterY = y;
+      uint8_t tY = 6;
+      uint8_t tH = tY-1;
+      display.setFont(BMC_FONT_SM);
+#else
+      uint16_t meterY = y-2;
+      uint8_t tY = 5;
+      uint8_t tH = tY-1;
+      display.setFont(BMC_FONT_XS);
+#endif
       chInfo[n].vuValue = vuValue;
       for(int8_t e = 13 ; e --> 1 ;){
         int8_t ee = abs(e-12) + 1;
@@ -221,26 +258,34 @@ public:
           } else {
             color = BMC_ILI9341_RED;
           }
-          display.fillRect(x+4, y+(e*6), 12, 5, v ? color : BMC_ILI9341_VU_GREY);
+          display.fillRect(x, meterY+(e*tY), 12, tH, v ? color : BMC_ILI9341_VU_GREY);
         }
       }
     }
-    display.setFont(BMC_FONT_XS);
-    bool rec = sync.daw.controller.getRecState(channel);
-    bool solo = sync.daw.controller.getSoloState(channel);
-    bool mute = sync.daw.controller.getMuteState(channel);
-    if(bitRead(chInfo[n].stateBits, 0) != rec){
-      bitWrite(chInfo[n].stateBits, 0, rec);
-      renderButtonHelper<BMC_MD_DRIVER>(display, x, y+86, rec, "R", BMC_ILI9341_RED, 36, 22);
-    }
-    if(bitRead(chInfo[n].stateBits, 1) != solo){
-      bitWrite(chInfo[n].stateBits, 1, solo);
-      renderButtonHelper<BMC_MD_DRIVER>(display, x+46, y+86, solo, "S", BMC_ILI9341_ORANGE, 36, 22);
-    }
-    if(bitRead(chInfo[n].stateBits, 2) != mute){
-      bitWrite(chInfo[n].stateBits, 2, mute);
-      renderButtonHelper<BMC_MD_DRIVER>(display, x+92, y+86, mute, "M", BMC_ILI9341_BLUE, 36, 22);
-    }
+    
+    // uint8_t btnW = 36;
+    #if BMC_MINI_DISPLAY_H == 128
+      uint8_t btnW = w/3.5;
+      uint8_t btnH = 22;
+      display.setFont(BMC_FONT_XS);
+      bool rec = sync.daw.controller.getRecState(channel);
+      bool solo = sync.daw.controller.getSoloState(channel);
+      bool mute = sync.daw.controller.getMuteState(channel);
+      uint16_t buttonsY = 106;
+      if(bitRead(chInfo[n].stateBits, 0) != rec){
+        bitWrite(chInfo[n].stateBits, 0, rec);
+        renderButtonHelper<BMC_MD_DRIVER>(display, x, buttonsY, rec, "R", BMC_ILI9341_RED, btnW, btnH);
+      }
+      if(bitRead(chInfo[n].stateBits, 1) != solo){
+        bitWrite(chInfo[n].stateBits, 1, solo);
+        renderButtonHelper<BMC_MD_DRIVER>(display, ((w-btnW)/2), buttonsY, solo, "S", BMC_ILI9341_ORANGE, btnW, btnH);
+      }
+      if(bitRead(chInfo[n].stateBits, 2) != mute){
+        bitWrite(chInfo[n].stateBits, 2, mute);
+        renderButtonHelper<BMC_MD_DRIVER>(display, w-btnW, buttonsY, mute, "M", BMC_ILI9341_BLUE, btnW, btnH);
+      }
+    #endif
+    
     return true;
   }
   template <typename T>
@@ -280,14 +325,11 @@ public:
       chInfo[n].reset();
       chInfo[n].index = index;
       chInfo[n].type = BMC_DEVICE_ID_ILI;
-      BMC_PRINTLN("Setting Channel Block to", index, "channel", n)
+      // BMC_PRINTLN("Setting Channel Block to", index, "channel", n)
     }
-
     if(chInfo[n].index != index || !chInfo[n].isIli()){
       return false;
     }
-
-    
     uint8_t channel = n==8 ? sync.daw.controller.getSelectedChannel() : n;
     uint8_t vPotValue = sync.daw.controller.getVPot(channel);
     uint8_t vuValue = sync.daw.controller.getMeter(channel);

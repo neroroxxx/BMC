@@ -47,6 +47,7 @@
 #define BMC_GLOBALS_DEBUG_FLAG_FAS                	 8
 #define BMC_GLOBALS_DEBUG_FLAG_POTS               	 9
 #define BMC_GLOBALS_DEBUG_FLAG_ENCODERS              10
+#define BMC_GLOBALS_DEBUG_FLAG_TIMER                 11
 
 
 // https://github.com/mpflaga/Arduino-MemoryFree
@@ -69,6 +70,18 @@ public:
     flags.off(BMC_GLOBALS_FLAG_MIDI_OUT);
     flags.off(BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE);
     loopsPerSecond++;
+  }
+  bool timerComplete(){
+    #if defined(BMC_DEBUG)
+      return debugFlags.toggleIfTrue(BMC_GLOBALS_DEBUG_FLAG_TIMER);
+    #else
+      return false;
+    #endif
+  }
+  void setTimerComplete(){
+    #if defined(BMC_DEBUG)
+      debugFlags.on(BMC_GLOBALS_DEBUG_FLAG_TIMER);
+    #endif
   }
   void resetCPU(){
     lastLoopsPerSecond = loopsPerSecond;

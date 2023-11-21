@@ -64,6 +64,7 @@ class BMC_ILI_BLOCK {
     return crc == t_crc;
   }
   void reassign(BMC_TFT& tft, uint16_t t_settings, bool highlight=false){
+    tft.setTextSize(1);
     selChar = -1;
     meterPixelValue = 0xFFFF;
     meterValue = 0xFFFF;

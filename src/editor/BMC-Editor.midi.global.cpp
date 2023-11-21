@@ -462,6 +462,16 @@ void BMCEditor::incomingMessageDevice(bool write){
           }
         #endif
         break;
+      case BMC_DEVICE_ID_CUSTOM_SYSEX:
+        #if BMC_MAX_CUSTOM_SYSEX > 0
+          incomingMessageDeviceWrite<1, 16, uint8_t>
+          (store.global.customSysEx[index], index);
+          if(!backupActive()){
+            saveCustomSysEx(index);
+            reloadData();
+          }
+        #endif
+        break;
       case BMC_DEVICE_ID_OLED:
         #if BMC_MAX_OLED > 0
           for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
@@ -472,7 +482,7 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_MINI_DISPLAY:
         #if BMC_MAX_MINI_DISPLAY > 0
           for(uint16_t p = pageToWrite ; p < maxLayerToWrite ; p++){
-            incomingMessageDeviceWrite<2,1>(store.layers[p].miniDisplay[index], index, p);
+            incomingMessageDeviceWrite<BMC_MAX_MINI_DISPLAY_SETTINGS,BMC_MAX_MINI_DISPLAY_EVENTS>(store.layers[p].miniDisplay[index], index, p);
           }
         #endif
         break;
@@ -509,16 +519,6 @@ void BMCEditor::incomingMessageDevice(bool write){
           (store.global.presets[index], index);
           if(!backupActive()){
             savePreset(index);
-            reloadData();
-          }
-        #endif
-        break;
-      case BMC_DEVICE_ID_CUSTOM_SYSEX:
-        #if BMC_MAX_CUSTOM_SYSEX > 0
-          incomingMessageDeviceWrite<1, 16, uint8_t>
-          (store.global.customSysEx[index], index);
-          if(!backupActive()){
-            saveCustomSysEx(index);
             reloadData();
           }
         #endif
@@ -783,7 +783,7 @@ void BMCEditor::incomingMessageDevice(bool write){
       break;
     case BMC_DEVICE_ID_MINI_DISPLAY:
       #if BMC_MAX_MINI_DISPLAY > 0
-        deviceResponseData <2, 1>
+        deviceResponseData <BMC_MAX_MINI_DISPLAY_SETTINGS, BMC_MAX_MINI_DISPLAY_EVENTS>
         (store.layers[layer].miniDisplay[index], buff, index, deviceType);
       #endif
       break;
@@ -1142,6 +1142,10 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
       bitWrite(buildData, 23, 1);
     #endif
 
+    #if BMC_MAX_MINI_DISPLAY > 0 && BMC_MAX_MINI_DISPLAY_EVENTS == 2
+      bitWrite(buildData, 24, 1);
+    #endif
+
     // remove after out of beta
     bitWrite(buildData, 31, 1);
 
@@ -1263,15 +1267,20 @@ void BMCEditor::globalBackupMessage(bool write){
   // 2 = backup complete
   // 3 = cancel backup
   uint8_t newStatus = incoming.sysex[9];
+  bool isComplete = false;
   // check and/or change the status of the backup
   if(newStatus == 1){
     backupStart();
   } else if(newStatus == 2){
-    backupComplete();
+    isComplete = backupComplete();
   } else if(newStatus == 3){
     backupCancel();
   }
   globalSendBackupStatus();
+  if(isComplete){
+    saveStore();
+    reloadData();
+  }
 }
 void BMCEditor::globalSendBackupStatus(){
   BMCEditorMidiFlags flag;

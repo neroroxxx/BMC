@@ -143,6 +143,37 @@ void BMC_ST7735_t3::begin(uint8_t cs, uint8_t rs, uint8_t rst)
 	setOrigin();
 }
 
+void BMC_ST7735_t3::begin(uint8_t cs, uint8_t rs, uint8_t sid, uint8_t sclk, uint8_t rst) 
+{
+	_cs   = cs;
+	_rs   = rs;
+	_sid  = sid;
+	_sclk = sclk;
+	_rst  = rst;
+	_rot = 0xff;
+	hwSPI = false;
+	#ifdef ENABLE_ST77XX_FRAMEBUFFER
+    _pfbtft = NULL;	
+    _use_fbtft = 0;						// Are we in frame buffer mode?
+	_we_allocated_buffer = NULL;
+	_dma_state = 0;
+    #endif
+	_screenHeight = ST7735_TFTHEIGHT_160;
+	_screenWidth = ST7735_TFTWIDTH;	
+	
+	_width = _screenWidth;
+	_height = _screenHeight;
+	
+	cursor_y  = cursor_x    = 0;
+	textsize_x  = 1;
+	textsize_y  = 1;
+	textcolor = textbgcolor = 0xFFFF;
+	wrap      = true;
+	font      = NULL;
+	gfxFont   = NULL;
+	setClipRect();
+	setOrigin();
+}
 
 
 /***************************************************************/

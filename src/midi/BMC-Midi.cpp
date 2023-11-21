@@ -135,7 +135,7 @@ void BMCMidi::send(uint8_t port, uint8_t type,
   #endif
   #ifdef BMC_MIDI_BLE_ENABLED
     if(isMidiBlePort(port) && globals.bleConnected()){
-      midiBle.Port.send((midi::MidiType) type, data1, data2, channel);
+      midiBle.Port.send(type, data1, data2, channel);
     }
   #endif
   if(type == BMC_MIDI_PROGRAM_CHANGE){
@@ -199,7 +199,7 @@ void BMCMidi::sendRealTime(uint8_t port, uint8_t type, uint8_t cable){
       type!=BMC_MIDI_RT_CLOCK &&
       type!=BMC_MIDI_RT_ACTIVE_SENSE
     ){
-      midiBle.Port.sendRealTime((midi::MidiType) type);
+      midiBle.Port.sendRealTime(type);
     }
   #endif
   // don't light up the midi out led(s) for these

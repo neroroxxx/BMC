@@ -309,7 +309,7 @@ private:
       flags.off(BMC_EDITOR_FLAG_BACKUP_CANCELED);
     }
   }
-  void backupComplete(){
+  bool backupComplete(){
     // if the backup is running then stop it
     // and save the current store to EEPROM
     if(midi.globals.editorConnected() && flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
@@ -330,9 +330,11 @@ private:
       #if BMC_MAX_TIMED_EVENTS > 0
         flags.on(BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED);
       #endif
-      saveStore();
-      reloadData();
+      // saveStore();
+      // reloadData();
+      return true;
     }
+    return false;
   }
   void backupCancel(){
     if(midi.globals.editorConnected() && flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
@@ -401,21 +403,21 @@ private:
   uint32_t getNamesOffset(uint16_t index);
 
   uint32_t getShortcutsOffset();
-  uint32_t getShortcutsOffset(uint8_t index);
+  uint32_t getShortcutsOffset(uint16_t index);
 
   uint32_t getLfoOffset();
-  uint32_t getLfoOffset(uint8_t index);
+  uint32_t getLfoOffset(uint16_t index);
 
   uint32_t getSketchBytesOffset();
-  uint32_t getSketchBytesOffset(uint8_t index);
+  uint32_t getSketchBytesOffset(uint16_t index);
 
   uint32_t getPresetOffset();
   uint32_t getPresetOffset(uint16_t index);
 
   uint32_t getSetListOffset();
-  uint32_t getSetListOffset(uint8_t index);
+  uint32_t getSetListOffset(uint16_t index);
   uint32_t getSetListSongOffset();
-  uint32_t getSetListSongOffset(uint8_t index);
+  uint32_t getSetListSongOffset(uint16_t index);
 
 
   uint32_t getGlobalButtonOffset();
@@ -459,17 +461,17 @@ private:
 
 
   uint32_t getCustomSysExOffset();
-  uint32_t getCustomSysExOffset(uint8_t index);
+  uint32_t getCustomSysExOffset(uint16_t index);
   uint32_t getTriggerOffset();
-  uint32_t getTriggerOffset(uint8_t index);
+  uint32_t getTriggerOffset(uint16_t index);
   uint32_t getTempoToTapOffset();
-  uint32_t getTempoToTapOffset(uint8_t index);
+  uint32_t getTempoToTapOffset(uint16_t index);
   uint32_t getPortPresetsOffset();
   uint32_t getPortPresetsOffset(uint16_t index);
   uint32_t getPixelProgramsOffset();
-  uint32_t getPixelProgramsOffset(uint8_t index);
+  uint32_t getPixelProgramsOffset(uint16_t index);
   uint32_t getTimedEventOffset();
-  uint32_t getTimedEventOffset(uint8_t n);
+  uint32_t getTimedEventOffset(uint16_t n);
 
   // Clear the entire EEPROM
   void clearEEPROM(){
@@ -935,7 +937,7 @@ public:
     #endif
 
     #if BMC_MAX_MINI_DISPLAY > 0
-    {BMC_DEVICE_ID_MINI_DISPLAY, "Mini Display", 8, BMC_MAX_MINI_DISPLAY, false, true, 0, 1},
+    {BMC_DEVICE_ID_MINI_DISPLAY, "Mini Display", 8, BMC_MAX_MINI_DISPLAY, false, true, 0, BMC_MAX_MINI_DISPLAY_EVENTS},
     #endif
 
     #if BMC_MAX_LCD > 0
@@ -1491,7 +1493,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
 
 #if BMC_MAX_AUX_JACKS > 0
   void saveAuxJack(uint8_t index){
-    if(index>=BMC_MAX_AUX_JACKS){
+    if(index >= BMC_MAX_AUX_JACKS){
       return;
     }
     #if defined(BMC_SD_CARD_ENABLED)
@@ -1560,13 +1562,11 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(n >= BMC_MAX_PIXEL_PROGRAMS){
       return;
     }
-    BMC_PRINTLN("savePixelProgram", n);
     #if defined(BMC_SD_CARD_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
       address += getPixelProgramsOffset(n);
-      BMC_PRINTLN("savePixelProgram",address);
       storage.set(address, store.global.pixelPrograms[n]);
     #endif
   }
@@ -1593,7 +1593,6 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     #else
       uint16_t address = getGlobalOffset();
       address += sizeof(store.global) + (sizeof(store.layers[0]) * layer);
-      BMC_PRINTLN("layer address:", address);
       storage.set(address, store.layers[layer]);
     #endif
   }

@@ -10,7 +10,46 @@
 
 #if defined(BMC_HAS_DISPLAY) && defined(BMC_USE_FAS)
 
+// can be overriden on sketch
+#if !defined(BMC_DHFAS_TUNER_ARROWS)
+  // tuner arrows color
+  #define BMC_DHFAS_TUNER_ARROWS BMC_ILI9341_YELLOW
+#endif
 
+#if !defined(BMC_DHFAS_TUNER_NEEDLE)
+  // tuner ball color
+  #define BMC_DHFAS_TUNER_NEEDLE BMC_ILI9341_CYAN
+#endif
+
+#if !defined(BMC_DHFAS_TUNER_NOTE)
+  // tuner border and text
+  #define BMC_DHFAS_TUNER_NOTE BMC_ILI9341_WHITE
+#endif
+
+#if !defined(BMC_DHFAS_LOOPER_REC)
+  #define BMC_DHFAS_LOOPER_REC BMC_ILI9341_RED
+#endif
+
+#if !defined(BMC_DHFAS_LOOPER_PLAY)
+  #define BMC_DHFAS_LOOPER_PLAY BMC_ILI9341_GREEN
+#endif
+
+
+
+#if !defined(BMC_DHFAS_STATUS_PRESET_NUMBER)
+  #define BMC_DHFAS_STATUS_PRESET_NUMBER BMC_ILI9341_WHITE
+#endif
+
+#if !defined(BMC_DHFAS_STATUS_PRESET_NAME)
+  #define BMC_DHFAS_STATUS_PRESET_NAME BMC_ILI9341_YELLOW
+#endif
+
+#if !defined(BMC_DHFAS_STATUS_SCENE_NAME)
+  #define BMC_DHFAS_STATUS_SCENE_NAME BMC_ILI9341_WHITE
+#endif
+   
+      
+       
 
 class BMCDisplayHandlerFas {
 public:
@@ -120,12 +159,12 @@ public:
     }
 
     if(statusTunerBlock.active){
-      t.setColor(BMC_ILI9341_GREEN, BMC_ILI9341_RED, BMC_ILI9341_WHITE);
+      t.setColor(BMC_DHFAS_TUNER_ARROWS, BMC_DHFAS_TUNER_NEEDLE, BMC_DHFAS_TUNER_NOTE);
       renderTuner<BMC_TFT>(display, statusTunerData, t, t_reset);
       return true;
     }
     
-    t.setColor(BMC_ILI9341_RED, BMC_ILI9341_GREEN, BMC_ILI9341_WHITE);
+    t.setColor(BMC_DHFAS_LOOPER_REC, BMC_DHFAS_LOOPER_PLAY, BMC_ILI9341_WHITE);
     t.mirror = true; // used for mini looper status
     renderLooper<BMC_TFT>(display, statusLooperData, t, t_reset);
 
@@ -159,7 +198,7 @@ public:
       display.print("Scene ");
       display.print(currentScene+globals.offset);
       display.print(" ");
-      display.setTextColor(BMC_ILI9341_WHITE);
+      display.setTextColor(BMC_DHFAS_STATUS_SCENE_NAME);
       display.print(sName);
 
       scene = currentScene;
@@ -180,7 +219,7 @@ public:
       display.setCursor(t.x+xPadding, tt.y);
       display.setTextColor(BMC_ILI9341_GRAY_22);
       display.print("Scene ");
-      display.setTextColor(BMC_ILI9341_WHITE);
+      display.setTextColor(BMC_DHFAS_STATUS_SCENE_NAME);
       display.print(currentScene+globals.offset);
 
       scene = currentScene;
@@ -212,11 +251,11 @@ public:
       display.setTextWrap(false);
 
       display.setCursor(t.x+xPadding, tt.y);
-      display.setTextColor(BMC_ILI9341_YELLOW);
+      display.setTextColor(BMC_DHFAS_STATUS_PRESET_NUMBER);
       display.print(num);
       display.print(" ");
 
-      display.setTextColor(BMC_ILI9341_WHITE);
+      display.setTextColor(BMC_DHFAS_STATUS_PRESET_NAME);
       display.print(pName);
     }
     t.color = BMC_ILI9341_BLUE;
@@ -421,17 +460,16 @@ public:
 #if BMC_MAX_MINI_DISPLAY > 0
   bool renderBlockMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
     BMC_MD_DRIVER& display = block.display;
-    if(block.isCrc(crc)){
+    if(block.isCrc(d.crc)){
       return true;
     }
-    block.setCrc(crc);
+    block.setCrc(d.crc);
 
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
     t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
     t.setColor(block.getColor());
     t.setBackground(block.getBackground());
 
-    
     // uint16_t fontData = block.findFontSize(display, d.str, 0, t.w, t.h);
     // renderFxBlock<BMC_MD_DRIVER>(display, d, t, fontData);
     renderFxBlock<BMC_MD_DRIVER>(display, d, t);
@@ -618,7 +656,7 @@ public:
       block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
       return true;
     }
-    t.setColor(BMC_ILI9341_GREEN, BMC_ILI9341_RED, BMC_ILI9341_WHITE);
+    t.setColor(BMC_DHFAS_TUNER_ARROWS, BMC_DHFAS_TUNER_NEEDLE, BMC_DHFAS_TUNER_NOTE);
 
     renderTuner<BMC_MD_DRIVER>(display, tunerData, t, t_reset);
     block.setCrc(d.crc);
@@ -687,7 +725,7 @@ public:
 
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
     t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(BMC_ILI9341_RED, BMC_ILI9341_GREEN, BMC_ILI9341_WHITE);
+    t.setColor(BMC_DHFAS_LOOPER_REC, BMC_DHFAS_LOOPER_PLAY, BMC_ILI9341_WHITE);
 
     if(looperBlock.active != sync.fas.connected()){
       looperBlock.active = sync.fas.connected();
@@ -732,7 +770,7 @@ public:
 
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_ILI;
     t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(BMC_ILI9341_GREEN, BMC_ILI9341_RED, BMC_ILI9341_WHITE);
+    t.setColor(BMC_DHFAS_TUNER_ARROWS, BMC_DHFAS_TUNER_NEEDLE, BMC_DHFAS_TUNER_NOTE);
 
     // set where y will be, for 128x32 display start at 0.
     // for 128x64 start at 16
@@ -841,7 +879,7 @@ public:
 
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_ILI;
     t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(BMC_ILI9341_RED, BMC_ILI9341_GREEN, BMC_ILI9341_WHITE);
+    t.setColor(BMC_DHFAS_LOOPER_REC, BMC_DHFAS_LOOPER_PLAY, BMC_ILI9341_WHITE);
 
     if(looperBlock.active != sync.fas.connected()){
       looperBlock.active = sync.fas.connected();
@@ -988,6 +1026,33 @@ template <typename T>
     sync.fas.getTunerData(currentTuner);
 
     if((currentTuner.pitchRaw != t_tunerData.pitchRaw) || t_reset){
+      // print note name
+      if(currentTuner.note != t_tunerData.note || currentTuner.stringNumber != t_tunerData.stringNumber || t_reset){
+        display.setFont();
+        uint8_t fontSize = (uint8_t) floor(floor(t.h/2.0)/8.0);
+        if((t.w == 128 && t.h == 64) || t.h == 40){
+          fontSize = 2;
+        } else if(t.w == 128 && t.h == 32){
+          fontSize = 1;
+        } else if(fontSize > 3){
+          fontSize = 3;
+        }
+        uint16_t fY =  t.y+(((t.h/2.0) - (fontSize*8))/2);
+        uint16_t fX = (t.x+t.w) - (fontSize*6);
+        display.setTextSize(fontSize);
+        display.setTextColor(t.color3);
+        if(currentTuner.note != t_tunerData.note){
+          display.setCursor(t.x, fY);
+          display.fillRect(t.x, fY, ((fontSize*6)*2), (fontSize*8), t.background);
+          display.print(currentTuner.noteName);
+        }
+        if(currentTuner.stringNumber != t_tunerData.stringNumber){
+          display.setCursor(fX, fY);
+          display.fillRect(fX, fY, (fontSize*6), (fontSize*8), t.background);
+          display.print(currentTuner.stringNumber+1);
+        }
+        display.setTextSize(1);
+      }
       uint16_t pitch = map(t_tunerData.pitchRaw, 0, 127, 12, t.w-12);
       uint16_t pitch2 = map(currentTuner.pitchRaw, 0, 127, 12, t.w-12);
 
@@ -995,7 +1060,7 @@ template <typename T>
       triangleHelper(display, t.x+(centerX-(triW+6)), t.y, triW, centerY-4, color, false);
 
       color = (currentTuner.pitchRaw >= 62) ? t.color : t.background;
-      triangleHelper(display, t.x+(centerX+6), t.y, triW, centerY-4, color, true);
+      triangleHelper(display, t.x+(centerX+6), t.y, triW, centerY-8, color, true);
 
       uint8_t circleY = t.y+(t.h*0.75);
       uint8_t circleRadius = (uint8_t) centerY*0.3;
@@ -1004,6 +1069,7 @@ template <typename T>
       display.fillCircle(t.x+pitch2, circleY, circleRadius, t.color2);
       display.drawFastVLine(t.x+centerX, t.y, t.h, t.color3);
       display.drawRect(t.x+2, t.y+centerY, t.w-4, centerY, t.color3);
+
       t_tunerData = currentTuner;
       return true;
     }

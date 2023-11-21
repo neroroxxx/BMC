@@ -139,6 +139,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
         strcpy(data.label, "PC");
+        // data.value          = data.byteB;
+        // data.valueSelected  = currentPC;
         if(data.useSelected()){
           data.byteB = currentPC;
         }

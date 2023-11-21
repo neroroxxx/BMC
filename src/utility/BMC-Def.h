@@ -1328,7 +1328,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // you can override these in your config file
 
 #if !defined(BMC_ILI9341_RED)
-	#define BMC_ILI9341_RED 0xF145
+	#define BMC_ILI9341_RED 0xF800
 #endif
 #if !defined(BMC_ILI9341_GREEN)
   #define BMC_ILI9341_GREEN 0x2760

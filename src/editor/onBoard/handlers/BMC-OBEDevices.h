@@ -152,7 +152,12 @@ public:
         #endif
         break;
       case BMC_DEVICE_ID_MINI_DISPLAY:
-        data.totalRows = 9;
+        #if BMC_MAX_MINI_DISPLAY_EVENTS == 1
+          data.totalRows = 9;
+        #else
+          data.totalRows = 12;
+        #endif
+        
         break;
       case BMC_DEVICE_ID_OLED:
       case BMC_DEVICE_ID_LCD:
@@ -364,7 +369,7 @@ public:
         break;
       case BMC_DEVICE_ID_MINI_DISPLAY:
         #if BMC_MAX_MINI_DISPLAY > 0
-          return getMiniDisplayOption<2,1>(store.layers[globals.layer].miniDisplay[dIndex], index, valueType);
+          return getMiniDisplayOption<BMC_MAX_MINI_DISPLAY_SETTINGS,BMC_MAX_MINI_DISPLAY_EVENTS>(store.layers[globals.layer].miniDisplay[dIndex], index, valueType);
         #endif
         break;
       case BMC_DEVICE_ID_LCD:

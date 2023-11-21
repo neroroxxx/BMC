@@ -22,8 +22,9 @@
 // ***********************************
 class BMCMidiPortBle {
 public:
-  BMCMidiPortSerial(BMCCallbacks& cb):
+  BMCMidiPortBle(BMCCallbacks& cb, BMCGlobals& t_globals):
     callback(cb),
+    globals(t_globals),
     Port(BMC_MIDI_SERIAL_IO_BLE)
   {
 
@@ -60,11 +61,11 @@ public:
   }
 
   void disconnectBLE(){
-    SerialBle.disconnectBLE();
+    // SerialBle.disconnectBLE();
   }
 
-public:
   BMCCallbacks& callback;
+  BMCGlobals& globals;
   BMCSerialMIDI <BMC_MIDI_PORT_BLE_BIT, HardwareSerial> Port;
   unsigned long tConn = 0;
   bool connected = 0;

@@ -185,10 +185,15 @@ struct BMCFas3Preset {
     }
   }
 
-  void setScene(uint8_t t_value){
+  bool setScene(uint8_t t_value){
+    bool ret = false;
     if(t_value < 8){
+      if(scene != t_value){
+        ret = true;
+      }
       scene = t_value;
     }
+    return ret;
   }
   void setScene(uint8_t t_value, char * str, bool isCurrent){
     if(t_value < 8){
@@ -244,8 +249,10 @@ struct BMCFas3Preset {
   uint8_t getLastBlocksCrc(){
     return lastBlockCrc;
   }
-  void setLastBlocksCrc(uint8_t t_crc){
+  bool setLastBlocksCrc(uint8_t t_crc){
+    bool ret = lastBlockCrc != t_crc;
     lastBlockCrc = t_crc;
+    return ret;
   }
   void setBlockBypass(uint8_t t_id, bool t_value){
     bitWrite(blockStates[t_id], 0, t_value);

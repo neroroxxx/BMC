@@ -28,6 +28,8 @@
 
 // #include "utility/BMC-Tools.h"
 #include "display/drivers/BMC-ILI9341_fonts.h"
+#include "display/drivers/BMC-GFXFonts.h"
+#include "display/drivers/BMC-DisplayStruct.h"
 
 #ifndef DISABLE_ST77XX_FRAMEBUFFER
 #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
@@ -220,6 +222,7 @@ class BMC_ST7735_t3 : public Print
   BMC_ST7735_t3(uint8_t CS, uint8_t RS, uint8_t RST = -1);
   BMC_ST7735_t3();
   void begin(uint8_t CS, uint8_t RS, uint8_t RST = -1);
+  void begin(uint8_t CS, uint8_t RS, uint8_t SID, uint8_t SCLK, uint8_t RST = -1);
 
   void     initB(void),                             // for ST7735B displays
            initR(uint8_t options = INITR_GREENTAB), // for ST7735R
@@ -236,6 +239,190 @@ class BMC_ST7735_t3 : public Print
   void     setRowColStart(uint16_t x, uint16_t y);
   uint16_t  rowStart() {return _rowstart;}
   uint16_t  colStart() {return _colstart;}
+
+
+
+
+  // int16_t strPixelLen(const char * str){
+  //   if(!str){
+  //     return 0;
+  //   }
+  //   int16_t x1, y1;
+	// 	uint16_t w1, h1;
+	// 	getTextBounds(str, 0, 0, &x1, &y1, &w1, &h1);
+  //   return w1;
+  // }
+  BMCTextPixelSize strPixelSize(const char * str){
+    BMCTextPixelSize t;
+    if(!str){
+      return t;
+    }
+		getTextBounds(str, 0, 0, &t.x, &t.y, &t.w, &t.h);
+    return t;
+  }
+
+  BMCTextPixelSize strPixelSize(const char * str, uint16_t t_x, uint16_t t_y){
+    BMCTextPixelSize t;
+    if(!str){
+      return t;
+    }
+		getTextBounds(str, t_x, t_y, &t.x, &t.y, &t.w, &t.h);
+    return t;
+  }
+  void printCenteredXY(int n, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding, uint16_t t_color, uint16_t t_background){
+    char str[16] = "";
+    sprintf(str, "%d", n);
+    printCenteredXY(str, t_x, t_y, t_w, t_h, t_padding, t_color, t_background);
+  }
+  // @str the string to print
+  // @t_x the x position where the text will start
+  // @t_y the y position where the text will start
+  //      these custom fonts set the y position at the bottom of the text
+  // @t_w the width of the area to print in
+  // @t_h the height of the area to print in
+  // @t_padding amount of space that will be removed from @t_h to keep
+  //            the text from printing over that area.
+  void printCenteredXY(const char * str, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding, uint16_t t_color, uint16_t t_background){
+    char buff[strlen(str)+1] = "";
+    strcpy(buff, str);
+    printCenteredXY(buff, t_x, t_y, t_w, t_h, t_padding, t_color, t_background);
+  }
+  void printCenteredXY(char * str, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding, uint16_t t_color, uint16_t t_background){
+    BMCTextPixelSize t = getCenteredXY(str, t_x, t_y, t_w, t_h, t_padding);
+    if(t.w > t_w){
+      strShorten(str, true);
+      uint8_t len = strlen(str)-1;
+      while(strPixelLen(str)>t_w){
+        str[len--] = 0;
+      }
+      t.x = t_x;
+    }
+    
+    fillRect(t_x, t_y, t_w, t_h, t_background);
+    setCursor(t.x, t.y);
+    setTextColor(t_color);
+    setTextWrap(false);
+    print(str);
+  }
+  void strShorten(char * str, bool removeSpaces=false){
+    // removes all vowels as well
+    // if the first character of the string is a vowel leave it
+    // removes all spaces from string if @removeSpaces is true
+    uint16_t len = strlen(str);
+    if(len < 5){
+      return;
+    }
+    char buff[len+1] = "";
+    for(uint8_t i = 1, e = 0 ; i < len ; i++){
+      if((removeSpaces && str[i] == 32) || (str[i] == 65 || str[i] == 69 || str[i] == 73 ||
+         str[i] == 79 || str[i] == 85 || str[i] == 97 || str[i] == 101 ||
+         str[i] == 105 || str[i] == 111 || str[i] == 117)
+      ){
+        continue;
+      } else if(str[i] == 0){
+        break;
+      }
+      buff[e++] = str[i];
+    }
+    if(strlen(buff)>0){
+      strcpy(str, buff);
+    }
+  }
+
+  BMCTextPixelSize getCenteredXY(int n, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding){
+    char str[16] = "";
+    sprintf(str, "%d", n);
+    return getCenteredXY(str, t_x, t_y, t_w, t_h, t_padding);
+  }
+  // @str the string to print
+  // @t_x the x position where the text will start
+  // @t_y the y position where the text will start
+  //      these custom fonts set the y position at the bottom of the text
+  // @t_w the width of the area to print in
+  // @t_h the height of the area to print in
+  // @t_padding amount of space that will be removed from @t_h to keep
+  //            the text from printing over that area.
+  BMCTextPixelSize getCenteredXY(const char * str, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding){
+    char buff[strlen(str)+1];
+    strcpy(buff, str);
+    return getCenteredXY(buff,t_x,t_y,t_w,t_h,t_padding);
+  }
+  BMCTextPixelSize getCenteredXY(char * str, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding){
+    setTextSize(1);
+    BMCTextPixelSize t;
+    for(int i = 0 ; i < 6 ; i++){
+      // only 4 font sizes are available
+      if(i == 0){
+        if(t_h < 64){
+          continue;
+        }
+        setFont(BMC_FONT_XXL);
+      } else if(i == 1){
+        setFont(BMC_FONT_XL);
+      } else if(i == 2){
+        setFont(BMC_FONT_LG);
+      } else if(i == 3){
+        setFont(BMC_FONT_MD);
+      } else if(i == 4){
+        setFont(BMC_FONT_SM);
+      } else if(i == 5){
+        setFont(BMC_FONT_XS);
+      }
+      t = strPixelSize(str, 0, 0);
+      if((t.w) <= (t_w-t_padding) && ((t.h+(t_padding*2))+((t.y) + (t.h))) <= (t_h-t_padding)){
+        // Serial.print("ILI ");
+        // Serial.print(str);
+        // Serial.print(" using font ");
+        // Serial.println(i);
+        break;
+      }
+    }
+    t.x = t_x + (((t_w-t.x)-(t.w))/2);
+    t.y = (t_y + ((t_h) - ((t_h-t.h)/2.0))) - (((t.y) + (t.h)));
+    if(t.y >= (t_h+t_y)){
+      t.y = t_y + (t_h-1);
+    }
+    return t;
+  }
+
+  BMCTextPixelSize getCurrentCenteredXY(int n, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding){
+    char str[16] = "";
+    sprintf(str, "%d", n);
+    return getCurrentCenteredXY(str, t_x, t_y, t_w, t_h, t_padding);
+  }
+  // @str the string to print
+  // @t_x the x position where the text will start
+  // @t_y the y position where the text will start
+  //      these custom fonts set the y position at the bottom of the text
+  // @t_w the width of the area to print in
+  // @t_h the height of the area to print in
+  // @t_padding amount of space that will be removed from @t_h to keep
+  //            the text from printing over that area.
+  BMCTextPixelSize getCurrentCenteredXY(const char * str, uint16_t t_x, uint16_t t_y, uint16_t t_w, uint16_t t_h, uint8_t t_padding){
+    setTextSize(1);
+    BMCTextPixelSize t = strPixelSize(str, 0, 0);
+    t.x = t_x + (((t_w-t.x)-(t.w))/2);
+    t.y = (t_y + ((t_h) - ((t_h-t.h)/2.0))) - (((t.y) + (t.h)));
+    if(t.y >= (t_h+t_y)){
+      t.y = t_y + (t_h-1);
+    }
+    return t;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   void setAddr(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
     __attribute__((always_inline)) {

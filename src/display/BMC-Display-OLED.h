@@ -70,6 +70,7 @@ class BMC_OLED {
     selChar = t_selChar;
   }
   void reassign(uint8_t t_settings){
+    display.setTextSize(1);
     selChar = -1;
     meterPixelValue = 0xFFFF;
     meterValue = 0xFFFF;

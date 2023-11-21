@@ -392,6 +392,16 @@ public:
     }
     return 0;
   }
+  void getSceneName(char* str){
+    if(connected()){
+      strcpy(str, "Not Available");
+    }
+  }
+  void getSceneName(uint8_t n, char* str){
+    if(connected()){
+      strcpy(str, "Not Available");
+    }
+  }
   uint8_t getSceneNumber(){
     if(connected()){
       return device.scene;

@@ -24,13 +24,13 @@
 
 # Introduction
 
-The Badass MIDI Controller (BMC) Library is an all in one MIDI Controller library specifically designed for the Teensy Platform with a Companion dedicated Desktop Editor App!
+The Badass MIDI Controller (BMC) Library represents a comprehensive MIDI Controller solution meticulously crafted for the Teensy Platform, complemented by a dedicated Desktop Editor App.
 
-With BMC you can use Buttons/Footswitches, Rotary Encoders, Potentiometers/Expression Pedals, Leds, WS2812 Addressable Leds, Relays, OLED displays and the ILI9341 Touch Displays along with the ability to edit all their functions using a customizable desktop app.
+BMC empowers users with the seamless integration of Buttons/Footswitches, Rotary Encoders, Potentiometers/Expression Pedals, LEDs, WS2812 Addressable LEDs, Relays, OLED displays, and the ILI9341 Touch Displays. This versatile library facilitates the customization of functions for each component through a user-friendly desktop application.
 
-BMC was designed to allow you to build your Hardware MIDI Controller powered by a Teensy and then easily customize your firmware to fit your hardware, what's more is that you can easily edit your firmware using a Graphic User Interface (GUI) within the Editor App, allowing you to make modifications to your hardware like changing the pin used for a button or adding new hardware like more buttons or more leds, etc without having to write new code.
+Designed with the intent of simplifying the creation of Hardware MIDI Controllers powered by Teensy, BMC offers an intuitive firmware customization process tailored to your specific hardware requirements. Notably, the library provides a Graphic User Interface (GUI) within the Editor App, enabling effortless modifications such as altering button pins or integrating additional hardware elements, without necessitating manual code composition.
 
-With BMC you actually don't have to write any code or even be a seasoned programmer, everything is taken care of it by the firmware using a configuration file that you can create on the desktop app. For more experienced programmers BMC does have an API to allow to write your own code into your sketch and feed from BMC.
+BMC eliminates the need for manual coding or advanced programming skills. The firmware seamlessly manages configurations through a user-generated desktop application file. For proficient programmers, BMC further extends its capabilities with an Application Programming Interface (API), facilitating the incorporation of custom code into the sketch and interaction with BMC functionalities.
 
 BMC 2.0 is compatible with the Following Teensy Models:
 * Teensy Micromod
@@ -55,7 +55,7 @@ Some of BMC's key Features Include:
 ---
 
 ## DOCUMENTATION
-As you can imagine this is a very large and ambitious project and requires a lot of documentation, the editor app has a ton of info about the events for buttons, leds, etc built-in and the library also has lots of comments in the code.
+Undoubtedly, this project is expansive and ambitious, necessitating an extensive documentation effort. The Editor App is rich with detailed information on events for buttons, LEDs, and other components, offering an invaluable resource for users. Additionally, the library itself is thoughtfully annotated with abundant comments within the code, enhancing clarity and comprehension.
 
 For better management all BMC Documentation has been moved to [https://www.roxxxtar.com/bmc](https://www.roxxxtar.com/bmc)
 
@@ -142,17 +142,17 @@ BMCApi bmc = BMCApi();
 ---
 
 ## About BMC
-BMC started because at around 2017 I wanted to build my own MIDI Controller that could fully sync with my Fractal AX8 guitar processor, I started with an Arduino Mega but I quickly found that there was no easy library that would allow me to make an editor app to make changes to my footcontroller's buttons.
+The genesis of BMC can be traced back to 2017 when I embarked on the journey of constructing a personalized MIDI Controller synchronized seamlessly with my Fractal AX8 guitar processor. My initial attempts using an Arduino Mega revealed a dearth of user-friendly libraries for developing an editor app tailored to modify the footcontroller's buttons.
 
-This prompted me to make an editor app for that device, since I'm mainly a Web Programmer, I chose MIDI for the communication since it's available with Google Chrome and that made it very easy to put an app together, the main downside was that I needed to use a Serial MIDI to USB adaptor or Serial to MIDI Software to communicate with the Arduino.
+Motivated by this, I ventured into creating a specialized editor app for the device. Being primarily a Web Programmer, I opted for MIDI as the communication protocol due to its compatibility with Google Chrome, facilitating the swift assembly of an application. However, the caveat was the necessity of a Serial MIDI to USB adaptor or Serial to MIDI Software for Arduino communication.
 
-After this I started looking for boards that had USB MIDI already implemented and that's when I found (and fell in love with) the Teensy Platform and their range of boards, they are smaller and much faster than Arduino boards plus they have tons of features already built-in without hacking them, mainly **USB MIDI**.
+The quest for boards with pre-implemented USB MIDI capabilities led me to discover the Teensy Platform and its array of boards, which not only surpassed Arduino in size and speed but also offered an abundance of built-in features, particularly USB MIDI.
 
-Once I got a couple of Teensys I started working on a new editor to be able to edit the data on the EEPROM without having to upload the sketch again which went well, but then I wanted to make a larger foot controller with more buttons and pots which meant that I had to write all new code, this is what gave me the idea of having a master Configuration File that would make the entire library adapt to the number of buttons, encoders, pots, etc. of my new device.
+Armed with a pair of Teensys, my focus shifted to enhancing the editor, enabling direct data editing on the EEPROM without requiring sketch re-uploads. As aspirations expanded to encompass a more extensive foot controller with additional buttons and pots, the need for entirely new code arose. This instigated the concept of a master Configuration File, enabling the library's adaptability to the specifications of my evolving device.
 
-After I had the original version of BMC, as usual for me, I decided to completely re-write it from scratch to fix design flaws, this happened a total of 4 times with the 4th re-write being the current version of BMC, I then realized If I had a library like BMC when I first had the desire to build a MIDI controller I would have spent more time playing my guitar than coding and testing (not that there's anything wrong with that) so I decided to start documenting it so I could Open-Source it for others to use it.
+Subsequent to the inception of the original BMC version, my inclination for perfection led me to undertake four complete rewrites, culminating in the current iteration. Reflecting on my journey, I recognized that having a library like BMC from the project's inception would have granted me more time for guitar playing and less time devoted to coding and testing—an insight that spurred my decision to document and open-source BMC for broader utilization.
 
-I've done the best I could within my abilities to make BMC as easy to use as possible, however as I'm not a C++ Pro and the code base is not as optimized (or as well coded) as a seasoned C++ programmer would have done. This is where you can come in and help.
+While I've strived to ensure BMC's user-friendliness, acknowledging my proficiency limitations in C++ and the code base's imperfections compared to that of seasoned C++ programmers, I invite collaboration and contributions to further optimize and refine BMC. Your expertise can play a crucial role in enhancing the functionality and accessibility of BMC for the wider community.
 
 ---
 

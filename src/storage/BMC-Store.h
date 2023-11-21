@@ -8,8 +8,6 @@
 #define BMC_STORE_H
 #include <Arduino.h>
 
-
-
   // BMC Event Object for BMC 2.0
   struct bmcStoreEvent {
     bmcName_t name = 0;
@@ -30,8 +28,6 @@
     uint8_t settings[sLen];
     T events[eLen];
   };
-
-  
   
   // Layer Object
   struct bmcStoreLayer {
@@ -73,7 +69,7 @@
       bmcStoreDevice <BMC_ILI_S_COUNT, 1> ili[BMC_MAX_ILI9341_BLOCKS];
     #endif
     #if BMC_MAX_MINI_DISPLAY > 0
-      bmcStoreDevice <2, 1> miniDisplay[BMC_MAX_MINI_DISPLAY];
+      bmcStoreDevice <BMC_MAX_MINI_DISPLAY_SETTINGS, BMC_MAX_MINI_DISPLAY_EVENTS> miniDisplay[BMC_MAX_MINI_DISPLAY];
     #endif
     #if BMC_MAX_LCD > 0
       bmcStoreDevice <1, 1> lcd[BMC_MAX_LCD];
@@ -125,7 +121,7 @@
       bmcStoreDevice <1, BMC_MAX_SETLISTS_SONG_PARTS> songLibrary[BMC_MAX_SETLISTS_SONGS_LIBRARY];
     #endif
     #if BMC_MAX_GLOBAL_BUTTONS > 0
-      bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_BUTTONS];
+      bmcStoreDevice <BMC_MAX_BUTTON_EVENTS, BMC_MAX_BUTTON_EVENTS> buttons[BMC_MAX_GLOBAL_BUTTONS];
     #endif
     #if BMC_MAX_GLOBAL_LEDS > 0
       bmcStoreDevice <1, 1> leds[BMC_MAX_GLOBAL_LEDS];

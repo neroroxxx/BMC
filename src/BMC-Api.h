@@ -222,6 +222,13 @@ public:
   }
   // * GROUP: SYNC/FAS
   // triggered when the FAS tuner data has been received
+  // the BMCTunerData struct
+  // contains the following attributes
+  // uint8_t stringNumber = 0;
+  // uint8_t note = 0;
+  // uint8_t pitchRaw = 0;
+  // int pitch = 0;
+  // char noteName[3] = "";
   void onFasTunerReceived(void (*fptr)(BMCTunerData& data)){
     callback.fasTunerReceived = fptr;
   }
@@ -1107,6 +1114,22 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
     return sync.fas.getSceneNumber();
   }
   // * GROUP: SYNC/FAS
+  // copy the current Scene Name into a buffer char array
+  // the length of the char array must be at least 32 bytes
+  // only available for FAS3
+  bool getFasSceneName(char* str){
+    sync.fas.getSceneName(str);
+    return sync.fas.connected();
+  }
+  // * GROUP: SYNC/FAS
+  // copy the specified Scene Name into a buffer char array
+  // the length of the char array must be at least 32 bytes
+  // only available for FAS3
+  bool getFasSceneName(uint8_t n, char* str){
+    sync.fas.getSceneName(n, str);
+    return sync.fas.connected();
+  }
+  // * GROUP: SYNC/FAS
   // get the synced preset Bank Number (0 index)
   // the Axe FX II has 384 presets that is 3 banks each with 128 presets
   // on Axe FX II a number from 0 to 2 will be returned
@@ -1114,7 +1137,6 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   // so a number from 0 to 5 will be returned
   // the AX8 has 512 presets, 64 banks of 8 presets per bank
   // so a number from 0 to 63 will be returned
-
   uint8_t getFasPresetBankNumber(){
     return sync.fas.getPresetBankNumber();
   }
@@ -1191,7 +1213,13 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   }
   
   // * GROUP: SYNC/FAS
-  // get FAS Tuner Data
+  // get FAS Tuner Data, the BMCTunerData struct
+  // contains the following attributes
+  // uint8_t stringNumber = 0;
+  // uint8_t note = 0;
+  // uint8_t pitchRaw = 0;
+  // int pitch = 0;
+  // char noteName[3] = "";
   void getFasTuner(BMCTunerData& buff){
     sync.fas.getTunerData(buff);
   }

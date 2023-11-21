@@ -36,14 +36,18 @@
 class BMCDisplay {
 public:
   BMCDisplay(BMCMidi& t_midi
-    #ifdef BMC_USE_SYNC
+    #if defined(BMC_USE_SYNC)
       ,BMCSync& t_sync
     #endif
   ):midi(t_midi),
     globals(t_midi.globals),
     store(t_midi.globals.store),
     settings(t_midi.globals.settings),
-    mainHandler(t_midi, t_sync)
+    mainHandler(t_midi
+      #if defined(BMC_USE_SYNC)
+        ,t_sync
+      #endif
+    )
     #if defined(BMC_USE_SYNC)
       ,sync(t_sync)
       #if defined(BMC_USE_DAW_LC)
@@ -556,6 +560,12 @@ public:
 
 #if BMC_MAX_MINI_DISPLAY > 0
   void initMiniDisplay(){
+    BMC_PRINTLN("INIT MINI DISPLAYS");
+    #if BMC_MINI_DISPLAY_W == 160
+      BMC_PRINTLN("1.88\" Display");
+    #else
+      BMC_PRINTLN("1.44\" Display");
+    #endif
     for(uint8_t i = 0 ; i < BMC_MAX_MINI_DISPLAY ; i++){
       // display can be address 0x3C or 0x3D
       BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_MINI_DISPLAY, i);
@@ -708,12 +718,15 @@ public:
   void clearMiniDisplay(){
 #if BMC_MAX_MINI_DISPLAY > 0
     for(uint8_t i = 0 ; i < BMC_MAX_MINI_DISPLAY ; i++){
-      uint8_t t_settings = store.layers[globals.layer].miniDisplay[i].settings[0]+0;
-      uint8_t t_colors = store.layers[globals.layer].miniDisplay[i].settings[1]+0;
-      t_colors = (t_colors == 0) ? 1 : t_colors;
-      miniDisplay[i].assignColor(t_colors & 0x0F);
-      miniDisplay[i].assignBackground((t_colors>>4) & 0x0F);
-      miniDisplay[i].reassign(t_settings);
+      for(uint8_t e = 0 ; e < BMC_MAX_MINI_DISPLAY_EVENTS ; e++){
+        miniDisplay[i].setLineIndex(e);
+        uint8_t t_settings = store.layers[globals.layer].miniDisplay[i].settings[e*2]+0;
+        uint8_t t_colors = store.layers[globals.layer].miniDisplay[i].settings[(e*2)+1]+0;
+        t_colors = (t_colors == 0) ? 1 : t_colors;
+        miniDisplay[i].assignColor(t_colors & 0x0F);
+        miniDisplay[i].assignBackground((t_colors>>4) & 0x0F);
+        miniDisplay[i].reassign(t_settings);
+      }
     }
 #endif
   }
@@ -747,7 +760,6 @@ public:
       #endif
     } else if(d.isMiniDisplay()){
       #if BMC_MAX_MINI_DISPLAY > 0
-        // miniDisplay[d.index].print(d.crc, d.str, d.label, d.highlight);
         fasHandler.renderBlockMiniDisplay(miniDisplay[d.index], d);
       #endif
     } else if(d.isLcd()){
@@ -1072,8 +1084,11 @@ void blackoutOled(uint8_t index){
 #if BMC_MAX_MINI_DISPLAY > 0
 void blackoutMiniDisplay(uint8_t index){
   if(!miniDisplay[index].isCrc(0)){
-    miniDisplay[index].blackout(tft.display);
+    miniDisplay[index].blackout();
   }
+}
+void setMiniDisplayLine(uint8_t index, uint8_t n){
+  miniDisplay[index].setLineIndex(n);
 }
 #endif
 
@@ -1285,6 +1300,7 @@ private:
     } else {
       c += checkLast(d.type, d.str) + (strlen(d.str) * d.value);
     }
+    c += d.byteA+d.byteB+d.byteC+d.byteD;
     c += (d.highlight*2);
     c += d.prependValue;
     c ^= d.settings;

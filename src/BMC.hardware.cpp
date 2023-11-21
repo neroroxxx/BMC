@@ -170,12 +170,15 @@ if(oneMillisecondPassed()){
 
   #if BMC_MAX_MINI_DISPLAY > 0
     for(uint8_t index = 0 ; index < BMC_MAX_MINI_DISPLAY ; index++){
-      uint16_t eIndex = store.layers[layer].miniDisplay[index].events[0];
-      if(eIndex == 0 && !settings.getDisplayNames()){
-        display.blackoutMiniDisplay(index);
-        continue;
+      for(uint8_t e = 0 ; e < BMC_MAX_MINI_DISPLAY_EVENTS ; e++){
+        display.setMiniDisplayLine(index, e);
+        uint16_t eIndex = store.layers[layer].miniDisplay[index].events[e];
+        if(eIndex == 0 && !settings.getDisplayNames()){
+          display.blackoutMiniDisplay(index);
+          continue;
+        }
+        processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_MINI_DISPLAY, index, eIndex);
       }
-      processEvent(BMC_DEVICE_GROUP_DISPLAY, BMC_DEVICE_ID_MINI_DISPLAY, index, eIndex);
     }
   #endif
 

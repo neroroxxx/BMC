@@ -16,14 +16,22 @@ public:
   BMCGlobals& globals;
   bmcStore& store;
   BMCSettings& settings;
+  #if defined(BMC_USE_SYNC)
   BMCSync& sync;
+  #endif
 
-  BMCDisplayHandlerMain(BMCMidi& t_midi, BMCSync& t_sync):
+  BMCDisplayHandlerMain(BMCMidi& t_midi
+  #if defined(BMC_USE_SYNC)
+  ,BMCSync& t_sync
+  #endif
+  ):
     midi(t_midi),
     globals(t_midi.globals),
     store(t_midi.globals.store),
-    settings(t_midi.globals.settings),
-    sync(t_sync)
+    settings(t_midi.globals.settings)
+    #if defined(BMC_USE_SYNC)
+    ,sync(t_sync)
+    #endif
   {
     
   }
@@ -39,13 +47,15 @@ public:
   #if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderMidiIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d){
     BMC_TFT& display = tft.display;
-    if(!block.isCrc(d.crc)){
+    if(block.isCrc(d.crc)){
       return false;
     }
     bool t_reset = false;
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_ILI;
     t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(BMC_ILI9341_RED, BMC_ILI9341_GREEN, BMC_ILI9341_WHITE);
+    // t.setColor(BMC_ILI9341_RED, BMC_ILI9341_GREEN, BMC_ILI9341_WHITE);
+    t.setColor(block.getColor());
+    t.setBackground(block.getBackground());
 
     renderMidi<BMC_TFT>(display, d, t, t_reset);
 
@@ -222,6 +232,7 @@ public:
         break;
     }
     // invert the colors for the header
+    display.fillRect(t.x, t.y, t.w, t.h, t.background);
     display.fillRect(t.x, t.y, t.w, lineHeight, t.color);
     display.drawRect(t.x, t.y, t.w, t.h, t.color);
     display.setFont();
@@ -274,13 +285,15 @@ public:
 
       if(totalLines == 3){
         lineY = (lineHeight*2) + ((newLineHeight-fontHeight)/2);
-        sprintf(buff, "VV %03u", d.byteA+1);
+        // sprintf(buff, "VV %03u", d.byteA+1);
+        sprintf(buff, "VV %03u", d.byteC);
         cX = (t.w-(fontWidth*strlen(buff)))/2;
         display.setCursor(t.x+((cX < 0) ? 0 : cX), t.y + lineY);
         display.print(buff);
         display.drawFastHLine(t.x, t.y + (newLineHeight*2), t.w, t.color);
       }
     }
+    display.setTextSize(1);
     return true;
   }
 
@@ -471,6 +484,7 @@ public:
     }
     meterPixelValue = pixelValue;
     meterValue = d.value;
+    display.setTextSize(1);
     return true;
   }
 
@@ -527,6 +541,7 @@ public:
       display.setCursor(txtX, t.y+(t.h/2)-8);
       display.print("ON");
     }
+    display.setTextSize(1);
   }
   
 };

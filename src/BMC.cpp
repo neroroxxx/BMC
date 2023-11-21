@@ -372,6 +372,9 @@ void BMC::update(){
     // tick stopwatch and runtime tracker
     stopwatch.tick();
     runTime.tick();
+    #if defined(BMC_DEBUG)
+      globals.setTimerComplete();
+    #endif
 
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
     if(potCalibration.active() && globals.editorConnected()){
