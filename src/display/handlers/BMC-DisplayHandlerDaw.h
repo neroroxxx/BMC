@@ -1,9 +1,11 @@
-/*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
-*/
+// *****************************************************************************
+// *  See https://www.RoxXxtar.com/bmc for more details
+// *  Created: 2023
+// *  RoxXxtar.com / BadassMIDI.com
+// *  Licensed under the MIT license.
+// *  See LICENSE file in the project root for full license information.
+// *****************************************************************************
+
 #ifndef BMC_DISPLAY_HANDLER_DAW_H
 #define BMC_DISPLAY_HANDLER_DAW_H
 #include "utility/BMC-Def.h"
@@ -35,7 +37,7 @@
   #define BMC_ILI9341_FADER_RIGHT_MARGIN 6 // space from right marging
   #define BMC_ILI9341_CHANNEL_BUTTON_W (BMC_ILI9341_VU_METER_FULL_WIDTH) //width of solo,rec,mute buttons
   #define BMC_ILI9341_CHANNEL_BUTTON_X 0 // x coordinate of buttons
-  #define BMC_DISPLAY_BANNER_Y 60
+  
   #define BMC_ILI9341_VPOT_INDICATOR_W 3
   #define BMC_ILI9341_VPOT_INDICATOR_X 1
   // For Faders
@@ -50,7 +52,7 @@
   #define BMC_ILI9341_FADER_RIGHT_MARGIN 9 // space from right marging
   #define BMC_ILI9341_CHANNEL_BUTTON_W (BMC_ILI9341_VU_METER_FULL_WIDTH) //width of solo,rec,mute buttons
   #define BMC_ILI9341_CHANNEL_BUTTON_X 0 // x coordinate of buttons
-  #define BMC_DISPLAY_BANNER_Y 100
+  
   #define BMC_ILI9341_VPOT_INDICATOR_W 4
   #define BMC_ILI9341_VPOT_INDICATOR_X 5
   // For Faders
@@ -115,7 +117,115 @@ public:
     memset(dawChStates, 0, sizeof(dawChStates[0])*8);
 #endif
   }
-  #if BMC_MAX_MINI_DISPLAY > 0
+
+// *****************************************************************************
+// ********************************* For OLED **********************************
+// *****************************************************************************
+#if BMC_MAX_OLED > 0
+  bool renderChannelBlockOled(BMC_OLED& oled, BMCDataContainer d, uint8_t index){
+    if(d.byteB > 8){
+      return false;
+    }
+    BMC_SSD1306& display = oled.display;
+    bool reset = false;
+    uint8_t n = d.byteB;
+    if(chInfo[n].index < 0){
+      reset = true;
+      chInfo[n].reset();
+      chInfo[n].index = index;
+      chInfo[n].type = BMC_DEVICE_ID_OLED;
+    }
+
+    if(chInfo[n].index != index || !chInfo[n].isOled()){
+      return false;
+    }
+
+    bool show = false;
+    uint8_t channel = n>=8 ? sync.daw.controller.getSelectedChannel() : n;
+    // uint8_t index = chInfo[n].index;
+    uint8_t vPotValue = sync.daw.controller.getVPot(channel);
+    uint8_t vuValue = sync.daw.controller.getMeter(channel);
+    bool small = (BMC_OLED_HEIGHT==32);
+    // uint16_t y = BMC_OLED_HEIGHT==32 ? 0 : 16;
+    bmcStoreName t = sync.daw.getLcdTrackName(channel);
+    bmcStoreName t2 = sync.daw.getLcdTrackValue(channel);
+    BMCTools::strTrim(t.name);
+    if(strlen(t.name)>6){
+      t.name[6] = 0;
+    }
+    BMCTools::strTrim(t2.name);
+    if(strlen(t2.name)>6){
+      t2.name[6] = 0;
+    }
+    // #if BMC_MAX_OLED > 1
+    //   selectMux(index);
+    // #endif
+    if(reset){
+      vPotValue = 255;
+      vuValue = 255;
+      chInfo[n].vPotBits = 0xFFFF;
+      chInfo[n].vuBits = 0xFFFF;
+      display.fillRect(0, 0, 128, BMC_OLED_HEIGHT, BMC_OLED_BLACK);
+      display.fillRect(25, (small ? 24 : 56), 101, 8, BMC_OLED_WHITE);
+      display.fillRect(71, (small ? 26 : 58), 9, 4, BMC_OLED_WHITE);
+    }
+    // track name
+    if(!BMC_STR_MATCH(t.name, chInfo[n].name)){
+      strcpy(chInfo[n].name, t.name);
+      uint8_t fontSize = small ? 2 : 3;
+      oled.printCenteredXY(t.name, 23, 1, 105, (fontSize * 8), 0);
+      show = true;
+    }
+    // channel value
+    if(!BMC_STR_MATCH(t2.name, chInfo[n].value)){
+      strcpy(chInfo[n].value, t2.name);
+      if(!small){
+        oled.printCenteredXY(t2.name, 35, 31, 82, 16, 0);
+        show = true;
+      }
+    }
+    // Meter
+    if(vuValue != chInfo[n].vuValue){
+      chInfo[n].vuValue = vuValue;
+      for(int8_t e = 13 ; e --> 1 ;){
+        int8_t ee = abs(e-12) + 1;
+        bool v = sync.daw.controller.getMeter(channel, ee)>0;
+        if(bitRead(chInfo[n].vuBits, e) != v){
+          bitWrite(chInfo[n].vuBits, e, v);
+          if(!small){
+            display.fillRect(2, (e*5), 12, 4, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          } else {
+            display.fillRect(2, (e*2)+6, 12, 2, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+          }
+          show = true;
+        }
+      }
+    }
+    // vPot
+    if(vPotValue != chInfo[n].vPotLevel){
+      chInfo[n].vPotLevel = vPotValue;
+      for(uint8_t e = 0 ; e < 11 ; e++){
+        bool l = sync.daw.controller.getVPotValue(channel, e+1)>0;
+        if(bitRead(chInfo[n].vPotBits, e) != l){
+          bitWrite(chInfo[n].vPotBits, e, l);
+          display.fillRect(26+(e*9), (small ? 26 : 58), 9, 4, l ? BMC_OLED_WHITE : BMC_OLED_BLACK);
+        }
+      }
+      show = true;
+    }
+    if(show){
+      display.display();
+    }
+    return true;
+  }
+
+#endif
+
+
+// *****************************************************************************
+// ***************************** For Mini Display ******************************
+// *****************************************************************************
+#if BMC_MAX_MINI_DISPLAY > 0
   bool renderChannelBlockMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
     BMC_MD_DRIVER& display = block.display;
     if(d.byteB > 8){
@@ -267,7 +377,7 @@ public:
     #if BMC_MINI_DISPLAY_H == 128
       uint8_t btnW = w/3.5;
       uint8_t btnH = 22;
-      display.setFont(BMC_FONT_XS);
+      // display.setFont(BMC_FONT_XS);
       bool rec = sync.daw.controller.getRecState(channel);
       bool solo = sync.daw.controller.getSoloState(channel);
       bool mute = sync.daw.controller.getMuteState(channel);
@@ -288,30 +398,20 @@ public:
     
     return true;
   }
-  template <typename T>
-  void renderButtonHelper(T& display, uint16_t x, uint16_t y, uint8_t value, const char * t_str, uint16_t color, uint8_t cW=0, uint8_t cH=0){
-    // convert const char array to char array
-    char str[strlen(t_str)+1] = "";
-    strcpy(str, t_str);
-    // uint8_t buttonWidth = cW==0 ? BMC_ILI9341_CHANNEL_BUTTON_W : cW;
-    uint8_t buttonWidth = cW;
-    uint8_t buttonHeight = cH==0 ? 16 : cH;
-    // set the font to be used
-    
-    display.setTextColor(value ? BMC_ILI9341_WHITE : BMC_ILI9341_VU_GREY);
-    display.fillRect(x, y, buttonWidth, buttonHeight, value ? color : BMC_ILI9341_BLACK);
-    if(!value){
-      display.drawRect(x, y, buttonWidth, buttonHeight, BMC_ILI9341_VU_GREY);
-    }
-    uint16_t w = BMC_TFT_STR_LEN(display, str);
-    display.setCursor(x + ((buttonWidth - w)/2), y+((buttonHeight-12)/2));
-    display.print(str);
-  }
-  #endif
+  
+#endif
 
-  // ***************************
-  // ********** ILI ***********
-  // ***************************
+
+
+
+
+
+
+
+
+// *****************************************************************************
+// ******************************** For ILI9341 ********************************
+// *****************************************************************************
 #if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderChannelBlockIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, uint8_t crc, uint8_t index){
     BMC_TFT& display = tft.display;
@@ -421,26 +521,28 @@ public:
       bool rec = sync.daw.controller.getRecState(channel);
       bool solo = sync.daw.controller.getSoloState(channel);
       bool mute = sync.daw.controller.getMuteState(channel);
+      uint16_t btnX = x+162;
+      uint8_t btnW = 36;
+      uint8_t btnH = 22;
       if(bitRead(chInfo[n].stateBits, 0) != rec){
         bitWrite(chInfo[n].stateBits, 0, rec);
-        renderButton(tft, x+162, y+2, rec, "R", BMC_ILI9341_RED, 36, 22);
+        // renderButton(tft, x+162, y+2, rec, "R", BMC_ILI9341_RED, 36, 22);
+        renderButtonHelper<BMC_TFT>(tft.display, btnX, y+2, rec, "R", BMC_ILI9341_RED, btnW, btnH);
       }
       if(bitRead(chInfo[n].stateBits, 1) != solo){
         bitWrite(chInfo[n].stateBits, 1, solo);
-        renderButton(tft, x+162, y+29, solo, "S", BMC_ILI9341_ORANGE, 36, 22);
+        // renderButton(tft, x+162, y+29, solo, "S", BMC_ILI9341_ORANGE, 36, 22);
+        renderButtonHelper<BMC_TFT>(tft.display, btnX, y+29, solo, "S", BMC_ILI9341_ORANGE, btnW, btnH);
       }
       if(bitRead(chInfo[n].stateBits, 2) != mute){
         bitWrite(chInfo[n].stateBits, 2, mute);
-        renderButton(tft, x+162, y+55, mute, "M", BMC_ILI9341_BLUE, 36, 22);
+        // renderButton(tft, x+162, y+55, mute, "M", BMC_ILI9341_BLUE, 36, 22);
+        renderButtonHelper<BMC_TFT>(tft.display, btnX, y+55, mute, "M", BMC_ILI9341_BLUE, btnW, btnH);
       }
     }
     block.setCrc(d.crc);
     return true;
   }
-
-
-
-
   bool render8ChannelBlock(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, uint8_t crc, uint8_t index){
     BMC_TFT& display = tft.display;
     if(block.getWidth() < BMC_TFT_WIDTH  || block.getHeight() < 80){
@@ -479,15 +581,18 @@ public:
       }
       if((bitRead(dawChStates[i], 0) != rec) || reset){
         bitWrite(dawChStates[i], 0, rec);
-        renderButton(tft, buttonsX, buttonsY, rec, "R", BMC_ILI9341_RED);
+        // renderButton(tft, buttonsX, buttonsY, rec, "R", BMC_ILI9341_RED);
+        renderButtonHelper<BMC_TFT>(tft.display, buttonsX, buttonsY, rec, "R", BMC_ILI9341_RED);
       }
       if((bitRead(dawChStates[i], 1) != solo) || reset){
         bitWrite(dawChStates[i], 1, solo);
-        renderButton(tft, buttonsX, buttonsY+20, solo, "S", BMC_ILI9341_ORANGE);
+        // renderButton(tft, buttonsX, buttonsY+20, solo, "S", BMC_ILI9341_ORANGE);
+        renderButtonHelper<BMC_TFT>(tft.display, buttonsX, buttonsY+20, solo, "S", BMC_ILI9341_ORANGE);
       }
       if((bitRead(dawChStates[i], 2) != mute) || reset){
         bitWrite(dawChStates[i], 2, mute);
-        renderButton(tft, buttonsX, buttonsY+40, mute, "M", BMC_ILI9341_BLUE);
+        // renderButton(tft, buttonsX, buttonsY+40, mute, "M", BMC_ILI9341_BLUE);
+        renderButtonHelper<BMC_TFT>(tft.display, buttonsX, buttonsY+40, mute, "M", BMC_ILI9341_BLUE);
       }
       if((dawVPotLevel[i] != vPotValue) || reset){
         for(uint8_t e = 0 ; e < 11 ; e++){
@@ -505,7 +610,6 @@ public:
     dawSelectedTrack = sel;
     return true;
   }
-
 
   bool render8MeterBlock(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, uint8_t crc, uint8_t index){
     BMC_TFT& display = tft.display;
@@ -592,134 +696,55 @@ public:
     return true;
   }
 
-  void renderButton(BMC_ILI& tft, uint16_t x, uint16_t y, uint8_t value, const char * t_str, uint16_t color, uint8_t cW=0, uint8_t cH=0){
-    BMC_TFT& display = tft.display;
+  // void renderButton(BMC_ILI& tft, uint16_t x, uint16_t y, uint8_t value, const char * t_str, uint16_t color, uint8_t cW=0, uint8_t cH=0){
+  //   BMC_TFT& display = tft.display;
+  //   // convert const char array to char array
+  //   char str[strlen(t_str)+1] = "";
+  //   strcpy(str, t_str);
+  //   uint8_t buttonWidth = cW==0 ? BMC_ILI9341_CHANNEL_BUTTON_W : cW;
+  //   uint8_t buttonHeight = cH==0 ? 16 : cH;
+  //   // set the font to be used
+  //   display.setFont(BMC_FONT_XS);
+  //   display.setTextColor(value ? BMC_ILI9341_WHITE : BMC_ILI9341_VU_GREY);
+  //   display.fillRect(x, y, buttonWidth, buttonHeight, value ? color : BMC_ILI9341_BLACK);
+  //   if(!value){
+  //     display.drawRect(x, y, buttonWidth, buttonHeight, BMC_ILI9341_VU_GREY);
+  //   }
+  //   // uint16_t w = BMC_TFT_STR_LEN(tft.display, str);
+  //   // display.setCursor(x + ((buttonWidth - w)/2), y+((buttonHeight-12)/2));
+  //   BMCTextPixelSize tt = display.getCurrentCenteredXY(t_str, x, y, buttonWidth, buttonHeight, 0);
+  //   display.setCursor(tt.x, tt.y);
+
+
+  //   display.print(str);
+  // }
+#endif
+
+
+// *****************************************************************************
+// ************************ For ILI9341 & Mini Display *************************
+// *****************************************************************************
+#if BMC_MAX_ILI9341_BLOCKS > 0 || BMC_MAX_MINI_DISPLAY > 0
+  template <typename T>
+  void renderButtonHelper(T& display, uint16_t x, uint16_t y, uint8_t value, const char * t_str, uint16_t color, uint8_t cW=0, uint8_t cH=0){
     // convert const char array to char array
+    display.setFont(BMC_FONT_XS);
     char str[strlen(t_str)+1] = "";
     strcpy(str, t_str);
     uint8_t buttonWidth = cW==0 ? BMC_ILI9341_CHANNEL_BUTTON_W : cW;
+    // uint8_t buttonWidth = cW;
     uint8_t buttonHeight = cH==0 ? 16 : cH;
     // set the font to be used
-    display.setFont(BMC_FONT_XS);
+    
     display.setTextColor(value ? BMC_ILI9341_WHITE : BMC_ILI9341_VU_GREY);
     display.fillRect(x, y, buttonWidth, buttonHeight, value ? color : BMC_ILI9341_BLACK);
     if(!value){
       display.drawRect(x, y, buttonWidth, buttonHeight, BMC_ILI9341_VU_GREY);
     }
-    // uint16_t w = BMC_TFT_STR_LEN(tft.display, str);
-    // display.setCursor(x + ((buttonWidth - w)/2), y+((buttonHeight-12)/2));
-    BMCTextPixelSize tt = display.getCurrentCenteredXY(t_str, x, y, buttonWidth, buttonHeight, 0);
-    display.setCursor(tt.x, tt.y);
-
-
+    uint16_t w = BMC_TFT_STR_LEN(display, str);
+    display.setCursor(x + ((buttonWidth - w)/2), y+((buttonHeight-12)/2));
     display.print(str);
   }
-#endif
-
-
-
-
-
-
-
-#if BMC_MAX_OLED > 0
-  bool renderChannelBlockOled(BMC_OLED& oled, BMCDataContainer d, uint8_t index){
-    if(d.byteB > 8){
-      return false;
-    }
-    BMC_SSD1306& display = oled.display;
-    bool reset = false;
-    uint8_t n = d.byteB;
-    if(chInfo[n].index < 0){
-      reset = true;
-      chInfo[n].reset();
-      chInfo[n].index = index;
-      chInfo[n].type = BMC_DEVICE_ID_OLED;
-    }
-
-    if(chInfo[n].index != index || !chInfo[n].isOled()){
-      return false;
-    }
-
-    bool show = false;
-    uint8_t channel = n>=8 ? sync.daw.controller.getSelectedChannel() : n;
-    // uint8_t index = chInfo[n].index;
-    uint8_t vPotValue = sync.daw.controller.getVPot(channel);
-    uint8_t vuValue = sync.daw.controller.getMeter(channel);
-    bool small = (BMC_OLED_HEIGHT==32);
-    // uint16_t y = BMC_OLED_HEIGHT==32 ? 0 : 16;
-    bmcStoreName t = sync.daw.getLcdTrackName(channel);
-    bmcStoreName t2 = sync.daw.getLcdTrackValue(channel);
-    BMCTools::strTrim(t.name);
-    if(strlen(t.name)>6){
-      t.name[6] = 0;
-    }
-    BMCTools::strTrim(t2.name);
-    if(strlen(t2.name)>6){
-      t2.name[6] = 0;
-    }
-    // #if BMC_MAX_OLED > 1
-    //   selectMux(index);
-    // #endif
-    if(reset){
-      vPotValue = 255;
-      vuValue = 255;
-      chInfo[n].vPotBits = 0xFFFF;
-      chInfo[n].vuBits = 0xFFFF;
-      display.fillRect(0, 0, 128, BMC_OLED_HEIGHT, BMC_OLED_BLACK);
-      display.fillRect(25, (small ? 24 : 56), 101, 8, BMC_OLED_WHITE);
-      display.fillRect(71, (small ? 26 : 58), 9, 4, BMC_OLED_WHITE);
-    }
-    // track name
-    if(!BMC_STR_MATCH(t.name, chInfo[n].name)){
-      strcpy(chInfo[n].name, t.name);
-      uint8_t fontSize = small ? 2 : 3;
-      oled.printCenteredXY(t.name, 23, 1, 105, (fontSize * 8), 0);
-      show = true;
-    }
-    // channel value
-    if(!BMC_STR_MATCH(t2.name, chInfo[n].value)){
-      strcpy(chInfo[n].value, t2.name);
-      if(!small){
-        oled.printCenteredXY(t2.name, 35, 31, 82, 16, 0);
-        show = true;
-      }
-    }
-    // Meter
-    if(vuValue != chInfo[n].vuValue){
-      chInfo[n].vuValue = vuValue;
-      for(int8_t e = 13 ; e --> 1 ;){
-        int8_t ee = abs(e-12) + 1;
-        bool v = sync.daw.controller.getMeter(channel, ee)>0;
-        if(bitRead(chInfo[n].vuBits, e) != v){
-          bitWrite(chInfo[n].vuBits, e, v);
-          if(!small){
-            display.fillRect(2, (e*5), 12, 4, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
-          } else {
-            display.fillRect(2, (e*2)+6, 12, 2, v ? BMC_OLED_WHITE : BMC_OLED_BLACK);
-          }
-          show = true;
-        }
-      }
-    }
-    // vPot
-    if(vPotValue != chInfo[n].vPotLevel){
-      chInfo[n].vPotLevel = vPotValue;
-      for(uint8_t e = 0 ; e < 11 ; e++){
-        bool l = sync.daw.controller.getVPotValue(channel, e+1)>0;
-        if(bitRead(chInfo[n].vPotBits, e) != l){
-          bitWrite(chInfo[n].vPotBits, e, l);
-          display.fillRect(26+(e*9), (small ? 26 : 58), 9, 4, l ? BMC_OLED_WHITE : BMC_OLED_BLACK);
-        }
-      }
-      show = true;
-    }
-    if(show){
-      display.display();
-    }
-    return true;
-  }
-
 #endif
   
 };

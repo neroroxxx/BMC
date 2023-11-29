@@ -1,9 +1,11 @@
-/*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
-*/
+// *****************************************************************************
+// *  See https://www.RoxXxtar.com/bmc for more details
+// *  Created: 2023
+// *  RoxXxtar.com / BadassMIDI.com
+// *  Licensed under the MIT license.
+// *  See LICENSE file in the project root for full license information.
+// *****************************************************************************
+  
 #ifndef BMC_DISPLAY_HANDLER_MAIN_H
 #define BMC_DISPLAY_HANDLER_MAIN_H
 #include "utility/BMC-Def.h"
@@ -44,7 +46,11 @@ public:
   void reassign(){
     
   }
-  #if BMC_MAX_ILI9341_BLOCKS > 0
+
+// *****************************************************************************
+// ******************************** For ILI9341 ********************************
+// *****************************************************************************
+#if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderMidiIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d){
     BMC_TFT& display = tft.display;
     if(block.isCrc(d.crc)){
@@ -57,7 +63,7 @@ public:
     t.setColor(block.getColor());
     t.setBackground(block.getBackground());
 
-    renderMidi<BMC_TFT>(display, d, t, t_reset);
+    renderMidiHelper<BMC_TFT>(display, d, t, t_reset);
 
     block.setCrc(d.crc);
     return true;
@@ -93,13 +99,64 @@ public:
     
     return true;
   }
-  
-  #endif
+#endif
+
+// *****************************************************************************
+// ***************************** For Mini Display ******************************
+// *****************************************************************************
+#if BMC_MAX_MINI_DISPLAY > 0
+  bool renderMidiMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
+    BMC_MD_DRIVER& display = block.display;
+    if(block.isCrc(d.crc)){
+      return false;
+    }
+    bool t_reset = false;
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+    t.setColor(block.getColor());
+    t.setBackground(block.getBackground());
+
+    renderMidiHelper<BMC_MD_DRIVER>(display, d, t, t_reset);
+
+    block.setCrc(d.crc);
+    return true;
+  }
+  bool renderSliderMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
+    BMC_MD_DRIVER& display = block.display;
+    if(block.isCrc(d.crc)){
+      return false;
+    }
+    block.setCrc(d.crc);
+    bool t_reset = false;
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+    t.setColor(block.getColor());
+    t.setBackground(block.getBackground());
+
+    uint16_t meterValue = block.getMeterValue();
+    uint16_t meterPixelValue = block.getMeterPixelValue();
+
+    if(t.h >= 64 && t.w >= 120){
+      if(d.useOnOffSwitch()){
+        renderSwitch<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
+      } else {
+        renderKnob<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
+      }
+      return true;
+    }
+    renderSlider<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
+    block.setMeterValue(meterValue);
+    block.setMeterPixelValue(meterPixelValue);
+    
+    return true;
+  }
+#endif
 
 
-
-
-  #if BMC_MAX_OLED > 0
+// *****************************************************************************
+// ********************************* For OLED **********************************
+// *****************************************************************************
+#if BMC_MAX_OLED > 0
   bool renderMidiOled(BMC_OLED& block, BMCDataContainer d){
     BMC_SSD1306& display = block.display;
     if(block.isCrc(d.crc)){
@@ -108,7 +165,7 @@ public:
     bool t_reset = false;
     BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
 
-    renderMidi<BMC_SSD1306>(display, d, t, t_reset);
+    renderMidiHelper<BMC_SSD1306>(display, d, t, t_reset);
     display.display();
 
     block.setCrc(d.crc);
@@ -145,70 +202,21 @@ public:
     
     return true;
   }
-  #endif
+#endif
 
-
-
-
-  #if BMC_MAX_MINI_DISPLAY > 0
-  bool renderMidiMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
-    BMC_MD_DRIVER& display = block.display;
-    if(block.isCrc(d.crc)){
-      return false;
-    }
-    bool t_reset = false;
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(block.getColor());
-    t.setBackground(block.getBackground());
-
-    renderMidi<BMC_MD_DRIVER>(display, d, t, t_reset);
-
-    block.setCrc(d.crc);
-    return true;
-  }
-  bool renderSliderMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
-    BMC_MD_DRIVER& display = block.display;
-    if(block.isCrc(d.crc)){
-      return false;
-    }
-    block.setCrc(d.crc);
-    bool t_reset = false;
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(block.getColor());
-    t.setBackground(block.getBackground());
-
-    uint16_t meterValue = block.getMeterValue();
-    uint16_t meterPixelValue = block.getMeterPixelValue();
-
-    if(t.h >= 64 && t.w >= 120){
-      if(d.useOnOffSwitch()){
-        renderSwitch<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
-      } else {
-        renderKnob<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
-      }
-      return true;
-    }
-    renderSlider<BMC_MD_DRIVER>(display, meterValue, meterPixelValue, d, t, t_reset);
-    block.setMeterValue(meterValue);
-    block.setMeterPixelValue(meterPixelValue);
-    
-    return true;
-  }
-  #endif
-
-
-
-
+// *****************************************************************************
+// ********************************** For LCD **********************************
+// *****************************************************************************
   #if BMC_MAX_LCD > 0
 
   #endif
 
 
-
+// *****************************************************************************
+// ********************************** Helpers **********************************
+// *****************************************************************************
   template <typename T>
-  bool renderMidi(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
+  bool renderMidiHelper(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
     uint8_t maxLines = ((t.h/3) >= 16) ? 3 : 2;
     uint8_t lineHeight = (t.h / maxLines);
     uint8_t totalLines = 2;
@@ -297,7 +305,9 @@ public:
     return true;
   }
 
-
+// *****************************************************************************
+// *********************************** Knob ************************************
+// *****************************************************************************
   // drawKnobFace & drawKnobPosition
   // based on code from this sketch:
   // https://github.com/rydepier/Arduino-OLED-Clock/blob/master/Arduino-OLED-Clock%20using%20ADAfruit%20libraries.ino
@@ -421,7 +431,10 @@ public:
 
     display.drawLine(x1, y1, x2, y2, t_color);
   }
-  
+
+// *****************************************************************************
+// ********************************** Slider ***********************************
+// *****************************************************************************
   template <typename T>
   bool renderSlider(T& display, uint16_t& meterValue, uint16_t& meterPixelValue, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset = false){
     // set crc after clear()
@@ -489,7 +502,9 @@ public:
   }
 
 
-
+// *****************************************************************************
+// ********************************** Switch ***********************************
+// *****************************************************************************
   template <typename T>
   void renderSwitch(T& display, uint16_t& meterValue, uint16_t& meterPixelValue, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset = false){
     // 2 pixel wide box

@@ -27,6 +27,12 @@
   #include "display/handlers/BMC-DisplayHandlerFas.h"
 #endif
 
+#if BMC_TFT_SIZE == 1
+  #define BMC_DISPLAY_BANNER_Y 60
+#else
+  #define BMC_DISPLAY_BANNER_Y 100
+#endif
+
 #if BMC_MAX_OLED > 1
   #define __oledMuxSelect(a) selectMux(a)
 #else

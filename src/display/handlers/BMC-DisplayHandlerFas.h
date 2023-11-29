@@ -1,9 +1,11 @@
-/*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
-*/
+// *****************************************************************************
+// *  See https://www.RoxXxtar.com/bmc for more details
+// *  Created: 2023
+// *  RoxXxtar.com / BadassMIDI.com
+// *  Licensed under the MIT license.
+// *  See LICENSE file in the project root for full license information.
+// *****************************************************************************
+
 #ifndef BMC_DISPLAY_HANDLER_FAS_H
 #define BMC_DISPLAY_HANDLER_FAS_H
 #include "utility/BMC-Def.h"
@@ -115,9 +117,10 @@ public:
   }
 
 
-  // ******************************************************
-  // *********************** STATUS ************************
-  // ******************************************************
+// *****************************************************************************
+// ******************************** For ILI9341 ********************************
+// *****************************************************************************
+
 #if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderStatusIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, bool t_reset=false){
     BMC_TFT& display = tft.display;
@@ -263,180 +266,6 @@ public:
     block.setCrc(d.crc);
     return true;
   }
-#endif
-
-#if BMC_MAX_OLED > 0
-  bool renderStatusOled(BMC_OLED& block, BMCDataContainer d){
-    BMC_SSD1306& display = block.display;
-    bool t_reset = false;
-    if(statusBlock.index < 0){
-      statusBlock.reset();
-      statusBlock.index = d.index;
-      statusBlock.type = BMC_DEVICE_ID_OLED;
-      t_reset = true;
-    } else if(!statusBlock.isOled() || statusBlock.index != d.index){
-      block.print(d, d.str);
-      return false;
-    }
-    if(statusBlock.active != sync.fas.connected()){
-      statusBlock.active = sync.fas.connected();
-      t_reset = true;
-    }
-    if(!statusBlock.active){
-      block.print(d, d.str);
-      return false;
-    }
-
-    if(statusTunerBlock.active != sync.fas.tuner.isOn()){
-      statusTunerBlock.active = sync.fas.tuner.isOn();
-      t_reset = true;
-    }
-    if(t_reset){
-      display.fillScreen(BMC_OLED_BLACK);
-    }
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
-
-    if(statusTunerBlock.active){
-      if(renderTuner<BMC_SSD1306>(display, statusTunerData, t, t_reset)){
-        display.display();
-      }
-      return true;
-    }
-    bool show = false;
-    if(renderLooper<BMC_SSD1306>(display, statusLooperData, t, t_reset)){
-      show = true;
-    }
-    if(renderBeatBar<BMC_SSD1306>(display, beats, t, t_reset)){
-      show = true;
-    }
-    if(show){
-      display.display();
-    }
-    return true;
-  }
-#endif
-
-
-
-
-
-
-#if BMC_MAX_LCD > 0
-  bool renderStatusLcd(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCDataContainer d, bool t_reset=false){
-    // lcd.display;
-    if(statusBlock.index < 0){
-      statusBlock.reset();
-      statusTunerData.reset();
-      statusBlock.index = d.index;
-      statusBlock.type = BMC_DEVICE_ID_LCD;
-      t_reset = true;
-    } else if(!statusBlock.isLcd() || statusBlock.index != d.index){
-      
-      line.print(lcd, d, d.str);
-      return false;
-    }
-
-    if(statusBlock.active != sync.fas.connected()){
-      statusBlock.active = sync.fas.connected();
-      if(!statusBlock.active){
-        line.print(lcd, d, d.str);
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!statusBlock.active){
-      line.print(lcd, d, d.str);
-      return true;
-    }
-
-    if(statusTunerBlock.active != sync.fas.tuner.isOn()){
-      statusTunerBlock.active = sync.fas.tuner.isOn();
-      t_reset = true;
-      preset = 0xFFFF;
-      line.clear(lcd);
-    }
-
-
-    if(statusTunerBlock.active){
-      lcdTuner(lcd, line, statusTunerData, d.index, t_reset);
-    } else {
-      char pName[BMC_FAS_MAX_PRESET_NAME] = "";
-      sync.fas.getPresetName(pName);
-      uint16_t currentPreset = sync.fas.getPresetNumber();
-      if(currentPreset < 0xFFFF && (preset != currentPreset || !BMC_STR_MATCH(presetName, pName))){
-        preset = currentPreset;
-        strcpy(presetName, pName);
-        char buff[46] = "";
-        sprintf(buff, "%04u %s", preset+globals.offset, pName);
-        line.print(lcd, d, buff);
-      }
-    }    
-    return true;
-  }
-  bool renderTunerLcd(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCDataContainer d, bool t_reset=false){
-    if(tunerBlock.index < 0){
-      tunerBlock.reset();
-      tunerBlock.index = d.index;
-      tunerBlock.type = BMC_DEVICE_ID_LCD;
-      t_reset = true;
-    } else if(!statusBlock.isLcd() || statusBlock.index != d.index){
-      line.print(lcd, d, "Tuner");
-      return false;
-    }
-
-    if(tunerBlock.active != sync.fas.tuner.isOn()){
-      tunerBlock.active = sync.fas.tuner.isOn();
-      if(!tunerBlock.active){
-        line.print(lcd, d, "Tuner");
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!tunerBlock.active){
-      line.print(lcd, d, "Tuner");
-      return true;
-    }
-    lcdTuner(lcd, line, tunerData, d.index, t_reset);
-    return true;
-  }
-  void lcdTuner(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCTunerData& t_tunerData, uint8_t index, bool t_reset=false){
-    BMCTunerData currentTuner;
-    sync.fas.getTunerData(currentTuner);
-    if((currentTuner.pitchRaw != t_tunerData.pitchRaw) || t_reset){
-      uint8_t pitch = map(currentTuner.pitchRaw, 0, 127, 0, BMC_LCD_CHARS-1);
-      char buff[BMC_LCD_CHARS+1] = "";
-      memset(buff, 32, sizeof(buff[0])*BMC_LCD_CHARS);
-      lcd.display.setCursor(0, index);
-      uint8_t center = (BMC_LCD_CHARS/2);
-      if(pitch < (center-1)){
-        buff[pitch] = '>';
-      } else if(pitch > center){
-        buff[pitch] = '<';
-      } else {
-        buff[center-1] = '>';
-        buff[center] = '<';
-      }
-      lcd.display.print(buff);
-    }
-    t_tunerData = currentTuner;
-  }
-#endif
-
-
-
-
-
-
-
-  // ******************************************************
-  // *********************** BLOCKS ************************
-  // ******************************************************
-
-  // OLEDs will just print the block name and channel/xy
-#if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderBlockIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, uint8_t crc, uint8_t index, bool t_reset=false){
     BMC_TFT& display = tft.display;
     if(block.isCrc(crc)){
@@ -455,303 +284,6 @@ public:
     renderFxBlock<BMC_TFT>(display, d, t);
     return true;
   }
-#endif
-
-#if BMC_MAX_MINI_DISPLAY > 0
-  bool renderBlockMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
-    BMC_MD_DRIVER& display = block.display;
-    if(block.isCrc(d.crc)){
-      return true;
-    }
-    block.setCrc(d.crc);
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(block.getColor());
-    t.setBackground(block.getBackground());
-
-    // uint16_t fontData = block.findFontSize(display, d.str, 0, t.w, t.h);
-    // renderFxBlock<BMC_MD_DRIVER>(display, d, t, fontData);
-    renderFxBlock<BMC_MD_DRIVER>(display, d, t);
-    return true;
-  }
-#endif
-
-  // ******************************************************
-  // *********************** TUNER ************************
-  // ******************************************************
-
-  // ***************************
-  // ********** OLED ***********
-  // ***************************
-#if BMC_MAX_OLED > 0
-  bool renderTunerOled(BMC_OLED& block, BMCDataContainer d){
-    BMC_SSD1306& display = block.display;
-    bool t_reset = false;
-    if(tunerBlock.index < 0){
-      tunerBlock.reset();
-      tunerBlock.index = d.index;
-      tunerBlock.type = BMC_DEVICE_ID_OLED;
-      t_reset = true;
-    } else if(!tunerBlock.isOled() || (tunerBlock.index != d.index)){
-      block.print(d, "Tuner");
-      return false;
-    }
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
-
-    if(tunerBlock.active != sync.fas.tuner.isOn()){
-      tunerBlock.active = sync.fas.tuner.isOn();
-      tunerData.reset();
-      display.fillRect(t.x, t.y, t.w, t.h, t.background);
-      if(!tunerBlock.active){
-        block.print(d, "Tuner");
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!tunerBlock.active){
-      block.print(d, "Tuner");
-      return false;
-    }
-    if(renderTuner<BMC_SSD1306>(display, tunerData, t, t_reset)){
-      block.setCrc(millis()&0xFF);
-      display.display();
-      return true;
-    }
-    return false;
-  }
-  
-  bool renderLooperIconOled(BMC_OLED& block, BMCDataContainer d, bool t_reset=true){
-    if(block.isCrc(d.crc)){
-      return false;
-    }
-    block.setCrc(d.crc);
-
-    BMC_SSD1306& display = block.display;
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
-    switch(d.byteA){
-      case BMC_FAS_CMD_LOOPER_PLAY:
-        display.clearDisplay();
-        renderTriangle<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_REV:
-        t.mirror = true;
-        display.clearDisplay();
-        renderTriangle<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_REC:
-        display.clearDisplay();
-        renderCircle<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_DUB:
-        display.clearDisplay();
-        renderCircle<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_ONCE:
-        display.clearDisplay();
-        renderRoundSquare<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_HALF:
-        block.print(d, "1/2");
-        break;
-      case BMC_FAS_CMD_LOOPER_UNDO:
-        block.print(d, "UNDO");
-        break;
-      case BMC_FAS_CMD_LOOPER_STOP:
-        display.clearDisplay();
-        renderSquare<BMC_SSD1306>(display, d, t, t_reset);
-        display.display();
-        break;
-      case BMC_FAS_CMD_LOOPER_CLEAR:
-        block.print(d, "CLEAR");
-        break;
-      default:
-        return false;
-    }
-    return true;
-  }
-  bool renderLooperOled(BMC_OLED& block, BMCDataContainer d){
-    BMC_SSD1306& display = block.display;
-    bool t_reset = false;
-    if(looperBlock.index < 0){
-      looperBlock.reset();
-      looperBlock.index = d.index;
-      looperBlock.type = BMC_DEVICE_ID_OLED;
-      t_reset = true;
-      looperData = 0xFF;
-    } else if(!looperBlock.isOled() || looperBlock.index != d.index){
-      block.print(d, d.str);
-      return false;
-    }
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
-    // set where y will be, for 128x32 display start at 0.
-    // for 128x64 start at 16
-    if(looperBlock.active != sync.fas.connected()){
-      looperBlock.active = sync.fas.connected();
-      looperData = 0xFF;
-
-      display.fillRect(t.x, t.y, t.w, t.h, t.background);
-      if(!looperBlock.active){
-        block.print(d, "Not Connected");
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!looperBlock.active){
-      block.print(d, "Not Connected");
-      return false;
-    }
-    if(renderLooper<BMC_SSD1306>(display, looperData, t, t_reset)){
-      display.display();
-    }
-    block.setCrc(d.crc);
-    return true;
-  }
-#endif
-
-  // ***************************
-  // ****** MINI DISPLAY *******
-  // ***************************
-
-
-#if BMC_MAX_MINI_DISPLAY > 0
-  bool renderTunerMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
-    BMC_MD_DRIVER& display = block.display;
-    bool t_reset = false;
-    if(tunerBlock.index < 0){
-      tunerBlock.reset();
-      tunerBlock.index = d.index;
-      tunerBlock.type = BMC_DEVICE_ID_MINI_DISPLAY;
-      t_reset = true;
-    } else if(!tunerBlock.isMiniDisplay() || tunerBlock.index != d.index){
-      block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
-      return false;
-    }
-    // set where y will be, for 128x32 display start at 0.
-    // for 128x64 start at 16
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-
-    if(tunerBlock.active != sync.fas.tuner.isOn()){
-      tunerBlock.active = sync.fas.tuner.isOn();
-      tunerData.reset();
-      display.fillRect(t.x, t.y, t.w, t.h, t.background);
-      if(!tunerBlock.active){
-        block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!tunerBlock.active){
-      block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
-      return true;
-    }
-    t.setColor(BMC_DHFAS_TUNER_ARROWS, BMC_DHFAS_TUNER_NEEDLE, BMC_DHFAS_TUNER_NOTE);
-
-    renderTuner<BMC_MD_DRIVER>(display, tunerData, t, t_reset);
-    block.setCrc(d.crc);
-    return true;
-  }
-
-  bool renderLooperIconMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d, bool t_reset=false){
-    BMC_MD_DRIVER& display = block.display;
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(block.getColor());
-    t.setBackground(block.getBackground());
-
-    if(!block.isCrc(d.crc)){
-      t_reset = true;
-    } else {
-      return false;
-    }
-    switch(d.byteA){
-      case BMC_FAS_CMD_LOOPER_REC:
-        renderCircle<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_DUB:
-        renderCircle<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_PLAY:
-        renderTriangle<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_REV:
-        t.mirror = true;
-        renderTriangle<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_STOP:
-        renderSquare<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_ONCE:
-        renderRoundSquare<BMC_MD_DRIVER>(display, d, t, t_reset);
-        break;
-      case BMC_FAS_CMD_LOOPER_HALF:
-        block.print(d.crc, "1/2", "LOOPER", d.highlight);
-        break;
-      case BMC_FAS_CMD_LOOPER_UNDO:
-        block.print(d.crc, "UNDO", "LOOPER", false);
-        break;
-      case BMC_FAS_CMD_LOOPER_CLEAR:
-        block.print(d.crc, "CLEAR", "LOOPER", false);
-        break;
-    }
-    block.setCrc(d.crc);
-    return true;
-  }
-  bool renderLooperMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d, bool t_reset=false){
-    BMC_MD_DRIVER& display = block.display;
-
-    if(looperBlock.index < 0){
-      looperBlock.reset();
-      looperBlock.index = d.index;
-      looperBlock.type = BMC_DEVICE_ID_MINI_DISPLAY;
-      t_reset = true;
-      looperData = 0xFF;
-    } else if(!looperBlock.isMiniDisplay() || looperBlock.index != d.index){
-      block.print(d.crc, d.str, "", sync.fas.tuner.isOn());
-      return false;
-    }
-
-    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
-    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
-    t.setColor(BMC_DHFAS_LOOPER_REC, BMC_DHFAS_LOOPER_PLAY, BMC_ILI9341_WHITE);
-
-    if(looperBlock.active != sync.fas.connected()){
-      looperBlock.active = sync.fas.connected();
-      looperData = 0xFF;
-      display.fillRect(t.x, t.y, t.w, t.h, t.background);
-      if(!looperBlock.active){
-        block.print(d.crc, d.str, "", false);
-        return false;
-      } else {
-        t_reset = true;
-      }
-    }
-    if(!looperBlock.active){
-      block.print(d.crc, "Not Connected", "", false);
-      return true;
-    }
-    renderLooper<BMC_MD_DRIVER>(display, looperData, t, t_reset);
-    block.setCrc(d.crc);
-    return true;
-  }
-#endif
-
-  // ***************************
-  // ********** ILI ***********
-  // ***************************
-#if BMC_MAX_ILI9341_BLOCKS > 0
   bool renderTunerIli(BMC_ILI& tft, BMC_ILI_BLOCK& block, BMCDataContainer d, bool t_reset=false){
     BMC_TFT& display = tft.display;
     if(block.getWidth() < 120){
@@ -902,112 +434,450 @@ public:
   }
 #endif
 
-template <typename T>
-  bool renderTriangle(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
-    uint16_t iconSize = t.h-4;
-    uint16_t centerX = t.w/2;
-    uint16_t centerY = t.h/2;
-    if(t.h > t.w){
-      iconSize = t.w-4;
+// *****************************************************************************
+// ********************************* For OLED **********************************
+// *****************************************************************************
+#if BMC_MAX_OLED > 0
+  bool renderStatusOled(BMC_OLED& block, BMCDataContainer d){
+    BMC_SSD1306& display = block.display;
+    bool t_reset = false;
+    if(statusBlock.index < 0){
+      statusBlock.reset();
+      statusBlock.index = d.index;
+      statusBlock.type = BMC_DEVICE_ID_OLED;
+      t_reset = true;
+    } else if(!statusBlock.isOled() || statusBlock.index != d.index){
+      block.print(d, d.str);
+      return false;
     }
-    if(t.h >= 64){
-      iconSize -= 8;
-    } else {
-      iconSize -= 4;
+    if(statusBlock.active != sync.fas.connected()){
+      statusBlock.active = sync.fas.connected();
+      t_reset = true;
     }
-    uint8_t halfIcon = iconSize/2;
-    uint8_t thickness = 2;
-    if(!t.mirror){
-      // TRIANGLE
-      uint16_t x0 = (centerX-halfIcon);
-      uint16_t x1 = x0;
-      uint16_t x2 = (centerX+halfIcon);
-      uint16_t y0 = t.h - ((t.h-iconSize)/2);
-      uint16_t y1 = (t.h-iconSize)/2;
-      uint16_t y2 = centerY;
-      if(t_reset){
-        display.fillTriangle(t.x+x0, t.y+y0, t.x+x1, t.y+y1, t.x+x2, t.y+y2, t.color);
-      }
-      display.fillTriangle(t.x+x0+thickness, (t.y+y0)-(thickness*2), t.x+x1+thickness, (t.y+y1)+(thickness*2), (t.x+x2)-(thickness*2), t.y+y2, d.highlight?t.color:t.background);  
-    } else {
-      uint16_t x0 = (centerX+halfIcon);
-      uint16_t x1 = x0;
-      uint16_t x2 = (centerX-halfIcon);
-      uint16_t y0 = t.h - ((t.h-iconSize)/2);
-      uint16_t y1 = (t.h-iconSize)/2;
-      uint16_t y2 = centerY;
-      if(t_reset){
-        display.fillTriangle(t.x+x0, t.y+y0, t.x+x1, t.y+y1, t.x+x2, t.y+y2, t.color);
-      }
-      display.fillTriangle((t.x+x0)-thickness, (t.y+y0)-(thickness*2), (t.x+x1)-thickness, (t.y+y1)+(thickness*2), (t.x+x2)+(thickness*2), t.y+y2, d.highlight?t.color:t.background);  
+    if(!statusBlock.active){
+      block.print(d, d.str);
+      return false;
     }
-    return true;
-  }
-  template <typename T>
-  bool renderCircle(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
-    // BMC_SSD1306& display = block.display;
-    uint16_t iconSize = t.h-4;
-    uint16_t centerX = t.w/2;
-    uint16_t centerY = t.h/2;
-    if(t.h > t.w){
-      iconSize = t.w-4;
-    }
-    if(t.h >= 64){
-      iconSize -= 8;
-    }
-    uint8_t halfIcon = iconSize/2;
-    uint8_t thickness = 2;
-    // CIRCLE
-    if(t_reset){
-      display.fillCircle(t.x + centerX, t.y+centerY, halfIcon, t.color);
-    }
-    display.fillCircle(t.x + centerX, t.y+centerY, halfIcon-thickness, d.highlight?t.color:t.background);
-    return true;
-  }
-  template <typename T>
-  bool renderSquare(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
-    // BMC_SSD1306& display = block.display;
-    uint16_t iconSize = t.h-4;
-    uint16_t centerX = t.w/2;
-    // uint16_t centerY = t.h/2;
-    if(t.h > t.w){
-      iconSize = t.w-4;
-    }
-    if(t.h >= 64){
-      iconSize -= 8;
-    }
-    uint8_t halfIcon = iconSize/2;
-    uint8_t thickness = 2;
-    if(t_reset){
-      display.fillRect(t.x+(centerX-halfIcon), t.y+((t.h-iconSize)/2), iconSize, iconSize, t.color);
-    }
-    display.fillRect(t.x+(centerX-halfIcon)+thickness, t.y+((t.h-iconSize)/2)+thickness, iconSize-(thickness*2), iconSize-(thickness*2), d.highlight?t.color:t.background);
-    return true;
-  }
-  template <typename T>
-  bool renderRoundSquare(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
-    // BMC_SSD1306& display = block.display;
-    uint16_t iconSize = t.h-4;
-    uint16_t centerX = t.w/2;
-    // uint16_t centerY = t.h/2;
-    if(t.h > t.w){
-      iconSize = t.w-4;
-    }
-    if(t.h >= 64){
-      iconSize -= 8;
-    }
-    uint8_t halfIcon = iconSize/2;
-    uint8_t thickness = 2;
-    if(t_reset){
-      display.fillRoundRect(t.x+(centerX-halfIcon), t.y+((t.h-iconSize)/2), iconSize, iconSize, 4, t.color);
-    }
-    display.fillRoundRect(t.x+(centerX-halfIcon)+thickness, t.y+((t.h-iconSize)/2)+thickness, iconSize-(thickness*2), iconSize-(thickness*2), 4, d.highlight?t.color:t.background);
-    return true;
-  }
 
-  template <typename T>
+    if(statusTunerBlock.active != sync.fas.tuner.isOn()){
+      statusTunerBlock.active = sync.fas.tuner.isOn();
+      t_reset = true;
+    }
+    if(t_reset){
+      display.fillScreen(BMC_OLED_BLACK);
+    }
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
+
+    if(statusTunerBlock.active){
+      if(renderTuner<BMC_SSD1306>(display, statusTunerData, t, t_reset)){
+        display.display();
+      }
+      return true;
+    }
+    bool show = false;
+    if(renderLooper<BMC_SSD1306>(display, statusLooperData, t, t_reset)){
+      show = true;
+    }
+    if(renderBeatBar<BMC_SSD1306>(display, beats, t, t_reset)){
+      show = true;
+    }
+    if(show){
+      display.display();
+    }
+    return true;
+  }
+  bool renderTunerOled(BMC_OLED& block, BMCDataContainer d){
+    BMC_SSD1306& display = block.display;
+    bool t_reset = false;
+    if(tunerBlock.index < 0){
+      tunerBlock.reset();
+      tunerBlock.index = d.index;
+      tunerBlock.type = BMC_DEVICE_ID_OLED;
+      t_reset = true;
+    } else if(!tunerBlock.isOled() || (tunerBlock.index != d.index)){
+      block.print(d, "Tuner");
+      return false;
+    }
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
+
+    if(tunerBlock.active != sync.fas.tuner.isOn()){
+      tunerBlock.active = sync.fas.tuner.isOn();
+      tunerData.reset();
+      display.fillRect(t.x, t.y, t.w, t.h, t.background);
+      if(!tunerBlock.active){
+        block.print(d, "Tuner");
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!tunerBlock.active){
+      block.print(d, "Tuner");
+      return false;
+    }
+    if(renderTuner<BMC_SSD1306>(display, tunerData, t, t_reset)){
+      block.setCrc(millis()&0xFF);
+      display.display();
+      return true;
+    }
+    return false;
+  }
+  
+  bool renderLooperIconOled(BMC_OLED& block, BMCDataContainer d, bool t_reset=true){
+    if(block.isCrc(d.crc)){
+      return false;
+    }
+    block.setCrc(d.crc);
+
+    BMC_SSD1306& display = block.display;
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
+    switch(d.byteA){
+      case BMC_FAS_CMD_LOOPER_PLAY:
+        display.clearDisplay();
+        renderTriangle<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_REV:
+        t.mirror = true;
+        display.clearDisplay();
+        renderTriangle<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_REC:
+        display.clearDisplay();
+        renderCircle<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_DUB:
+        display.clearDisplay();
+        renderCircle<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_ONCE:
+        display.clearDisplay();
+        renderRoundSquare<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_HALF:
+        block.print(d, "1/2");
+        break;
+      case BMC_FAS_CMD_LOOPER_UNDO:
+        block.print(d, "UNDO");
+        break;
+      case BMC_FAS_CMD_LOOPER_STOP:
+        display.clearDisplay();
+        renderSquare<BMC_SSD1306>(display, d, t, t_reset);
+        display.display();
+        break;
+      case BMC_FAS_CMD_LOOPER_CLEAR:
+        block.print(d, "CLEAR");
+        break;
+      default:
+        return false;
+    }
+    return true;
+  }
+  bool renderLooperOled(BMC_OLED& block, BMCDataContainer d){
+    BMC_SSD1306& display = block.display;
+    bool t_reset = false;
+    if(looperBlock.index < 0){
+      looperBlock.reset();
+      looperBlock.index = d.index;
+      looperBlock.type = BMC_DEVICE_ID_OLED;
+      t_reset = true;
+      looperData = 0xFF;
+    } else if(!looperBlock.isOled() || looperBlock.index != d.index){
+      block.print(d, d.str);
+      return false;
+    }
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
+    // set where y will be, for 128x32 display start at 0.
+    // for 128x64 start at 16
+    if(looperBlock.active != sync.fas.connected()){
+      looperBlock.active = sync.fas.connected();
+      looperData = 0xFF;
+
+      display.fillRect(t.x, t.y, t.w, t.h, t.background);
+      if(!looperBlock.active){
+        block.print(d, "Not Connected");
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!looperBlock.active){
+      block.print(d, "Not Connected");
+      return false;
+    }
+    if(renderLooper<BMC_SSD1306>(display, looperData, t, t_reset)){
+      display.display();
+    }
+    block.setCrc(d.crc);
+    return true;
+  }
+#endif
+
+// *****************************************************************************
+// ********************************** For LCD **********************************
+// *****************************************************************************
+#if BMC_MAX_LCD > 0
+  bool renderStatusLcd(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCDataContainer d, bool t_reset=false){
+    // lcd.display;
+    if(statusBlock.index < 0){
+      statusBlock.reset();
+      statusTunerData.reset();
+      statusBlock.index = d.index;
+      statusBlock.type = BMC_DEVICE_ID_LCD;
+      t_reset = true;
+    } else if(!statusBlock.isLcd() || statusBlock.index != d.index){
+      
+      line.print(lcd, d, d.str);
+      return false;
+    }
+
+    if(statusBlock.active != sync.fas.connected()){
+      statusBlock.active = sync.fas.connected();
+      if(!statusBlock.active){
+        line.print(lcd, d, d.str);
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!statusBlock.active){
+      line.print(lcd, d, d.str);
+      return true;
+    }
+
+    if(statusTunerBlock.active != sync.fas.tuner.isOn()){
+      statusTunerBlock.active = sync.fas.tuner.isOn();
+      t_reset = true;
+      preset = 0xFFFF;
+      line.clear(lcd);
+    }
+
+
+    if(statusTunerBlock.active){
+      lcdTuner(lcd, line, statusTunerData, d.index, t_reset);
+    } else {
+      char pName[BMC_FAS_MAX_PRESET_NAME] = "";
+      sync.fas.getPresetName(pName);
+      uint16_t currentPreset = sync.fas.getPresetNumber();
+      if(currentPreset < 0xFFFF && (preset != currentPreset || !BMC_STR_MATCH(presetName, pName))){
+        preset = currentPreset;
+        strcpy(presetName, pName);
+        char buff[46] = "";
+        sprintf(buff, "%04u %s", preset+globals.offset, pName);
+        line.print(lcd, d, buff);
+      }
+    }    
+    return true;
+  }
+  bool renderTunerLcd(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCDataContainer d, bool t_reset=false){
+    if(tunerBlock.index < 0){
+      tunerBlock.reset();
+      tunerBlock.index = d.index;
+      tunerBlock.type = BMC_DEVICE_ID_LCD;
+      t_reset = true;
+    } else if(!statusBlock.isLcd() || statusBlock.index != d.index){
+      line.print(lcd, d, "Tuner");
+      return false;
+    }
+
+    if(tunerBlock.active != sync.fas.tuner.isOn()){
+      tunerBlock.active = sync.fas.tuner.isOn();
+      if(!tunerBlock.active){
+        line.print(lcd, d, "Tuner");
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!tunerBlock.active){
+      line.print(lcd, d, "Tuner");
+      return true;
+    }
+    lcdTuner(lcd, line, tunerData, d.index, t_reset);
+    return true;
+  }
+  void lcdTuner(BMC_LCD& lcd, BMC_LCD_LINE& line, BMCTunerData& t_tunerData, uint8_t index, bool t_reset=false){
+    BMCTunerData currentTuner;
+    sync.fas.getTunerData(currentTuner);
+    if((currentTuner.pitchRaw != t_tunerData.pitchRaw) || t_reset){
+      uint8_t pitch = map(currentTuner.pitchRaw, 0, 127, 0, BMC_LCD_CHARS-1);
+      char buff[BMC_LCD_CHARS+1] = "";
+      memset(buff, 32, sizeof(buff[0])*BMC_LCD_CHARS);
+      lcd.display.setCursor(0, index);
+      uint8_t center = (BMC_LCD_CHARS/2);
+      if(pitch < (center-1)){
+        buff[pitch] = '>';
+      } else if(pitch > center){
+        buff[pitch] = '<';
+      } else {
+        buff[center-1] = '>';
+        buff[center] = '<';
+      }
+      lcd.display.print(buff);
+    }
+    t_tunerData = currentTuner;
+  }
+#endif
+
+
+
+// *****************************************************************************
+// ***************************** For Mini Display ******************************
+// *****************************************************************************
+#if BMC_MAX_MINI_DISPLAY > 0
+  bool renderBlockMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
+    BMC_MD_DRIVER& display = block.display;
+    if(block.isCrc(d.crc)){
+      return true;
+    }
+    block.setCrc(d.crc);
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+    t.setColor(block.getColor());
+    t.setBackground(block.getBackground());
+
+    // uint16_t fontData = block.findFontSize(display, d.str, 0, t.w, t.h);
+    // renderFxBlock<BMC_MD_DRIVER>(display, d, t, fontData);
+    renderFxBlock<BMC_MD_DRIVER>(display, d, t);
+    return true;
+  }
+  bool renderTunerMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d){
+    BMC_MD_DRIVER& display = block.display;
+    bool t_reset = false;
+    if(tunerBlock.index < 0){
+      tunerBlock.reset();
+      tunerBlock.index = d.index;
+      tunerBlock.type = BMC_DEVICE_ID_MINI_DISPLAY;
+      t_reset = true;
+    } else if(!tunerBlock.isMiniDisplay() || tunerBlock.index != d.index){
+      block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
+      return false;
+    }
+    // set where y will be, for 128x32 display start at 0.
+    // for 128x64 start at 16
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+
+    if(tunerBlock.active != sync.fas.tuner.isOn()){
+      tunerBlock.active = sync.fas.tuner.isOn();
+      tunerData.reset();
+      display.fillRect(t.x, t.y, t.w, t.h, t.background);
+      if(!tunerBlock.active){
+        block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!tunerBlock.active){
+      block.print(d.crc, "Tuner", "", sync.fas.tuner.isOn());
+      return true;
+    }
+    t.setColor(BMC_DHFAS_TUNER_ARROWS, BMC_DHFAS_TUNER_NEEDLE, BMC_DHFAS_TUNER_NOTE);
+
+    renderTuner<BMC_MD_DRIVER>(display, tunerData, t, t_reset);
+    block.setCrc(d.crc);
+    return true;
+  }
+  bool renderLooperIconMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d, bool t_reset=false){
+    BMC_MD_DRIVER& display = block.display;
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+    t.setColor(block.getColor());
+    t.setBackground(block.getBackground());
+
+    if(!block.isCrc(d.crc)){
+      t_reset = true;
+    } else {
+      return false;
+    }
+    switch(d.byteA){
+      case BMC_FAS_CMD_LOOPER_REC:
+        renderCircle<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_DUB:
+        renderCircle<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_PLAY:
+        renderTriangle<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_REV:
+        t.mirror = true;
+        renderTriangle<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_STOP:
+        renderSquare<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_ONCE:
+        renderRoundSquare<BMC_MD_DRIVER>(display, d, t, t_reset);
+        break;
+      case BMC_FAS_CMD_LOOPER_HALF:
+        block.print(d.crc, "1/2", "LOOPER", d.highlight);
+        break;
+      case BMC_FAS_CMD_LOOPER_UNDO:
+        block.print(d.crc, "UNDO", "LOOPER", false);
+        break;
+      case BMC_FAS_CMD_LOOPER_CLEAR:
+        block.print(d.crc, "CLEAR", "LOOPER", false);
+        break;
+    }
+    block.setCrc(d.crc);
+    return true;
+  }
+  bool renderLooperMiniDisplay(BMC_MINI_DISPLAY& block, BMCDataContainer d, bool t_reset=false){
+    BMC_MD_DRIVER& display = block.display;
+
+    if(looperBlock.index < 0){
+      looperBlock.reset();
+      looperBlock.index = d.index;
+      looperBlock.type = BMC_DEVICE_ID_MINI_DISPLAY;
+      t_reset = true;
+      looperData = 0xFF;
+    } else if(!looperBlock.isMiniDisplay() || looperBlock.index != d.index){
+      block.print(d.crc, d.str, "", sync.fas.tuner.isOn());
+      return false;
+    }
+
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_MINI_DISPLAY;
+    t.setBounds(block.getX(),block.getY(),block.getWidth(),block.getHeight());
+    t.setColor(BMC_DHFAS_LOOPER_REC, BMC_DHFAS_LOOPER_PLAY, BMC_ILI9341_WHITE);
+
+    if(looperBlock.active != sync.fas.connected()){
+      looperBlock.active = sync.fas.connected();
+      looperData = 0xFF;
+      display.fillRect(t.x, t.y, t.w, t.h, t.background);
+      if(!looperBlock.active){
+        block.print(d.crc, d.str, "", false);
+        return false;
+      } else {
+        t_reset = true;
+      }
+    }
+    if(!looperBlock.active){
+      block.print(d.crc, "Not Connected", "", false);
+      return true;
+    }
+    renderLooper<BMC_MD_DRIVER>(display, looperData, t, t_reset);
+    block.setCrc(d.crc);
+    return true;
+  }
+#endif
+
+// *****************************************************************************
+// ************************ For ILI9341 & Mini Display *************************
+// *****************************************************************************
+#if BMC_MAX_ILI9341_BLOCKS > 0 || BMC_MAX_MINI_DISPLAY > 0
+template <typename T>
   bool renderFxBlock(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
-  // bool renderFxBlock(T& display, BMCDataContainer d, BMCDiplayHandlerData t, uint16_t fontData, bool t_reset=false){
     if(!d.highlight){
       t.color       = BMC_ILI9341_GRAY_18;
       t.background  = BMC_ILI9341_BLACK;
@@ -1016,8 +886,12 @@ template <typename T>
     display.drawRect(t.x, t.y, t.w, t.h, t.color);
     return true;
   }
+#endif
 
-  template <typename T>
+// *****************************************************************************
+// ****************************** Tuner Rendering ******************************
+// *****************************************************************************
+template <typename T>
   bool renderTuner(T& display, BMCTunerData& t_tunerData, BMCDiplayHandlerData t, bool t_reset=false){
     uint16_t centerX = (t.w / 2);
     uint16_t centerY = (t.h / 2);
@@ -1075,7 +949,11 @@ template <typename T>
     }
     return false;
   }
-  template <typename T>
+
+// *****************************************************************************
+// ***************************** Looper Rendering ******************************
+// *****************************************************************************
+template <typename T>
   bool renderLooper(T& display, uint8_t& t_looperData, BMCDiplayHandlerData t, bool t_reset=false){
     sync.fas.enableLooperFetch(true);
     // space between the 2 icons
@@ -1133,15 +1011,11 @@ template <typename T>
     }
     return false;
   }
-  template <typename T>
-  void triangleHelper(T& display, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, bool mirror=false){
-    if(!mirror){
-      display.fillTriangle(x, y+h, x, y, x+w, y+(h/2), color);
-    } else {
-      display.fillTriangle(x+w, y+h, x+w, y, x, y+(h/2), color);
-    }
-  }
-  template <typename T>
+
+// *****************************************************************************
+// *********************** Beat Bar for Status Rendering ***********************
+// *****************************************************************************
+template <typename T>
   bool renderBeatBar(T& display, uint8_t& t_beats, BMCDiplayHandlerData t, bool t_reset=false){
     bool currentBeat = sync.fas.tempoBeat();
     if(currentBeat != bitRead(t_beats, 7) || t_reset){
@@ -1186,15 +1060,127 @@ template <typename T>
       //   }
       // }
 
-
-
-
-
       t_beats = pos | (currentBeat << 7);
       return true;
     }
     return false;
   }
+
+// *****************************************************************************
+// ********************************** Helpers **********************************
+// *****************************************************************************
+template <typename T>
+  bool renderTriangle(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
+    uint16_t iconSize = t.h-4;
+    uint16_t centerX = t.w/2;
+    uint16_t centerY = t.h/2;
+    if(t.h > t.w){
+      iconSize = t.w-4;
+    }
+    if(t.h >= 64){
+      iconSize -= 8;
+    } else {
+      iconSize -= 4;
+    }
+    uint8_t halfIcon = iconSize/2;
+    uint8_t thickness = 2;
+    if(!t.mirror){
+      // TRIANGLE
+      uint16_t x0 = (centerX-halfIcon);
+      uint16_t x1 = x0;
+      uint16_t x2 = (centerX+halfIcon);
+      uint16_t y0 = t.h - ((t.h-iconSize)/2);
+      uint16_t y1 = (t.h-iconSize)/2;
+      uint16_t y2 = centerY;
+      if(t_reset){
+        display.fillTriangle(t.x+x0, t.y+y0, t.x+x1, t.y+y1, t.x+x2, t.y+y2, t.color);
+      }
+      display.fillTriangle(t.x+x0+thickness, (t.y+y0)-(thickness*2), t.x+x1+thickness, (t.y+y1)+(thickness*2), (t.x+x2)-(thickness*2), t.y+y2, d.highlight?t.color:t.background);  
+    } else {
+      uint16_t x0 = (centerX+halfIcon);
+      uint16_t x1 = x0;
+      uint16_t x2 = (centerX-halfIcon);
+      uint16_t y0 = t.h - ((t.h-iconSize)/2);
+      uint16_t y1 = (t.h-iconSize)/2;
+      uint16_t y2 = centerY;
+      if(t_reset){
+        display.fillTriangle(t.x+x0, t.y+y0, t.x+x1, t.y+y1, t.x+x2, t.y+y2, t.color);
+      }
+      display.fillTriangle((t.x+x0)-thickness, (t.y+y0)-(thickness*2), (t.x+x1)-thickness, (t.y+y1)+(thickness*2), (t.x+x2)+(thickness*2), t.y+y2, d.highlight?t.color:t.background);  
+    }
+    return true;
+  }
+template <typename T>
+  bool renderCircle(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
+    // BMC_SSD1306& display = block.display;
+    uint16_t iconSize = t.h-4;
+    uint16_t centerX = t.w/2;
+    uint16_t centerY = t.h/2;
+    if(t.h > t.w){
+      iconSize = t.w-4;
+    }
+    if(t.h >= 64){
+      iconSize -= 8;
+    }
+    uint8_t halfIcon = iconSize/2;
+    uint8_t thickness = 2;
+    // CIRCLE
+    if(t_reset){
+      display.fillCircle(t.x + centerX, t.y+centerY, halfIcon, t.color);
+    }
+    display.fillCircle(t.x + centerX, t.y+centerY, halfIcon-thickness, d.highlight?t.color:t.background);
+    return true;
+  }
+template <typename T>
+  bool renderSquare(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
+    // BMC_SSD1306& display = block.display;
+    uint16_t iconSize = t.h-4;
+    uint16_t centerX = t.w/2;
+    // uint16_t centerY = t.h/2;
+    if(t.h > t.w){
+      iconSize = t.w-4;
+    }
+    if(t.h >= 64){
+      iconSize -= 8;
+    }
+    uint8_t halfIcon = iconSize/2;
+    uint8_t thickness = 2;
+    if(t_reset){
+      display.fillRect(t.x+(centerX-halfIcon), t.y+((t.h-iconSize)/2), iconSize, iconSize, t.color);
+    }
+    display.fillRect(t.x+(centerX-halfIcon)+thickness, t.y+((t.h-iconSize)/2)+thickness, iconSize-(thickness*2), iconSize-(thickness*2), d.highlight?t.color:t.background);
+    return true;
+  }
+template <typename T>
+  bool renderRoundSquare(T& display, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset=false){
+    // BMC_SSD1306& display = block.display;
+    uint16_t iconSize = t.h-4;
+    uint16_t centerX = t.w/2;
+    // uint16_t centerY = t.h/2;
+    if(t.h > t.w){
+      iconSize = t.w-4;
+    }
+    if(t.h >= 64){
+      iconSize -= 8;
+    }
+    uint8_t halfIcon = iconSize/2;
+    uint8_t thickness = 2;
+    if(t_reset){
+      display.fillRoundRect(t.x+(centerX-halfIcon), t.y+((t.h-iconSize)/2), iconSize, iconSize, 4, t.color);
+    }
+    display.fillRoundRect(t.x+(centerX-halfIcon)+thickness, t.y+((t.h-iconSize)/2)+thickness, iconSize-(thickness*2), iconSize-(thickness*2), 4, d.highlight?t.color:t.background);
+    return true;
+  }
+
+template <typename T>
+  void triangleHelper(T& display, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color, bool mirror=false){
+    if(!mirror){
+      display.fillTriangle(x, y+h, x, y, x+w, y+(h/2), color);
+    } else {
+      display.fillTriangle(x+w, y+h, x+w, y, x, y+(h/2), color);
+    }
+  }
+  
   
 };
 #endif
