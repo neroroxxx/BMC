@@ -83,11 +83,12 @@ public:
     }
   }
   bool checkDeviceAssignment(uint8_t t_type, uint16_t t_n, uint8_t t_dir, uint8_t t_ticks=1){
+    bool ret = false;
+
 #if defined(BMC_OBE_CUSTOM_ASSIGNMENT)
     if(!globals.onBoardEditorActive()){
       return false;
     }
-    bool ret = false;
     for(uint8_t i = 0; i < 6 ; i++){
       // BMC_MENU_SELECT
       // BMC_MENU_BACK
@@ -150,6 +151,7 @@ public:
       }
     }
 #endif
+
     return ret;
   }
   void render(){
