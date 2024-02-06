@@ -1,0 +1,1107 @@
+
+/private/var/folders/l0/t3c1vk2x6_1d9rfpkt51t4jr0000gn/T/arduino/sketches/93FC93C7CA4F75C537806FCC5CE33A5B/Holly-v2-2-2.ino.elf:     file format elf32-littlearm
+
+SYMBOL TABLE:
+60000000 l    d  .text.headers	00000000 .text.headers
+60001400 l    d  .text.code	00000000 .text.code
+60001c58 l    d  .text.progmem	00000000 .text.progmem
+00000000 l    d  .text.itcm	00000000 .text.itcm
+00033500 l    d  .fini	00000000 .fini
+00033504 l    d  .ARM.exidx	00000000 .ARM.exidx
+20000000 l    d  .data	00000000 .data
+200056c0 l    d  .bss	00000000 .bss
+20200000 l    d  .bss.dma	00000000 .bss.dma
+60056f50 l    d  .text.csf	00000000 .text.csf
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .debug_loclists	00000000 .debug_loclists
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_rnglists	00000000 .debug_rnglists
+00000000 l    d  .debug_line_str	00000000 .debug_line_str
+00000000 l    df *ABS*	00000000 bootdata.c
+00000000 l    df *ABS*	00000000 startup.c
+60001400 l     F .text.code	00000016 memory_copy
+60001418 l     F .text.code	00000010 memory_clear
+60001428 l     F .text.code	000001f8 ResetHandler2
+00000000 l    df *ABS*	00000000 WireIMXRT.cpp
+00024e78 l     F .text.itcm	00000044 _GLOBAL__sub_I__ZN7TwoWire5beginEv
+00000000 l    df *ABS*	00000000 analog.c
+2000bab9 l     O .bss	00000001 calibrating
+00000000 l    df *ABS*	00000000 tempmon.c
+2000b8e8 l     O .bss	00000004 s_hotCount
+2000b8ec l     O .bss	00000004 s_hotTemp
+2000b8f0 l     O .bss	00000004 s_hot_ROOM
+2000b8f4 l     O .bss	00000004 s_roomC_hotC
+00000000 l    df *ABS*	00000000 usb.c
+0002a474 l     F .text.itcm	00000088 schedule_transfer
+0002a4fc l     F .text.itcm	00000036 run_callbacks
+0002a534 l     F .text.itcm	00000098 endpoint0_transmit.constprop.0
+2000b870 l     O .bss	00000008 endpoint0_buffer
+2000b878 l     O .bss	00000004 endpoint0_notify_mask
+2000ae28 l     O .bss	00000008 endpoint0_setupdata
+2000b87c l     O .bss	00000004 endpointN_notify_mask
+2000b89c l     O .bss	00000008 reply_buffer
+2000babf l     O .bss	00000001 sof_usage
+2000bacd l     O .bss	00000001 usb_reboot_timer
+00000000 l    df *ABS*	00000000 crti.o
+00000000 l    df *ABS*	00000000 crtn.o
+00000000 l    df *ABS*	00000000 crtstuff.c
+00000020 l     F .text.itcm	00000000 register_tm_clones
+00000044 l     F .text.itcm	00000000 frame_dummy
+2000b884 l     O .bss	00000000 object.0
+60001c38 l     O .text.code	00000000 __frame_dummy_init_array_entry
+00000000 l    df *ABS*	00000000 Holly-v2-2-2.ino.cpp
+000000a4 l     F .text.itcm	00000024 _GLOBAL__sub_I_bmc
+00000000 l    df *ABS*	00000000 BMC-ST7735_t3.cpp
+00018b9c l     F .text.itcm	00000024 __tcf_0
+00018bc0 l     F .text.itcm	00000044 _GLOBAL__sub_I__dma_dummy_rx
+00000000 l    df *ABS*	00000000 SPI.cpp
+000262b4 l     F .text.itcm	00000048 _GLOBAL__sub_I__ZN8SPIClass5beginEv
+00000000 l    df *ABS*	00000000 bluetooth.cpp
+00026300 l     F .text.itcm	00000024 _GLOBAL__sub_I_em_rx_tx2
+00000000 l    df *ABS*	00000000 joystick.cpp
+00027800 l     F .text.itcm	00000028 _GLOBAL__sub_I_ack_rvd
+00000000 l    df *ABS*	00000000 HardwareSerial1.cpp
+00029360 l     F .text.itcm	00000074 _GLOBAL__sub_I_IRQHandler_Serial1
+2000b358 l     O .bss	00000040 rx_buffer1
+2000b398 l     O .bss	00000040 tx_buffer1
+20000fd8 l     O .data	00000064 UART6_Hardware
+00000000 l    df *ABS*	00000000 BMC.cpp
+00002778 l     F .text.itcm	00000050 BMCDisplay::selectMux(unsigned char) [clone .isra.0]
+60001c58 l     O .text.progmem	00000010 BMCGFXFont48pt7b
+60001fb0 l     O .text.progmem	0000521a BMCGFXFont48pt7bBitmaps
+60001cb8 l     O .text.progmem	000002f8 BMCGFXFont48pt7bGlyphs
+60001c68 l     O .text.progmem	00000010 BMCGFXFont40pt7b
+600074c4 l     O .text.progmem	000037d6 BMCGFXFont40pt7bBitmaps
+600071cc l     O .text.progmem	000002f8 BMCGFXFont40pt7bGlyphs
+60001c78 l     O .text.progmem	00000010 BMCGFXFont32pt7b
+6000af94 l     O .text.progmem	0000248b BMCGFXFont32pt7bBitmaps
+6000ac9c l     O .text.progmem	000002f8 BMCGFXFont32pt7bGlyphs
+60001c88 l     O .text.progmem	00000010 BMCGFXFont24pt7b
+6000d718 l     O .text.progmem	000014d4 BMCGFXFont24pt7bBitmaps
+6000d420 l     O .text.progmem	000002f8 BMCGFXFont24pt7bGlyphs
+60001c98 l     O .text.progmem	00000010 BMCGFXFont16pt7b
+6000eee4 l     O .text.progmem	00000945 BMCGFXFont16pt7bBitmaps
+6000ebec l     O .text.progmem	000002f8 BMCGFXFont16pt7bGlyphs
+60001ca8 l     O .text.progmem	00000010 BMCGFXFont10pt7b
+6000fb24 l     O .text.progmem	0000039b BMCGFXFont10pt7bBitmaps
+6000f82c l     O .text.progmem	000002f8 BMCGFXFont10pt7bGlyphs
+20000f18 l     O .data	00000003 CSWTCH.368
+00000000 l    df *ABS*	00000000 BMC.events.cpp
+00006cac l     F .text.itcm	00000014 BMCStopwatch::getState() [clone .part.0]
+00006cc0 l     F .text.itcm	0000002a BMCFas::getBlockChannel(unsigned short) [clone .part.0]
+00006cec l     F .text.itcm	00000058 BMCFas::setPresetNumber(unsigned short) [clone .part.0]
+00006d44 l     F .text.itcm	00000152 bool BMCDisplayHandlerFas::renderTriangle<BMC_SSD1306>(BMC_SSD1306&, BMCDataContainer, BMCDiplayHandlerData, bool) [clone .isra.0]
+00006e98 l     F .text.itcm	00000020 Print::write(char const*) [clone .isra.0]
+00006eb8 l     F .text.itcm	000000d0 BMCDisplay::generateCrc(BMCDataContainer) [clone .isra.0]
+00006f88 l     F .text.itcm	0000028c bool BMCDisplayHandlerMain::renderSlider<BMC_SSD1306>(BMC_SSD1306&, unsigned short&, unsigned short&, BMCDataContainer, BMCDiplayHandlerData, bool) [clone .isra.0]
+00007218 l     F .text.itcm	000003e4 bool BMCDisplayHandlerFas::renderTuner<BMC_SSD1306>(BMC_SSD1306&, BMCTunerData&, BMCDiplayHandlerData, bool) [clone .isra.0]
+000090a8 l     F .text.itcm	0000004a BMCFas::toggleBlockChannel(unsigned short, unsigned char, unsigned char) [clone .part.0]
+0000a2b8 l     F .text.itcm	00000050 BMCDisplay::selectMux(unsigned char) [clone .isra.0]
+0000a644 l     F .text.itcm	0000015e BMC_OLED::renderLine(char const*, unsigned char, unsigned char, unsigned char, unsigned char, bool) [clone .isra.0]
+0000a7a4 l     F .text.itcm	000001d0 BMC_OLED::print(BMCDataContainer, char*) [clone .isra.0]
+6000fec0 l     O .text.progmem	00000010 BMCGFXFont48pt7b
+60010218 l     O .text.progmem	0000521a BMCGFXFont48pt7bBitmaps
+6000ff20 l     O .text.progmem	000002f8 BMCGFXFont48pt7bGlyphs
+6000fed0 l     O .text.progmem	00000010 BMCGFXFont40pt7b
+6001572c l     O .text.progmem	000037d6 BMCGFXFont40pt7bBitmaps
+60015434 l     O .text.progmem	000002f8 BMCGFXFont40pt7bGlyphs
+6000fee0 l     O .text.progmem	00000010 BMCGFXFont32pt7b
+600191fc l     O .text.progmem	0000248b BMCGFXFont32pt7bBitmaps
+60018f04 l     O .text.progmem	000002f8 BMCGFXFont32pt7bGlyphs
+6000fef0 l     O .text.progmem	00000010 BMCGFXFont24pt7b
+6001b980 l     O .text.progmem	000014d4 BMCGFXFont24pt7bBitmaps
+6001b688 l     O .text.progmem	000002f8 BMCGFXFont24pt7bGlyphs
+6000ff00 l     O .text.progmem	00000010 BMCGFXFont16pt7b
+6001d14c l     O .text.progmem	00000945 BMCGFXFont16pt7bBitmaps
+6001ce54 l     O .text.progmem	000002f8 BMCGFXFont16pt7bGlyphs
+6000ff10 l     O .text.progmem	00000010 BMCGFXFont10pt7b
+6001dd8c l     O .text.progmem	0000039b BMCGFXFont10pt7bBitmaps
+6001da94 l     O .text.progmem	000002f8 BMCGFXFont10pt7bGlyphs
+20000f1c l     O .data	00000028 CSWTCH.677
+20000fac l     O .data	00000003 CSWTCH.852
+00000000 l    df *ABS*	00000000 BMC-SSD1306.cpp
+00018194 l     F .text.itcm	00000088 BMC_SSD1306::drawFastHLineInternal(short, short, short, unsigned short) [clone .part.0]
+0001821c l     F .text.itcm	00000160 BMC_SSD1306::drawFastVLineInternal(short, short, short, unsigned short) [clone .part.0]
+6001e128 l     O .text.progmem	00000008 BMC_SSD1306::drawFastVLineInternal(short, short, short, unsigned short)::premask
+6001e130 l     O .text.progmem	00000008 BMC_SSD1306::drawFastVLineInternal(short, short, short, unsigned short)::postmask
+6001e138 l     O .text.progmem	00000005 BMC_SSD1306::display()::dlist1
+6001e140 l     O .text.progmem	00000003 BMC_SSD1306::startscrollleft(unsigned char, unsigned char)::scrollList2b
+6001e144 l     O .text.progmem	00000003 BMC_SSD1306::startscrollright(unsigned char, unsigned char)::scrollList1b
+6001e148 l     O .text.progmem	00000004 BMC_SSD1306::begin(unsigned char, unsigned char)::init1
+6001e14c l     O .text.progmem	00000004 BMC_SSD1306::begin(unsigned char, unsigned char)::init2
+6001e150 l     O .text.progmem	00000004 BMC_SSD1306::begin(unsigned char, unsigned char)::init3
+6001e154 l     O .text.progmem	00000004 BMC_SSD1306::begin(unsigned char, unsigned char)::init4a
+6001e158 l     O .text.progmem	00000003 BMC_SSD1306::begin(unsigned char, unsigned char)::init4b
+6001e15c l     O .text.progmem	00000003 BMC_SSD1306::begin(unsigned char, unsigned char)::init4c
+6001e160 l     O .text.progmem	00000006 BMC_SSD1306::begin(unsigned char, unsigned char)::init5
+00000000 l    df *ABS*	00000000 EventResponder.cpp
+00000000 l    df *ABS*	00000000 serialEvent1.cpp
+00000000 l    df *ABS*	00000000 usb_desc.c
+20005138 l     O .data	00000012 device_descriptor
+2000514c l     O .data	00000021 seremu_report_desc
+6001e378 l     O .text.progmem	0000000a qualifier_descriptor
+00000000 l    df *ABS*	00000000 BMC.debug.cpp
+00003628 l     F .text.itcm	00000012 Print::println(int) [clone .isra.0]
+0000363c l     F .text.itcm	00000020 Print::write(char const*) [clone .isra.0]
+0000365c l     F .text.itcm	00000024 Print::println(char const*) [clone .isra.0]
+00003680 l     F .text.itcm	00000070 BMC::printDebugHeader(char*) [clone .constprop.0]
+00000000 l    df *ABS*	00000000 BMC.editor.cpp
+20000eb0 l     O .data	00000028 CSWTCH.104
+20000ed8 l     O .data	00000040 CSWTCH.106
+00000000 l    df *ABS*	00000000 BMC.hardware.auxJacks.cpp
+00000000 l    df *ABS*	00000000 BMC.hardware.buttons.cpp
+00000000 l    df *ABS*	00000000 BMC.hardware.cpp
+20000e70 l     O .data	00000040 CSWTCH.100
+20000fb0 l     O .data	00000028 CSWTCH.98
+00000000 l    df *ABS*	00000000 BMC.hardware.leds.cpp
+00000000 l    df *ABS*	00000000 BMC.hardware.pixels.cpp
+000143d0 l     F .text.itcm	00000004 BMCPixels::getDefaultColor(unsigned short) [clone .isra.0]
+20000f44 l     O .data	00000028 CSWTCH.71
+20000f6c l     O .data	00000040 CSWTCH.73
+00000000 l    df *ABS*	00000000 BMC.layers.cpp
+00014de8 l     F .text.itcm	000002f0 BMC::setLayer(unsigned char, bool, bool) [clone .part.0]
+00000000 l    df *ABS*	00000000 BMC.midi.cpp
+000151d4 l     F .text.itcm	00000078 BMCDawLogicControl::incomingSysEx(BMCMidiMessage) [clone .part.0]
+00000000 l    df *ABS*	00000000 BMC.sketchBytes.cpp
+00000000 l    df *ABS*	00000000 BMC.sketchStream.cpp
+00000000 l    df *ABS*	00000000 BMC.tempoToTap.cpp
+00000000 l    df *ABS*	00000000 BMC.timedEvents.cpp
+00000000 l    df *ABS*	00000000 BMC.triggers.cpp
+00000000 l    df *ABS*	00000000 BMC-ILI9341.cpp
+00000000 l    df *ABS*	00000000 BMC-Editor.backup.cpp
+00000000 l    df *ABS*	00000000 BMC-Editor.cpp
+00019450 l     F .text.itcm	00000428 BMCEditor::storeErase(bool) [clone .isra.0]
+00000000 l    df *ABS*	00000000 BMC-Editor.midi.cpp
+00000000 l    df *ABS*	00000000 BMC-Editor.midi.global.cpp
+0001a820 l     F .text.itcm	00000028 BMCMidiMessage::appendSysExByte(unsigned char, bool) [clone .isra.0]
+0001a848 l     F .text.itcm	00000020 Print::write(char const*) [clone .isra.0]
+0001a868 l     F .text.itcm	00000024 Print::println(char const*) [clone .isra.0]
+0001aadc l     F .text.itcm	00000046 BMCEditor::globalSetTime(bool) [clone .part.0]
+0001ab24 l     F .text.itcm	00000182 BMCEditor::globalEditorMessenger(bool) [clone .part.0]
+0001aca8 l     F .text.itcm	000000b0 BMCEditor::globalEditorFeedback(bool) [clone .part.0]
+0001add4 l     F .text.itcm	00000192 void BMCEditor::deviceResponseData<(unsigned char)1, (unsigned char)16, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)16, unsigned char>&, BMCMidiMessage&, unsigned short, unsigned char) [clone .isra.0]
+0001af68 l     F .text.itcm	00000192 void BMCEditor::deviceResponseData<(unsigned char)1, (unsigned char)8, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)8, unsigned char>&, BMCMidiMessage&, unsigned short, unsigned char) [clone .isra.0]
+0001b0fc l     F .text.itcm	00000170 void BMCEditor::deviceResponseData<(unsigned char)1, (unsigned char)1, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)1, unsigned char>&, BMCMidiMessage&, unsigned short, unsigned char) [clone .isra.0]
+0001b26c l     F .text.itcm	000001b8 void BMCEditor::deviceResponseData<(unsigned char)6, (unsigned char)6, unsigned char>(bmcStoreDevice<(unsigned char)6, (unsigned char)6, unsigned char>&, BMCMidiMessage&, unsigned short, unsigned char) [clone .isra.0]
+0001b424 l     F .text.itcm	00000182 void BMCEditor::deviceResponseData<(unsigned char)0, (unsigned char)6, unsigned char>(bmcStoreDevice<(unsigned char)0, (unsigned char)6, unsigned char>&, BMCMidiMessage&, unsigned short, unsigned char) [clone .isra.0]
+0001b61c l     F .text.itcm	00000426 BMCEditor::globalBuildInfoMessage() [clone .part.0]
+0001ba44 l     F .text.itcm	000000a8 BMCEditor::globalEditorMetrics() [clone .part.0]
+0001bbe4 l     F .text.itcm	00000180 BMCEditor::saveSetListSong(unsigned short) [clone .part.0]
+0001bd64 l     F .text.itcm	00000180 BMCEditor::saveSetList(unsigned char) [clone .part.0]
+0001bee4 l     F .text.itcm	00000180 BMCEditor::saveGlobalButton(unsigned char) [clone .part.0]
+0001c064 l     F .text.itcm	00000170 BMCEditor::saveTempoToTap(unsigned char) [clone .part.0]
+0001c1d4 l     F .text.itcm	0000017c BMCEditor::savePotCalibration(unsigned short) [clone .part.0]
+0001c350 l     F .text.itcm	0000017c BMCEditor::saveAuxJack(unsigned char) [clone .part.0]
+0001c4cc l     F .text.itcm	0000016c BMCEditor::saveTrigger(unsigned char) [clone .part.0]
+0001c638 l     F .text.itcm	0000016c BMCEditor::saveTimedEvent(unsigned char) [clone .part.0]
+0001c7a4 l     F .text.itcm	00000180 BMCEditor::savePreset(unsigned short) [clone .part.0]
+0001c924 l     F .text.itcm	00000180 BMCEditor::saveCustomSysEx(unsigned char) [clone .part.0]
+0001caa4 l     F .text.itcm	00000170 BMCEditor::saveGlobalLed(unsigned char) [clone .part.0]
+0001d3b8 l     F .text.itcm	0000015a void BMCEditor::incomingMessageDeviceWrite<(unsigned char)1, (unsigned char)8, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)8, unsigned char>&, unsigned short, short) [clone .isra.0]
+0001d514 l     F .text.itcm	00000174 void BMCEditor::incomingMessageDeviceWrite<(unsigned char)1, (unsigned char)16, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)16, unsigned char>&, unsigned short, short) [clone .isra.0]
+0001d688 l     F .text.itcm	00000164 void BMCEditor::incomingMessageDeviceWrite<(unsigned char)1, (unsigned char)1, unsigned char>(bmcStoreDevice<(unsigned char)1, (unsigned char)1, unsigned char>&, unsigned short, short) [clone .isra.0]
+0001d7ec l     F .text.itcm	00000176 void BMCEditor::incomingMessageDeviceWrite<(unsigned char)6, (unsigned char)6, unsigned char>(bmcStoreDevice<(unsigned char)6, (unsigned char)6, unsigned char>&, unsigned short, short) [clone .isra.0]
+0001d964 l     F .text.itcm	00000114 void BMCEditor::incomingMessageDeviceWrite<(unsigned char)0, (unsigned char)6, unsigned char>(bmcStoreDevice<(unsigned char)0, (unsigned char)6, unsigned char>&, unsigned short, short) [clone .isra.0]
+0001da78 l     F .text.itcm	0000033c BMCEditor::storeErase(bool) [clone .isra.0]
+0001de74 l     F .text.itcm	000000c8 BMCEditor::globalEditorErase(bool) [clone .part.0]
+00000000 l    df *ABS*	00000000 BMC-Editor.midi.layers.cpp
+00021c44 l     F .text.itcm	000001c8 BMCEditor::layerMessageLayerCopySwap(bool) [clone .part.0]
+00000000 l    df *ABS*	00000000 BMC-Editor.midi.utility.cpp
+00000000 l    df *ABS*	00000000 BMC-Midi.cpp
+000227b4 l     F .text.itcm	0000022c BMCMidi::sendSysEx(unsigned char, unsigned char*, unsigned short, bool, unsigned char, bool) [clone .part.0]
+000229e0 l     F .text.itcm	000001cc BMCMidi::sendRealTime(unsigned char, unsigned char, unsigned char) [clone .part.0]
+00022df4 l     F .text.itcm	00000082 BMCMidi::scrollPC(unsigned char, unsigned char, unsigned char, bool, bool, unsigned char, unsigned char) [clone .part.0]
+00023108 l     F .text.itcm	00000090 BMCMidi::scrollCC(unsigned char, unsigned char, unsigned char, unsigned char, bool, bool, unsigned char, unsigned char) [clone .part.0]
+00000000 l    df *ABS*	00000000 BMC-24LC256.cpp
+00000000 l    df *ABS*	00000000 Adafruit_GFX.cpp
+2000103c l     O .data	00000500 font
+00000000 l    df *ABS*	00000000 MassStorageDriver.cpp
+00000000 l    df *ABS*	00000000 ehci.cpp
+2000bab2 l     O .bss	00000001 port_state
+2000b3d8 l     O .bss	00000004 active_timers
+20006000 l     O .bss	00000080 periodictable
+2000b40c l     O .bss	00000100 uframe_bandwidth
+2000b514 l     O .bss	00000004 async_followup_last
+2000b518 l     O .bss	00000004 async_followup_first
+2000b51c l     O .bss	00000004 periodic_followup_last
+2000b520 l     O .bss	00000004 periodic_followup_first
+2000b528 l     O .bss	00000004 rootdev
+00000000 l    df *ABS*	00000000 enumeration.cpp
+2000b50c l     O .bss	00000004 available_drivers
+2000b524 l     O .bss	00000004 devlist
+2000a620 l     O .bss	00000800 enumbuf
+2000baa4 l     O .bss	00000002 enumlen
+2000ae20 l     O .bss	00000008 enumsetup
+2000bab8 l     O .bss	00000001 USBHost::assign_address()::last_assigned_address
+00000000 l    df *ABS*	00000000 memory.cpp
+20006080 l     O .bss	00000060 memory_Pipe
+2000b3dc l     O .bss	00000024 memory_Device
+2000b400 l     O .bss	00000004 free_Pipe_list
+200060e0 l     O .bss	00000100 memory_Transfer
+2000b404 l     O .bss	00000004 free_Device_list
+2000b408 l     O .bss	00000004 free_strbuf_list
+2000b510 l     O .bss	00000004 free_Transfer_list
+00000000 l    df *ABS*	00000000 midi.cpp
+00000000 l    df *ABS*	00000000 WS2812Serial.cpp
+00000000 l    df *ABS*	00000000 DMAChannel.cpp
+00000000 l    df *ABS*	00000000 HardwareSerial.cpp
+00000000 l    df *ABS*	00000000 Print.cpp
+000293dc l     F .text.itcm	0000007e Print::printNumber(unsigned long, unsigned char, unsigned char) [clone .part.0]
+00000000 l    df *ABS*	00000000 WString.cpp
+00000000 l    df *ABS*	00000000 clockspeed.c
+00000000 l    df *ABS*	00000000 delay.c
+00000000 l    df *ABS*	00000000 digital.c
+00000000 l    df *ABS*	00000000 eeprom.c
+2000baba l     O .bss	00000001 initialized
+2000b8fc l     O .bss	0000001e sector_index
+00000000 l    df *ABS*	00000000 main.cpp
+00000000 l    df *ABS*	00000000 memcpy-armv7m.S.o
+00000000 l    df *ABS*	00000000 new.cpp
+00000000 l    df *ABS*	00000000 nonstd.c
+00000000 l    df *ABS*	00000000 pwm.c
+00000000 l    df *ABS*	00000000 usb_inst.cpp
+00000000 l    df *ABS*	00000000 usb_midi.c
+0002ada0 l     F .text.itcm	00000040 sysex_byte
+0002ade0 l     F .text.itcm	00000060 rx_queue_transfer
+0002ae40 l     F .text.itcm	00000064 rx_event
+0002aea4 l     F .text.itcm	0000013c usb_midi_write_packed.part.0
+2000b8a4 l     O .bss	00000004 rx_available
+2000b8ac l     O .bss	0000000c rx_count
+2000babb l     O .bss	00000001 rx_head
+2000b8b8 l     O .bss	0000000c rx_index
+2000b8d4 l     O .bss	00000007 rx_list
+2000baa8 l     O .bss	00000002 rx_packet_size
+2000babd l     O .bss	00000001 rx_tail
+2000a260 l     O .bss	000000c0 rx_transfer
+2000bac0 l     O .bss	00000001 transmit_previous_timeout
+2000baaa l     O .bss	00000002 tx_available
+2000bac2 l     O .bss	00000001 tx_head
+2000bac4 l     O .bss	00000001 tx_noautoflush
+2000baae l     O .bss	00000002 tx_packet_size
+2000a420 l     O .bss	00000080 tx_transfer
+20200080 l     O .bss.dma	00000c00 rx_buffer
+20200c80 l     O .bss.dma	00000800 txbuffer
+00000000 l    df *ABS*	00000000 usb_seremu.c
+0002b7a4 l     F .text.itcm	0000004c rx_queue_transfer
+0002b7f0 l     F .text.itcm	00000058 rx_event
+0002ba2c l     F .text.itcm	00000048 usb_seremu_flush_callback
+0002ba74 l     F .text.itcm	0000013c usb_seremu_write.part.0
+2000b8a8 l     O .bss	00000004 rx_available
+2000babc l     O .bss	00000001 rx_head
+2000b8c4 l     O .bss	00000010 rx_index
+2000b8dc l     O .bss	00000009 rx_list
+2000babe l     O .bss	00000001 rx_tail
+2000a320 l     O .bss	00000100 rx_transfer
+2000bac1 l     O .bss	00000001 transmit_previous_timeout
+2000baac l     O .bss	00000002 tx_available
+2000bac3 l     O .bss	00000001 tx_head
+2000bac5 l     O .bss	00000001 tx_noautoflush
+2000a4a0 l     O .bss	00000180 tx_transfer
+20201480 l     O .bss.dma	00000100 rx_buffer
+20201580 l     O .bss.dma	00000300 txbuffer
+00000000 l    df *ABS*	00000000 yield.cpp
+2000bab6 l     O .bss	00000001 yield::running
+00000000 l    df *ABS*	00000000 rtc.c
+00000000 l    df *ABS*	00000000 serialEvent.cpp
+00000000 l    df *ABS*	00000000 libm_a-w_fmod.o
+00000000 l    df *ABS*	00000000 libm_a-s_cos.o
+00000000 l    df *ABS*	00000000 libm_a-e_fmod.o
+00000000 l    df *ABS*	00000000 libm_a-e_rem_pio2.o
+00000000 l    df *ABS*	00000000 libm_a-k_rem_pio2.o
+00000000 l    df *ABS*	00000000 libm_a-k_cos.o
+00000000 l    df *ABS*	00000000 libm_a-k_sin.o
+00000000 l    df *ABS*	00000000 libm_a-s_fabs.o
+00000000 l    df *ABS*	00000000 libm_a-s_scalbn.o
+00000000 l    df *ABS*	00000000 libm_a-s_floor.o
+00000000 l    df *ABS*	00000000 atexit_arm.o
+00000000 l    df *ABS*	00000000 libc_a-callocr.o
+00000000 l    df *ABS*	00000000 libc_a-malloc.o
+00000000 l    df *ABS*	00000000 libc_a-mallocr.o
+00000000 l    df *ABS*	00000000 libc_a-mlock.o
+00000000 l    df *ABS*	00000000 libc_a-realloc.o
+00000000 l    df *ABS*	00000000 libc_a-reallocr.o
+00000000 l    df *ABS*	00000000 libc_a-sprintf.o
+00000000 l    df *ABS*	00000000 libc_a-findfp.o
+0002d85c l     F .text.itcm	00000018 stdio_exit_handler
+0002d874 l     F .text.itcm	00000040 cleanup_stdio
+0002d8b4 l     F .text.itcm	000000d4 global_stdio_init.part.0
+00000000 l    df *ABS*	00000000 libc_a-fwalk.o
+00000000 l    df *ABS*	00000000 libc_a-memmove.o
+00000000 l    df *ABS*	00000000 libc_a-memset.o
+00000000 l    df *ABS*	00000000 libc_a-strcat.o
+00000000 l    df *ABS*	00000000 libc_a-strncpy.o
+00000000 l    df *ABS*	00000000 libc_a-stpcpy.o
+00000000 l    df *ABS*	00000000 libc_a-locale.o
+00000000 l    df *ABS*	00000000 libc_a-cxa_atexit.o
+00000000 l    df *ABS*	00000000 libc_a-sbrkr.o
+00000000 l    df *ABS*	00000000 libc_a-writer.o
+00000000 l    df *ABS*	00000000 libc_a-errno.o
+00000000 l    df *ABS*	00000000 libc_a-strcmp.o
+00000000 l    df *ABS*	00000000 libc_a-strcpy.o
+00000000 l    df *ABS*	00000000 libc_a-init.o
+00000000 l    df *ABS*	00000000 libc_a-lock.o
+00000000 l    df *ABS*	00000000 libc_a-memchr.o
+00000000 l    df *ABS*	00000000 libc_a-strlen.o
+00000000 l    df *ABS*	00000000 libc_a-__atexit.o
+00000000 l    df *ABS*	00000000 libc_a-freer.o
+00000000 l    df *ABS*	00000000 libc_a-mbtowc_r.o
+00000000 l    df *ABS*	00000000 libc_a-svfprintf.o
+00000000 l    df *ABS*	00000000 libc_a-mprec.o
+00000000 l    df *ABS*	00000000 libc_a-fclose.o
+00000000 l    df *ABS*	00000000 libc_a-fflush.o
+00000000 l    df *ABS*	00000000 libc_a-stdio.o
+00000000 l    df *ABS*	00000000 libc_a-wctomb_r.o
+00000000 l    df *ABS*	00000000 libc_a-localeconv.o
+00000000 l    df *ABS*	00000000 libc_a-closer.o
+00000000 l    df *ABS*	00000000 libc_a-lseekr.o
+00000000 l    df *ABS*	00000000 libc_a-readr.o
+00000000 l    df *ABS*	00000000 libc_a-wcrtomb.o
+00000000 l    df *ABS*	00000000 libc_a-wcsrtombs.o
+00000000 l    df *ABS*	00000000 libm_a-s_frexp.o
+00000000 l    df *ABS*	00000000 libc_a-assert.o
+00000000 l    df *ABS*	00000000 libc_a-dtoa.o
+00030d50 l     F .text.itcm	00000126 quorem
+00000000 l    df *ABS*	00000000 libc_a-fiprintf.o
+00000000 l    df *ABS*	00000000 libc_a-svfiprintf.o
+00000000 l    df *ABS*	00000000 libc_a-vfiprintf.o
+00031c8c l     F .text.itcm	00000076 __sprint_r.part.0
+00032c90 l     F .text.itcm	00000080 __sbprintf
+00000000 l    df *ABS*	00000000 libc_a-fvwrite.o
+00000000 l    df *ABS*	00000000 libc_a-wsetup.o
+00000000 l    df *ABS*	00000000 libc_a-fputwc.o
+00000000 l    df *ABS*	00000000 libc_a-wcsnrtombs.o
+00000000 l    df *ABS*	00000000 libc_a-makebuf.o
+00000000 l    df *ABS*	00000000 libc_a-wbuf.o
+00000000 l    df *ABS*	00000000 libc_a-fstatr.o
+00000000 l    df *ABS*	00000000 libc_a-isattyr.o
+00000000 l    df *ABS*	00000000 libc_a-ctype_.o
+00000000 l    df *ABS*	00000000 libc_a-impure.o
+00000000 l    df *ABS*	00000000 libc_a-__call_atexit.o
+00000000 l    df *ABS*	00000000 usb_product_name.c
+000334e8 l     F .text.itcm	00000008 ___reboot_Teensyduino__veneer
+000334f0 l     F .text.itcm	00000008 ___init_veneer
+000334f8 l     F .text.itcm	00000008 ___ZN7TwoWire5beginEv_veneer
+60001c00 l     F .text.code	00000008 __pwm_init_veneer
+60001c08 l     F .text.code	00000008 ____libc_init_array_veneer
+60001c10 l     F .text.code	00000008 __memset_veneer
+60001c18 l     F .text.code	00000008 __delay_veneer
+60001c20 l     F .text.code	00000008 __usb_init_serialnumber_veneer
+60001c28 l     F .text.code	00000008 __main_veneer
+60001c30 l     F .text.code	00000008 __set_arm_clock_veneer
+0001a88c  w    F .text.itcm	000001cc BMCBuildData::getUIData(unsigned char, short)
+0002dc64 g     F .text.itcm	00000046 stpcpy
+000278f4 g     F .text.itcm	00000010 USBHost::free_string_buffer(strbuf_t*)
+0001a398 g     F .text.itcm	00000010 BMCEditor::getGlobalOffset()
+00005c98 g     F .text.itcm	00000188 BMC::printButtonTrigger(unsigned char, unsigned char, unsigned char)
+00027828 g     F .text.itcm	00000050 USBHost::init_Device_Pipe_Transfer_memory()
+000334c4 g     F .text.itcm	00000024 _isatty_r
+0002dffc g     F .text.itcm	000000ba strcpy
+0002b9a4 g     F .text.itcm	00000024 usb_seremu_available
+00026008 g     F .text.itcm	000000b0 Adafruit_GFX::getTextBounds(char const*, short, short, short*, short*, unsigned short*, unsigned short*)
+000065dc g     F .text.itcm	00000560 BMC::ctrlHardware()
+60001828 g     F .text.code	00000002 startup_default_late_hook
+0002cbd8 g     F .text.itcm	00000012 fabs
+00030bdc g     F .text.itcm	0000002c _lseek_r
+0001ad58  w    F .text.itcm	00000032 BMCMidiMessage::appendToSysEx14Bits(unsigned short)
+0002bc50  w    F .text.itcm	000000f0 yield
+00014310 g     F .text.itcm	000000c0 BMC::readLeds()
+2000baa0 g     O .bss	00000004 usb_timer1_callback
+00024f10 g     F .text.itcm	0000001e Adafruit_GFX::fillScreen(unsigned short)
+2000b86c g     O .bss	00000004 em_rx_tx2
+6001e274 g     O .text.progmem	00000018 usb_string_manufacturer_name_default
+00024ee4 g     F .text.itcm	00000012 Adafruit_GFX::writeFastHLine(short, short, short, unsigned short)
+00007f7c  w    F .text.itcm	000000c4 BMCSetLists::scrollSet(bool, bool, unsigned char, unsigned char, unsigned char)
+2000b948 g     O .bss	00000004 usb_midi_handleProgramChange
+2000b0d8 g     O .bss	00000140 Wire1
+0002ad84  w    F .text.itcm	00000004 usb_seremu_class::peek()
+00019260  w    F .text.itcm	000001ec BMCEditor::saveSettings()
+6001e258  w    O .text.progmem	00000001 _serialEventUSB2_default
+00022e78 g     F .text.itcm	00000290 BMCMidi::sendControlChange(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char, bool)
+2000b6ec g     O .bss	00000001 __lock___atexit_recursive_mutex
+00030c34 g     F .text.itcm	0000004c _wcrtomb_r
+000273d0 g     F .text.itcm	00000110 USBHost::claim_drivers(Device_struct*)
+60001650 g     F .text.code	00000034 TwoWire::configSDApin(unsigned char)
+00029510 g     F .text.itcm	0000001c Print::println()
+00024d30 g     F .text.itcm	000000ac TwoWire::isr()
+00030b6c g     F .text.itcm	00000020 __sseek
+0002d988 g     F .text.itcm	0000003c __sinit
+000333e8 g     F .text.itcm	000000b0 __swbuf_r
+000268f4 g     F .text.itcm	0000015c USBHost::followup_Error()
+000284fc g     F .text.itcm	000001ac WS2812Serial::begin()
+0002d420 g     F .text.itcm	0000000c __malloc_unlock
+2000b92c g     O .bss	00000004 usb_midi_handleAfterTouch
+000000c8  w    F .text.itcm	00000002 USBDriver::control(Transfer_struct const*)
+000154dc  w    F .text.itcm	000000f2 BMCMidi::routing(BMCMidiMessage&)
+2000bab5 g     O .bss	00000001 USBHost::enumeration_busy
+000026cc g     F .text.itcm	000000ac BMC::stopwatchCmd(unsigned char, unsigned char, unsigned char, unsigned char)
+00027968 g     F .text.itcm	00000030 USBHost::contribute_String_Buffers(strbuf_t*, unsigned long)
+00025e54 g     F .text.itcm	000001b2 Adafruit_GFX::charBounds(unsigned char, short*, short*, short*, short*, short*, short*)
+600017cc g     F .text.code	00000054 analog_init
+00029d48 g     F .text.itcm	00000048 eeprom_initialize
+00001a50  w    F .text.itcm	0000010c BMC::runLayerChanged()
+20004b8c g     O .data	00000004 F_CPU_ACTUAL
+2000b960 g     O .bss	00000004 usb_midi_handleSysExComplete
+000221a8 g     F .text.itcm	00000034 BMCEditor::layerProcessMessage()
+00018d10 g     F .text.itcm	00000114 BMCEditor::backupEventMessage(unsigned short)
+0002da24 g     F .text.itcm	000000f8 memmove
+0001cc3c  w    F .text.itcm	00000170 BMCEditor::saveDevicePorts(unsigned char)
+00028d38 g     F .text.itcm	00000072 HardwareSerial::peek()
+000278b8 g     F .text.itcm	00000010 USBHost::allocate_Transfer()
+00030144 g     F .text.itcm	0000004c _Balloc
+0003350c g       .ARM.exidx	00000000 __exidx_end
+2000bacc g     O .bss	00000001 usb_midi_msg_type
+00013eb8 g     F .text.itcm	00000130 BMC::assignLeds()
+2000bab3 g     O .bss	00000001 EventResponder::runningFromYield
+000155d0  w    F .text.itcm	000002ac BMCMidiClock::read(bool, bool)
+0000af58  w    F .text.itcm	000002a4 BMCDisplay::renderFasLooper(BMCDataContainer)
+200047d8 g     O .data	000000a0 pwm_pin_info
+00009930  w    F .text.itcm	0000018a BMCBeatBuddy::tempo(unsigned short)
+0002a414 g     F .text.itcm	00000060 tempmonGetTemp
+00027254 g     F .text.itcm	00000038 USBHost::Task()
+0002945c g     F .text.itcm	00000050 Print::write(unsigned char const*, unsigned int)
+00027cc8 g     F .text.itcm	0000000c MIDIDeviceBase::rx_callback(Transfer_struct const*)
+20004ba0 g     O .data	00000004 __atexit_recursive_mutex
+00015190 g     F .text.itcm	00000020 BMC::prevLayer()
+0002dd14 g     F .text.itcm	0000000c __errno
+60001000 g     O .text.headers	00000020 ImageVectorTable
+0001e9bc g     F .text.itcm	00001f6e BMCEditor::incomingMessageDevice(bool)
+0002ad88  w    F .text.itcm	00000004 usb_seremu_class::read()
+00026288  w    F .text.itcm	0000002c SPIClass::SPIClass(unsigned int, unsigned int)
+2000b534 g     O .bss	00000004 EventResponder::firstInterrupt
+0002ad28 g     F .text.itcm	00000004 usb_transfer_status
+00027350 g     F .text.itcm	0000007e USBHost::convertStringDescriptorToASCIIString(unsigned char, Device_struct*, Transfer_struct const*)
+000184f0 g     F .text.itcm	00000078 BMC_SSD1306::dim(bool)
+2000b864 g     O .bss	00000004 __stdio_exit_handler
+00024794 g     F .text.itcm	000000d8 BMC24LC256::read(unsigned long, unsigned char*, unsigned int)
+00025214 g     F .text.itcm	00000118 Adafruit_GFX::writeLine(short, short, short, short, unsigned short)
+2000af38 g     O .bss	00000060 Serial1
+2000519a g     O .data	00000001 analog_write_res
+000296d4 g     F .text.itcm	0000003a String::String(String const&)
+00018468 g     F .text.itcm	00000018 BMC_SSD1306::BMC_SSD1306(unsigned char, unsigned char)
+0002bbf8 g     F .text.itcm	00000058 usb_seremu_flush_output
+0002bbb0 g     F .text.itcm	0000002c usb_seremu_putchar
+00033498 g     F .text.itcm	0000002c _fstat_r
+200044a0 g     O .data	00000280 digital_pin_to_info_PGM
+0002be38 g     F .text.itcm	00000298 __ieee754_fmod
+000018b4  w    F .text.itcm	0000019c BMCSync::BMCSync(BMCMidi&, BMCMidiClock&, BMCCallbacks&)
+2000b880 g     O .bss	00000004 errno
+0002cd00 g     F .text.itcm	00000110 floor
+6001e1b8 g     O .text.progmem	00000050 TwoWire::i2c3_hardware
+00033508 g       .text.itcm	00000000 _etext
+000261ac g     F .text.itcm	000000dc _spi_dma_rxISR0()
+200056c0 g       .bss	00000000 _sbss
+00026a50 g     F .text.itcm	000001e0 USBHost::isr()
+00012b74  w    F .text.itcm	0000012c BMCButtonsDualHandler::read(unsigned char, unsigned char, bool)
+00025008 g     F .text.itcm	000000a4 Adafruit_GFX::drawLine(short, short, short, short, unsigned short)
+000082ac  w    F .text.itcm	000000d0 BMCSetLists::getPartName(unsigned char, char*)
+2000b974 g     O .bss	00000004 usb_midi_handleVelocityChange
+000272ac g     F .text.itcm	000000a4 USBHost::new_Device(unsigned long, unsigned long, unsigned long)
+00028d10 g     F .text.itcm	00000026 HardwareSerial::available()
+00011b60 g     F .text.itcm	000001f4 BMC::assignAuxJacks()
+0002bbf4 g     F .text.itcm	00000004 usb_seremu_write_buffer_free
+00029cb4 g     F .text.itcm	00000024 digitalRead
+00009b04  w    F .text.itcm	000001ba BMCCustomSysEx::send(unsigned char, unsigned char, unsigned char, unsigned char)
+6001e384 g       *ABS*	00000000 _stextload
+0001837c g     F .text.itcm	00000076 BMC_SSD1306::drawFastHLine(short, short, short, unsigned short)
+00000098 g     F .text.itcm	0000000c loop
+0002a0bc g     F .text.itcm	0000007a flexpwm_init
+00029f3c g     F .text.itcm	000000b4 flexpwmWrite
+0002b0b4 g     F .text.itcm	000000a0 usb_midi_flush_output
+6000182c g     F .text.code	00000004 startup_debug_reset
+0001cdac  w    F .text.itcm	00000184 BMCEditor::saveShortCuts(unsigned char)
+00024568 g     F .text.itcm	00000026 BMCMidi::scrollPC(unsigned char, unsigned char, unsigned char, bool, bool, unsigned char, unsigned char)
+0002abec g     F .text.itcm	00000064 usb_config_rx
+0002a22c  w    F .text.itcm	00000002 serialEvent1()
+00015b74 g     F .text.itcm	00001558 BMC::incomingMidi(BMCMidiMessage)
+000000cc  w    F .text.itcm	00000002 USBDriver::Task()
+0002ad98  w    F .text.itcm	00000008 usb_seremu_class::write(unsigned char const*, unsigned int)
+0002b3cc g     F .text.itcm	000003d8 usb_midi_read
+000274e0 g     F .text.itcm	000002a0 USBHost::enumeration(Transfer_struct const*)
+0001a414 g     F .text.itcm	00000010 BMCEditor::getGlobalButtonOffset(unsigned short)
+000291ec g     F .text.itcm	00000004 HardwareSerial::write(unsigned char)
+2000b968 g     O .bss	00000004 usb_midi_handleSystemReset
+0002532c g     F .text.itcm	00000030 Adafruit_GFX::Adafruit_GFX(short, short)
+00024af4 g     F .text.itcm	000000fc TwoWire::endTransmission(unsigned char)
+0002c0d0 g     F .text.itcm	00000294 __ieee754_rem_pio2
+00021554 g     F .text.itcm	00000212 BMCEditor::globalSketchBytesData()
+2000b530 g     O .bss	00000004 EventResponder::lastInterrupt
+2000bab0 g     O .bss	00000002 usb_midi_msg_sysex_len
+00029da0 g     F .text.itcm	00000134 memcpy
+0001a35c g     F .text.itcm	00000016 BMCEditor::connectionHasChanged()
+000080c0  w    F .text.itcm	00000080 BMCSetLists::scrollPart(bool, bool, unsigned char, unsigned char, unsigned char)
+2000b94c g     O .bss	00000004 usb_midi_handleRealTimeSystem
+000179f8 g     F .text.itcm	000000fc BMC::streamToSketch(unsigned char, int, char*)
+200056c0 g     O .data	00000000 .hidden __TMC_END__
+0002e600 g     F .text.itcm	00001b44 _svfprintf_r
+000148fc g     F .text.itcm	00000010 BMC::setupPixels()
+2000b920 g     O .bss	00000004 systick_millis_count
+00022bdc g     F .text.itcm	00000218 BMCMidi::sendProgramChange(unsigned char, unsigned char, unsigned char, unsigned char)
+00024ab4 g     F .text.itcm	00000040 TwoWire::wait_idle()
+2000bac6 g     O .bss	00000001 usb_configuration
+60000000 g     O .text.headers	00000200 FlexSPI_NOR_Config
+0001587c  w    F .text.itcm	00000144 BMCDawLogicControl::incomingSysEx(BMCMidiMessage)
+00029ff0 g     F .text.itcm	000000cc analogWrite
+0001bb60  w    F .text.itcm	00000084 BMCStorage::debugStopTiming()
+6001e274  w    O .text.progmem	00000018 usb_string_manufacturer_name
+0001a478 g     F .text.itcm	0000000c BMCEditor::getTimedEventOffset(unsigned short)
+000143d4  w    F .text.itcm	0000028c BMCPixels::begin()
+00011d54 g     F .text.itcm	00000046 BMC::setupAuxJacks()
+0002ce94 g     F .text.itcm	00000010 malloc
+6001e168 g     O .text.progmem	00000050 TwoWire::i2c1_hardware
+00018490 g     F .text.itcm	0000001e BMC_SSD1306::clearDisplay()
+0002a3f0  w    F .text.itcm	0000000a _fstat
+0002489c  w    F .text.itcm	0000001e TwoWire::read()
+000279bc g     F .text.itcm	00000008 MIDIDeviceBase::disconnect()
+00030d10 g     F .text.itcm	00000040 __assert_func
+000260b8  w    F .text.itcm	00000016 EventResponder::triggerEvent(int, void*)
+0001a450 g     F .text.itcm	0000000e BMCEditor::getCustomSysExOffset(unsigned short)
+000233e4 g     F .text.itcm	0000024c BMCMidi::sendNoteOff(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char)
+200002f8 g     O .data	000000c8 __mprec_tens
+60001ab4 g     F .text.code	000000e8 usb_init
+00018468 g     F .text.itcm	00000018 BMC_SSD1306::BMC_SSD1306(unsigned char, unsigned char)
+2000bab7  w    O .bss	00000001 BMCSerialMonitor::read(char*)::i
+0002c9f8 g     F .text.itcm	00000130 __kernel_cos
+00024f30 g     F .text.itcm	00000002 Adafruit_GFX::invertDisplay(bool)
+000186a4 g     F .text.itcm	000004f8 BMC_SSD1306::begin(unsigned char, unsigned char)
+2000b728 g     O .bss	00000004 __malloc_top_pad
+2000ae80 g     O .bss	00000050 SPI1
+2000b924 g     O .bss	00000004 systick_safe_read
+000249ac g     F .text.itcm	00000108 TwoWire::force_clock()
+00008140  w    F .text.itcm	000000b0 BMCSetLists::getSetName(unsigned char, char*)
+0001a3dc g     F .text.itcm	0000000a BMCEditor::getSketchBytesOffset(unsigned short)
+aaaabfff g       *ABS*	00000000 _flexram_bank_config
+20004ba8 g     O .data	00000000 .hidden __dso_handle
+000171fc  w    F .text.itcm	000001e2 BMCSerialMIDI<(unsigned char)1, HardwareSerial>::_read()
+0000ad20  w    F .text.itcm	00000238 BMCDisplay::renderFasTuner(BMCDataContainer)
+00030bb0 g     F .text.itcm	00000008 _localeconv_r
+00032d10 g     F .text.itcm	000002f4 __sfvwrite_r
+000302e8 g     F .text.itcm	0000005c __i2b
+000095e8  w    F .text.itcm	00000348 BMCBeatBuddy::sendCommand(unsigned char, unsigned char)
+20000000 g       .data	00000000 _sdata
+00020e8c g     F .text.itcm	00000038 BMCEditor::globalBuildInfoMessage()
+2000b940 g     O .bss	00000004 usb_midi_handleNoteOn
+000293d4  w    F .text.itcm	00000006 usb_seremu_class::write(unsigned char)
+6001e304 g     O .text.progmem	00000073 usb_config_descriptor_480
+0002dcc4 g     F .text.itcm	00000024 _sbrk_r
+00012e8c  w    F .text.itcm	0000006c void BMC::handleButton<(unsigned char)6, (unsigned char)6>(bmcStoreDevice<(unsigned char)6, (unsigned char)6, unsigned char>&, unsigned char, unsigned short, unsigned char)
+60001820 g     F .text.code	00000002 startup_default_early_hook
+60001620 g     F .text.code	00000030 ResetHandler
+200040dc g     O .data	00000058 vtable for BMC_SSD1306
+00027904 g     F .text.itcm	00000030 USBHost::contribute_Pipes(Pipe_struct*, unsigned long)
+0001d0ac  w    F .text.itcm	0000016c BMCEditor::saveSketchBytes()
+00029c60 g     F .text.itcm	00000054 digitalWrite
+2000b538 g     O .bss	00000004 EventResponder::lastYield
+0002486c g     F .text.itcm	00000022 BMC24LC256::read(unsigned long)
+00030c08 g     F .text.itcm	0000002c _read_r
+0002afe0 g     F .text.itcm	000000c4 usb_midi_configure
+000308bc g     F .text.itcm	000000c6 _fclose_r
+00020bc8 g     F .text.itcm	00000130 BMCEditor::disconnect(bool)
+000217b0 g     F .text.itcm	00000038 BMCEditor::globalEditorMetrics()
+2000b720 g     O .bss	00000004 __malloc_max_sbrked_mem
+0001a684 g     F .text.itcm	0000019c BMCEditor::read()
+00020cf8 g     F .text.itcm	000000e0 BMCEditor::disconnectEditor()
+00029cd8 g     F .text.itcm	00000070 pinMode
+000297b0 g     F .text.itcm	00000036 String::getBytes(unsigned char*, unsigned int, unsigned int) const
+00029570 g     F .text.itcm	00000164 Print::printFloat(double, unsigned char)
+0002cb28 g     F .text.itcm	000000b0 __kernel_sin
+00003ac0 g     F .text.itcm	000001d4 BMC::printBoardInfo()
+00009178  w    F .text.itcm	0000010c BMCFas::looperControl(unsigned char)
+000286a8 g     F .text.itcm	00000474 WS2812Serial::show()
+6001e259  w    O .text.progmem	00000001 _serialEventUSB1_default
+60001684 g     F .text.code	00000054 TwoWire::setSDA(unsigned char)
+2000b218 g     O .bss	00000140 Wire2
+2000b964 g     O .bss	00000004 usb_midi_handleSysExPartial
+60057000 g     O .text.csf	00000c00 hab_csf
+20280000 g       .text.csf	00000000 _heap_end
+000150fc g     F .text.itcm	00000092 BMC::scrollLayer(bool, bool, unsigned char, unsigned char, unsigned char)
+00033504 g       .ARM.exidx	00000000 __exidx_start
+0002a3fc  w    F .text.itcm	00000004 _isatty
+2000baca g     O .bss	00000001 usb_midi_msg_data1
+2000b52c g     O .bss	00000004 EventResponder::firstYield
+00024ef8 g     F .text.itcm	00000018 Adafruit_GFX::writeFillRect(short, short, short, short, unsigned short)
+0001a430 g     F .text.itcm	0000000e BMCEditor::getPotCalibrationOffset(unsigned short)
+0002d444 g     F .text.itcm	000003d8 _realloc_r
+0002e0b8 g     F .text.itcm	00000048 __libc_init_array
+00024890  w    F .text.itcm	0000000c TwoWire::available()
+000245f0 g     F .text.itcm	00000068 BMC24LC256::begin(BMC24LC256::twiClockFreq_t)
+0002ad90  w    F .text.itcm	00000004 usb_seremu_class::flush()
+0003317c g     F .text.itcm	00000066 _fputwc_r
+00026288  w    F .text.itcm	0000002c SPIClass::SPIClass(unsigned int, unsigned int)
+200002d0 g     O .data	00000028 __mprec_bigtens
+0002a40c  w    F .text.itcm	00000004 abort
+00024bf0 g     F .text.itcm	00000140 TwoWire::requestFrom(unsigned char, unsigned char, unsigned char)
+00000168  w    F .text.itcm	00000180 BMC_SSD1306::getCenteredXY(char*, unsigned short, unsigned short, unsigned short, unsigned short, unsigned char)
+0002659c g     F .text.itcm	000000e8 USBHost::queue_Transfer(Pipe_struct*, Transfer_struct*)
+00024590 g     F .text.itcm	00000060 BMC24LC256::BMC24LC256(BMC_eeprom_size_t, unsigned char, unsigned int, unsigned char)
+0002a3b0  w    F .text.itcm	00000034 _sbrk
+60051890 g       *ABS*	00000000 _sdataload
+00030650 g     F .text.itcm	00000042 __mcmp
+20004ba4 g     O .data	00000004 __brkval
+0001a540 g     F .text.itcm	00000144 BMCEditor::sendNotification(unsigned short, unsigned long, bool, bool)
+00002958 g     F .text.itcm	000004c4 BMC::begin()
+0001a388 g     F .text.itcm	0000000e BMCEditor::getStoreOffset()
+000018b4  w    F .text.itcm	0000019c BMCSync::BMCSync(BMCMidi&, BMCMidiClock&, BMCCallbacks&)
+60001bf0 g     F .text.code	00000000 _init
+00027d78 g     F .text.itcm	000000ac MIDIDeviceBase::send_sysex_buffer_has_term(unsigned char const*, unsigned long, unsigned char)
+00025678 g     F .text.itcm	000002a0 Adafruit_GFX::fillTriangle(short, short, short, short, short, short, unsigned short)
+20003a10 g     O .data	00000050 SPIClass::spiclass_lpspi1_hardware
+00029710 g     F .text.itcm	0000000e String::~String()
+0002b154 g     F .text.itcm	000000c0 usb_midi_send_sysex_buffer_has_term
+0002535c g     F .text.itcm	000001a0 Adafruit_GFX::fillCircleHelper(short, short, short, unsigned char, short, unsigned short)
+000296d4 g     F .text.itcm	0000003a String::String(String const&)
+0002728c g     F .text.itcm	00000020 USBHost::driver_ready_for_device(USBDriver*)
+00012ef8 g     F .text.itcm	0000041c BMC::readButtons()
+00014d2c g     F .text.itcm	0000001c BMC::layerChanged()
+0002bbdc g     F .text.itcm	00000018 usb_seremu_write
+0001aa58  w    F .text.itcm	00000024 BMCMidiMessage::get14Bits(unsigned short)
+000113e4  w    F .text.itcm	000003f2 BMCAuxJackPot::begin(unsigned char)
+6001e290 g     O .text.progmem	00000073 usb_config_descriptor_12
+0002c368 g     F .text.itcm	00000690 __kernel_rem_pio2
+200041f0 g     O .data	00000024 vtable for TwoWire
+2000bb00 g       .bss	00000000 _ebss
+00009abc  w    F .text.itcm	00000048 BMCBeatBuddy::tempoControl(unsigned char, bool)
+00024ec0 g     F .text.itcm	0000000e Adafruit_GFX::writePixel(short, short, unsigned short)
+00025cec g     F .text.itcm	00000136 Adafruit_GFX::write(unsigned char)
+0001a374 g     F .text.itcm	0000000a BMCEditor::setLayer(unsigned char)
+600016d8 g     F .text.code	00000034 TwoWire::configSCLpin(unsigned char)
+00028cf0 g     F .text.itcm	00000020 HardwareSerial::availableForWrite()
+000159c0  w    F .text.itcm	000001b4 BMCBeatBuddy::incoming(BMCMidiMessage)
+00030248 g     F .text.itcm	00000040 __hi0bits
+00009128  w    F .text.itcm	00000026 BMCFas::tunerOn()
+00024de8 g     F .text.itcm	0000000c lpi2c3_isr()
+00008040  w    F .text.itcm	00000080 BMCSetLists::scrollSong(bool, bool, unsigned char, unsigned char, unsigned char)
+0001d218  w    F .text.itcm	000001a0 BMCEditor::saveLayersAndReloadData(unsigned char)
+00012d0c g     F .text.itcm	00000116 BMC::assignButton(BMCButton&, bmcStoreDevice<(unsigned char)6, (unsigned char)6, unsigned char>&)
+20201880 g       .bss.dma	00000000 _heap_start
+00017af4 g     F .text.itcm	000000ac BMC::streamMidi(unsigned char, unsigned char, unsigned char, unsigned char)
+2000b6f0 g     O .bss	00000001 __lock___malloc_recursive_mutex
+00021a50  w    F .text.itcm	000001f4 BMCEditor::saveLayer(unsigned char)
+6001e208 g     O .text.progmem	00000050 TwoWire::i2c4_hardware
+00029720 g     F .text.itcm	00000066 String::copy(char const*, unsigned int)
+2000b72c g     O .bss	00000138 __sf
+0001a404 g     F .text.itcm	0000000e BMCEditor::getSetListSongOffset(unsigned short)
+00000007 g       *ABS*	00000000 _itcm_block_count
+00029114 g     F .text.itcm	000000d8 HardwareSerial::write9bit(unsigned long)
+2000a240 g     O .bss	00000020 endpoint0_transfer_data
+0002a138 g     F .text.itcm	000000f4 pwm_init
+00019b94 g     F .text.itcm	000003a4 BMCEditor::BMCEditor(bmcStore&, BMCMidi&, BMCSettings&, BMCMessenger&)
+00007ae4  w    F .text.itcm	000002d8 BMCEditor::getDeviceNameText(unsigned char, unsigned short, char*)
+00017198 g     F .text.itcm	00000064 BMC::midiProgramBankTrigger(unsigned char, unsigned char)
+000008d4  w    F .text.itcm	00000afa BMCDawLogicControl::sendButtonCommand(unsigned char, unsigned char, bool, bool)
+00024940  w    F .text.itcm	0000006c TwoWire::TwoWire(IMXRT_LPI2C_t*, TwoWire::I2C_Hardware_t const&)
+0001347c g     F .text.itcm	00000210 BMC::controlFirstLed(bool)
+00028e40 g     F .text.itcm	0000001a HardwareSerial::flush()
+0001baec  w    F .text.itcm	00000074 BMCStorage::debugStartTiming(char const*)
+0002dbc0 g     F .text.itcm	0000003e strcat
+00029710 g     F .text.itcm	0000000e String::~String()
+60057c00 g       .text.csf	00000000 __text_csf_end
+00024ed0 g     F .text.itcm	00000012 Adafruit_GFX::writeFastVLine(short, short, short, unsigned short)
+60001928 g     F .text.code	0000005c usb_pll_start
+000304a0 g     F .text.itcm	000000c0 __pow5mult
+00024df4 g     F .text.itcm	0000000c lpi2c4_isr()
+000279c4 g     F .text.itcm	00000052 MIDIDeviceBase::timer_event(USBDriverTimer*)
+0001a484 g     F .text.itcm	000000ba BMCEditor::sendToEditor(BMCMidiMessage, bool, bool)
+00018ef0  w    F .text.itcm	00000370 BMCStorage::begin()
+00024940  w    F .text.itcm	0000006c TwoWire::TwoWire(IMXRT_LPI2C_t*, TwoWire::I2C_Hardware_t const&)
+00005e20  w    F .text.itcm	000001ec BMCEditor::saveGlobalAndReloadData()
+2000a220 g     O .bss	00000020 endpoint0_transfer_ack
+000128b0  w    F .text.itcm	000002c4 BMCButton::read()
+0002ace4 g     F .text.itcm	00000028 usb_transmit
+0001b5a8  w    F .text.itcm	00000074 BMCMidiMessage::appendToSysEx32Bits(unsigned long)
+000220a4 g     F .text.itcm	000000bc BMCEditor::layerSendChangeMessage(bool)
+00017e88 g     F .text.itcm	0000020e BMC::readTrigger()
+00028cd0 g     F .text.itcm	00000020 systick_isr
+0002e10c g     F .text.itcm	00000002 __retarget_lock_release_recursive
+00017c58 g     F .text.itcm	00000050 BMC::streamMidiClockBPM(unsigned short)
+000267b8 g     F .text.itcm	0000013c USBHost::queue_Data_Transfer(Pipe_struct*, void*, unsigned long, USBDriver*)
+20004b90 g     O .data	00000010 Serial
+00029354 g     F .text.itcm	0000000c IRQHandler_Serial1
+2000418c g     O .data	00000024 vtable for HardwareSerial
+60001820  w    F .text.code	00000002 startup_early_hook
+0001a3b0 g     F .text.itcm	0000000a BMCEditor::getNamesOffset(unsigned short)
+00023630 g     F .text.itcm	000002ec BMCMidi::sendPitchBend(unsigned char, unsigned char, short, unsigned char)
+0002ad94  w    F .text.itcm	00000004 usb_seremu_class::availableForWrite()
+0002bd68 g     F .text.itcm	00000050 fmod
+00006b3c g     F .text.itcm	00000074 BMC::ctrlPreset()
+0002bdb8 g     F .text.itcm	00000080 cos
+00022624 g     F .text.itcm	0000008a BMCEditor::utilitySendAnalogInputCalibrationStatus(bool, bool, bool)
+0001e318 g     F .text.itcm	000003bc BMCEditor::incomingMessageEvent(bool)
+0002d9c4 g     F .text.itcm	0000000c __sfp_lock_acquire
+0002e110 g     F .text.itcm	00000000 memchr
+000037d0  w    F .text.itcm	00000174 BMCTools::getMidiStatusName(unsigned char)
+00014d48 g     F .text.itcm	000000a0 BMC::getLayerName(unsigned char, char*)
+00029874 g     F .text.itcm	000002f0 set_arm_clock
+2000b91c g     O .bss	00000004 systick_cycle_count
+000221dc g     F .text.itcm	00000082 BMCEditor::utilityCommand()
+20005184 g     O .data	00000016 usb_string_serial_number_default
+00018480 g     F .text.itcm	00000010 BMC_SSD1306::~BMC_SSD1306()
+0002e3c4 g     F .text.itcm	0000020c _free_r
+2000b95c g     O .bss	00000004 usb_midi_handleStop
+000173e0 g     F .text.itcm	000005b0 BMC::readMidi()
+00000068  w    F .text.itcm	00000022 BMCApi::~BMCApi()
+0002dcac g     F .text.itcm	0000000c __locale_mb_cur_max
+00030c80 g     F .text.itcm	00000016 _wcsrtombs_r
+000240b8 g     F .text.itcm	000003e8 BMCMidi::send(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char, unsigned char)
+2000b55c g     O .bss	00000190 __atexit0
+00019b94 g     F .text.itcm	000003a4 BMCEditor::BMCEditor(bmcStore&, BMCMidi&, BMCSettings&, BMCMessenger&)
+000004d0  w    F .text.itcm	000000ee bmcStoreGlobal::bmcStoreGlobal()
+2000b938 g     O .bss	00000004 usb_midi_handleControlChange
+000244a0 g     F .text.itcm	00000068 BMCMidi::send(unsigned char, BMCMidiMessage, unsigned char)
+20005120 g     O .data	00000004 __malloc_sbrk_base
+00019f38 g     F .text.itcm	000003d8 BMCEditor::begin()
+000179c4 g     F .text.itcm	00000034 BMC::getSketchByte(unsigned char)
+000250ac g     F .text.itcm	00000094 Adafruit_GFX::fillRect(short, short, short, short, unsigned short)
+0002a400  w    F .text.itcm	00000006 _lseek
+0002a408  w    F .text.itcm	00000004 __cxa_pure_virtual
+00030560 g     F .text.itcm	000000f0 __lshift
+0002acb4 g     F .text.itcm	00000030 usb_prepare_transfer
+0002a230 g     F .text.itcm	00000180 unused_interrupt_vector
+00031b8c g     F .text.itcm	00000100 __ssprint_r
+2000ba9c g     O .bss	00000004 usb_timer0_callback
+60001984 g     F .text.code	00000130 tempmon_init
+0002bd64  w    F .text.itcm	00000002 serialEvent()
+00027934 g     F .text.itcm	00000034 USBHost::contribute_Transfers(Transfer_struct*, unsigned long)
+0002e29c g     F .text.itcm	00000088 __register_exitproc
+00021e68 g     F .text.itcm	0000023c BMCEditor::layerNameMessage(bool)
+00001b5c  w    F .text.itcm	0000013a BMC::runPresetChanged()
+0002b848 g     F .text.itcm	000000b0 usb_seremu_configure
+000183f4 g     F .text.itcm	00000074 BMC_SSD1306::drawFastVLine(short, short, short, unsigned short)
+00021e0c g     F .text.itcm	0000005a BMCEditor::layerMessage(bool)
+00017bf8 g     F .text.itcm	00000060 BMC::streamMidiControl(unsigned char, unsigned char, unsigned char)
+00030344 g     F .text.itcm	0000015c __multiply
+00000024 g       *ABS*	00000000 _teensy_model_identifier
+0002dc00 g     F .text.itcm	00000064 strncpy
+2000b6f8 g     O .bss	00000028 __malloc_current_mallinfo
+0002b8f8 g     F .text.itcm	00000068 usb_seremu_getchar
+20003ab0 g     O .data	00000050 SPIClass::spiclass_lpspi4_hardware
+000307e8 g     F .text.itcm	000000d4 __d2b
+000184b0 g     F .text.itcm	00000040 BMC_SSD1306::invertDisplay(bool)
+00024ebc g     F .text.itcm	00000002 Adafruit_GFX::endWrite()
+2000b53c g     O .bss	0000001c HardwareSerial::s_serials_with_serial_events
+000151b0 g     F .text.itcm	00000024 BMC::nextLayer()
+60001b9c g     F .text.code	00000054 _reboot_Teensyduino_
+60001824 g     F .text.code	00000002 startup_default_middle_hook
+0002d42c g     F .text.itcm	00000018 realloc
+00018568 g     F .text.itcm	0000013c BMC_SSD1306::display()
+000078cc  w    F .text.itcm	00000044 BMCTools::getBankLetter(unsigned char, char*)
+00026c30 g     F .text.itcm	00000240 USBHost::allocate_interrupt_pipe_bandwidth(Pipe_struct*, unsigned long, unsigned long)
+00024658 g     F .text.itcm	0000013c BMC24LC256::write(unsigned long, unsigned char*, unsigned int)
+0002a630 g     F .text.itcm	000005bc usb_isr
+0002dcb8 g     F .text.itcm	0000000c __cxa_atexit
+00026684 g     F .text.itcm	00000134 USBHost::queue_Control_Transfer(Device_struct*, setup_t*, void*, USBDriver*)
+00030bb8 g     F .text.itcm	00000024 _close_r
+000170cc g     F .text.itcm	000000cc BMC::midiProgramBankScroll(bool, bool, unsigned char, unsigned char, unsigned char)
+2000b93c g     O .bss	00000004 usb_midi_handleNoteOff
+00025e30 g     F .text.itcm	00000022 Adafruit_GFX::setFont(GFXfont const*)
+000278d8 g     F .text.itcm	0000001c USBHost::allocate_string_buffer()
+00014b40 g     F .text.itcm	000001ec BMC::readPixels()
+2000ae30 g     O .bss	00000050 SPI
+00029788 g     F .text.itcm	00000026 String::String(char const*)
+0002e104 g     F .text.itcm	00000002 __retarget_lock_close_recursive
+00027a18 g     F .text.itcm	000001bc MIDIDeviceBase::claim(Device_struct*, int, unsigned char const*, unsigned long)
+00017ca8 g     F .text.itcm	000000e4 BMC::runTempoToTap()
+00026324 g     F .text.itcm	0000014c USBHost::begin()
+2000b8f8 g     O .bss	00000004 scale_cpu_cycles_to_microseconds
+2000aed0 g     O .bss	00000050 SPI2
+00033004 g     F .text.itcm	000000cc __swsetup_r
+20004134 g     O .data	00000058 vtable for Adafruit_GFX
+0002b960 g     F .text.itcm	00000044 usb_seremu_peekchar
+0002558c g     F .text.itcm	000000ec Adafruit_GFX::fillRoundRect(short, short, short, short, short, unsigned short)
+00026e70 g     F .text.itcm	0000007c USBHost::add_qh_to_periodic_schedule(Pipe_struct*)
+6001e25b g     O .text.progmem	00000001 _serialEvent1_default
+00024fb0 g     F .text.itcm	00000058 Adafruit_GFX::drawFastHLine(short, short, short, unsigned short)
+20004d18 g     O .data	00000408 __malloc_av_
+2000b558 g     O .bss	00000004 __atexit
+00018e24 g     F .text.itcm	000000c8 BMCEditor::backupNameMessage(unsigned short)
+00007dbc  w    F .text.itcm	00000154 BMCPresets::getName(unsigned short, char*)
+00027e24 g     F .text.itcm	000000e8 MIDIDeviceBase::send_sysex_add_term_bytes(unsigned char const*, unsigned long, unsigned char)
+00012ca0 g     F .text.itcm	0000006c BMC::setupButtons()
+00030b08 g     F .text.itcm	00000022 __sread
+00021830 g     F .text.itcm	0000021c BMCEditor::globalProcessMessage()
+0002d414 g     F .text.itcm	0000000c __malloc_lock
+0001a46c g     F .text.itcm	0000000c BMCEditor::getTempoToTapOffset(unsigned short)
+00021768 g     F .text.itcm	00000046 BMCEditor::globalEditorFeedback(bool)
+20005400 g     O .data	000002c0 _VectorsRam
+000262fc  w    F .text.itcm	00000002 USBDriver::timer_event(USBDriverTimer*)
+00030ab4 g     F .text.itcm	00000054 _fflush_r
+00000068  w    F .text.itcm	00000022 BMCApi::~BMCApi()
+000217e8 g     F .text.itcm	00000046 BMCEditor::globalEditorMessenger(bool)
+0002ce1c g     F .text.itcm	00000078 _calloc_r
+00013d50 g     F .text.itcm	000000f4 BMC::handleSetupLeds(BMCLed&, unsigned short)
+0001222c  w    F .text.itcm	00000578 BMCButton::begin(unsigned char)
+200041b0 g     O .data	0000001c vtable for MIDIDeviceBase
+00009cc0 g     F .text.itcm	00000328 BMC::handleClockLeds()
+0001a3e8 g     F .text.itcm	0000000c BMCEditor::getPresetOffset(unsigned short)
+2000519b g     O .data	00000001 yield_active_check_flags
+0002e108 g     F .text.itcm	00000002 __retarget_lock_acquire_recursive
+2000bac7 g     O .bss	00000001 usb_high_speed
+00020ec4 g     F .text.itcm	00000130 BMCEditor::globalStoreAddress(bool)
+0001a3a8 g     F .text.itcm	00000008 BMCEditor::getEventsOffset(unsigned short)
+0001e6d4 g     F .text.itcm	000002e8 BMCEditor::incomingMessageName(bool)
+0002db1c g     F .text.itcm	000000a4 memset
+200041cc  w    O .data	00000024 vtable for usb_seremu_class
+00017ba0 g     F .text.itcm	00000058 BMC::streamMidiProgram(unsigned char, unsigned char)
+00029d90 g     F .text.itcm	00000010 main
+00024f58 g     F .text.itcm	00000058 Adafruit_GFX::drawFastVLine(short, short, short, unsigned short)
+000153b4  w    F .text.itcm	00000128 BMCMidiPortHost::read(BMCMidiMessage&, bool)
+2000b724 g     O .bss	00000004 __malloc_max_total_mem
+0002e100 g     F .text.itcm	00000002 __retarget_lock_init_recursive
+20200000 g     O .bss.dma	00000073 usb_descriptor_buffer
+000004d0  w    F .text.itcm	000000ee bmcStoreGlobal::bmcStoreGlobal()
+00027878 g     F .text.itcm	00000010 USBHost::allocate_Device()
+00030b8c g     F .text.itcm	00000008 __sclose
+0001a3d0 g     F .text.itcm	0000000a BMCEditor::getLfoOffset(unsigned short)
+0002ad2c g     F .text.itcm	00000058 usb_init_serialnumber
+00001c98 g     F .text.itcm	00000a34 BMC::BMC()
+00024ebc g     F .text.itcm	00000002 Adafruit_GFX::startWrite()
+00001c98 g     F .text.itcm	00000a34 BMC::BMC()
+60001c58 g       .text.code	00000000 __init_array_end
+00030e78 g     F .text.itcm	00000cec _dtoa_r
+0002ceb4 g     F .text.itcm	00000560 _malloc_r
+2000bab4 g     O .bss	00000001 HardwareSerial::s_count_serials_with_serial_events
+00030b94 g     F .text.itcm	0000001a __ascii_wctomb
+2000b950 g     O .bss	00000004 usb_midi_handleSongPosition
+00028c04 g     F .text.itcm	00000084 EventResponder::triggerEventNotImmediate()
+2000b934 g     O .bss	00000004 usb_midi_handleContinue
+2000bacb g     O .bss	00000001 usb_midi_msg_data2
+00029c0c g     F .text.itcm	00000054 micros
+0000153c  w    F .text.itcm	000001cc BMCFas::update()
+00024e00 g     F .text.itcm	00000078 TwoWire::setClock(unsigned long)
+0002e324 g     F .text.itcm	000000a0 _malloc_trim_r
+00020dd8 g     F .text.itcm	000000b4 BMCEditor::forceDisconnectEditor()
+000331e4 g     F .text.itcm	00000106 _wcsnrtombs_l
+6001e28c g     O .text.progmem	00000004 string0
+00027c38 g     F .text.itcm	00000090 MIDIDeviceBase::rx_data(Transfer_struct const*)
+00013e44 g     F .text.itcm	00000074 BMC::setupLeds()
+00026470 g     F .text.itcm	000000bc USBDriverTimer::start(unsigned long)
+000136f4 g     F .text.itcm	0000020c BMC::readHardware()
+60001828  w    F .text.code	00000002 startup_late_hook
+2000af20 g     O .bss	00000018 SWIMUCal
+0000535c g     F .text.itcm	0000093c BMC::midiInDebug(BMCMidiMessage)
+0002a5cc g     F .text.itcm	00000038 usb_start_sof_interrupts
+00007910  w    F .text.itcm	000001d4 BMCEditor::saveStore()
+0002dd28 g     F .text.itcm	000002dc strcmp
+6001e25a  w    O .text.progmem	00000001 _serialEvent_default
+2000bac8 g     O .bss	00000001 usb_midi_msg_cable
+20006480 g     O .bss	00003da0 bmc
+000013d0  w    F .text.itcm	0000016c BMCFas::fetchSysEx(unsigned char, unsigned short, unsigned short, unsigned char)
+20000000 g     O .data	00000280 endpoint_queue_head
+20005170 g     O .data	00000014 usb_string_product_name
+0001a380 g     F .text.itcm	00000006 BMCEditor::getLayer()
+000150d8 g     F .text.itcm	0000000e BMC::setLayer(unsigned char, bool, bool)
+00029b64 g     F .text.itcm	000000a8 delay
+2000baa6 g     O .bss	00000002 dma_channel_allocated_mask
+0001cc14  w    F .text.itcm	00000026 BMCEditor::backupActive()
+00033500 g     F .fini	00000000 _fini
+00022560 g     F .text.itcm	000000c2 BMCEditor::utilitySendPreset(unsigned char, unsigned char, bool)
+00022bbc g     F .text.itcm	00000020 BMCMidi::sendSysEx(unsigned char, unsigned char*, unsigned short, bool, unsigned char, bool)
+000248d8 g     F .text.itcm	0000002a TwoWire::write(unsigned char)
+60001020 g     O .text.headers	0000000c BootData
+000000d0  w    F .text.itcm	00000098 BMCStopwatch::set(unsigned char, unsigned char, unsigned char)
+00023b18 g     F .text.itcm	0000024c BMCMidi::sendAfterTouchPoly(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char)
+0002391c g     F .text.itcm	000001fc BMCMidi::sendAfterTouch(unsigned char, unsigned char, unsigned char, unsigned char)
+0002d81c g     F .text.itcm	00000040 sprintf
+000294f8 g     F .text.itcm	00000016 Print::print(long)
+0002a410 g     F .text.itcm	00000004 Panic_Temp_isr
+0002b0a4 g     F .text.itcm	00000010 usb_midi_write_packed
+00018480 g     F .text.itcm	00000010 BMC_SSD1306::~BMC_SSD1306()
+000332ec g     F .text.itcm	00000024 _wcsnrtombs_r
+00017990 g     F .text.itcm	00000034 BMC::setSketchByte(unsigned char, unsigned char)
+0002dce8 g     F .text.itcm	0000002c _write_r
+0000943c  w    F .text.itcm	000000c4 BMCHelix::snapshotScroll(bool)
+00025140 g     F .text.itcm	000000d4 Adafruit_GFX::drawRect(short, short, short, short, unsigned short)
+0002ad8c  w    F .text.itcm	00000004 usb_seremu_class::available()
+0001a34c g     F .text.itcm	0000000e BMCEditor::connected()
+00029788 g     F .text.itcm	00000026 String::String(char const*)
+000027c8  w    F .text.itcm	00000190 BMCDisplay::initOled()
+0002b324 g     F .text.itcm	000000a8 usb_midi_read_message
+20005134 g     O .data	00000004 _impure_ptr
+0001a424 g     F .text.itcm	0000000c BMCEditor::getGlobalLedOffset(unsigned short)
+00030984 g     F .text.itcm	00000130 __sflush_r
+0002cbf0 g     F .text.itcm	0000010c scalbn
+2000af98 g     O .bss	00000140 Wire
+0002d9dc g     F .text.itcm	00000046 _fwalk_sglue
+2000b970 g     O .bss	00000004 usb_midi_handleTuneRequest
+60001c38 g       .text.code	00000000 __preinit_array_end
+0001cf30  w    F .text.itcm	0000017c BMCEditor::saveLFO(unsigned char)
+000005c0  w    F .text.itcm	00000120 BMCPresets::set(unsigned char, unsigned char, bool)
+0001a3bc g     F .text.itcm	00000008 BMCEditor::getPortPresetsOffset(unsigned short)
+0000a974  w    F .text.itcm	000003ac BMCDisplay::renderBlock(BMCDataContainer)
+2000bac9 g     O .bss	00000001 usb_midi_msg_channel
+0002e5d0 g     F .text.itcm	0000002a __ascii_mbtowc
+0000600c  w    F .text.itcm	000000d8 BMCSync::assignSettings()
+0000b814 g     F .text.itcm	00005bce BMC::processEvent(unsigned char, unsigned char, unsigned short, unsigned short, unsigned char, unsigned char)
+00018eec g     F .text.itcm	00000002 BMCEditor::backupLayerName(unsigned short)
+0002a604 g     F .text.itcm	0000002c usb_stop_sof_interrupts
+0001490c g     F .text.itcm	00000232 BMC::assignPixels()
+000081f0  w    F .text.itcm	000000bc BMCSetLists::getSongName(unsigned char, char*)
+000248bc  w    F .text.itcm	00000018 TwoWire::peek()
+000291f0 g     F .text.itcm	00000164 HardwareSerial::IRQHandler()
+000248d4  w    F .text.itcm	00000002 TwoWire::flush()
+0000008c g     F .text.itcm	0000000c setup
+200049c4 g     O .data	00000084 usb_descriptor_list
+00020ff4 g     F .text.itcm	000000ce BMCEditor::globalSendBackupStatus()
+00007f10  w    F .text.itcm	0000006c BMCSetLists::set(unsigned char)
+0001809c  w    F .text.itcm	00000002 Print::flush()
+2000b958 g     O .bss	00000004 usb_midi_handleStart
+00025918 g     F .text.itcm	000003d4 Adafruit_GFX::drawChar(short, short, unsigned char, unsigned short, unsigned short, unsigned char, unsigned char)
+00006128 g     F .text.itcm	000004b4 BMC::assignSettings()
+0002b214 g     F .text.itcm	00000110 usb_midi_send_sysex_add_term_bytes
+00017d8c g     F .text.itcm	000000fc BMC::readTimedEvent()
+000278c8 g     F .text.itcm	00000010 USBHost::free_Transfer(Transfer_struct*)
+20048000 g       .text.csf	00000000 _estack
+00028bd0 g     F .text.itcm	00000034 DMAChannel::release()
+00027898 g     F .text.itcm	00000010 USBHost::allocate_Pipe()
+00027f0c g     F .text.itcm	000005f0 MIDIDeviceBase::read(unsigned char)
+00012e24 g     F .text.itcm	00000066 BMC::assignButtons()
+0000b524  w    F .text.itcm	000002f0 BMCDisplay::renderFasStatus(BMCDataContainer)
+00008cb8  w    F .text.itcm	0000011a BMCDawLogicControl::sendEncoderScrollAssign(bool)
+00023f20 g     F .text.itcm	00000198 BMCMidi::sendSongSelect(unsigned char, unsigned char, unsigned char)
+000006e0  w    F .text.itcm	000000e4 BMCSetLists::setPart(unsigned char)
+6000170c g     F .text.code	00000058 TwoWire::setSCL(unsigned char)
+20005128 g     O .data	0000000c __sglue
+0001a334 g     F .text.itcm	00000016 BMCEditor::dataForBMCAvailable()
+00024904 g     F .text.itcm	0000003c TwoWire::write(unsigned char const*, unsigned int)
+00027bd4 g     F .text.itcm	00000062 MIDIDeviceBase::init()
+0002952c  w    F .text.itcm	0000001c _write
+200056c0 g       .data	00000000 _edata
+0000837c  w    F .text.itcm	0000093a BMCDawLogicControl::getLedState(unsigned char, unsigned char)
+00018c04 g     F .text.itcm	0000010c BMCEditor::backupGlobalSettings(unsigned short)
+00003c94 g     F .text.itcm	00000170 BMC::setupDebug()
+000330d0 g     F .text.itcm	000000aa __fputwc
+00009150  w    F .text.itcm	00000026 BMCFas::tunerOff()
+00013314 g     F .text.itcm	00000168 BMC::setupHardware()
+00024ddc g     F .text.itcm	0000000c lpi2c1_isr()
+00028e5c g     F .text.itcm	00000040 nvic_execution_priority()
+00022bac g     F .text.itcm	00000010 BMCMidi::sendRealTime(unsigned char, unsigned char, unsigned char)
+2000b930 g     O .bss	00000004 usb_midi_handleClock
+000278a8 g     F .text.itcm	00000010 USBHost::free_Pipe(Pipe_struct*)
+00009598  w    F .text.itcm	00000050 BMCHelix::toggleSnapshot(unsigned char, unsigned char)
+00029ed8 g     F .text.itcm	00000062 ultoa
+60001764 g     F .text.code	00000068 TwoWire::begin()
+00019878  w    F .text.itcm	0000031c BMCEditor::getStore()
+00022160 g     F .text.itcm	00000046 BMCEditor::layerMessageLayerCopySwap(bool)
+000007c4  w    F .text.itcm	00000110 BMCSetLists::setSong(unsigned char)
+000254fc g     F .text.itcm	00000090 Adafruit_GFX::fillCircle(short, short, short, unsigned short)
+0001a460 g     F .text.itcm	0000000a BMCEditor::getTriggerOffset(unsigned short)
+00030b2c g     F .text.itcm	0000003e __swrite
+00029ed4 g     F .text.itcm	00000004 operator new(unsigned int)
+00028c88 g     F .text.itcm	00000044 EventResponder::runFromInterrupt()
+0001a440 g     F .text.itcm	0000000e BMCEditor::getAuxJackOffset(unsigned short)
+20005124 g     O .data	00000004 __malloc_trim_threshold
+000002e8  w    F .text.itcm	000001e8 BMCLFO::getWave(unsigned long)
+0001a3c4 g     F .text.itcm	0000000a BMCEditor::getShortcutsOffset(unsigned short)
+00022260 g     F .text.itcm	0000008a BMCEditor::utilitySendFasState(unsigned char, bool)
+00031b64 g     F .text.itcm	00000028 fiprintf
+00009fe8  w    F .text.itcm	000002d0 bool BMCDisplayHandlerFas::renderLooper<BMC_SSD1306>(BMC_SSD1306&, unsigned char&, BMCDiplayHandlerData, bool)
+00031d04 g     F .text.itcm	00000f8c _vfiprintf_r
+000150e8 g     F .text.itcm	00000012 BMC::reloadLayer()
+00003944  w    F .text.itcm	0000017c BMCEditor::printDevicesInfo()
+00030694 g     F .text.itcm	00000154 __mdiff
+00028dac g     F .text.itcm	00000092 HardwareSerial::read()
+20003a60 g     O .data	00000050 SPIClass::spiclass_lpspi3_hardware
+00024540 g     F .text.itcm	00000028 BMCMidi::scrollCC(unsigned char, unsigned char, unsigned char, unsigned char, bool, bool, unsigned char, unsigned char)
+000260d0 g     F .text.itcm	000000dc _spi_dma_rxISR1()
+2000b944 g     O .bss	00000004 usb_midi_handlePitchChange
+000117d8  w    F .text.itcm	00000388 BMCAuxJackButton::begin(unsigned char)
+00002e1c g     F .text.itcm	0000080c BMC::update()
+0002652c g     F .text.itcm	00000070 USBDriverTimer::stop()
+20004a68 g     O .data	00000120 _impure_data
+0001a3f4 g     F .text.itcm	0000000e BMCEditor::getSetListOffset(unsigned short)
+000075fc  w    F .text.itcm	00000120 BMCBuildData::getSketchByteData(unsigned char)
+0002d9d0 g     F .text.itcm	0000000c __sfp_lock_release
+00027998 g     F .text.itcm	00000024 MIDIDeviceBase::tx_callback(Transfer_struct const*)
+00008dd4  w    F .text.itcm	000002d4 BMCDawLogicControl::sendEncoderScrolling(unsigned char, unsigned char, bool, unsigned char)
+000090f4  w    F .text.itcm	00000032 BMCFas::isBlockEngaged(unsigned short)
+2000b96c g     O .bss	00000004 usb_midi_handleTimeCodeQuarterFrame
+200042cc g     O .data	00000101 _ctype_
+000226b0 g     F .text.itcm	00000102 BMCEditor::utilitySendAnalogInputCalibrationActivity(unsigned char, unsigned short, unsigned short, unsigned short, bool)
+00003e04 g     F .text.itcm	00001558 BMC::readDebug()
+0002a3e4  w    F .text.itcm	00000004 _read
+200061e0 g     O .bss	000002a0 BMC_ST7735_t3::_dma_data
+60001c38 g       .text.code	00000000 __init_array_start
+000297e8 g     F .text.itcm	0000008c analogRead
+20004b88 g     O .data	00000004 F_BUS_ACTUAL
+2000b868 g     O .bss	00000004 em_rx_tx
+2000b978 g     O .bss	00000122 usb_midi_msg_sysex
+200047bc g     O .data	0000001c pin_to_channel
+000060e4 g     F .text.itcm	00000044 BMC::assignStoreData()
+00023198 g     F .text.itcm	0000024c BMCMidi::sendNoteOn(unsigned char, unsigned char, unsigned char, unsigned char, unsigned char)
+000036f0  w    F .text.itcm	000000e0 BMCTools::printPortsNames(unsigned char)
+0000b1fc  w    F .text.itcm	00000328 BMCDisplay::renderFasLooperIcon(BMCDataContainer)
+00033310 g     F .text.itcm	000000d8 __smakebuf_r
+0001e1bc g     F .text.itcm	0000015a BMCEditor::incomingMessageLinks()
+00000000 g       .text.itcm	00000000 _stext
+00028b1c g     F .text.itcm	000000b4 DMAChannel::begin(bool)
+00009500  w    F .text.itcm	00000098 BMCHelix::setSnapshot(unsigned char)
+00013900  w    F .text.itcm	00000450 BMCLed::begin(unsigned char)
+00021224 g     F .text.itcm	00000330 BMCEditor::globalSettingsMessage(bool)
+00023d64 g     F .text.itcm	000001bc BMCMidi::sendSongPosition(unsigned char, unsigned short, unsigned char)
+0002e1c0 g     F .text.itcm	000000dc strlen
+00027888 g     F .text.itcm	00000010 USBHost::free_Device(Device_struct*)
+00011d9c g     F .text.itcm	00000490 BMC::readAuxJacks()
+2000bace g     O .bss	00000001 usb_seremu_online
+000180a0 g     F .text.itcm	000000f2 BMC_SSD1306::drawPixel(short, short, unsigned short)
+6001e25c g     O .text.progmem	00000018 usb_string_product_name_default
+000222ec g     F .text.itcm	00000272 BMCEditor::utilitySendStateBits(unsigned char, bool)
+0001a31c g     F .text.itcm	00000016 BMCEditor::readyToReload()
+0001df3c  w    F .text.itcm	00000280 BMCEditor::changeStoreLocal(unsigned char)
+0000771c  w    F .text.itcm	000001b0 BMCTools::getSketchByteFormat(char*, unsigned char, unsigned char)
+60001824  w    F .text.code	00000002 startup_middle_hook
+000294ac g     F .text.itcm	0000004c Print::print(String const&)
+60001830 g     F .text.code	000000f8 configure_cache
+00027780 g     F .text.itcm	00000080 USBHost::disconnect_Device(Device_struct*)
+00006bb0 g     F .text.itcm	000000fa BMC::editorRead()
+00027cd4 g     F .text.itcm	000000a2 MIDIDeviceBase::write_packed(unsigned long)
+00028e9c g     F .text.itcm	00000278 HardwareSerial::begin(unsigned long, unsigned short)
+0000a308  w    F .text.itcm	0000033c BMCDisplay::renderMidi(BMCDataContainer)
+0001524c  w    F .text.itcm	00000168 BMCTunerData::setData(unsigned char, unsigned char, unsigned char)
+60001c38 g       .text.code	00000000 __preinit_array_start
+0002ad0c g     F .text.itcm	0000001c usb_receive
+0001a310 g     F .text.itcm	0000000a BMCEditor::update()
+00030288 g     F .text.itcm	00000060 __lo0bits
+0001ad8c  w    F .text.itcm	00000048 BMCMidiMessage::appendToSysEx16Bits(unsigned short)
+0002b9c8 g     F .text.itcm	00000064 tx_queue_transfer
+00013fe8  w    F .text.itcm	00000328 void BMC::handleLed<(unsigned short)5>(BMCLed&, BMCBitStates<(unsigned short)5>&, unsigned char, unsigned char)
+00027038 g     F .text.itcm	0000021c USBHost::delete_Pipe(Pipe_struct*)
+00057c00 g       *ABS*	00000000 _flashimagelen
+0002532c g     F .text.itcm	00000030 Adafruit_GFX::Adafruit_GFX(short, short)
+00014660  w    F .text.itcm	0000029c BMCPixels::write(unsigned short, unsigned char)
+0002ce10 g     F .text.itcm	0000000a __aeabi_atexit
+0001ddb4  w    F .text.itcm	000000c0 BMCEditor::backupCancel()
+2000b954 g     O .bss	00000004 usb_midi_handleSongSelect
+0002bd40 g     F .text.itcm	00000024 rtc_get
+00025e24 g     F .text.itcm	0000000c Adafruit_GFX::setTextSize(unsigned char)
+00030c98 g     F .text.itcm	00000078 frexp
+00028ccc g     F .text.itcm	00000004 pendablesrvreq_isr
+00009284  w    F .text.itcm	000001b8 BMCHelix::command(unsigned char, unsigned char, unsigned char)
+0001aa7c  w    F .text.itcm	00000060 BMCMidiMessage::prepareEditorMessage(unsigned char, unsigned char, unsigned char, unsigned char, unsigned short)
+00024508 g     F .text.itcm	00000038 BMCMidi::toggleCC(unsigned char, unsigned char, unsigned char)
+00018098  w    F .text.itcm	00000004 Print::availableForWrite()
+20004bac g     O .data	0000016c __global_locale
+00026eec g     F .text.itcm	0000014c USBHost::new_Pipe(Device_struct*, unsigned long, unsigned long, unsigned long, unsigned long, unsigned long)
+200040c0  w    O .data	0000001c vtable for MIDIDevice
+2000b6f4 g     O .bss	00000001 __lock___sfp_recursive_mutex
+00024f34 g     F .text.itcm	00000022 Adafruit_GFX::setRotation(unsigned char)
+000210c4 g     F .text.itcm	00000160 BMCEditor::globalBackupMessage(bool)
+00029548 g     F .text.itcm	00000028 Print::printNumber(unsigned long, unsigned char, unsigned char)
+000127a4  w    F .text.itcm	0000010c BMCButton::update()
+0002ac50 g     F .text.itcm	00000064 usb_config_tx
+0002a3e8  w    F .text.itcm	00000006 _close
+00001708  w    F .text.itcm	000001ac BMCBeatBuddy::update()
+2000b928 g     O .bss	00000004 usb_midi_handleActiveSensing
+0002cea4 g     F .text.itcm	00000010 free
+0002092c g     F .text.itcm	0000029c BMCEditor::connectEditor()
+000301a4 g     F .text.itcm	000000a4 __multadd
+00030190 g     F .text.itcm	00000012 _Bfree
+20005184  w    O .data	00000016 usb_string_serial_number
+00024590 g     F .text.itcm	00000060 BMC24LC256::BMC24LC256(BMC_eeprom_size_t, unsigned char, unsigned int, unsigned char)
+0001368c g     F .text.itcm	00000068 BMC::assignHardware()
+
+
