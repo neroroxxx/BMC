@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2024 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -41,31 +41,33 @@ void BMC::readAuxJacks(){
       }
     }
   }
-  for(uint8_t index = 0; index < BMC_MAX_AUX_JACKS; index++){
-    bmcStoreDevice <2, 3>& device = store.global.auxJacks[index];
-    auxJacks[index].update();
-    globals.auxJackStates.setBit(index, auxJacks[index].isConnected());
-    uint8_t cmd = auxJacks[index].read();
+  for(uint8_t i = 0; i < BMC_MAX_AUX_JACKS; i++){
+    bmcStoreDevice <2, 3>& device = store.global.auxJacks[i];
+    auxJacks[i].update();
+    globals.auxJackStates.setBit(i, auxJacks[i].isConnected());
+    uint8_t cmd = auxJacks[i].read();
+    
     if(cmd==0){
       continue;
     }
 
     if(cmd == 1){ // pot
+      uint8_t value = auxJacks[i].getPotValue();
       #if defined(BMC_DEBUG)
         if(globals.getPotsDebug()){
-          BMC_PRINTLN("Aux Jack Pot", index, auxJacks[index].getPotValue());
+          BMC_PRINTLN("Aux Jack Pot", i, value);
         }
       #endif
       processEvent(BMC_DEVICE_GROUP_POT,
                     BMC_DEVICE_ID_POT,
-                    index,
+                    i,
                     device.events[0],
-                    auxJacks[index].getPotValue()
+                    value
                   );
     } else if(cmd <= 3){ // buttons
       processEvent(BMC_DEVICE_GROUP_BUTTON,
                     BMC_DEVICE_ID_BUTTON,
-                    index,
+                    i,
                     device.events[cmd-1]
                   );
     }

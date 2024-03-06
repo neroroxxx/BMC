@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2024 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -92,7 +92,7 @@ void BMC::readPots(){
                   );
       #if defined(BMC_DEBUG)
         if(globals.getPotsDebug()){
-          BMC_PRINTLN("Pot", index, auxJacks[index].getPotValue());
+          BMC_PRINTLN("Pot", i, value);
         }
       #endif
       // HANDLE CALLBACKS
@@ -148,7 +148,7 @@ void BMC::readPots(){
                   );
       #if defined(BMC_DEBUG)
         if(globals.getPotsDebug()){
-          BMC_PRINTLN("Globals Pot", index, auxJacks[index].getPotValue());
+          BMC_PRINTLN("Globals Pot", i, value);
         }
       #endif
       // HANDLE CALLBACKS
