@@ -34,14 +34,15 @@ public:
     buttonDualPress = 0;
     globalButtonDualPress = 0;
 
-    // buttonActivity = 0;
+    buttonActivity = 0;
+    globalButtonActivity = 0;
     // encoderActivity = 0;
     // potActivity = 0;
     // ledsActivity = 0;
     // globalLedsActivity = 0;
     // pixelsActivity = 0;
     // rgbPixelsActivity = 0;
-    // globalButtonActivity = 0;
+    
     // globalEncoderActivity = 0;
     // globalPotActivity = 0;
     // buttonsCustomActivity = 0;
@@ -153,14 +154,16 @@ public:
   void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
 
 
-  // void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  void (*buttonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  
   // void (*encoderActivity)(uint16_t index, bool increased, uint8_t ticks);
   // void (*potActivity)(uint16_t index, uint8_t value);
   // void (*ledsActivity)(uint32_t states);
   // void (*globalLedsActivity)(uint32_t states);
   // void (*pixelsActivity)(uint32_t states);
   // void (*rgbPixelsActivity)(uint32_t states);
-  // void (*globalButtonActivity)(uint16_t n, uint8_t eventIndex, uint8_t trigger);
+  
   // void (*globalEncoderActivity)(uint16_t index, bool increased, uint8_t ticks);
   // void (*globalPotActivity)(uint16_t index, uint8_t value);
   // void (*buttonsCustomActivity)(uint16_t index, uint8_t eventIndex, uint8_t ports);

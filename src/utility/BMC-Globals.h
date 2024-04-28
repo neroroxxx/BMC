@@ -402,7 +402,12 @@ void exitDisplayListMode(){
   pauseIli(false);
 #endif
 }
-
+void setCustomState(uint8_t n, bool value){
+  customStates.write(n, value);
+}
+void getCustomState(uint8_t n){
+  return customStates.write(n);
+}
 
 bmcStoreEvent getDeviceEventType(uint16_t n){
   bmcStoreEvent e;
@@ -516,6 +521,7 @@ public:
 
 private:
   BMCFlags <uint32_t> flags;
+  BMCFlags <uint32_t> customStates;
 #ifdef BMC_DEBUG
   BMCFlags <uint16_t> debugFlags;
 #endif

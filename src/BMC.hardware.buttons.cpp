@@ -145,17 +145,30 @@ void BMC::handleButton(bmcStoreDevice<sLen, eLen>& device, uint8_t deviceType, u
     uint8_t type = data.type;
     uint8_t trigger = (device.settings[e] & 0x0F) == t_trigger ? t_trigger : BMC_NONE;
 
-    if(type == BMC_NONE || trigger == BMC_NONE){
-      continue;
-    }
-    processEvent(BMC_DEVICE_GROUP_BUTTON,
+    if(trigger != BMC_NONE){
+      if(type != BMC_NONE){
+        processEvent(BMC_DEVICE_GROUP_BUTTON,
                   deviceType,
                   index,
                   device.events[e],
                   0,
                   trigger
                 );
+      }
+      if(callback.buttonActivity){
+        #if BMC_MAX_BUTTONS > 0
+        if(deviceType== BMC_DEVICE_ID_BUTTON){
+          callback.buttonActivity(index, e, trigger);
+        }
+        #endif
 
+        #if BMC_MAX_GLOBAL_BUTTONS > 0
+        if(deviceType== BMC_DEVICE_ID_GLOBAL_BUTTON){
+          callback.globalButtonActivity(index, e, trigger);
+        }
+        #endif
+      }
+    }
     /*
     if(type==BMC_EVENT_TYPE_CUSTOM && callback.buttonsCustomActivity){
       callback.buttonsCustomActivity(index, e, data.ports);

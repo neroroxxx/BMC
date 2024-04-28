@@ -165,6 +165,44 @@ public:
     callback.globalButtonDualPress = fptr;
   }
   // * GROUP: HARDWARE
+  // Set callback for buttons activity,
+  // called when a button changes states
+  // @n = index of button
+  // @eventIndex = event's index
+  // @trigger = trigger type (BMC_TRIG_PRESS, etc.)
+
+  // list of triggers
+  // - BMC_TRIG_PRESS
+  // - BMC_TRIG_RELEASE
+  // - BMC_TRIG_HOLD
+  // - BMC_TRIG_DOUBLE_PRESS
+  // - BMC_TRIG_CONTINUOUS
+  // - BMC_TRIG_ALT_PRESS
+  // - BMC_TRIG_RELEASE_PRESS
+  // - BMC_TRIG_RELEASE_HOLD
+  // - BMC_TRIG_RELEASE_DOUBLE_PRESS
+  // - BMC_TRIG_RELEASE_CONTINUOUS
+  // - BMC_TRIG_RELEASE_ALT
+  // - BMC_TRIG_STATE_CHANGE
+  void onButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t trigger)){
+    #if BMC_MAX_BUTTONS > 0
+      callback.globalButtonActivity = fptr;
+    #endif
+  }
+
+  // * GROUP: HARDWARE
+  // Set callback for global buttons activity
+  // called when a global button changes states
+  // @n = index of global button
+  // @eventIndex = event's index
+  // @trigger = trigger type (BMC_TRIG_PRESS, etc.)
+  // same list of triggers as onGlobalButtonDualPress
+  void onGlobalButtonActivity(void (*fptr)(uint16_t n, uint8_t eventIndex, uint8_t trigger)){
+    #if BMC_MAX_GLOBAL_BUTTONS > 0
+      callback.globalButtonActivity = fptr;
+    #endif
+  }
+  // * GROUP: HARDWARE
   // triggered when an aux jack detects a plug connected or disconnected
   // @n the Aux Jack Index that had a state change.
   // @state true if a connection has been made, false if disconnected.
@@ -512,55 +550,62 @@ public:
 // NOTE: not all devices have names.
 // -------------------------------------------
 // device types at the time of writing this
-// BMC_DEVICE_ID_LAYER
-// BMC_DEVICE_ID_EVENT
-// BMC_DEVICE_ID_NAME
+// - BMC_DEVICE_ID_LAYER
+// - BMC_DEVICE_ID_EVENT
+// - BMC_DEVICE_ID_NAME
+
 // hardware
-// BMC_DEVICE_ID_BUTTON
-// BMC_DEVICE_ID_GLOBAL_BUTTON
-// BMC_DEVICE_ID_LED
-// BMC_DEVICE_ID_GLOBAL_LED
-// BMC_DEVICE_ID_ENCODER
-// BMC_DEVICE_ID_GLOBAL_ENCODER
-// BMC_DEVICE_ID_POT
-// BMC_DEVICE_ID_GLOBAL_POT
-// BMC_DEVICE_ID_PIXEL
-// BMC_DEVICE_ID_GLOBAL_PIXEL
-// BMC_DEVICE_ID_RGB_PIXEL
-// BMC_DEVICE_ID_GLOBAL_RGB_PIXEL
-// BMC_DEVICE_ID_BI_LED
-// BMC_DEVICE_ID_GLOBAL_BI_LED
-// BMC_DEVICE_ID_TRI_LED
-// BMC_DEVICE_ID_GLOBAL_TRI_LED
-// BMC_DEVICE_ID_MAGIC_ENCODER
-// BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER
+// - BMC_DEVICE_ID_BUTTON
+// - BMC_DEVICE_ID_GLOBAL_BUTTON
+// - BMC_DEVICE_ID_LED
+// - BMC_DEVICE_ID_GLOBAL_LED
+// - BMC_DEVICE_ID_ENCODER
+// - BMC_DEVICE_ID_GLOBAL_ENCODER
+// - BMC_DEVICE_ID_POT
+// - BMC_DEVICE_ID_GLOBAL_POT
+// - BMC_DEVICE_ID_PIXEL
+// - BMC_DEVICE_ID_GLOBAL_PIXEL
+// - BMC_DEVICE_ID_RGB_PIXEL
+// - BMC_DEVICE_ID_GLOBAL_RGB_PIXEL
+// - BMC_DEVICE_ID_BI_LED
+// - BMC_DEVICE_ID_GLOBAL_BI_LED
+// - BMC_DEVICE_ID_TRI_LED
+// - BMC_DEVICE_ID_GLOBAL_TRI_LED
+// - BMC_DEVICE_ID_MAGIC_ENCODER
+// - BMC_DEVICE_ID_GLOBAL_MAGIC_ENCODER
+
 // only layer
-// BMC_DEVICE_ID_OLED
-// BMC_DEVICE_ID_ILI
-// BMC_DEVICE_ID_PIXEL_STRIP
+// - BMC_DEVICE_ID_OLED
+// - BMC_DEVICE_ID_ILI
+// - BMC_DEVICE_ID_PIXEL_STRIP
+
 // only global
-// BMC_DEVICE_ID_NL_RELAY
-// BMC_DEVICE_ID_L_RELAY
-// BMC_DEVICE_ID_AUX_JACK
+// - BMC_DEVICE_ID_NL_RELAY
+// - BMC_DEVICE_ID_L_RELAY
+// - BMC_DEVICE_ID_AUX_JACK
+
 // pot calibration
-// BMC_DEVICE_ID_POT_CALIBRATION
+// - BMC_DEVICE_ID_POT_CALIBRATION
+
 // presets and setlist
-// BMC_DEVICE_ID_PRESET
-// BMC_DEVICE_ID_SETLIST
-// BMC_DEVICE_ID_SETLIST_SONG
-// BMC_DEVICE_ID_SETLIST_SONG_LIBRARY
+// - BMC_DEVICE_ID_PRESET
+// - BMC_DEVICE_ID_SETLIST
+// - BMC_DEVICE_ID_SETLIST_SONG
+// - BMC_DEVICE_ID_SETLIST_SONG_LIBRARY
+
 // special events
-// BMC_DEVICE_ID_CUSTOM_SYSEX
-// BMC_DEVICE_ID_TRIGGER
-// BMC_DEVICE_ID_TEMPO_TO_TAP
-// BMC_DEVICE_ID_PIXEL_PROGRAM
-// BMC_DEVICE_ID_TIMED_EVENT
-// BMC_DEVICE_ID_LFO
+// - BMC_DEVICE_ID_CUSTOM_SYSEX
+// - BMC_DEVICE_ID_TRIGGER
+// - BMC_DEVICE_ID_TEMPO_TO_TAP
+// - BMC_DEVICE_ID_PIXEL_PROGRAM
+// - BMC_DEVICE_ID_TIMED_EVENT
+// - BMC_DEVICE_ID_LFO
+
 // others
-// BMC_DEVICE_ID_SKETCH_BYTE
-// BMC_DEVICE_ID_PORT_PRESET
-// BMC_DEVICE_ID_SHORTCUTS
-// BMC_DEVICE_ID_LAYER_EVENT
+// - BMC_DEVICE_ID_SKETCH_BYTE
+// - BMC_DEVICE_ID_PORT_PRESET
+// - BMC_DEVICE_ID_SHORTCUTS
+// - BMC_DEVICE_ID_LAYER_EVENT
   // * GROUP: HARDWARE
 void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
   editor.getDeviceNameText(deviceType, index, str);

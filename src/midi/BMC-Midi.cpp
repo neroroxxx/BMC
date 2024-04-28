@@ -82,9 +82,11 @@ void BMCMidi::send(uint8_t port, uint8_t type,
   if(data2 > 127){
     data2 = getLocalControl(channel,data1)>0 ? 0 : 127;
   }
-  if(isMidiUsbPort(port)){
-    usbMIDI.send(type, data1, data2, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.send(type, data1, data2, channel, cable);
+    }
+  #endif
 
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
   if(isMidiSerialAPort(port)){
@@ -164,9 +166,11 @@ void BMCMidi::sendRealTime(uint8_t port, uint8_t type, uint8_t cable){
   if(flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_OUTPUT)){
     return;
   }
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendRealTime(type, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendRealTime(type, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendRealTime(type);
@@ -225,9 +229,11 @@ void BMCMidi::sendSysEx(uint8_t port, uint8_t *data,
   if(size==0){
     return;
   }
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendSysEx(size, data, hasTerm, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendSysEx(size, data, hasTerm, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       #if BMC_DELAY_SYSEX_ON_SERIAL > 0
@@ -290,9 +296,12 @@ void BMCMidi::sendSysEx(uint8_t port, uint8_t *data,
 }
 void BMCMidi::sendProgramChange(uint8_t port, uint8_t channel,
                                 uint8_t program, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendProgramChange(program, channel, cable);
-  }
+  
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendProgramChange(program, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendProgramChange(program, channel);
@@ -347,9 +356,11 @@ void BMCMidi::sendControlChange(uint8_t port, uint8_t channel,
       value = 127;
     }
   }
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendControlChange(control, value, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendControlChange(control, value, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendControlChange(control, value, channel);
@@ -407,9 +418,11 @@ void BMCMidi::sendControlChangeNoLocalLog(uint8_t port, uint8_t channel,
 void BMCMidi::sendNoteOn(uint8_t port, uint8_t channel,
                         uint8_t note, uint8_t velocity,
                         uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendNoteOn(note, velocity, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendNoteOn(note, velocity, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendNoteOn(note, velocity, channel);
@@ -457,9 +470,11 @@ void BMCMidi::sendNoteOn(uint8_t port, uint8_t channel,
 void BMCMidi::sendNoteOff(uint8_t port, uint8_t channel,
                           uint8_t note, uint8_t velocity,
                           uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendNoteOff(note, velocity, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendNoteOff(note, velocity, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendNoteOff(note, velocity, channel);
@@ -507,9 +522,11 @@ void BMCMidi::sendNoteOff(uint8_t port, uint8_t channel,
 void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
                             int16_t value, uint8_t cable){
   // value range for pitch bend -8192 to 8191, 0 is center
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendPitchBend(value, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendPitchBend(value, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendPitchBend(value, channel);
@@ -563,9 +580,11 @@ void BMCMidi::sendPitchBend(uint8_t port, uint8_t channel,
 
 void BMCMidi::sendAfterTouch(uint8_t port, uint8_t channel,
                               uint8_t pressure, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendAfterTouch(pressure, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendAfterTouch(pressure, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendAfterTouch(pressure, channel);
@@ -612,9 +631,11 @@ void BMCMidi::sendAfterTouch(uint8_t port, uint8_t channel,
 void BMCMidi::sendAfterTouchPoly(uint8_t port, uint8_t channel,
                                   uint8_t note, uint8_t pressure,
                                   uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendAfterTouchPoly(note, pressure, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendAfterTouchPoly(note, pressure, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendAfterTouch(note, pressure, channel);
@@ -667,9 +688,11 @@ void BMCMidi::sendAfterTouchPoly(uint8_t port, uint8_t channel,
 
 void BMCMidi::sendTimeCodeQuarterFrame(uint8_t port, uint8_t type,
                                         uint8_t value, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendTimeCodeQuarterFrame(type, value, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendTimeCodeQuarterFrame(type, value, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendTimeCodeQuarterFrame(type, value);
@@ -715,9 +738,11 @@ void BMCMidi::sendTimeCodeQuarterFrame(uint8_t port, uint8_t type,
 }
 void BMCMidi::sendSongPosition(uint8_t port, uint16_t beats,
                               uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendSongPosition(beats, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendSongPosition(beats, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendSongPosition(beats);
@@ -761,9 +786,11 @@ void BMCMidi::sendSongPosition(uint8_t port, uint16_t beats,
   #endif
 }
 void BMCMidi::sendSongSelect(uint8_t port, uint8_t song, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendSongSelect(song, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendSongSelect(song, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendSongSelect(song);
@@ -807,9 +834,11 @@ void BMCMidi::sendSongSelect(uint8_t port, uint8_t song, uint8_t cable){
   #endif
 }
 void BMCMidi::sendTuneRequest(uint8_t port, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendTuneRequest(cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendTuneRequest(cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendTuneRequest();
@@ -854,9 +883,11 @@ void BMCMidi::sendTuneRequest(uint8_t port, uint8_t cable){
 // RPN
 void BMCMidi::beginRpn(uint8_t port, uint8_t channel,
                         uint16_t number, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.beginRpn(number, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.beginRpn(number, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.beginRpn(number, channel);
@@ -902,9 +933,11 @@ void BMCMidi::beginRpn(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendRpnValue(uint8_t port, uint8_t channel,
                             uint16_t value, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendRpnValue(value, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendRpnValue(value, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendRpnValue(value, channel);
@@ -950,9 +983,11 @@ void BMCMidi::sendRpnValue(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendRpnIncrement(uint8_t port, uint8_t channel,
                                 uint8_t amount, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendRpnIncrement(amount, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendRpnIncrement(amount, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendRpnIncrement(amount, channel);
@@ -998,9 +1033,11 @@ void BMCMidi::sendRpnIncrement(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendRpnDecrement(uint8_t port, uint8_t channel,
                                 uint8_t amount, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendRpnDecrement(amount, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendRpnDecrement(amount, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendRpnDecrement(amount, channel);
@@ -1045,9 +1082,11 @@ void BMCMidi::sendRpnDecrement(uint8_t port, uint8_t channel,
   #endif
 }
 void BMCMidi::endRpn(uint8_t port, uint8_t channel, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.endRpn(channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.endRpn(channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.endRpn(channel);
@@ -1093,9 +1132,11 @@ void BMCMidi::endRpn(uint8_t port, uint8_t channel, uint8_t cable){
 // NRPN
 void BMCMidi::beginNrpn(uint8_t port, uint8_t channel,
                         uint16_t number, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.beginNrpn(number, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.beginNrpn(number, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.beginNrpn(number, channel);
@@ -1141,9 +1182,11 @@ void BMCMidi::beginNrpn(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendNrpnValue(uint8_t port, uint8_t channel,
                             uint16_t value, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendNrpnValue(value, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendNrpnValue(value, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendNrpnValue(value, channel);
@@ -1189,9 +1232,11 @@ void BMCMidi::sendNrpnValue(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendNrpnIncrement(uint8_t port, uint8_t channel,
                                 uint8_t amount, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendNrpnIncrement(amount, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendNrpnIncrement(amount, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendNrpnIncrement(amount, channel);
@@ -1237,9 +1282,11 @@ void BMCMidi::sendNrpnIncrement(uint8_t port, uint8_t channel,
 }
 void BMCMidi::sendNrpnDecrement(uint8_t port, uint8_t channel,
                                 uint8_t amount, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.sendNrpnDecrement(amount, channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.sendNrpnDecrement(amount, channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.sendNrpnDecrement(amount, channel);
@@ -1284,9 +1331,11 @@ void BMCMidi::sendNrpnDecrement(uint8_t port, uint8_t channel,
   #endif
 }
 void BMCMidi::endNrpn(uint8_t port, uint8_t channel, uint8_t cable){
-  if(isMidiUsbPort(port)){
-    usbMIDI.endNrpn(channel, cable);
-  }
+  #ifdef BMC_FOR_TEENSY
+    if(isMidiUsbPort(port)){
+      usbMIDI.endNrpn(channel, cable);
+    }
+  #endif
   #ifdef BMC_MIDI_SERIAL_A_ENABLED
     if(isMidiSerialAPort(port)){
       midiSerial.serialPortA.endNrpn(channel);

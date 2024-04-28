@@ -92,6 +92,9 @@ public:
     }
   #else
     BMC_PRINTLN("BMCStorage::begin (Built In EEPROM)");
+    #ifdef BMC_FOR_ESP32
+      STORAGE.begin(4000);
+    #endif
   #endif
   }
   void setFileId(uint8_t id){
@@ -135,7 +138,10 @@ public:
     #else
       // Update the bmcStore Struct in EEPROM,
       // only update bytes that have changed
-      STORAGE.put(0,file);
+      STORAGE.put(0, file);
+      #ifdef BMC_FOR_ESP32
+        STORAGE.commit();
+      #endif
     #endif
 
     #ifdef BMC_DEBUG
@@ -171,7 +177,10 @@ public:
     #else
       // Update the bmcStore Struct in EEPROM,
       // only update bytes that have changed
-      STORAGE.put(address,file);
+      STORAGE.put(address, file);
+      #ifdef BMC_FOR_ESP32
+        STORAGE.commit();
+      #endif
     #endif
 
     #ifdef BMC_DEBUG
@@ -190,8 +199,18 @@ public:
     #else
       for(uint16_t i = 0,n=STORAGE.length(); i < n; i++){
         // Set every cell to 0
-        STORAGE.update(i, 0);
+        #ifdef BMC_FOR_TEENSY
+          STORAGE.update(i, 0);
+        #endif
+
+        #ifdef BMC_FOR_ESP32
+          STORAGE.write(i, 0);
+        #endif
       }
+
+      #ifdef BMC_FOR_ESP32
+        STORAGE.commit();
+      #endif
     #endif
 
     #ifdef BMC_DEBUG

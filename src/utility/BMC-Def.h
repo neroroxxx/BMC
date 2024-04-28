@@ -32,6 +32,8 @@
 */
 #if defined(__arm__) && defined(CORE_TEENSY)
 
+  #define BMC_FOR_TEENSY
+
   #if defined(ARDUINO_TEENSY_MICROMOD)
     // Teensy 4.1
     // __IMXRT1062__
@@ -831,18 +833,33 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 #define BMC_FS_MAX_STORES                         	 32
 
-#define BMC_BUTTON_PRESS_TYPE_PRESS               	 1
-#define BMC_BUTTON_PRESS_TYPE_RELEASE             	 2
-#define BMC_BUTTON_PRESS_TYPE_HOLD                	 3
-#define BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS        	 4
-#define BMC_BUTTON_PRESS_TYPE_CONTINUOUS          	 5
-#define BMC_BUTTON_PRESS_TYPE_ALT_PRESS           	 6
-#define BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS       	 7
-#define BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD        	 8
-#define BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS	 9
-#define BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS  	 10
-#define BMC_BUTTON_PRESS_TYPE_RELEASE_ALT         	 11
-#define BMC_BUTTON_PRESS_TYPE_STATE_CHANGE        	 12
+// *** Button Triggers ID
+#define BMC_BUTTON_PRESS_TYPE_PRESS                 	1
+#define BMC_BUTTON_PRESS_TYPE_RELEASE               	2
+#define BMC_BUTTON_PRESS_TYPE_HOLD                  	3
+#define BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS          	4
+#define BMC_BUTTON_PRESS_TYPE_CONTINUOUS            	5
+#define BMC_BUTTON_PRESS_TYPE_ALT_PRESS             	6
+#define BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS         	7
+#define BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD          	8
+#define BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS  	9
+#define BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS    	10
+#define BMC_BUTTON_PRESS_TYPE_RELEASE_ALT           	11
+#define BMC_BUTTON_PRESS_TYPE_STATE_CHANGE          	12
+
+// *** Abbreviations for button triggers
+#define BMC_TRIG_PRESS                              	BMC_BUTTON_PRESS_TYPE_PRESS
+#define BMC_TRIG_RELEASE                            	BMC_BUTTON_PRESS_TYPE_RELEASE
+#define BMC_TRIG_HOLD                               	BMC_BUTTON_PRESS_TYPE_HOLD
+#define BMC_TRIG_DOUBLE_PRESS                       	BMC_BUTTON_PRESS_TYPE_DOUBLE_PRESS
+#define BMC_TRIG_CONTINUOUS                         	BMC_BUTTON_PRESS_TYPE_CONTINUOUS
+#define BMC_TRIG_ALT_PRESS                          	BMC_BUTTON_PRESS_TYPE_ALT_PRESS
+#define BMC_TRIG_RELEASE_PRESS                      	BMC_BUTTON_PRESS_TYPE_RELEASE_PRESS
+#define BMC_TRIG_RELEASE_HOLD                       	BMC_BUTTON_PRESS_TYPE_RELEASE_HOLD
+#define BMC_TRIG_RELEASE_DOUBLE_PRESS               	BMC_BUTTON_PRESS_TYPE_RELEASE_DOUBLE_PRESS
+#define BMC_TRIG_RELEASE_CONTINUOUS                 	BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS
+#define BMC_TRIG_RELEASE_ALT                        	BMC_BUTTON_PRESS_TYPE_RELEASE_ALT
+#define BMC_TRIG_STATE_CHANGE                       	BMC_BUTTON_PRESS_TYPE_STATE_CHANGE
 
 // 0 = layer led
 // 1 = global led

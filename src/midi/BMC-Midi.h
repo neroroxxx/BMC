@@ -79,6 +79,8 @@ public:
   }
   BMCMidiMessage read(){
     message.reset();
+
+    #ifdef BMC_FOR_TEENSY
     if(usbMIDI.read()){
       message.reset(BMC_MIDI_PORT_USB_BIT);
       message.setStatus(usbMIDI.getType());
@@ -109,6 +111,8 @@ public:
       }
       routing(message);
     }
+    #endif
+    
     return message;
   }
   bool isSkipped(uint8_t type){
@@ -271,7 +275,9 @@ public:
 
   // Specific to USB & HOST
   void send_now(){
-    usbMIDI.send_now();
+    #ifdef BMC_FOR_TEENSY
+      usbMIDI.send_now();
+    #endif
     #ifdef BMC_USB_HOST_ENABLED
       midiHost.Port.send_now();
     #endif

@@ -688,9 +688,24 @@ public:
     long newValue = (value-amount);
     return (newValue < min) ? min : newValue;
   }
-  // an Endless SOS of all LEDs, use for stopping BMC
+  // an Endless SOS of the built-in led
   static void sos(){
-    while(1);
+    pinMode(LED_BUILTIN, OUTPUT);
+    while(1){
+      for(int i=0;i<3;i++){
+        digitalWrite(LED_BUILTIN, HIGH);delay(150);
+        digitalWrite(LED_BUILTIN, LOW); delay(150);
+      }
+      for(int i=0;i<3;i++){
+        digitalWrite(LED_BUILTIN, HIGH);delay(500);
+        digitalWrite(LED_BUILTIN, LOW); delay(500);
+      }
+      for(int i=0;i<3;i++){
+        digitalWrite(LED_BUILTIN, HIGH);delay(150);
+        digitalWrite(LED_BUILTIN, LOW); delay(150);
+      }
+      delay(500);
+    }
     /*
     #if BMC_TOTAL_LEDS == 0
       while(1);
