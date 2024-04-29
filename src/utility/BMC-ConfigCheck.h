@@ -46,7 +46,7 @@
   #define BMC_LIMIT_MAX_CUSTOM_SYSEX 127
 
   #define BMC_LIMIT_MIN_SKETCH_BYTES 0
-  #define BMC_LIMIT_MAX_SKETCH_BYTES 32
+  #define BMC_LIMIT_MAX_SKETCH_BYTES 127
 
   #define BMC_LIMIT_MIN_TRIGGERS 0
   #define BMC_LIMIT_MAX_TRIGGERS 127
@@ -398,14 +398,6 @@
   // #endif
 
   #define BMC_TOTAL_AVAILABLE_PORTS (1+_BMC_MIDISERIAL_A_+_BMC_MIDISERIAL_B_+_BMC_MIDISERIAL_C_+_BMC_MIDISERIAL_D_+_BMC_MIDIHOST_+_BMC_MIDIBLE_)
-
-  #ifndef BMC_MAX_SKETCH_BYTES
-    #define BMC_MAX_SKETCH_BYTES 0
-  #endif
-  #if BMC_MAX_SKETCH_BYTES > 32
-    #undef BMC_MAX_SKETCH_BYTES
-    #define BMC_MAX_SKETCH_BYTES 32
-  #endif
 
   #if defined(BMC_USE_SD_CARD) && BMC_TEENSY_HAS_SD_CARD == true
     #ifdef BMC_USE_24LC256
@@ -966,6 +958,16 @@
   #define BMC_USE_SYNC
 #endif
 
+#if defined(BMC_USE_CUSTOM_UI)
+  #if !defined(BMC_CUSTOM_UI_ID) || (defined(BMC_CUSTOM_UI_ID) && BMC_CUSTOM_UI_ID > 127)
+    #error "BMC_CUSTOM_UI_ID invalid or missing"
+  #endif
+#else
+  #if defined(BMC_CUSTOM_UI_ID)
+    #undef BMC_CUSTOM_UI_ID
+  #endif
+  #define BMC_CUSTOM_UI_ID 0
+#endif
 
 
 

@@ -1124,7 +1124,11 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
 
     bitWrite(buildData, 17, BMC_ILI_S_COUNT == 2 ? 1 : 0);
 
-    // bit 18 available
+
+   
+    #ifdef BMC_USE_CUSTOM_UI
+      bitWrite(buildData, 18, 1);
+    #endif
     
     #ifdef BMC_USE_DAW_LC
       bitWrite(buildData, 19, 1);
@@ -1214,6 +1218,8 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_MINI_DISPLAY);
     buff.appendToSysEx7Bits(BMC_MAX_LCD);
     buff.appendToSysEx7Bits(BMC_LCD_CHARS);
+    buff.appendToSysEx7Bits(BMC_CUSTOM_UI_ID);
+    
     
 
   } else if(itemId==BMC_GLOBALF_BUILD_INFO_DEVICE_NAME){

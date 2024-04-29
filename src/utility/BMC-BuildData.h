@@ -1,6 +1,6 @@
 /*
 See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2023 RoxXxtar.com
+Copyright (c) 2024 RoxXxtar.com
 See BMC Documentation for License
 See LICENSE file in the project root for full license information.
 */
@@ -6768,6 +6768,294 @@ static BMCSketchByteData getSketchByteData(uint8_t index){
   #endif
   #if defined(BMC_SKETCH_BYTE_31_DATA)
     case 31: buffer = BMC_SKETCH_BYTE_31_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_32_DATA)
+    case 32: buffer = BMC_SKETCH_BYTE_32_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_33_DATA)
+    case 33: buffer = BMC_SKETCH_BYTE_33_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_34_DATA)
+    case 34: buffer = BMC_SKETCH_BYTE_34_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_35_DATA)
+    case 35: buffer = BMC_SKETCH_BYTE_35_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_36_DATA)
+    case 36: buffer = BMC_SKETCH_BYTE_36_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_37_DATA)
+    case 37: buffer = BMC_SKETCH_BYTE_37_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_38_DATA)
+    case 38: buffer = BMC_SKETCH_BYTE_38_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_39_DATA)
+    case 39: buffer = BMC_SKETCH_BYTE_39_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_40_DATA)
+    case 40: buffer = BMC_SKETCH_BYTE_40_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_41_DATA)
+    case 41: buffer = BMC_SKETCH_BYTE_41_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_42_DATA)
+    case 42: buffer = BMC_SKETCH_BYTE_42_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_43_DATA)
+    case 43: buffer = BMC_SKETCH_BYTE_43_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_44_DATA)
+    case 44: buffer = BMC_SKETCH_BYTE_44_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_45_DATA)
+    case 45: buffer = BMC_SKETCH_BYTE_45_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_46_DATA)
+    case 46: buffer = BMC_SKETCH_BYTE_46_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_47_DATA)
+    case 47: buffer = BMC_SKETCH_BYTE_47_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_48_DATA)
+    case 48: buffer = BMC_SKETCH_BYTE_48_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_49_DATA)
+    case 49: buffer = BMC_SKETCH_BYTE_49_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_50_DATA)
+    case 50: buffer = BMC_SKETCH_BYTE_50_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_51_DATA)
+    case 51: buffer = BMC_SKETCH_BYTE_51_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_52_DATA)
+    case 52: buffer = BMC_SKETCH_BYTE_52_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_53_DATA)
+    case 53: buffer = BMC_SKETCH_BYTE_53_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_54_DATA)
+    case 54: buffer = BMC_SKETCH_BYTE_54_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_55_DATA)
+    case 55: buffer = BMC_SKETCH_BYTE_55_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_56_DATA)
+    case 56: buffer = BMC_SKETCH_BYTE_56_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_57_DATA)
+    case 57: buffer = BMC_SKETCH_BYTE_57_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_58_DATA)
+    case 58: buffer = BMC_SKETCH_BYTE_58_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_59_DATA)
+    case 59: buffer = BMC_SKETCH_BYTE_59_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_60_DATA)
+    case 60: buffer = BMC_SKETCH_BYTE_60_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_61_DATA)
+    case 61: buffer = BMC_SKETCH_BYTE_61_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_62_DATA)
+    case 62: buffer = BMC_SKETCH_BYTE_62_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_63_DATA)
+    case 63: buffer = BMC_SKETCH_BYTE_63_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_64_DATA)
+    case 64: buffer = BMC_SKETCH_BYTE_64_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_65_DATA)
+    case 65: buffer = BMC_SKETCH_BYTE_65_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_66_DATA)
+    case 66: buffer = BMC_SKETCH_BYTE_66_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_67_DATA)
+    case 67: buffer = BMC_SKETCH_BYTE_67_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_68_DATA)
+    case 68: buffer = BMC_SKETCH_BYTE_68_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_69_DATA)
+    case 69: buffer = BMC_SKETCH_BYTE_69_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_70_DATA)
+    case 70: buffer = BMC_SKETCH_BYTE_70_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_71_DATA)
+    case 71: buffer = BMC_SKETCH_BYTE_71_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_72_DATA)
+    case 72: buffer = BMC_SKETCH_BYTE_72_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_73_DATA)
+    case 73: buffer = BMC_SKETCH_BYTE_73_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_74_DATA)
+    case 74: buffer = BMC_SKETCH_BYTE_74_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_75_DATA)
+    case 75: buffer = BMC_SKETCH_BYTE_75_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_76_DATA)
+    case 76: buffer = BMC_SKETCH_BYTE_76_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_77_DATA)
+    case 77: buffer = BMC_SKETCH_BYTE_77_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_78_DATA)
+    case 78: buffer = BMC_SKETCH_BYTE_78_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_79_DATA)
+    case 79: buffer = BMC_SKETCH_BYTE_79_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_80_DATA)
+    case 80: buffer = BMC_SKETCH_BYTE_80_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_81_DATA)
+    case 81: buffer = BMC_SKETCH_BYTE_81_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_82_DATA)
+    case 82: buffer = BMC_SKETCH_BYTE_82_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_83_DATA)
+    case 83: buffer = BMC_SKETCH_BYTE_83_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_84_DATA)
+    case 84: buffer = BMC_SKETCH_BYTE_84_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_85_DATA)
+    case 85: buffer = BMC_SKETCH_BYTE_85_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_86_DATA)
+    case 86: buffer = BMC_SKETCH_BYTE_86_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_87_DATA)
+    case 87: buffer = BMC_SKETCH_BYTE_87_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_88_DATA)
+    case 88: buffer = BMC_SKETCH_BYTE_88_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_89_DATA)
+    case 89: buffer = BMC_SKETCH_BYTE_89_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_90_DATA)
+    case 90: buffer = BMC_SKETCH_BYTE_90_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_91_DATA)
+    case 91: buffer = BMC_SKETCH_BYTE_91_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_92_DATA)
+    case 92: buffer = BMC_SKETCH_BYTE_92_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_93_DATA)
+    case 93: buffer = BMC_SKETCH_BYTE_93_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_94_DATA)
+    case 94: buffer = BMC_SKETCH_BYTE_94_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_95_DATA)
+    case 95: buffer = BMC_SKETCH_BYTE_95_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_96_DATA)
+    case 96: buffer = BMC_SKETCH_BYTE_96_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_97_DATA)
+    case 97: buffer = BMC_SKETCH_BYTE_97_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_98_DATA)
+    case 98: buffer = BMC_SKETCH_BYTE_98_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_99_DATA)
+    case 99: buffer = BMC_SKETCH_BYTE_99_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_100_DATA)
+    case 100: buffer = BMC_SKETCH_BYTE_100_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_101_DATA)
+    case 101: buffer = BMC_SKETCH_BYTE_101_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_102_DATA)
+    case 102: buffer = BMC_SKETCH_BYTE_102_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_103_DATA)
+    case 103: buffer = BMC_SKETCH_BYTE_103_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_104_DATA)
+    case 104: buffer = BMC_SKETCH_BYTE_104_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_105_DATA)
+    case 105: buffer = BMC_SKETCH_BYTE_105_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_106_DATA)
+    case 106: buffer = BMC_SKETCH_BYTE_106_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_107_DATA)
+    case 107: buffer = BMC_SKETCH_BYTE_107_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_108_DATA)
+    case 108: buffer = BMC_SKETCH_BYTE_108_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_109_DATA)
+    case 109: buffer = BMC_SKETCH_BYTE_109_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_110_DATA)
+    case 110: buffer = BMC_SKETCH_BYTE_110_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_111_DATA)
+    case 111: buffer = BMC_SKETCH_BYTE_111_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_112_DATA)
+    case 112: buffer = BMC_SKETCH_BYTE_112_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_113_DATA)
+    case 113: buffer = BMC_SKETCH_BYTE_113_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_114_DATA)
+    case 114: buffer = BMC_SKETCH_BYTE_114_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_115_DATA)
+    case 115: buffer = BMC_SKETCH_BYTE_115_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_116_DATA)
+    case 116: buffer = BMC_SKETCH_BYTE_116_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_117_DATA)
+    case 117: buffer = BMC_SKETCH_BYTE_117_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_118_DATA)
+    case 118: buffer = BMC_SKETCH_BYTE_118_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_119_DATA)
+    case 119: buffer = BMC_SKETCH_BYTE_119_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_120_DATA)
+    case 120: buffer = BMC_SKETCH_BYTE_120_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_121_DATA)
+    case 121: buffer = BMC_SKETCH_BYTE_121_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_122_DATA)
+    case 122: buffer = BMC_SKETCH_BYTE_122_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_123_DATA)
+    case 123: buffer = BMC_SKETCH_BYTE_123_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_124_DATA)
+    case 124: buffer = BMC_SKETCH_BYTE_124_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_125_DATA)
+    case 125: buffer = BMC_SKETCH_BYTE_125_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_126_DATA)
+    case 126: buffer = BMC_SKETCH_BYTE_126_DATA; break;
+  #endif
+  #if defined(BMC_SKETCH_BYTE_127_DATA)
+    case 127: buffer = BMC_SKETCH_BYTE_127_DATA; break;
   #endif
 
 }
