@@ -7776,7 +7776,7 @@ static bool isMuxInKeypadPinIndex(uint8_t n){
 static bool isMuxInputPin(uint8_t n){
   if(isMuxInPin(n)){return true;}
   if(isMuxInAnalogPin(n)){return true;}
-  if(isMuxInKeypadPinIndex(n)){return true;}
+  if(isMuxInKeypadPin(n)){return true;}
   return false;
 }
 };
