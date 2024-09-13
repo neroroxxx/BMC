@@ -44,6 +44,13 @@ void BMC::readAuxJacks(){
   for(uint8_t i = 0; i < BMC_MAX_AUX_JACKS; i++){
     bmcStoreDevice <2, 3>& device = store.global.auxJacks[i];
     auxJacks[i].update();
+
+    if(auxJacks[i].stateChanged()){
+      if(callback.auxJackConnection){
+        callback.auxJackConnection(i, auxJacks[i].isConnected());
+      }
+    }
+    
     globals.auxJackStates.setBit(i, auxJacks[i].isConnected());
     uint8_t cmd = auxJacks[i].read();
     

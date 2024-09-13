@@ -48,6 +48,7 @@
 #define BMC_GLOBALS_DEBUG_FLAG_POTS               	 9
 #define BMC_GLOBALS_DEBUG_FLAG_ENCODERS              10
 #define BMC_GLOBALS_DEBUG_FLAG_TIMER                 11
+#define BMC_GLOBALS_DEBUG_DISPLAY_RENDER_TIME        12
 
 
 // https://github.com/mpflaga/Arduino-MemoryFree
@@ -312,6 +313,14 @@ public:
   bool getPotsDebug(){
     return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_POTS);
   }
+  bool toggleDisplayRenderTimeDebug(){
+    return debugFlags.toggle(BMC_GLOBALS_DEBUG_DISPLAY_RENDER_TIME);
+  }
+  bool getDisplayRenderTimeDebug(){
+    return debugFlags.read(BMC_GLOBALS_DEBUG_DISPLAY_RENDER_TIME);
+  }
+
+  
 #endif
 
 bool getButtonStateBit(bool isGlobal, uint16_t n){

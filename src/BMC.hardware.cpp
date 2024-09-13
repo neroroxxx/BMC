@@ -197,7 +197,10 @@ if(oneMillisecondPassed()){
   // time how long it takes to render all displays
   unsigned long y = millis()-t;
   if(y>1){
-    BMC_PRINTLN("display render time",y,"ms");
+    if(globals.getDisplayRenderTimeDebug()){
+      BMC_PRINTLN("display render time",y,"ms");
+    }
+    
   }
   #endif
   
@@ -263,7 +266,7 @@ void BMC::controlFirstLed(bool t_value){
   #endif
 
   #if BMC_MAX_GLOBAL_PIXELS > 0
-    globalPixels.setGlobalState(0, t_value?255:0);
+    pixels.setStateGlobal(0, t_value?255:0);
   #endif
 
   #if BMC_MAX_RGB_PIXELS > 0

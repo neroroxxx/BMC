@@ -667,7 +667,7 @@ private:
         else if(request==1){ /* fields */ return 2; }
         else if(request==2){ /* scroll */ return false; }
         else if(request==3){ /* ports */ return false; }
-        else if(request==4){ /* name */ strcpy(str, "Aux Jack State"); return 1;}
+        else if(request==4){ /* name */ strcpy(str, "Aux Jack"); return 1;}
         else if(request==5){ /* field */ return eventBmcEventTypeAuxJack(str, fieldRequest, field);}
         break;
         
@@ -1831,7 +1831,7 @@ private:
         switch(fieldRequest){
           case 0: strcpy(str, "Action"); return 1; /* label */
           case 1: return 0; /* min */
-          case 2: return 2; /* max */
+          case 2: return 3; /* max */
           case 3: /* get stored value */
             return BMC_GET_BYTE(1, tempEvent.event);
           case 4: /* set stored value */
@@ -1842,6 +1842,7 @@ private:
               case 0: strcpy(str, "Connected"); return 1;
               case 1: strcpy(str, "In Pot Mode"); return 1;
               case 2: strcpy(str, "In Dual Button Mode"); return 1;
+              case 3: strcpy(str, "Pot Value"); return 1;
             }
             return 1;
         }

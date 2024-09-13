@@ -655,7 +655,7 @@ public:
   }
   bool isBlockBypassed(uint16_t n){
     if(!connected()){
-      return true;
+      return false;
     }
     bool state = false;
     for(int e = 0; e < BMC_FAS3_BLOCKS_COUNT; e++){
@@ -727,6 +727,16 @@ public:
         break;
       }
     }
+  }
+  uint8_t getBlockBits(uint16_t n){
+    uint8_t b = 0;
+    for(int e = 0; e < BMC_FAS3_BLOCKS_COUNT; e++){
+      if(blocksInfo[e].id == n){
+        b = (blocksInfo[e].index << 4) | (preset.getBlockBits(e) & 0x0F);
+        break;
+      }
+    }
+    return b;
   }
   // left here not to break API
   // x is channel 0 (1)

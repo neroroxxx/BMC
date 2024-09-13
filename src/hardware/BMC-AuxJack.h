@@ -41,6 +41,7 @@
 // 0 = buttons, 1 = pot
 #define BMC_AUX_JACK_FLAG_POT_MODE 0
 #define BMC_AUX_JACK_FLAG_CONNECTED 1
+#define BMC_AUX_JACK_FLAG_STATE_CHANGED 2
 
 #define BMC_AUX_JACK_BUTTON_OPEN HIGH
 #define BMC_AUX_JACK_BUTTON_CLOSED LOW
@@ -84,6 +85,12 @@ public:
       button[i].reassign();
     }
   }
+  bool stateChanged(){
+    if(flags.toggleIfTrue(BMC_AUX_JACK_FLAG_STATE_CHANGED)){
+      return true;
+    }
+    return false;
+  }
   // returns true if a device was connected or disconnected...
   bool update(){
     // timer is running which means a plug was plugged in or unplugged
@@ -91,6 +98,7 @@ public:
       if(timer.complete()){
         timer.stop();
         flags.toggle(BMC_AUX_JACK_FLAG_CONNECTED);
+        flags.on(BMC_AUX_JACK_FLAG_STATE_CHANGED);
         BMC_PRINTLN(">>> BMCAuxJack::update() Aux Jack",isConnected()?"Connected":"Disconnected");
         return true;
       }

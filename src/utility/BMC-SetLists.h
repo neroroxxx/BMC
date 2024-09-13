@@ -38,7 +38,7 @@ public:
     
   }
   void setPartRecall(bool value){
-    BMC_PRINTLN("BMC_SETLIST_FLAG_PART_RECALL", value)
+    // BMC_PRINTLN("BMC_SETLIST_FLAG_PART_RECALL", value)
     flags.write(BMC_SETLIST_FLAG_PART_RECALL, value);
   }
   void set(uint8_t n){

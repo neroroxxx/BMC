@@ -756,7 +756,9 @@ public:
     if(d.isOled()){
       #if BMC_MAX_OLED > 0
         __oledMuxSelect(d.index);
-        oled[d.index].print(d, d.str);
+        // oled[d.index].print(d, d.str);
+        fasHandler.renderBlockOled(oled[d.index], d);
+        // renderTunerOled
       #endif
     } else if(d.isIli()){
       #if BMC_MAX_ILI9341_BLOCKS > 0

@@ -257,7 +257,8 @@ private:
     flags.reset(1<<BMC_FLAG_AUX_JACK_POT_MUX | 1<<BMC_FLAG_AUX_JACK_POT_TOE_SWITCH_STATE);
   }
   uint8_t readPin(){
-    return map(analogRead(pin), calMin, calMax, 0, 128);
+    uint16_t t_value = constrain(analogRead(pin), calMin, calMax);
+    return map(t_value, calMin, calMax, 0, 128);
   }
 };
 #endif

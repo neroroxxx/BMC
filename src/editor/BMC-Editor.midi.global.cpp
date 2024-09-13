@@ -572,7 +572,8 @@ void BMCEditor::incomingMessageDevice(bool write){
       case BMC_DEVICE_ID_SKETCH_BYTE:
         #if BMC_MAX_SKETCH_BYTES > 0
           incomingMessageDeviceWrite<0, BMC_MAX_SKETCH_BYTES, uint8_t>
-          (store.global.sketchBytes[0], 0);
+          (store.global.sketchBytes[0], 0, -1, true);
+          // BMC_PRINTLN(">>>>>>>>>>>>>>>>>>> ++++++++++", store.global.sketchBytes[0].events[0])
           if(!backupActive()){
             saveSketchBytes();
             reloadData();
@@ -901,7 +902,7 @@ void BMCEditor::incomingMessageDevice(bool write){
   sendToEditor(buff);
 }
 template <uint8_t sLen, uint8_t eLen, typename tname>
-void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer){
+void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer, bool allowAnyValueForEvent){
   uint16_t name = incoming.get14Bits(13);
   if(name <= BMC_MAX_NAMES_LIBRARY){
     item.name  = name;
@@ -929,7 +930,7 @@ void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& it
     if(eLen > 0){
       if(i < eLen){
         uint16_t e = incoming.get14Bits(lenCount);
-        if(e > BMC_MAX_EVENTS_LIBRARY){
+        if(!allowAnyValueForEvent && e > BMC_MAX_EVENTS_LIBRARY){
           e = 0;
         }
         item.events[i] = e;

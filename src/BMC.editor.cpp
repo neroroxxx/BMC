@@ -439,7 +439,8 @@ void BMC::ctrlHardware(){
 void BMC::ctrlPreset(){
   switch(editor.getCtrlParameter()){
     case BMC_CTRL_PRESET_GET:
-      editor.utilitySendPreset(presets.get(), false);
+      // editor.utilitySendPreset(presets.get(), false);
+      editor.utilitySendPreset(presets.getBank(), presets.get(), false);
       break;
     case BMC_CTRL_PRESET_SET:
       if(editor.getCtrlWrite()){

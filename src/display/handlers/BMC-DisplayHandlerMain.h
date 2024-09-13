@@ -21,6 +21,9 @@ public:
   #if defined(BMC_USE_SYNC)
   BMCSync& sync;
   #endif
+  #if BMC_MAX_AUX_JACKS > 0
+    uint8_t auxJackValue[BMC_MAX_AUX_JACKS];
+  #endif
 
   BMCDisplayHandlerMain(BMCMidi& t_midi
   #if defined(BMC_USE_SYNC)
@@ -438,6 +441,14 @@ public:
   template <typename T>
   bool renderSlider(T& display, uint16_t& meterValue, uint16_t& meterPixelValue, BMCDataContainer d, BMCDiplayHandlerData t, bool t_reset = false){
     // set crc after clear()
+    // uint16_t color = d.highlight ? t.color : t.background;
+    // uint16_t background = d.highlight ? t.background : t.color;
+    uint16_t color = t.color;
+    uint16_t background = t.background;
+
+    if(t_reset){
+      display.fillRect(t.x, t.y, t.w, t.h, background);
+    }
     uint8_t padding    = 2;
     uint16_t x         = t.x + padding;
     uint16_t frameH    = t.h / 2;
@@ -447,58 +458,69 @@ public:
     uint16_t fillH     = frameH-(padding*4);
     uint16_t fillW     = frameW-(padding*4);
     uint8_t fontSize   = 2;
+
     if(frameH >= 32){
       fontSize   = 4;
     } else if(frameH >= 24){
       fontSize   = 3;
     }
-
-    uint16_t txtY      = (frameH-(fontSize*8)) / 2;
-    uint16_t pixelValue = map(d.value, d.min, d.max, (d.useOffset ? d.offset : 0), fillW);
+    if(d.value > d.max){
+      d.value = d.max;
+    }
     
+    uint16_t txtY       = getCenteredDefaultFontY(t.y, frameH, fontSize);
+    uint16_t pixelValue = map(d.value, d.min, d.max, (d.useOffset ? d.offset : 0), fillW);
+    uint16_t txtX = 0;
+    char outStr[7] = "";
+
+
+    d.value = map(d.value, d.min, d.max, 0, 100);
+
+
     display.setFont();
     display.setTextSize(fontSize);
     display.setTextWrap(false);
 
-    uint16_t txtX = 0;
-    char outStr[32] = "";
     // display the last value but in the background color
-    sprintf(outStr, "%u", meterValue+(d.useOffset ? d.offset : 0));
-    
-    txtX = ((t.w - (((fontSize*6)*strlen(outStr))-fontSize))/2);
-
-    display.setTextColor(t.background);
+    sprintf(outStr, "%u%%", meterValue+(d.useOffset ? d.offset : 0));
+    txtX = getCenteredDefaultFontX(outStr, t.x, t.w, fontSize);
+    display.setTextColor(background);
     display.setCursor(txtX, txtY);
     display.print(outStr);
 
     // display the new value but in the foreground color
-    sprintf(outStr, "%u", d.value+(d.useOffset ? d.offset : 0));
-    
-    txtX = ((t.w - (((fontSize*6)*strlen(outStr))-fontSize))/2);
-
-    display.setTextColor(t.color);
+    sprintf(outStr, "%u%%", d.value+(d.useOffset ? d.offset : 0));  
+    txtX = getCenteredDefaultFontX(outStr, t.x, t.w, fontSize);
+    display.setTextColor(color);
     display.setCursor(txtX, txtY);
     display.print(outStr);
-    y = (t.h-frameH)-2;
+    
+    y = t.y + ((t.h-frameH)-2);
 
     uint16_t fillX     = x+(padding*2);
     uint16_t fillY     = y+(padding*2);
 
     if(meterPixelValue == 0xFFFF){
-      display.drawRect(x, y, frameW, frameH, t.color);
-      display.fillRect(fillX, fillY, fillW, fillH, t.background);
-      display.fillRect(fillX, fillY, pixelValue, fillH, t.color);
+      display.drawRect(x, y, frameW, frameH, color);
+      display.fillRect(fillX, fillY, fillW, fillH, background);
+      display.fillRect(fillX, fillY, pixelValue, fillH, color);
     } else if(pixelValue != meterPixelValue){
       if(pixelValue > meterPixelValue){
-        display.fillRect(fillX, fillY, pixelValue, fillH, t.color);
+        display.fillRect(fillX, fillY, pixelValue, fillH, color);
       } else {
-        display.fillRect(fillX+pixelValue, fillY, fillW-pixelValue, fillH, t.background);
+        display.fillRect(fillX+pixelValue, fillY, fillW-pixelValue, fillH, background);
       }
     }
     meterPixelValue = pixelValue;
     meterValue = d.value;
     display.setTextSize(1);
     return true;
+  }
+  uint16_t getCenteredDefaultFontX(const char * str, uint16_t x, uint16_t w, uint16_t fontSize){
+    return x + ((w - (((fontSize*6)*strlen(str))-fontSize))/2);
+  }
+  uint16_t getCenteredDefaultFontY(uint16_t y, uint16_t h, uint16_t fontSize){
+    return (y + ((h-(fontSize*8)) / 2));
   }
 
 

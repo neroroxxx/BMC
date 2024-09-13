@@ -716,8 +716,10 @@ private:
   void turnPixelOff(uint16_t n){
     uint32_t offValue = 0;
     if(flags.read(BMC_PIXELS_FLAG_USE_DIM)){
+      BMC_PRINTLN(n, "Pixel Dim??");
       offValue = BMCPixelColors::getDimmedColor(getDimColor(n));
     }
+    
     setPixelValue(n, offValue);
   }
   void show(){
