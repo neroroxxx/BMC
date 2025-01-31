@@ -179,13 +179,33 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
-        sprintf(data.label, "CC#%u", data.byteB);
-        if(data.useSelected()){
-          data.byteC = currentCC;
+        if(data.useName()){
+          if(BMCTools::isValidNameIndex(e.name)){
+            bmcStoreName t = store.global.names[e.name-1];
+            strcpy(data.str, t.name);
+          } else {
+            sprintf(data.str, "CC#%u", data.byteB);
+          }
+
+          data.highlight = currentCC >= 64;
+          display.renderBlock(data);
+
+
+
+          // editor.getDeviceNameText(deviceId, deviceIndex, t.name);
+          // strcpy(data.str, t.name);
+          
+          
+        } else {
+          sprintf(data.label, "CC#%u", data.byteB);
+          if(data.useSelected()){
+            data.byteC = currentCC;
+          }
+          sprintf(data.str, "CH%u CC%u V%u", data.getChannel(), data.byteB, data.byteC);
+          data.type = BMC_MIDI_CONTROL_CHANGE;
+          display.renderMidi(data);
         }
-        sprintf(data.str, "CH%u CC%u V%u", data.getChannel(), data.byteB, data.byteC);
-        data.type = BMC_MIDI_CONTROL_CHANGE;
-        display.renderMidi(data);
+        
 #endif
 
       } else {

@@ -13,6 +13,9 @@ class BMCTools {
 private:
   BMCTools(){}
 public:
+  static bool isValidNameIndex(bmcName_t n){
+    return (n > 0 && n <= BMC_MAX_NAMES_LIBRARY);
+  }
   static bool match(int n, int v){
     return n==v;
   }
