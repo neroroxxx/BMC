@@ -392,6 +392,7 @@ private:
     if(stableSteps >= 255){
       stableSteps = 0;
     }
+    value = constrain(value, 0, 127);
     return map(value, 0, 127, rangeMin, rangeMax);
   }
   void reset(){
@@ -410,6 +411,7 @@ private:
     return map(parseTaper(analogRead(pin)), calMin, calMax, 0, 128);
   }
   uint16_t parseTaper(uint16_t t_value){
+    t_value = constrain(t_value, calMin, calMax);
     if(flags.read(BMC_FLAG_POT_LOG)){
       if(t_value<=BMC_POT_LOG_POS){
         return map(t_value, 0, BMC_POT_LOG_POS, 0, BMC_POT_LOG_PERC);

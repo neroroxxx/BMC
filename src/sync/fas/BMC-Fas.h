@@ -300,6 +300,23 @@ public:
   void getBlockName(uint8_t id, char* str, bool fullName=false){
     findBlockName(id, str, fullName);
   }
+  uint8_t getBlockBits(uint16_t id){
+    uint8_t v = 0;
+
+    // char letter[2] = "";
+    // if(isBlockY(id)){
+    //   letter[0] = 'X'; 
+    // } else {
+    //   letter[0] = 'Y'; 
+    // }
+    // sprintf(str, "%s %u%s", blocksGlobalData[id-100].name, blocksGlobalData[id-100].index+1, letter);
+
+
+    bitWrite(v, 0, isBlockBypassed(id-100));
+    bitWrite(v, 1, isBlockY(id-100));
+    v = (blocksGlobalData[id-100].index << 4) | (v & 0x0F);
+    return v;
+  }
   bool looperGetState(){
     return device.looper.isEnabled();
   }

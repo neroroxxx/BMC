@@ -152,6 +152,12 @@ public:
   void onMidiPreRouting(bool (*fptr)(BMCMidiMessage& data, uint8_t destinations)){
     callback.midiPreRoute = fptr;
   }
+   // * GROUP: HARDWARE
+  // you must assign it to hardware, the event is labeled HARDWARE:Custom in the editor events
+  // this will allow you to trigger a function in your sketch when a button is pressed, encoder rotated, etc.
+  void onCustomActivity(bool (*fptr)(uint8_t deviceType, uint16_t deviceIndex, uint8_t id, uint8_t dat1, uint8_t dat2)){
+    callback.customActivity = fptr;
+  }
   // * GROUP: HARDWARE
   // triggered when 2 buttons are pressed at the same time
   // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
@@ -209,6 +215,7 @@ public:
   void onAuxJackConnection(void (*fptr)(uint8_t n, bool state)){
     callback.auxJackConnection = fptr;
   }
+
 
 #ifdef BMC_USB_HOST_ENABLED
   // * GROUP: SYSTEM
@@ -441,6 +448,19 @@ public:
   
 #endif
 #endif
+
+
+
+  // * GROUP: SYSTEM
+  // retrieve a name from the names library
+  bmcStoreName getName(uint16_t n){
+    if(n < BMC_MAX_NAMES_LIBRARY){
+      return store.global.names[n];
+    }
+    bmcStoreName t;
+    return t;
+  }
+
 
   // ******************************
   // ***** LOCAL MIDI CONTROL *****
@@ -1025,6 +1045,7 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
     }
     return 0;
   }
+  // * GROUP: SYSTEM
   // scroll thru sketch bytes, you must pass the initial value "n"
   // this function will then return the next value up or down
   // this function is to scroll the index of a sketch byte, useful for editors

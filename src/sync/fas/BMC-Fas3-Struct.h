@@ -149,8 +149,7 @@ struct BMCFas3Preset {
       strcpy(sceneName[i], "");
     }
     strcpy(name, "");
-    
-    memset(blockStates, 0, sizeof(blockStates));
+    memset(blockStates, 1, sizeof(blockStates));
     lastBlockCrc = 0xFF;
     sceneCount = -1;
     // blockStates
@@ -234,9 +233,12 @@ struct BMCFas3Preset {
   void setBlockData(uint8_t t_id, uint8_t t_flags){
     blockStates[t_id] = t_flags;
   }
+  uint8_t getBlockBits(uint8_t t_id){
+    return blockStates[t_id];
+  }
   // bitRead(flags, 0); // 0 = engaged, 1 = bypassed
-  // ((flags >> 1) & 0x07); // channel
-  // ((flags >> 4) & 0x07); // number of channels supported for this effect (0-7).
+  // ((flags >> 1) & 0x07); // (bits 1, 2, 3) channel
+  // ((flags >> 4) & 0x07); // (bits 4, 5, 6) number of channels supported for this effect (0-7).
   bool getBlockState(uint8_t t_id){
     return bitRead(blockStates[t_id], 0)==0;
   }

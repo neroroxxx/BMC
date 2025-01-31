@@ -292,7 +292,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           uint8_t newPitch = map(pitch, 0, 127, 0, 100);
           data.value = newPitch;
           data.min = 0;
-          data.min = 100;
+          data.max = 100;
           display.renderSlider(data);
         } else {
           data.forceOnlyString();
@@ -1385,6 +1385,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           return auxJacks[data.byteA].isPotMode();
         } else if(data.byteB == 2){
           return !auxJacks[data.byteA].isPotMode();
+        } else if(data.byteB == 2){
+          return auxJacks[data.byteA].getPotValue() > 0 ? true : false;
         }
         
       } else if(group==BMC_DEVICE_GROUP_MAGIC_ENCODER){
@@ -1394,23 +1396,30 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           return auxJacks[data.byteA].isPotMode() ? 100 : 0;
         } else if(data.byteB == 2){
           return !auxJacks[data.byteA].isPotMode() ? 100 : 0;
+        } else if(data.byteB == 3){
+          // return !auxJacks[data.byteA].isPotMode() ? 100 : 0;
+          return map(auxJacks[data.byteA].getPotValue(), 0, 127, 0, 100);
         }
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
 #if defined(BMC_HAS_DISPLAY)
 
         // set display settings
-        strcpy(data.label, "AUX JACK");
-        data.value          = data.byteA;
+        // strcpy(data.label, "");
+        sprintf(data.label, "AUX JACK %u", data.byteA+data.offset);
+        data.value          = auxJacks[data.byteA].getPotValue() & 0x7F;
         data.valueSelected  = data.value;
-        data.highlight      = auxJacks[data.value].isConnected();
+        data.highlight      = auxJacks[data.byteA].isConnected();
+        data.min            = 0;
+        data.max            = 127;
+        data.useOffset      = false;
         data.forceOnlyString();
-        if(auxJacks[data.value].isPotMode()){
-          sprintf(data.str, "Exp %u", data.value+data.offset);
+        if(auxJacks[data.byteA].isPotMode()){
+          strcpy(data.str, "EXP");
         } else {
-          sprintf(data.str, "Ctrl %u", data.value+data.offset);
+          strcpy(data.str, "CTRL");
         }
-        display.renderBlock(data);
+        display.renderSlider(data);
 #endif
       }
       break;
@@ -2200,7 +2209,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         strcpy(data.label, "BLOCK");
         data.highlight      = sync.fas.isBlockEngaged(data.byteB);
         data.forceOnlyString();
-        sync.fas.getBlockName(data.byteB, data.str, true);
+        data.value          = sync.fas.getBlockBits(data.byteB);
+        sync.fas.getBlockName(data.byteB, data.str, false);
         display.renderFasFxBlock(data);
 #endif
       }

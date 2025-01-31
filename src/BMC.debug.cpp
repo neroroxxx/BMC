@@ -58,6 +58,10 @@ void BMC::readDebug(){
       BMC_PRINTLN("pots = Toggle debugging layer and global pots output.");
     #endif
 
+    #if defined(BMC_HAS_DISPLAY)
+      BMC_PRINTLN("displayRenderTime = Display rendering time for displays.");
+    #endif
+
     #ifdef BMC_MIDI_BLE_ENABLED
     BMC_PRINTLN("bleDebug = Toggles BLE MIDI Debugging, displays Incoming/Outgoing BLE Packet arrays.");
     BMC_PRINTLN("disconnectBLE = Disconnect the BLE Module if connected.");
@@ -126,6 +130,13 @@ void BMC::readDebug(){
     printDebugHeader(debugInput);
     BMC_PRINTLN("pots debug", globals.togglePotsDebug());
     printDebugHeader(debugInput);
+
+  } else if(BMC_STR_MATCH(debugInput,"displayRenderTime")){
+    printDebugHeader(debugInput);
+    BMC_PRINTLN("Display Render Time", globals.toggleDisplayRenderTimeDebug());
+    printDebugHeader(debugInput);
+
+    
 
   } else if(BMC_STR_MATCH(debugInput,"stopwatch")){
     printDebugHeader(debugInput);
@@ -428,6 +439,9 @@ void BMC::readDebug(){
       BMC_PRINTLN("store.global.relaysL",sizeof(store.global.relaysL),"bytes");
       BMC_PRINTLN("store.global.relaysL[0]",sizeof(store.global.relaysL[0]),"bytes");
     #endif
+
+    
+    
 
     #if BMC_MAX_LAYERS > 0
       BMC_PRINTLN("");

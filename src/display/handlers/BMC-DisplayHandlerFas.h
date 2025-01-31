@@ -524,6 +524,126 @@ public:
     }
     return false;
   }
+  /*
+  if(!d.highlight){
+      t.color       = BMC_ILI9341_GRAY_18;
+      t.background  = BMC_ILI9341_BLACK;
+    }
+    char blockNumber[2] = "";
+    char channelName[2] = "";
+
+    #if !defined(BMC_USE_FAS3)
+      // Axe FX 2
+      sprintf(blockNumber, "%u", ((d.value >> 4)&0x0F)+1);
+      sprintf(channelName, "%s", ((d.value >> 1)&0x01) ? "X" : "Y");
+    #else
+      // Axe FX 3
+      sprintf(blockNumber, "%u", ((d.value >> 1)&0x07)+1);
+      BMCTools::getBankLetter((d.value >> 4)&0x0F, channelName);
+    #endif
+
+    display.printCenteredXY(d.str, t.x, t.y, t.w/2, t.h, 2, t.color, t.background);
+
+    display.printCenteredXY(blockNumber, t.x+(t.x/2), t.y, t.w/4, t.h, 2, t.color, t.background);
+    display.printCenteredXY(channelName, t.x+((t.x/4) * 3), t.y, t.w/4, t.h, 2, t.background, t.color);
+
+    display.drawRect(t.x, t.y, t.w, t.h, t.color);
+    return true;
+  */
+  bool renderBlockOled(BMC_OLED& block, BMCDataContainer d){
+    if(block.isCrc(d.crc)){
+      return false;
+    }
+    
+    BMC_SSD1306& display = block.display;
+    // bool t_reset = false;
+    BMCDiplayHandlerData t = BMC_DEFAULT_DISPLAY_DATA_OLED;
+
+    char blockNumber[2] = "";
+    char channelName[2] = "";
+
+
+
+    #if !defined(BMC_USE_FAS3)
+      // Axe FX 2
+      sprintf(blockNumber, "%u", ((d.value >> 4)&0x0F)+1);
+      sprintf(channelName, "%s", ((d.value >> 1)&0x01) ? "X" : "Y");
+    #else
+      // Axe FX 3
+      sprintf(blockNumber, "%u", ((d.value >> 4)&0x07)+1);
+      BMCTools::getBankLetter((d.value >> 1)&0x07, channelName);
+    #endif
+
+    display.fillRect(t.x, t.y, t.w, t.h, t.background);
+
+    uint16_t wQ = t.w*0.25;
+    uint16_t wH = t.w*0.5;
+    uint16_t wTQ = t.w*0.75;
+
+    if(t.h == 64){
+      block.printCenteredXY(d.str, t.x, t.y, wTQ, t.h, 2, t.color);
+      block.printCenteredXY(blockNumber, t.x+wTQ, t.y, wQ, t.h*0.5, 2, t.color);
+      block.printCenteredXY(channelName, t.x+wTQ, (t.h*0.5), wQ, t.h*0.5, 2, t.color);
+
+      // border block number
+      // display.drawRect(wTQ, t.x, wQ, t.h*0.5, t.color);
+      // border channel letter
+      display.drawRect(wTQ, t.h*0.5, wQ, t.h*0.5, t.color);
+
+    } else {
+      display.fillRect(wTQ, t.y, wQ, t.h, t.color);
+      block.printCenteredXY(d.str, t.x, t.y, wH, t.h, 2, t.color);
+      block.printCenteredXY(blockNumber, t.x+(wH), t.y, wQ, t.h, 2, t.color);
+      block.printCenteredXY(channelName, t.x+(wTQ), t.y, wQ, t.h, 2, t.background);
+
+      // border block number
+      // display.drawRect(t.x+(wH), t.y, wQ, t.h*0.5, t.color);
+      display.writeFastVLine(t.x+wH, t.y, t.h, t.color);
+      // border channel letter
+      display.drawRect(t.x+(wTQ), t.y, wQ, t.h, t.color);
+    }
+
+    if(d.highlight){
+      // display.drawRect(t.x, t.y, t.w, t.h, t.color);
+      // display.drawRect(t.x+1, t.y+1, t.w-2, t.h-2, t.color);
+      display.drawRect(t.x, (t.y+t.h)-2, t.w, 2, t.color);
+    }
+    
+
+    // display.drawRect(t.x, t.y, t.w, t.h, t.color);
+
+    block.setCrc(d.crc);
+
+    display.display();
+    return true;
+
+
+
+
+
+
+    // if(tunerBlock.active != sync.fas.tuner.isOn()){
+    //   tunerBlock.active = sync.fas.tuner.isOn();
+    //   tunerData.reset();
+    //   display.fillRect(t.x, t.y, t.w, t.h, t.background);
+    //   if(!tunerBlock.active){
+    //     block.print(d, "Tuner");
+    //     return false;
+    //   } else {
+    //     t_reset = true;
+    //   }
+    // }
+    // if(!tunerBlock.active){
+    //   block.print(d, "Tuner");
+    //   return false;
+    // }
+    // if(renderTuner<BMC_SSD1306>(display, tunerData, t, t_reset)){
+    //   block.setCrc(millis()&0xFF);
+    //   display.display();
+    //   return true;
+    // }
+    // return false;
+  }
   
   bool renderLooperIconOled(BMC_OLED& block, BMCDataContainer d, bool t_reset=true){
     if(block.isCrc(d.crc)){
@@ -882,8 +1002,60 @@ template <typename T>
       t.color       = BMC_ILI9341_GRAY_18;
       t.background  = BMC_ILI9341_BLACK;
     }
-    display.printCenteredXY(d.str, t.x, t.y, t.w, t.h, 2, t.color, t.background);
+    char blockNumber[2] = "";
+    char channelName[2] = "";
+
+    #if !defined(BMC_USE_FAS3)
+      // Axe FX 2
+      sprintf(blockNumber, "%u", ((d.value >> 4)&0x0F)+1);
+      sprintf(channelName, "%s", ((d.value >> 1)&0x01) ? "X" : "Y");
+    #else
+      // Axe FX 3
+      sprintf(blockNumber, "%u", ((d.value >> 1)&0x07)+1);
+      BMCTools::getBankLetter((d.value >> 4)&0x0F, channelName);
+    #endif
+
+
+    uint16_t nameW      = 0;
+    uint16_t blockW     = 0;
+    uint16_t blockH     = 0;
+    uint16_t numberX    = 0;
+    uint16_t numberY    = 0;
+    uint16_t channelX   = 0;
+    uint16_t channelY   = 0;
+
+    if(t.h > 40){
+      nameW       = t.w*0.75;
+      blockW      = t.w*0.25;
+      blockH      = t.h*0.5;
+      numberX     = t.x+nameW;
+      numberY     = t.y;
+      channelX    = t.x+nameW;
+      channelY    = t.y+blockH;
+
+    } else {
+      nameW       = t.w*0.5;
+      blockW      = t.w*0.25;
+      blockH      = t.h;
+      numberX     = t.x+nameW;
+      numberY     = t.y;
+      channelX    = t.x+(t.w*0.75);
+      channelY    = t.y;
+
+    }
+
+    // block name
+    display.printCenteredXY(d.str, t.x, t.y, nameW, t.h, 2, t.color, t.background);
+    // block number
+    display.printCenteredXY(blockNumber, numberX,  numberY,  blockW, blockH, 2, t.color, t.background);
+    // block channel
+    display.printCenteredXY(channelName, channelX, channelY, blockW, blockH, 2, t.background, t.color);
+    // divider between name and block number
+    display.drawLine(t.x+nameW, t.y, t.x+nameW, t.y+t.h, t.color);
+    display.drawLine(t.x+nameW+1, t.y, t.x+nameW+1, t.y+t.h, t.color);
+    // border around block
     display.drawRect(t.x, t.y, t.w, t.h, t.color);
+    display.drawRect(t.x+1, t.y+1, t.w-2, t.h-2, t.color);
     return true;
   }
 #endif

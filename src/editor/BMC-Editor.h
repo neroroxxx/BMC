@@ -1872,7 +1872,7 @@ private:
   
 
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
-  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer=-1);
+  void incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer=-1, bool allowAnyValueForEvent=false);
 
   template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
   void deviceResponseData(bmcStoreDevice<sLen, eLen, tname>& item, BMCMidiMessage& buff, uint16_t index, uint8_t deviceType);
