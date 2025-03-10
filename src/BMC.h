@@ -621,20 +621,21 @@ private:
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
   BMCPotCalibration potCalibration;
   bool analogInputCalibrationToggle(int16_t deviceType=-1, int16_t n=-1){
-    if(deviceType==-1 || n==-1){
+    if(deviceType == -1 || n == -1){
       potCalibration.cancel();
       return false;
     }
     uint16_t len = BMC_MAX_POTS;
+    
     if(deviceType == BMC_DEVICE_ID_GLOBAL_POT){
       len = BMC_MAX_GLOBAL_POTS;
     } else if(deviceType == BMC_DEVICE_ID_AUX_JACK){
       len = BMC_MAX_AUX_JACKS;
       #if BMC_MAX_AUX_JACKS > 0
-      if(!auxJacks[n].isPotMode()){
-        potCalibration.cancel();
-        return false;
-      }
+        if(!auxJacks[n].isPotMode()){
+          potCalibration.cancel();
+          return false;
+        }
       #endif
     }
     if(!potCalibration.active() && n < len){

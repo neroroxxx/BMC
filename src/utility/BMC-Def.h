@@ -2440,6 +2440,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #define BMC_CTRL_FAS_STATE             	 14
   // request states of leds/buttons
   #define BMC_CTRL_GET_STATES            	 15
+  #define BMC_CTRL_POT_CALIBRATION_RESET   16
 
   // BMC_CTRL_GROUP_PRESET 1
   #define BMC_CTRL_PRESET_GET            	 0

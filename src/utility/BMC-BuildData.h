@@ -6663,7 +6663,7 @@ static BMCSketchByteData getSketchByteData(uint8_t index){
     sprintf(defaultName,"Byte %01u",(uint8_t)index);
   }
   BMCSketchByteData buffer;
-  strcpy(buffer.name,defaultName);
+  strcpy(buffer.name, defaultName);
   buffer.initialValue = 0;
   buffer.min = 0;
   buffer.max = 255;

@@ -1714,27 +1714,31 @@ private:
     // add the CRC
     store.crc = (BMC_CRC); // update the CRC
     store.version = (BMC_VERSION); // update the library version
+    
     // save the new store with updated CRC and version
 #if BMC_MAX_SKETCH_BYTES > 0
-    for(uint8_t i=0;i<BMC_MAX_SKETCH_BYTES;i++){
+    for(uint8_t i = 0 ; i < BMC_MAX_SKETCH_BYTES ; i++){
       BMCSketchByteData data = BMCBuildData::getSketchByteData(i);
-      //store.global.sketchBytes[i] = constrain(data.initialValue, data.min, data.max);
       store.global.sketchBytes[0].events[i] = data.getInitialValue();
     }
 #endif
+
 #if BMC_MAX_ILI9341_BLOCKS > 0 && BMC_ILI_S_COUNT > 1
-    for(uint8_t i=0;i<BMC_MAX_LAYERS;i++){
-      for(uint8_t e=0;e<BMC_MAX_ILI9341_BLOCKS;e++){
+    for(uint8_t i = 0 ; i < BMC_MAX_LAYERS ; i++){
+      for(uint8_t e = 0 ; e < BMC_MAX_ILI9341_BLOCKS ; e++){
         store.layers[i].ili[e].settings[1] = 1;
       }
     }
+    
 #endif
+
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
     for(uint16_t i = 0 ; i < BMC_TOTAL_POTS_AUX_JACKS ; i++){
       store.global.potCalibration[i].events[0] = 0;
       store.global.potCalibration[i].events[1] = 0x3FF;
     }
 #endif
+
     store.global.shortcuts[0].events[0] = BMC_DEVICE_ID_EVENT;
     store.global.shortcuts[0].events[1] = BMC_DEVICE_ID_NAME;
     store.global.shortcuts[0].events[2] = BMC_DEVICE_ID_LFO;
@@ -1931,10 +1935,10 @@ public:
   void utilitySendClickTrackData(uint16_t freq, uint8_t level,
                                  uint8_t state, bool onlyIfConnected=true);
 
-  void utilitySendAnalogInputCalibrationStatus(bool status, bool canceled=false,
+  void utilitySendAnalogInputCalibrationStatus(bool status, bool canceled=false, bool reset=false,
                                        bool onlyIfConnected=true);
   void utilitySendAnalogInputCalibrationActivity(uint8_t deviceId, uint16_t index,
-                                        uint16_t min, uint16_t max,
+                                        uint16_t min, uint16_t max,  uint16_t value,
                                         bool onlyIfConnected=true);
 
   void utilitySendSketchBytes(bool onlyIfConnected);

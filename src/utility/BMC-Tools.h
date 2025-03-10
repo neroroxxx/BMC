@@ -16,6 +16,10 @@ public:
   static bool isValidNameIndex(bmcName_t n){
     return (n > 0 && n <= BMC_MAX_NAMES_LIBRARY);
   }
+  template <typename T>
+  static T getMax(T a, T b) {
+    return (a > b) ? a : b;
+  }
   static bool match(int n, int v){
     return n==v;
   }

@@ -22,7 +22,7 @@
   };
 
   // BMC Device Object for BMC 2.0
-  template <uint8_t sLen, uint8_t eLen, typename T=bmcEvent_t>
+  template <uint8_t sLen, uint8_t eLen, typename T = bmcEvent_t>
   struct bmcStoreDevice {
     bmcName_t name = 0;
     uint8_t settings[sLen];

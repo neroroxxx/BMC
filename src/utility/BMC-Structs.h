@@ -809,7 +809,7 @@ struct BMCEditorMidiFlags {
     flags = 0;
   }
 };
-
+// keep variable order BMCSketchByteData
 struct BMCSketchByteData {
   char name[BMC_NAME_LEN_SKETCH_BYTES] = "";
   uint8_t initialValue = 0;

@@ -382,7 +382,8 @@ void BMC::update(){
         potCalibration.getDeviceType(),
         potCalibration.getIndex(),
         potCalibration.getMin(),
-        potCalibration.getMax()
+        potCalibration.getMax(),
+        potCalibration.getValue()
       );
     }
 #endif

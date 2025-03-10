@@ -223,7 +223,7 @@ void BMCEditor::incomingMessageDevice(bool write){
   sysExLength += (incoming.get7Bits(15) * 2);
   sysExLength += (incoming.get7Bits(16) * 2);
 
-  if(index>0 && index>=maxDevices && !backupActive()){
+  if(index>0 && index >= maxDevices && !backupActive()){
     BMC_PRINTLN("******************* invalid device", index, maxDevices);
     sendNotification(BMC_NOTIFY_INVALID_DEVICE, index, true);
     return;
@@ -545,7 +545,7 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_PORT_PRESET:
         incomingMessageDeviceWrite<0, 1, uint8_t>
-        (store.global.portPresets[index], index);
+          (store.global.portPresets[index], index);
         if(!backupActive()){
           saveDevicePorts(index);
           reloadData();
@@ -553,7 +553,7 @@ void BMCEditor::incomingMessageDevice(bool write){
         break;
       case BMC_DEVICE_ID_SHORTCUTS:
         incomingMessageDeviceWrite<0, 6, uint8_t>
-        (store.global.shortcuts[index], index);
+          (store.global.shortcuts[index], index, -1, true);
         if(!backupActive()){
           saveShortCuts(index);
           reloadData();
@@ -573,7 +573,6 @@ void BMCEditor::incomingMessageDevice(bool write){
         #if BMC_MAX_SKETCH_BYTES > 0
           incomingMessageDeviceWrite<0, BMC_MAX_SKETCH_BYTES, uint8_t>
           (store.global.sketchBytes[0], 0, -1, true);
-          // BMC_PRINTLN(">>>>>>>>>>>>>>>>>>> ++++++++++", store.global.sketchBytes[0].events[0])
           if(!backupActive()){
             saveSketchBytes();
             reloadData();
@@ -901,43 +900,63 @@ void BMCEditor::incomingMessageDevice(bool write){
   }
   sendToEditor(buff);
 }
+// template <uint8_t sLen, uint8_t eLen, typename tname>
+// void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer, bool allowAnyValueForEvent){
+//   uint16_t name = incoming.get14Bits(13);
+
+//   item.name = (name <= BMC_MAX_NAMES_LIBRARY) ? name : 0;
+
+//   uint8_t lenSettings = BMCTools::getMax(incoming.get7Bits(15), sLen);
+//   uint8_t lenEvents = BMCTools::getMax(incoming.get7Bits(16), eLen);
+//   uint8_t lenCount = 17;
+
+//   for(uint8_t i = 0 ; i < lenSettings ; i++){
+//     if(sLen > 0 && i < sLen){
+//       item.settings[i] = incoming.get8Bits(lenCount);
+//     }
+//     lenCount += 2;
+//   }
+
+//   for(uint8_t i = 0 ; i < lenEvents ; i++){
+//     if(eLen > 0 && i < eLen){
+//       uint16_t e = incoming.get14Bits(lenCount);
+//       if(!allowAnyValueForEvent && e > BMC_MAX_EVENTS_LIBRARY){
+//         e = 0;
+//       }
+//       item.events[i] = e;
+//     }
+//     lenCount += 2;
+//   }
+
+//   if(layer >= 0 && !backupActive()){
+//     saveLayersAndReloadData(layer);
+//     reloadData();
+//   }
+// }
+
 template <uint8_t sLen, uint8_t eLen, typename tname>
 void BMCEditor::incomingMessageDeviceWrite(bmcStoreDevice<sLen, eLen, tname>& item, uint16_t index, int16_t layer, bool allowAnyValueForEvent){
   uint16_t name = incoming.get14Bits(13);
-  if(name <= BMC_MAX_NAMES_LIBRARY){
-    item.name  = name;
-  } else {
-    item.name  = 0;
-  }
-  uint8_t lenSettings = incoming.get7Bits(15);
-  uint8_t lenEvents = incoming.get7Bits(16);
+
+  item.name = (name <= BMC_MAX_NAMES_LIBRARY) ? name : 0;
+
+  uint8_t lenSettings = BMCTools::getMax(incoming.get7Bits(15), sLen);
+  uint8_t lenEvents = BMCTools::getMax(incoming.get7Bits(16), eLen);
   uint8_t lenCount = 17;
-  if(lenSettings < sLen){
-    lenSettings = sLen;
-  }
-  if(lenEvents < eLen){
-    lenEvents = eLen;
-  }
-  for(uint8_t i = 0 ; i < lenSettings ; i++){
-    if(sLen > 0){
-      if(i < sLen){
-        item.settings[i] = incoming.get8Bits(lenCount);
-      }
+
+  for(uint8_t i = 0 ; i < lenSettings ; i++, lenCount += 2){
+    if(sLen > 0 && i < sLen){
+      item.settings[i] = incoming.get8Bits(lenCount);
     }
-    lenCount += 2;
   }
-  for(uint8_t i = 0 ; i < lenEvents ; i++){
-    if(eLen > 0){
-      if(i < eLen){
-        uint16_t e = incoming.get14Bits(lenCount);
-        if(!allowAnyValueForEvent && e > BMC_MAX_EVENTS_LIBRARY){
-          e = 0;
-        }
-        item.events[i] = e;
-      }
+
+  for(uint8_t i = 0 ; i < lenEvents ; i++, lenCount += 2){
+    if(eLen > 0 && i < eLen){
+      uint16_t eventValue = incoming.get14Bits(lenCount);
+      item.events[i] = (!allowAnyValueForEvent && eventValue > BMC_MAX_EVENTS_LIBRARY) ? 0 : eventValue;
     }
-    lenCount += 2;
   }
+
   if(layer >= 0 && !backupActive()){
     saveLayersAndReloadData(layer);
     reloadData();

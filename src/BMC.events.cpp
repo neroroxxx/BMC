@@ -178,6 +178,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         return map(currentCC, 0, 127, 0, 100);
 
       } else if(group == BMC_DEVICE_GROUP_DISPLAY){
+
 #if defined(BMC_HAS_DISPLAY)
         if(data.useName()){
           if(BMCTools::isValidNameIndex(e.name)){
@@ -190,11 +191,8 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
           data.highlight = currentCC >= 64;
           display.renderBlock(data);
 
-
-
           // editor.getDeviceNameText(deviceId, deviceIndex, t.name);
           // strcpy(data.str, t.name);
-          
           
         } else {
           sprintf(data.label, "CC#%u", data.byteB);

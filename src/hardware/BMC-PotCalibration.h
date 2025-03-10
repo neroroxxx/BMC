@@ -20,6 +20,7 @@ public:
       potIndex = n;
       min = 1023;
       max = 0;
+      currentValue = 0;
       return true;
     } else {
       // complete
@@ -33,13 +34,14 @@ public:
   void cancel(){
     reset();
   }
-  void setValue(uint16_t value){
+  void setValue(uint16_t t_value){
     if(active()){
-      if(value < min){
-        min = value;
+      currentValue = t_value;
+      if(t_value < min){
+        min = t_value;
       }
-      if(value > max){
-        max = value;
+      if(t_value > max){
+        max = t_value;
       }
     }
   }
@@ -55,8 +57,12 @@ public:
   uint16_t getMax(){
     return max;
   }
+  uint16_t getValue(){
+    return currentValue;
+  }
 private:
   uint8_t deviceType = 0;
+  uint16_t currentValue = 0xFFFF;
   uint16_t potIndex = 0xFFFF;
   uint16_t min = 1023;
   uint16_t max = 0;
@@ -65,6 +71,7 @@ private:
     potIndex = 0xFFFF;
     min = 1023;
     max = 0;
+    currentValue = 0;
   }
 };
 #endif

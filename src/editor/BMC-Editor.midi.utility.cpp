@@ -372,7 +372,7 @@ void BMCEditor::utilitySendClickTrackData(uint16_t freq, uint8_t level,
   sendToEditor(buff,true,false); // don't show midi activity
 #endif
 }
-void BMCEditor::utilitySendAnalogInputCalibrationStatus(bool status, bool canceled,
+void BMCEditor::utilitySendAnalogInputCalibrationStatus(bool status, bool canceled, bool reset,
                                                 bool onlyIfConnected){
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
@@ -387,14 +387,15 @@ void BMCEditor::utilitySendAnalogInputCalibrationStatus(bool status, bool cancel
     BMC_GLOBALF_UTILITY, 0,
     BMC_UTILF_POT_CALIBRATION_STATUS
   );
-  buff.appendToSysEx7Bits(status?1:0);
-  buff.appendToSysEx7Bits(canceled?1:0);
+  buff.appendToSysEx7Bits(status ? 1 : 0);
+  buff.appendToSysEx7Bits(canceled ? 1 : 0);
+  buff.appendToSysEx7Bits(reset ? 1 : 0);
   // don't show midi activity
   sendToEditor(buff, true, false);
 #endif
 }
 void BMCEditor::utilitySendAnalogInputCalibrationActivity(uint8_t deviceType, uint16_t index,
-                                                uint16_t min, uint16_t max,
+                                                uint16_t min, uint16_t max, uint16_t value,
                                                 bool onlyIfConnected){
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
   if(flags.read(BMC_EDITOR_FLAG_BACKUP_ACTIVE)){
@@ -413,8 +414,9 @@ void BMCEditor::utilitySendAnalogInputCalibrationActivity(uint8_t deviceType, ui
   buff.appendToSysEx14Bits(index);
   buff.appendToSysEx14Bits(min);
   buff.appendToSysEx14Bits(max);
+  buff.appendToSysEx14Bits(value);
   // don't show midi activity
-  sendToEditor(buff,true,false);
+  sendToEditor(buff, true, false);
 #endif
 }
 // send a message to the editor with the sketchbytes

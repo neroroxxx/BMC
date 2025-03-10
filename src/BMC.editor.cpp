@@ -428,9 +428,29 @@ void BMC::ctrlHardware(){
       if(potCalibration.active()){
         analogInputCalibrationToggle();
       }
-      BMC_PRINTLN("Pot Calibration Cancelled");
-      editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(),true);
+      BMC_PRINTLN("Pot Calibration Canceled");
+      editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(), true, false);
       break;
+
+    case BMC_CTRL_POT_CALIBRATION_RESET:
+      {
+        uint32_t e = editor.getCtrlValue();
+        uint8_t deviceType = (e >> 16) & 0xFF;
+        uint16_t index = e & 0xFFFF;
+        BMC_PRINTLN("BMCCtrl::hardware::PotCalibrationReset", deviceType, index);
+        if(potCalibration.active()){
+          editor.setPotCalibration(
+            potCalibration.getDeviceType(),
+            potCalibration.getIndex(),
+            0,
+            1023
+          );
+        }
+        analogInputCalibrationToggle(deviceType, index);
+        editor.utilitySendAnalogInputCalibrationStatus(potCalibration.active(), false, true);
+      }
+      break;
+
 #endif
   }
 }

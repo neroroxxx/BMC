@@ -60,7 +60,7 @@ void BMC::assignRelays(){
   #endif
 }
 void BMC::readRelays(){
-  #if BMC_MAX_NL_RELAYS > 0
+#if BMC_MAX_NL_RELAYS > 0
   for(uint8_t i = 0; i < BMC_MAX_NL_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysNL[i];
     if(device.events[0] != 0){
@@ -76,8 +76,9 @@ void BMC::readRelays(){
   if(globals.relayNLStates.hasChanged() || editor.isTriggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_NL_RELAY);
   }
-  #endif
-  #if BMC_MAX_L_RELAYS > 0
+#endif
+
+#if BMC_MAX_L_RELAYS > 0
   for(uint8_t i = 0; i < BMC_MAX_L_RELAYS; i++){
     bmcStoreDevice <1, 1>& device = store.global.relaysL[i];
     if(device.events[0] != 0){
@@ -93,7 +94,7 @@ void BMC::readRelays(){
   if(globals.relayLStates.hasChanged() || editor.isTriggerStates()){
     editor.utilitySendStateBits(BMC_DEVICE_ID_L_RELAY);
   }
-  #endif
+#endif
 }
 void BMC::setRelay(uint8_t index, bool latching, uint8_t cmd){
   if(!latching){
