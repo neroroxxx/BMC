@@ -80,6 +80,16 @@ void BMCEditor::globalProcessMessage(){
     case BMC_EDITOR_FUNCTION_LINK:
       incomingMessageLinks();
       break;
+    case BMC_EDITOR_FUNCTION_CONNECTION_ALIVE:
+      // BMC_PRINTLN("BMC_EDITOR_FUNCTION_CONNECTION_ALIVE received");
+      #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+        if(!editorHasConnectionAliveOption){
+          // BMC_PRINTLN("BMC_EDITOR_FUNCTION_CONNECTION_ALIVE is now enabled");
+          connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
+        }
+        editorHasConnectionAliveOption = true;
+      #endif
+      break;
   }
 }
 void BMCEditor::incomingMessageLinks(){
@@ -1017,6 +1027,7 @@ void BMCEditor::connectEditor(){
     sendNotification(BMC_NOTIFY_CONNECTION, 1);
     return;
   }
+
   BMC_INFO(
     "Connecting to Editor on",
     BMCTools::getPortName(incoming.getPort())
@@ -1028,6 +1039,15 @@ void BMCEditor::connectEditor(){
   flags.on(BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED);
   // respond with a connection message with the sysex id as the code
   sendNotification(BMC_NOTIFY_CONNECTION, BMC_EDITOR_SYSEX_ID);
+}
+
+void BMCEditor::keepConnectionAlive(){
+  #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+    if(midi.globals.editorConnected() && editorHasConnectionAliveOption){
+      BMC_PRINTLN("Reset editor connection timer");
+      connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
+    }
+  #endif
 }
 
 void BMCEditor::disconnectEditor(){
@@ -1072,6 +1092,10 @@ void BMCEditor::disconnect(bool t_notify){
   flags.off(BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR);
   flags.on(BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED);
   flags.on(BMC_EDITOR_FLAG_EDITOR_DISCONNECTED);
+  #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+    connectionAliveTimer.stop();
+    editorHasConnectionAliveOption = false;
+  #endif
 }
 void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
   if(!isValidGlobalMessage()){
@@ -1169,6 +1193,12 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     #if BMC_MAX_MINI_DISPLAY > 0 && BMC_MAX_MINI_DISPLAY_EVENTS == 2
       bitWrite(buildData, 24, 1);
     #endif
+
+    #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+      bitWrite(buildData, 25, 1);
+    #endif
+
+    
 
     // remove after out of beta
     bitWrite(buildData, 31, 1);

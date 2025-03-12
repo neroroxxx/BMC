@@ -20,6 +20,10 @@
 #include <TimeLib.h>
 #endif
 
+// keep the connection between bmc and the editor alive for this time (ms),
+// remove definition to disable it
+#define BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT 5000
+
 #define BMC_EDITOR_FLAG_CONNECTED                      0
 #define BMC_EDITOR_FLAG_CONNECTION_HAS_CHANGED      	 1
 #define BMC_EDITOR_FLAG_READY_TO_RELOAD             	 2
@@ -131,6 +135,7 @@ public:
   bool connected();
   bool connectionHasChanged();
   void connectEditor();
+  void keepConnectionAlive();
   void disconnectEditor();
   void forceDisconnectEditor();
   void setPort(uint8_t port);
@@ -284,6 +289,13 @@ private:
   BMCMessenger& messenger;
   // the midi flags of the incoming editor message
   BMCEditorMidiFlags midiFlags;
+
+  #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+    // handles keeping the connection alive after the editor has been connected.
+    BMCTimer connectionAliveTimer;
+    bool editorHasConnectionAliveOption = false;
+  #endif
+
   // the port that other BMC device is connected to
   uint8_t chaingingPort = 0;
   // the port that sent the original message to be chained

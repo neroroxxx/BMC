@@ -67,6 +67,10 @@ bool BMCEditor::read(){
     if(incoming.validateChecksum()){
       // assign the flags to make it easier to read them
       midiFlags.set(incoming.sysex[5]);
+
+      // handle keeping the connection alive
+      keepConnectionAlive();
+      
       if(isUtilityMessage()){
         utilityCommand();
         #if BMC_RESET_INCOMING_EDITOR_MESSAGES

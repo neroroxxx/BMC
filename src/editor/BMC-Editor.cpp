@@ -105,6 +105,13 @@ void BMCEditor::begin(){
 }
 void BMCEditor::update(){
   flags.off(BMC_EDITOR_FLAG_SEND_STATES);
+
+  #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
+    if(midi.globals.editorConnected() && editorHasConnectionAliveOption && connectionAliveTimer.complete()){
+      BMC_INFO("Editor Connection Lost");
+      disconnect(false);
+    }
+  #endif
 }
 bool BMCEditor::readyToReload(){
   return flags.toggleIfTrue(BMC_EDITOR_FLAG_READY_TO_RELOAD);
