@@ -63,13 +63,15 @@ For better management all BMC Documentation has been moved to [https://www.roxxx
 
 ## The Editor App
 
+
+### You can now get the BMC Editor App for iPad!
 <p align="center">
-<h3>You can now get the BMC Editor App for iPad!</h3>
-<a href="https://www.roxxxtar.com/?urlrefcode=58a6d4b18f998172d83f3171d43b465f" target="_blank">
-<img src="images/app-store.png" alt="Description" width="400" style="margin: 5px auto;">
-</a>
-<p>Purchasing the Editor App supports BMC development.</p>
+  <a href="https://www.roxxxtar.com/?urlrefcode=58a6d4b18f998172d83f3171d43b465f" target="_blank">
+    <img src="images/app-store.png" alt="Description" width="400" style="margin: 5px auto;">
+  </a>
 </p>
+<p align="center">Purchasing the Editor App supports BMC development.</p>
+
 
 ![BMC Editor App](images/bmc-editor-preview.jpg)
 
