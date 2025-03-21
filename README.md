@@ -87,11 +87,9 @@ For complete documentation, visit:
 
 🎉 **Get the BMC Editor App for iPad!** 🎉
 
-<p align="center">
-  <a href="https://www.roxxxtar.com/?urlrefcode=58a6d4b18f998172d83f3171d43b465f" target="_blank">
-    <img src="images/app-store.png" alt="Description" width="400" style="margin: 5px auto;">
-  </a>
-</p>
+<a href="https://www.roxxxtar.com/?urlrefcode=58a6d4b18f998172d83f3171d43b465f" target="_blank">
+  <img src="images/app-store.png" alt="Description" width="400" style="margin: 5px auto;">
+</a>
 
 Purchasing the app **supports BMC development**! ❤️
 
