@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -32,8 +32,8 @@ struct __attribute__ ((packed)) BMCDeviceData {
   char label[19] = "";
   int16_t group = 0;
   uint16_t length = 0;
-  bool global = 0;
-  bool hardware = 0;
+  bool global = false;
+  bool hardware = false;
   uint8_t settings = 0;
   uint8_t events = 0;
 };
@@ -46,6 +46,7 @@ struct __attribute__ ((packed)) BMCDeviceData {
 //   bool ports = false;
 //   uint8_t fields = 0;
 // };
+
 struct bmcXY {
   int16_t x = 0;
   int16_t y = 0;
@@ -75,7 +76,8 @@ struct BMCEventScrollData {
     }
   }
 };
-struct __attribute__ ((packed)) BMCDataContainer {
+
+struct BMCDataContainer {
   uint16_t index = 0;
   uint8_t crc = 0;
   uint8_t settings = 0;
@@ -106,6 +108,7 @@ struct __attribute__ ((packed)) BMCDataContainer {
   char format[16] = "";
   uint8_t digits = 1;
   BMCEventScrollData scroll;
+
   uint16_t setMinMax(uint16_t t_currentValue, uint16_t t_min, uint16_t t_max, uint16_t t_min2, uint16_t t_max2){
     min = t_min;
     max = t_max;
@@ -306,6 +309,10 @@ struct BMCUIData {
   uint16_t other1 = 0;
   uint16_t other2 = 0;
 };
+
+// #if !defined(BMC_DEVICE_UI_SHORTCUTS_1)
+//   #define BMC_DEVICE_UI_SHORTCUTS_1 {{-1, -1, -1}, 900, 0, 0, 0, 0, 0, 0, 0};
+// #endif
 
 struct BMCLinkData {
   uint8_t id1 = 0;

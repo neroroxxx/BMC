@@ -1,13 +1,31 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
 
 #include <Arduino.h>
 
+
+// #if __cplusplus == 199711L
+//   #error "C++98/03 is enabled"
+// #elif __cplusplus == 201103L
+//   #error "C++11 is enabled"
+// #elif __cplusplus == 201402L
+//   #error "C++14 is enabled"
+// #elif __cplusplus == 201703L
+//   #error "C++17 is enabled"
+// #elif __cplusplus == 202002L
+//   #error "C++20 is enabled"
+// #elif __cplusplus > 202002L
+//   #error "C++23 or newer is enabled"
+// #else
+//   #error "Unknown or unsupported C++ version"
+// #endif
+
+
 #if __has_include("config.h")
-#  include "config.h"
+#include "config.h"
 //#pragma message "BMC_ILI9488_t3h - included ILI9488_sketch_options.h"
 #endif
 
@@ -30,6 +48,15 @@
   tLC __MKL26Z64__ not tested - supported? - NO CLICK TRACK
 
 */
+
+
+// #if defined(ESP32_DEV)
+//   #error "ESP32_DEV"
+// #elif defined(ARDUINO_ESP32_DEV)
+//   #error "ARDUINO_ESP32_DEV"
+// #endif
+
+
 #if defined(__arm__) && defined(CORE_TEENSY)
 
   #define BMC_FOR_TEENSY
@@ -37,100 +64,107 @@
   #if defined(ARDUINO_TEENSY_MICROMOD)
     // Teensy 4.1
     // __IMXRT1062__
-    #define BMC_TEENSY_MODEL             	 42
-    #define BMC_TEENSY_MODEL_STR         	 "MicroMod"
-    #define BMC_TEENSY_RAM_SIZE          	 1024000
-    #define BMC_TEENSY_EEPROM_SIZE       	 4284
-    #define BMC_TEENSY_HAS_USB_HOST      	 true
-    #define BMC_TEENSY_HAS_SD_CARD       	 true
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 8
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 46
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 27
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 18
+    #define BMC_MCU_MODEL             	 42
+    #define BMC_MCU_MODEL_STR         	 "MicroMod"
+    #define BMC_MCU_RAM_SIZE          	 1024000
+    #define BMC_MCU_EEPROM_SIZE       	 4284
+    #define BMC_MCU_HAS_USB_HOST      	 true
+    #define BMC_MCU_HAS_SD_CARD       	 true
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 46
+    #define BMC_MCU_TOTAL_PWM_PINS    	 27
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
 
   #elif defined(ARDUINO_TEENSY41)
     // Teensy 4.1
     // __IMXRT1062__
-    #define BMC_TEENSY_MODEL             	 41
-    #define BMC_TEENSY_MODEL_STR         	 "4.1"
-    #define BMC_TEENSY_RAM_SIZE          	 1024000
-    #define BMC_TEENSY_EEPROM_SIZE       	 4284
-    #define BMC_TEENSY_HAS_USB_HOST      	 true
-    #define BMC_TEENSY_HAS_SD_CARD       	 true
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 8
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 42
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 27
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 18
+    #define BMC_MCU_MODEL             	 41
+    #define BMC_MCU_MODEL_STR         	 "4.1"
+    #define BMC_MCU_RAM_SIZE          	 1024000
+    #define BMC_MCU_EEPROM_SIZE       	 4284
+    #define BMC_MCU_HAS_USB_HOST      	 true
+    #define BMC_MCU_HAS_SD_CARD       	 true
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 42
+    #define BMC_MCU_TOTAL_PWM_PINS    	 27
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
 
   #elif defined(ARDUINO_TEENSY40)
     // Teensy 4.0
     // __IMXRT1062__
-    #define BMC_TEENSY_MODEL             	 40
-    #define BMC_TEENSY_MODEL_STR         	 "4.0"
-    #define BMC_TEENSY_RAM_SIZE          	 1024000
-    #define BMC_TEENSY_EEPROM_SIZE       	 1080
-    #define BMC_TEENSY_HAS_USB_HOST      	 true
-    #define BMC_TEENSY_HAS_SD_CARD       	 true
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 7
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 40
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 31
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 14
+    #define BMC_MCU_MODEL             	 40
+    #define BMC_MCU_MODEL_STR         	 "4.0"
+    #define BMC_MCU_RAM_SIZE          	 1024000
+    #define BMC_MCU_EEPROM_SIZE       	 1080
+    #define BMC_MCU_HAS_USB_HOST      	 true
+    #define BMC_MCU_HAS_SD_CARD       	 true
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 7
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 40
+    #define BMC_MCU_TOTAL_PWM_PINS    	 31
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 14
 
   #elif defined(ARDUINO_TEENSY36)
     // Teensy 3.6
     // __MK66FX1M0__
-    #define BMC_TEENSY_MODEL             	 36
-    #define BMC_TEENSY_MODEL_STR         	 "3.6"
-    #define BMC_TEENSY_RAM_SIZE          	 262144
-    #define BMC_TEENSY_EEPROM_SIZE       	 4096
-    #define BMC_TEENSY_HAS_USB_HOST      	 true
-    #define BMC_TEENSY_HAS_SD_CARD       	 true
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 6
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 58
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 22
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 25
+    #define BMC_MCU_MODEL             	 36
+    #define BMC_MCU_MODEL_STR         	 "3.6"
+    #define BMC_MCU_RAM_SIZE          	 262144
+    #define BMC_MCU_EEPROM_SIZE       	 4096
+    #define BMC_MCU_HAS_USB_HOST      	 true
+    #define BMC_MCU_HAS_SD_CARD       	 true
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
+    #define BMC_MCU_TOTAL_PWM_PINS    	 22
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 25
 
   #elif defined(ARDUINO_TEENSY35)
     // Teensy 3.5
     // __MK64FX512__
-    #define BMC_TEENSY_MODEL             	 35
-    #define BMC_TEENSY_MODEL_STR         	 "3.5"
-    #define BMC_TEENSY_RAM_SIZE          	 262144
-    #define BMC_TEENSY_EEPROM_SIZE       	 4096
-    #define BMC_TEENSY_HAS_USB_HOST      	 false
-    #define BMC_TEENSY_HAS_SD_CARD       	 true
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 6
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 58
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 20
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 27
+    #define BMC_MCU_MODEL             	 35
+    #define BMC_MCU_MODEL_STR         	 "3.5"
+    #define BMC_MCU_RAM_SIZE          	 262144
+    #define BMC_MCU_EEPROM_SIZE       	 4096
+    #define BMC_MCU_HAS_USB_HOST      	 false
+    #define BMC_MCU_HAS_SD_CARD       	 true
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
+    #define BMC_MCU_TOTAL_PWM_PINS    	 20
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 27
 
   #elif defined(ARDUINO_TEENSY32)
     // Teensy 3.2 / 3.1
     // __MK20DX256__
-    #define BMC_TEENSY_MODEL             	 32
-    #define BMC_TEENSY_MODEL_STR         	 "3.2"
-    #define BMC_TEENSY_RAM_SIZE          	 65536
-    #define BMC_TEENSY_EEPROM_SIZE       	 2048
-    #define BMC_TEENSY_HAS_USB_HOST      	 false
-    #define BMC_TEENSY_HAS_SD_CARD       	 false
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 3
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 33
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 12
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 21
+    #define BMC_MCU_MODEL             	 32
+    #define BMC_MCU_MODEL_STR         	 "3.2"
+    #define BMC_MCU_RAM_SIZE          	 65536
+    #define BMC_MCU_EEPROM_SIZE       	 2048
+    #define BMC_MCU_HAS_USB_HOST      	 false
+    #define BMC_MCU_HAS_SD_CARD       	 false
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 33
+    #define BMC_MCU_TOTAL_PWM_PINS    	 12
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 21
 
   #elif defined(ARDUINO_TEENSYLC)
     // Teensy LC
     // __MKL26Z64__
-    #define BMC_TEENSY_MODEL             	 10
-    #define BMC_TEENSY_MODEL_STR         	 "LC"
-    #define BMC_TEENSY_RAM_SIZE          	 8192
-    #define BMC_TEENSY_EEPROM_SIZE       	 128
-    #define BMC_TEENSY_HAS_USB_HOST      	 false
-    #define BMC_TEENSY_HAS_SD_CARD       	 false
-    #define BMC_TEENSY_TOTAL_SERIAL_PORTS	 3
-    #define BMC_TEENSY_TOTAL_DIGITAL_PINS	 27
-    #define BMC_TEENSY_TOTAL_PWM_PINS    	 10
-    #define BMC_TEENSY_TOTAL_ANALOG_PINS 	 13
+    #define BMC_MCU_MODEL             	 10
+    #define BMC_MCU_MODEL_STR         	 "LC"
+    #define BMC_MCU_RAM_SIZE          	 8192
+    #define BMC_MCU_EEPROM_SIZE       	 128
+    #define BMC_MCU_HAS_USB_HOST      	 false
+    #define BMC_MCU_HAS_SD_CARD       	 false
+    #define BMC_MCU_HAS_BLE       	     false
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 27
+    #define BMC_MCU_TOTAL_PWM_PINS    	 10
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 13
 
     #error "Teensy LC is no longer supported due to Flash size."
 
@@ -138,11 +172,30 @@
     #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
   #endif
 
+#elif defined(ARDUINO_ESP32_DEV)
+  #define BMC_FOR_ESP32
+
+  #if !defined(ESP32)
+    #define ESP32
+  #endif
+
+    #define BMC_MCU_MODEL             	 100
+    #define BMC_MCU_MODEL_STR         	 "ESP32 Devkit"
+    #define BMC_MCU_RAM_SIZE          	 520000
+    #define BMC_MCU_EEPROM_SIZE       	 512
+    #define BMC_MCU_HAS_USB_HOST      	 false
+    #define BMC_MCU_HAS_SD_CARD       	 false
+    #define BMC_MCU_HAS_BLE       	     true
+    #define BMC_MCU_TOTAL_SERIAL_PORTS	 1
+    #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+    #define BMC_MCU_TOTAL_PWM_PINS    	 21
+    #define BMC_MCU_TOTAL_ANALOG_PINS 	 15
+
 #else
   #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
-#if !defined(BMC_TEENSY_MODEL)
+#if !defined(BMC_MCU_MODEL) && !defined(BMC_FOR_ESP32)
   #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
 #endif
 
@@ -175,7 +228,7 @@
 // ************* System Real Time **************
 // *********************************************
 #define BMC_MIDI_RT_CLOCK               	 0xF8 // 1 byte
-//0xF9 undefined
+#define BMC_MIDI_RT_CLOCK_TICK           	 0xF9 // 1 byte
 #define BMC_MIDI_RT_START               	 0xFA // 1 byte
 #define BMC_MIDI_RT_CONTINUE            	 0xFB // 1 byte
 #define BMC_MIDI_RT_STOP                	 0xFC // 1 byte
@@ -202,26 +255,30 @@
   "You MUST update your sketch and/or config file and reupload it."\
 );BMCTools::sos();
 
+#if defined(BMC_FOR_ESP32)
+  #define FASTRUN
+#endif
+
 
 // Macros
 #ifndef digitalToggle
-  #define digitalToggle(pin) digitalWriteFast(pin, !digitalReadFast(pin))
+  #define digitalToggle(pin) digitalWrite(pin, !digitalRead(pin))
 #endif
 
 #ifndef digitalHigh
-  #define digitalHigh(pin) digitalWriteFast(pin, HIGH)
+  #define digitalHigh(pin) digitalWrite(pin, HIGH)
 #endif
 
 #ifndef digitalLow
-  #define digitalLow(pin) digitalWriteFast(pin, LOW)
+  #define digitalLow(pin) digitalWrite(pin, LOW)
 #endif
 
 #ifndef digitalIsHigh
-  #define digitalIsHigh(pin) (digitalReadFast(pin)==HIGH)
+  #define digitalIsHigh(pin) (digitalRead(pin)==HIGH)
 #endif
 
 #ifndef digitalIsLow
-  #define digitalIsLow(pin) (digitalReadFast(pin)==LOW)
+  #define digitalIsLow(pin) (digitalRead(pin)==LOW)
 #endif
 
 const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
@@ -480,6 +537,8 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_AUX_JACK                	 66
 #define BMC_EVENT_TYPE_CUSTOM                	   67
 #define BMC_EVENT_TYPE_NAME                	     68
+#define BMC_EVENT_TYPE_SKETCH_INPUT              69
+#define BMC_EVENT_TYPE_SKETCH_OUTPUT             70
 
 
 #define BMC_EVENT_IO_TYPE_ANY             	 0
@@ -609,34 +668,34 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_MIDI_PORT_BLE_BIT     	 6
 
 // USED TO "OR" PORTS
-#define BMC_USB                   	 B00000001 // 0x01 (1)
-#define BMC_SERIAL_A              	 B00000010 // 0x02 (2)
-#define BMC_SERIAL_B              	 B00000100 // 0x04 (4)
-#define BMC_SERIAL_C              	 B00001000 // 0x08 (8)
-#define BMC_SERIAL_D              	 B00010000 // 0x10 (16)
-#define BMC_HOST                  	 B00100000 // 0x20 (32)
-#define BMC_BLE                   	 B01000000 // 0x40 (64)
+#define BMC_USB                   	 0b00000001 // 0x01 (1)
+#define BMC_SERIAL_A              	 0b00000010 // 0x02 (2)
+#define BMC_SERIAL_B              	 0b00000100 // 0x04 (4)
+#define BMC_SERIAL_C              	 0b00001000 // 0x08 (8)
+#define BMC_SERIAL_D              	 0b00010000 // 0x10 (16)
+#define BMC_HOST                  	 0b00100000 // 0x20 (32)
+#define BMC_BLE                   	 0b01000000 // 0x40 (64)
 
 // use to send to all ports
 #define BMC_ALL_PORTS             	 127
 
 // use to send to Port Presets
-#define BMC_PORTP_0               	 B1000000 // 128
-#define BMC_PORTP_1               	 B1000000 // 129
-#define BMC_PORTP_2               	 B1000001 // 130
-#define BMC_PORTP_3               	 B1000001 // 131
-#define BMC_PORTP_4               	 B1000010 // 132
-#define BMC_PORTP_5               	 B1000010 // 133
-#define BMC_PORTP_6               	 B1000011 // 134
-#define BMC_PORTP_7               	 B1000011 // 135
-#define BMC_PORTP_8               	 B1000100 // 136
-#define BMC_PORTP_9               	 B1000100 // 137
-#define BMC_PORTP_10              	 B1000101 // 138
-#define BMC_PORTP_11              	 B1000101 // 139
-#define BMC_PORTP_12              	 B1000110 // 140
-#define BMC_PORTP_13              	 B1000110 // 141
-#define BMC_PORTP_14              	 B1000111 // 142
-#define BMC_PORTP_15              	 B1000111 // 143
+#define BMC_PORTP_0               	 0b1000000 // 128
+#define BMC_PORTP_1               	 0b1000000 // 129
+#define BMC_PORTP_2               	 0b1000001 // 130
+#define BMC_PORTP_3               	 0b1000001 // 131
+#define BMC_PORTP_4               	 0b1000010 // 132
+#define BMC_PORTP_5               	 0b1000010 // 133
+#define BMC_PORTP_6               	 0b1000011 // 134
+#define BMC_PORTP_7               	 0b1000011 // 135
+#define BMC_PORTP_8               	 0b1000100 // 136
+#define BMC_PORTP_9               	 0b1000100 // 137
+#define BMC_PORTP_10              	 0b1000101 // 138
+#define BMC_PORTP_11              	 0b1000101 // 139
+#define BMC_PORTP_12              	 0b1000110 // 140
+#define BMC_PORTP_13              	 0b1000110 // 141
+#define BMC_PORTP_14              	 0b1000111 // 142
+#define BMC_PORTP_15              	 0b1000111 // 143
 
 
 
@@ -1292,13 +1351,13 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 // bit 2 = blue
 #define BMC_COLOR_DEFAULT        	 0
 #define BMC_COLOR_BLACK          	 0
-#define BMC_COLOR_RED            	 B0001
-#define BMC_COLOR_GREEN          	 B0010
-#define BMC_COLOR_YELLOW         	 B0011
-#define BMC_COLOR_BLUE           	 B0100
-#define BMC_COLOR_MAGENTA        	 B0101
-#define BMC_COLOR_CYAN           	 B0110
-#define BMC_COLOR_WHITE          	 B0111
+#define BMC_COLOR_RED            	 0b0001
+#define BMC_COLOR_GREEN          	 0b0010
+#define BMC_COLOR_YELLOW         	 0b0011
+#define BMC_COLOR_BLUE           	 0b0100
+#define BMC_COLOR_MAGENTA        	 0b0101
+#define BMC_COLOR_CYAN           	 0b0110
+#define BMC_COLOR_WHITE          	 0b0111
 #define BMC_COLOR_ORANGE         	 8
 #define BMC_COLOR_RAINBOW        	 9
 #define BMC_COLOR_RAINBOW_FADE   	 10
@@ -2454,6 +2513,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 // INCLUDE ALL DEPENDENCIES
 #include "BMC-Version.h"
+#include "utility/BMC-ElapsedMillis.h"
 #include "utility/BMC-Timer.h"
 #include "utility/BMC-Flags.h"
 #include "utility/BMC-SerialMonitor.h"

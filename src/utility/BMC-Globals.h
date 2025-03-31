@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -54,7 +54,7 @@
 // https://github.com/mpflaga/Arduino-MemoryFree
 // doesn't seem to be work with Teensy 4.0 unless
 // Returns 4GB of Free RAM
-#if BMC_TEENSY_MODEL != 40
+#if defined(BMC_FOR_TEENSY) && BMC_MCU_MODEL != 40
 extern char *__brkval;
 #endif
 
@@ -95,7 +95,7 @@ public:
   // doesn't seem to be work with Teensy 4.0 unless
   // Returns 4GB of Free RAM
   uint32_t getRAM(){
-#if BMC_TEENSY_MODEL != 40
+#if defined(BMC_FOR_TEENSY) && BMC_MCU_MODEL != 40
     char top;
     return &top - __brkval;
 #else

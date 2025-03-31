@@ -46,7 +46,12 @@
  *
  */
 
+//  #include "utility/BMC-Def.h"
+
+#if true
+
 #include "display/drivers/BMC-ILI9341.h"
+
 #ifndef ARDUINO_STM32_FEATHER
 #include "pins_arduino.h"
 #ifndef RASPI
@@ -340,3 +345,4 @@ uint8_t BMC_ILI9341::readcommand8(uint8_t commandByte, uint8_t index) {
   sendCommand(0xD9, &data, 1); // Set Index Register
   return Adafruit_SPITFT::readcommand8(commandByte);
 }
+#endif

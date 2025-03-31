@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -71,7 +71,7 @@ BMC::BMC():
 
 void BMC::begin(){
   #ifdef BMC_DEBUG
-    Serial.begin(115200);
+    setupDebug();
   #endif
 
   BMC_PRINTLN("BMC::begin");
@@ -79,10 +79,6 @@ void BMC::begin(){
   // keep this order
   #if defined(BMC_HAS_DISPLAY)
     display.begin();
-  #endif
-  
-  #ifdef BMC_DEBUG
-    setupDebug();
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
@@ -150,7 +146,7 @@ void BMC::update(){
   // This way if any callbacks triggered by the layer change can be triggered
   // and seen by your display.
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
-    BMC_PRINTLN("FIRST loop()");
+    BMC_PRINTLN("Running First loop()");
 
     #if defined(BMC_HAS_DISPLAY)
       #if BMC_MAX_ILI9341_BLOCKS > 0
@@ -203,7 +199,7 @@ void BMC::update(){
     oneSecondTimer = 0;
     oneMilliSecondtimer = 0;
     BMC_PRINTLN("");
-    BMC_PRINTLN("FIRST loop() complete");
+    BMC_PRINTLN("First loop() complete");
   }
   if(globals.reloadLayer()){
     reloadLayer();
@@ -214,28 +210,28 @@ void BMC::update(){
   #if defined(BMC_USE_ON_BOARD_EDITOR)
     obe.update();
   #endif
-
+  
   #if defined(BMC_HAS_DISPLAY)
     display.update();
     // #if defined(BMC_USE_ON_BOARD_EDITOR) && defined(BMC_HAS_TOUCH_SCREEN)
     //   obe.menuCommand(display.getTouchCommand());
     // #endif
   #endif
-
+  
   #if BMC_MAX_TEMPO_TO_TAP > 0
     runTempoToTap();
   #endif
-
+  
   #if BMC_MAX_TIMED_EVENTS > 0
     readTimedEvent();
   #endif
-
+  
   editor.update();
-
+  
   // read the midi input ports
   // this method is in BMC.midi.cpp
   readMidi();
-
+  
   // this callback is called in the middle of BMC's update method
   // use it when you need to run code in your sketch more often.
   // on your sketch's setup just add bmc.onMidUpdate(yourFunction);
@@ -372,6 +368,7 @@ void BMC::update(){
     // tick stopwatch and runtime tracker
     stopwatch.tick();
     runTime.tick();
+    
     #if defined(BMC_DEBUG)
       globals.setTimerComplete();
     #endif

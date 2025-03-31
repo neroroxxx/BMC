@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -84,7 +84,7 @@ public:
     bmcFile.close();
   }
   uint16_t length(){
-    #if BMC_TEENSY_RAM_SIZE >= 256000 && defined(BMC_STORAGE_PARTITION_SIZE_32K)
+    #if BMC_MCU_RAM_SIZE >= 256000 && defined(BMC_STORAGE_PARTITION_SIZE_32K)
       return 32000;
     #else
       return 16000;

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -49,7 +49,7 @@ public:
     return false;
   }
   // static
-  static void printArray(bool inHex, uint8_t *t_data, uint16_t t_size){
+  static void printArray(bool inHex, const uint8_t *t_data, uint16_t t_size){
     if(inHex){
       Serial.print("(HEX) (");
     } else {

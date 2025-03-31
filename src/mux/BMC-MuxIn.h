@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -35,7 +35,7 @@ private:
 #endif
 
 #if BMC_MUX_IN_CHIPSET != BMC_MUX_IN_CHIPSET_OTHER
-  elapsedMicros timer;
+  BMCElapsedMicros timer;
 #endif
 
   uint8_t parsePinNumber(uint8_t t_pin){

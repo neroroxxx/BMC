@@ -48,6 +48,10 @@
 
 // <\SoftEgg>
 
+#include "utility/BMC-Def.h"
+
+#if defined(BMC_FOR_TEENSY) && BMC_MAX_ILI9341_BLOCKS > 0
+
 #include "display/drivers/BMC-ILI9488_t3.h"
 #include <SPI.h>
 
@@ -4872,3 +4876,4 @@ void BMC_ILI9488_t3::waitUpdateAsyncComplete(void)
 		write16BitColor(color);
 	}
 
+#endif

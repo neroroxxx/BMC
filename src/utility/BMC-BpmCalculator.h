@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -71,10 +71,14 @@ public:
   // used by Tap Tempo
   bool tap(){
     timer.start(2000);
-    if(prevBeat==0){
+    
+    if(prevBeat == 0){
       prevBeat = mms;
     }
-    bpmAvg[bpmAvgSize] = round(((float) BMC_MICROS_ON_SECOND / (mms - prevBeat)));
+    if(mms - prevBeat > 0){
+      bpmAvg[bpmAvgSize] = round(((float) BMC_MICROS_ON_SECOND / (mms - prevBeat)));
+    }
+    
     bpmAvgSize++;
     prevBeat = mms;
     if(bpmAvgSize>=BMC_BPM_AVERAGE){
@@ -100,10 +104,16 @@ public:
     return bpmToMicros(tempo) / 24;
   }
   static unsigned long bpmToMillis(uint16_t tempo){
-    return (BMC_MILLIS_ON_SECOND / tempo);
+    if(tempo > 0){
+      return (BMC_MILLIS_ON_SECOND / tempo);
+    }
+    return 0;
   }
   static unsigned long bpmToMicros(uint16_t tempo){
-    return (BMC_MICROS_ON_SECOND / tempo);
+    if(tempo > 0){
+      return (BMC_MICROS_ON_SECOND / tempo);
+    }
+    return 0;
   }
   static bool isValidBpm(uint16_t tempo){
     return (tempo>=30 && tempo<=300);

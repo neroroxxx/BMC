@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -19,6 +19,35 @@ public:
   template <typename T>
   static T getMax(T a, T b) {
     return (a > b) ? a : b;
+  }
+  static bool isValidAnalogReadCommand(const char* input) {
+    // Check if the string starts with "analogRead "
+    if (strncmp(input, "analogRead ", 11) == 0) {
+      // Extract the part after "analogRead "
+      int value = atoi(input + 11); // atoi converts the substring to an integer
+  
+      // Check if the value is between 0 and 255
+      if (value >= 0 && value <= 255) {
+        BMC_PRINTLN(input, "=", analogRead(value));
+        return true;  // Valid format and value
+      }
+    }
+    return false;  // Invalid format or value
+  }
+  
+  static bool isValidDigitalReadCommand(const char* input) {
+    // Check if the string starts with "digitalRead "
+    if (strncmp(input, "digitalRead ", 12) == 0) {
+      // Extract the part after "digitalRead "
+      int value = atoi(input + 12); // atoi converts the substring to an integer
+  
+      // Check if the value is between 0 and 255
+      if (value >= 0 && value <= 255) {
+        BMC_PRINTLN(input, "=", digitalRead(value));
+        return true;  // Valid format and value
+      }
+    }
+    return false;  // Invalid format or value
   }
   static bool match(int n, int v){
     return n==v;
@@ -79,7 +108,11 @@ public:
   }
   static String printPortsNames(uint8_t port){
     if(isMidiUsbPort(port)){
-      BMC_PRINT("USB, ");
+      #if defined(BMC_FOR_TEENSY)
+        BMC_PRINT("USB, ");
+      #elif defined(BMC_FOR_ESP32)
+        BMC_PRINT("BLE, ");
+      #endif
     } else if(isMidiSerialAPort(port)){
       BMC_PRINT("SerialA, ");
     } else if(isMidiSerialBPort(port)){
@@ -444,6 +477,7 @@ public:
       sprintf(buff, "%c", alph[n]);
     }
   }
+  
   static uint16_t toPresetIndex(uint8_t t_bank, uint8_t t_preset){
     uint16_t p = (t_bank << BMC_PRESET_BANK_MASK) | (t_preset & (BMC_MAX_PRESETS_PER_BANK-1));
     if(p >= BMC_MAX_PRESETS){

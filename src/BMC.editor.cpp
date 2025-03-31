@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com 
+  Copyright (c) 2025 Roxxxtar.com 
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -78,6 +78,10 @@ void BMC::assignSettings(){
   midi.setClockListenerPort(settings.getClockInputPortBit());
   editor.setChainingPort(settings.getChainingPort());
 
+  #if BMC_TOTAL_PIXELS > 0
+    pixels.setBrightness(settings.getPixelsBrightness());
+  #endif
+
   #if BMC_MAX_SETLISTS > 0
     setLists.setPartRecall(settings.getSetListAllowPartRecall());
   #endif
@@ -85,6 +89,7 @@ void BMC::assignSettings(){
   valueTyper.setOffset(settings.getDisplayOffset());
 
   midi.setRouting(BMC_USB, settings.getUsbRouting());
+
 #ifdef BMC_MIDI_SERIAL_A_ENABLED
   midi.setRouting(BMC_SERIAL_A, settings.getSerialARouting());
 #endif

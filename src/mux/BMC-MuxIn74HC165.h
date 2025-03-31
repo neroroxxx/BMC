@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -61,22 +61,22 @@ public:
     pinMode(BMC_MUX_IN_74HC165_CLOCK, OUTPUT);
     pinMode(BMC_MUX_IN_74HC165_LOAD, OUTPUT);
     pinMode(BMC_MUX_IN_74HC165_DATA, INPUT);
-    digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, LOW);
-    digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, HIGH);
+    digitalWrite(BMC_MUX_IN_74HC165_CLOCK, LOW);
+    digitalWrite(BMC_MUX_IN_74HC165_LOAD, HIGH);
   }
 
   void update(){
     // set load pin
-    digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, LOW);
+    digitalWrite(BMC_MUX_IN_74HC165_LOAD, LOW);
     delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
-    digitalWriteFast(BMC_MUX_IN_74HC165_LOAD, HIGH);
+    digitalWrite(BMC_MUX_IN_74HC165_LOAD, HIGH);
     for(uint8_t mux = 0; mux < BMC_MUX_IN_CHIP_COUNT; mux++){
       for(int i = 7; i >= 0; i--){
-        uint8_t bit = digitalReadFast(BMC_MUX_IN_74HC165_DATA);
+        uint8_t bit = digitalRead(BMC_MUX_IN_74HC165_DATA);
         bitWrite(states[mux], i, bit);
-        digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, HIGH);
+        digitalWrite(BMC_MUX_IN_74HC165_CLOCK, HIGH);
         delayMicroseconds(BMC_MUX_IN_74HC165_DELAY);
-        digitalWriteFast(BMC_MUX_IN_74HC165_CLOCK, LOW);
+        digitalWrite(BMC_MUX_IN_74HC165_CLOCK, LOW);
       }
     }
   }

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -96,6 +96,7 @@ class BMC24LC256
         uint8_t write(unsigned long addr, uint8_t value);
         uint8_t read(unsigned long addr, uint8_t *values, unsigned int nBytes);
         int read(unsigned long addr);
+        void commit(){}
         uint8_t update(unsigned long addr, uint8_t value){
           if(read(addr) != value){
             write(addr, &value, 1);
@@ -179,7 +180,7 @@ class BMC24LC256
         }
         uint16_t length(){
           /*
-          #if BMC_TEENSY_RAM_SIZE >= 262144
+          #if BMC_MCU_RAM_SIZE >= 262144
             #if defined(BMC_STORAGE_PARTITION_SIZE_32K)
               // 32K
               return 32000;
@@ -204,7 +205,7 @@ class BMC24LC256
         uint16_t _nAddrBytes;           //number of address bytes (1 or 2)
         unsigned long _totalCapacity;   //capacity of all EEPROM devices on the bus, in bytes
         #ifdef BMC_DEBUG
-        elapsedMillis writeTime = 0;
+        BMCElapsedMillis writeTime = 0;
         #endif
 };
 

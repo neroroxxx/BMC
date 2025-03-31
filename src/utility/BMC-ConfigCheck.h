@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -9,11 +9,11 @@
 #include "utility/BMC-ConfigCheckPins.h"
 
   // disable the ILI display on teensy 3.2 as it will not fit
-  #if BMC_TEENSY_MODEL == 32 && BMC_MAX_ILI9341_BLOCKS > 0
+  #if BMC_MCU_MODEL == 32 && BMC_MAX_ILI9341_BLOCKS > 0
     #error "ILI BMC_IS_NOTE_OFF SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
   #endif
 
-  #if BMC_TEENSY_MODEL == 32 && BMC_MAX_MINI_DISPLAY > 0
+  #if BMC_MCU_MODEL == 32 && BMC_MAX_MINI_DISPLAY > 0
     #error "MINI DISPLAY NOT SUPPORTED ON TEENSY 3.2, NOT ENOUGH FLASH"
   #endif
 
@@ -314,10 +314,6 @@
     #define BMC_MUX_OUTPUTS_AVAILABLE
   #endif
 
-
-
-
-
   #if defined(BMC_USE_TIME) && !defined(BMC_TIME_ADJUST)
     #define BMC_TIME_ADJUST 20
   #endif
@@ -325,6 +321,10 @@
   // device name
   #if !defined(BMC_DEVICE_NAME)
     #define BMC_DEVICE_NAME "BMC"
+  #endif
+
+  #if !defined(BMC_BLE_NAME)
+    #define BMC_BLE_DEVICE_NAME "BMC BLE MIDI"
   #endif
 
   #if !defined(BMC_ILI_S_COUNT)
@@ -352,7 +352,7 @@
     #define _BMC_MIDISERIAL_C_ 0
   #endif
 
-  #if defined(BMC_USE_MIDI_SERIAL_D) && defined(BMC_MIDI_SERIAL_IO_D) && BMC_TEENSY_TOTAL_SERIAL_PORTS > 3
+  #if defined(BMC_USE_MIDI_SERIAL_D) && defined(BMC_MIDI_SERIAL_IO_D) && BMC_MCU_TOTAL_SERIAL_PORTS > 3
     #define BMC_MIDI_SERIAL_D_ENABLED
     #define _BMC_MIDISERIAL_D_ 1
   #else
@@ -374,7 +374,7 @@
     #define BMC_HAS_SERIAL_MIDI
   #endif
 
-  #if defined(BMC_USE_USB_HOST) && BMC_TEENSY_HAS_USB_HOST == true
+  #if defined(BMC_USE_USB_HOST) && BMC_MCU_HAS_USB_HOST == true
     #define BMC_USB_HOST_ENABLED
     #define _BMC_MIDIHOST_ 1
   #else
@@ -384,7 +384,7 @@
   // #if defined(BMC_USE_MIDI_BLE)
   //   #define BMC_MIDI_BLE_ENABLED
   //   /*
-  //   #if defined(BMC_USE_MIDI_SERIAL_B) && BMC_TEENSY_TOTAL_SERIAL_PORTS < 4
+  //   #if defined(BMC_USE_MIDI_SERIAL_B) && BMC_MCU_TOTAL_SERIAL_PORTS < 4
   //     #undef BMC_MIDI_SERIAL_B_ENABLED
   //   #endif
   //   */
@@ -399,7 +399,7 @@
 
   #define BMC_TOTAL_AVAILABLE_PORTS (1+_BMC_MIDISERIAL_A_+_BMC_MIDISERIAL_B_+_BMC_MIDISERIAL_C_+_BMC_MIDISERIAL_D_+_BMC_MIDIHOST_+_BMC_MIDIBLE_)
 
-  #if defined(BMC_USE_SD_CARD) && BMC_TEENSY_HAS_SD_CARD == true
+  #if defined(BMC_USE_SD_CARD) && BMC_MCU_HAS_SD_CARD == true
     #ifdef BMC_USE_24LC256
       #undef BMC_USE_24LC256
     #endif
@@ -407,7 +407,7 @@
   #endif
 
   #if defined(BMC_STORAGE_PARTITION_SIZE_32K)
-    #if BMC_TEENSY_RAM_SIZE < 256000
+    #if BMC_MCU_RAM_SIZE < 256000
       #undef BMC_STORAGE_PARTITION_SIZE_32K
     #endif
   #endif
@@ -557,29 +557,26 @@
   // the value of BMC_PIXELS_PORT is the hardware serial number to be used
   // if you'll be using Serial1 then BMC_PIXELS_PORT should be 1
   // if it's going to be on Serial5 then BMC_PIXELS_PORT should be 5
-  #if !defined(BMC_PIXELS_PORT)
-    #define BMC_PIXELS_PORT 0
-  #endif
+  // #if !defined(BMC_PIXELS_PORT)
+  //   #define BMC_PIXELS_PORT 0
+  // #endif
   // make sure we don't have more than 32
   //
   // || defined(BMC_MAX_RGB_PIXELS)
   //
+  #if !defined(BMC_PIXELS_DIM_BRIGHTNESS)
+    #define BMC_PIXELS_DIM_BRIGHTNESS 25
+  #endif
 
+  #if !defined(BMC_PIXELS_MAX_CURRENT)
+    #define BMC_PIXELS_MAX_CURRENT 20
+  #endif
 
   #if defined(BMC_MAX_PIXELS) || defined(BMC_MAX_RGB_PIXELS) || defined(BMC_MAX_GLOBAL_PIXELS) || defined(BMC_MAX_GLOBAL_RGB_PIXELS) || defined(BMC_MAX_PIXEL_STRIP)
-    #if (BMC_MAX_PIXELS > 0 && BMC_MAX_PIXELS <=128) || (BMC_MAX_RGB_PIXELS > 0 && BMC_MAX_RGB_PIXELS <=128) || (BMC_MAX_PIXEL_STRIP>0 && BMC_MAX_PIXEL_STRIP<=64)
-      #if BMC_PIXELS_PORT == 0
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-      #endif
+    #if (BMC_MAX_PIXELS > 0 && BMC_MAX_PIXELS <= 128) || (BMC_MAX_RGB_PIXELS > 0 && BMC_MAX_RGB_PIXELS <= 128) || (BMC_MAX_PIXEL_STRIP > 0 && BMC_MAX_PIXEL_STRIP <= 64)
+      // #if !defined(BMC_PIXELS_PIN)
+      //   #error "Pixels Pin definition is missing, if you are running BMC version 2.3.2 or higher you MUST update your Config File and re-select your pixels pin."
+      // #endif
     #else
 
       #if BMC_MAX_PIXELS < 0
@@ -607,21 +604,18 @@
         #define BMC_MAX_PIXEL_STRIP 0
       #endif
 
-      
-
       #if BMC_MAX_PIXELS <= 0 && BMC_MAX_RGB_PIXELS <= 0 && BMC_MAX_GLOBAL_PIXELS <= 0 && BMC_MAX_GLOBAL_RGB_PIXELS <= 0 && BMC_MAX_PIXEL_STRIP <= 0
         #undef BMC_MAX_PIXELS
         #undef BMC_MAX_RGB_PIXELS
         #undef BMC_MAX_GLOBAL_PIXELS
         #undef BMC_MAX_GLOBAL_RGB_PIXELS
         #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
+
         #define BMC_MAX_PIXELS 0
         #define BMC_MAX_RGB_PIXELS 0
         #define BMC_MAX_GLOBAL_PIXELS 0
         #define BMC_MAX_GLOBAL_RGB_PIXELS 0
         #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
       #endif
 
       #if BMC_MAX_PIXELS > 128
@@ -650,191 +644,130 @@
       #endif
 
     #endif
-  #else
-    #undef BMC_PIXELS_PORT
-    #error "%%%%%%%%%%%%%%%%%%%%%"
-    #define BMC_PIXELS_PORT 0
   #endif
 
 
+  
 
 
-  #if BMC_PIXELS_PORT > 0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_GLOBAL_RGB_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0)
-    #if BMC_TEENSY_MODEL == 10
+  #if defined(BMC_PIXELS_PORT) && (BMC_MAX_PIXELS > 0 || BMC_MAX_RGB_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_GLOBAL_RGB_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0)
+    #if defined(BMC_PIXELS_PIN)
+      #undef BMC_PIXELS_PIN
+    #endif
+
+    #if BMC_MCU_MODEL == 10
       // Teensy LC only use Serial1
       // disabled Pixels if the value is not 1
-      #if BMC_PIXELS_PORT != 1
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
-        #error "Only Serial 1 can be used with Pixels with Teensy LC"
-      #else
-        #define BMC_PIXELS_PIN 1
-      #endif
-    #elif BMC_TEENSY_MODEL == 32
+      #define BMC_PIXELS_PIN 1
+
+    #elif BMC_MCU_MODEL == 32
       // Teensy 3.2
-      #if BMC_PIXELS_PORT > 3
-      #undef BMC_MAX_PIXELS
-      #undef BMC_MAX_RGB_PIXELS
-      #undef BMC_MAX_GLOBAL_PIXELS
-      #undef BMC_MAX_GLOBAL_RGB_PIXELS
-      #undef BMC_MAX_PIXEL_STRIP
-      #undef BMC_PIXELS_PORT
-      #define BMC_MAX_PIXELS 0
-      #define BMC_MAX_RGB_PIXELS 0
-      #define BMC_MAX_GLOBAL_PIXELS 0
-      #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-      #define BMC_MAX_PIXEL_STRIP 0
-      #define BMC_PIXELS_PORT 0
-        #error "Only Serial 1, 2 and 3 can be used with Pixels with Teensy 3.2"
-      #else
-        #if BMC_PIXELS_PORT == 1
-          #define BMC_PIXELS_PIN 1
-        #elif BMC_PIXELS_PORT == 2
-          #define BMC_PIXELS_PIN 10
-        #elif BMC_PIXELS_PORT == 3
-          #define BMC_PIXELS_PIN 8
-        #endif
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 10
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 8
       #endif
-    #elif BMC_TEENSY_MODEL == 35
+    
+    #elif BMC_MCU_MODEL == 35
       // 3.5
-      #if BMC_PIXELS_PORT > 6
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
-        #error "Only Serial 1, 2, 3, 4, 5 and 6 can be used with Pixels with Teensy 3.5"
-      #else
-        #if BMC_PIXELS_PORT == 1
-          #define BMC_PIXELS_PIN 1
-        #elif BMC_PIXELS_PORT == 2
-          #define BMC_PIXELS_PIN 10
-        #elif BMC_PIXELS_PORT == 3
-          #define BMC_PIXELS_PIN 8
-        #elif BMC_PIXELS_PORT == 4
-          #define BMC_PIXELS_PIN 32
-        #elif BMC_PIXELS_PORT == 5
-          #define BMC_PIXELS_PIN 33
-        #elif BMC_PIXELS_PORT == 6
-          #define BMC_PIXELS_PIN 48
-        #endif
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 10
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 8
+      #elif BMC_PIXELS_PORT == 4
+        #define BMC_PIXELS_PIN 32
+      #elif BMC_PIXELS_PORT == 5
+        #define BMC_PIXELS_PIN 33
+      #elif BMC_PIXELS_PORT == 6
+        #define BMC_PIXELS_PIN 48
       #endif
-    #elif BMC_TEENSY_MODEL == 36
+
+    #elif BMC_MCU_MODEL == 36
       // 3.6
-      #if BMC_PIXELS_PORT > 5
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
-        #error "Only Serial 1, 2, 3, 4 and 5 can be used with Pixels with Teensy 3.6"
-      #else
-        #if BMC_PIXELS_PORT == 1
-          #define BMC_PIXELS_PIN 1
-        #elif BMC_PIXELS_PORT == 2
-          #define BMC_PIXELS_PIN 10
-        #elif BMC_PIXELS_PORT == 3
-          #define BMC_PIXELS_PIN 8
-        #elif BMC_PIXELS_PORT == 4
-          #define BMC_PIXELS_PIN 32
-        #elif BMC_PIXELS_PORT == 5
-          #define BMC_PIXELS_PIN 33
-        #endif
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 10
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 8
+      #elif BMC_PIXELS_PORT == 4
+        #define BMC_PIXELS_PIN 32
+      #elif BMC_PIXELS_PORT == 5
+        #define BMC_PIXELS_PIN 33
       #endif
-    #elif BMC_TEENSY_MODEL == 40
+
+    #elif BMC_MCU_MODEL == 40
       // 4.00
-      #if BMC_PIXELS_PORT > 7
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
-        #error "Invalid Pixel Serial Port"
-        #error "Only Serial 1, 2, 3, 4, 5, 6 and 7 can be used with Pixels with Teensy 4.0"
-      #else
-        #if BMC_PIXELS_PORT == 1
-          #define BMC_PIXELS_PIN 1
-        #elif BMC_PIXELS_PORT == 2
-          #define BMC_PIXELS_PIN 8
-        #elif BMC_PIXELS_PORT == 3
-          #define BMC_PIXELS_PIN 14
-        #elif BMC_PIXELS_PORT == 4
-          #define BMC_PIXELS_PIN 17
-        #elif BMC_PIXELS_PORT == 5
-          #define BMC_PIXELS_PIN 20
-        #elif BMC_PIXELS_PORT == 6
-          #define BMC_PIXELS_PIN 24
-        #elif BMC_PIXELS_PORT == 7
-          #define BMC_PIXELS_PIN 29
-        #endif
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 8
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 14
+      #elif BMC_PIXELS_PORT == 4
+        #define BMC_PIXELS_PIN 17
+      #elif BMC_PIXELS_PORT == 5
+        #define BMC_PIXELS_PIN 20
+      #elif BMC_PIXELS_PORT == 6
+        #define BMC_PIXELS_PIN 24
+      #elif BMC_PIXELS_PORT == 7
+        #define BMC_PIXELS_PIN 29
       #endif
-    #elif BMC_TEENSY_MODEL == 41
+
+    #elif BMC_MCU_MODEL == 41
       // 4.1
-      #if BMC_PIXELS_PORT > 7
-        #undef BMC_MAX_PIXELS
-        #undef BMC_MAX_RGB_PIXELS
-        #undef BMC_MAX_GLOBAL_PIXELS
-        #undef BMC_MAX_GLOBAL_RGB_PIXELS
-        #undef BMC_MAX_PIXEL_STRIP
-        #undef BMC_PIXELS_PORT
-        #define BMC_MAX_PIXELS 0
-        #define BMC_MAX_RGB_PIXELS 0
-        #define BMC_MAX_GLOBAL_PIXELS 0
-        #define BMC_MAX_GLOBAL_RGB_PIXELS 0
-        #define BMC_MAX_PIXEL_STRIP 0
-        #define BMC_PIXELS_PORT 0
-        #error "Invalid Pixel Serial Port"
-        #error "Only Serial 1, 2, 3, 4, 5, 6 and 7 can be used with Pixels with Teensy 4.1"
-      #else
-        #if BMC_PIXELS_PORT == 1
-          #define BMC_PIXELS_PIN 1
-        #elif BMC_PIXELS_PORT == 2
-          #define BMC_PIXELS_PIN 8
-        #elif BMC_PIXELS_PORT == 3
-          #define BMC_PIXELS_PIN 14
-        #elif BMC_PIXELS_PORT == 4
-          #define BMC_PIXELS_PIN 17
-        #elif BMC_PIXELS_PORT == 5
-          #define BMC_PIXELS_PIN 20
-        #elif BMC_PIXELS_PORT == 6
-          #define BMC_PIXELS_PIN 24
-        #elif BMC_PIXELS_PORT == 7
-          #define BMC_PIXELS_PIN 29
-        #endif
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 8
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 14
+      #elif BMC_PIXELS_PORT == 4
+        #define BMC_PIXELS_PIN 17
+      #elif BMC_PIXELS_PORT == 5
+        #define BMC_PIXELS_PIN 20
+      #elif BMC_PIXELS_PORT == 6
+        #define BMC_PIXELS_PIN 24
+      #elif BMC_PIXELS_PORT == 7
+        #define BMC_PIXELS_PIN 29
       #endif
+
+    #elif BMC_MCU_MODEL == 42
+      // MICROMOD
+      #if BMC_PIXELS_PORT == 1
+        #define BMC_PIXELS_PIN 1
+      #elif BMC_PIXELS_PORT == 2
+        #define BMC_PIXELS_PIN 17
+      #elif BMC_PIXELS_PORT == 3
+        #define BMC_PIXELS_PIN 14
+      #elif BMC_PIXELS_PORT == 4
+        #define BMC_PIXELS_PIN 8
+      #elif BMC_PIXELS_PORT == 5
+        #define BMC_PIXELS_PIN 20
+      #elif BMC_PIXELS_PORT == 6
+        #define BMC_PIXELS_PIN 24
+      #elif BMC_PIXELS_PORT == 7
+        #define BMC_PIXELS_PIN 29
+      #endif
+
+    #endif
+    #if defined(BMC_PIXELS_PORT)
+      #undef BMC_PIXELS_PORT
     #endif
   #endif
+
+
+
+
+
+
+
+
+
 
   #if !defined(BMC_MAX_PIXEL_PROGRAMS)
     #define BMC_MAX_PIXEL_PROGRAMS 0
@@ -863,7 +796,7 @@
 
   // as of right now no support for the clicktrack on Teensy 4.0
   // since it's hardcoded to use DAC on T3.2/T3.6
-  #if BMC_TEENSY_MODEL > 36
+  #if BMC_MCU_MODEL > 36
     #if defined(BMC_USE_CLICK_TRACK)
       #undef BMC_USE_CLICK_TRACK
     #endif
@@ -872,9 +805,9 @@
   
 
   #define BMC_TOTAL_LEDS (BMC_MAX_LEDS+BMC_MAX_GLOBAL_LEDS+BMC_MAX_BI_LEDS+BMC_MAX_GLOBAL_BI_LEDS+BMC_MAX_TRI_LEDS+BMC_MAX_GLOBAL_TRI_LEDS)
-  #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS+BMC_MAX_RGB_PIXELS+BMC_MAX_GLOBAL_PIXELS+BMC_MAX_GLOBAL_RGB_PIXELS+BMC_MAX_PIXEL_STRIP)
+  #define BMC_TOTAL_PIXELS (BMC_MAX_PIXELS + BMC_MAX_RGB_PIXELS + BMC_MAX_GLOBAL_PIXELS + BMC_MAX_GLOBAL_RGB_PIXELS + BMC_MAX_PIXEL_STRIP)
 
-  #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS)>0
+  #if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
     #define BMC_HAS_LEDS
   #endif
   // typedef for Presets and library
@@ -979,7 +912,7 @@
 #endif
 
 // Teensy 3.2 doesn't have enough flash to support the on board editor
-#if BMC_TEENSY_MODEL == 32 && defined(BMC_USE_ON_BOARD_EDITOR)
+#if BMC_MCU_MODEL == 32 && defined(BMC_USE_ON_BOARD_EDITOR)
   #undef BMC_USE_ON_BOARD_EDITOR
 #endif
 
@@ -1025,18 +958,16 @@
 #endif
 
 
-  // BMC_MAX_LED_TEST_DELAY defines the delay between led's blinking when
-  // they are tested by the editor or at launch, the idea is that at launch
-  // the test of alls LED and PIXELS should not exceed more than 4 seconds.
-  // Each LED and PIXEL will turn on and off 3 times when tested, when it turns on
-  // it will be delayed by BMC_MAX_LED_TEST_DELAY then turn off and delayed again
-  // by the same value and this happens 3 times per LED/PIXEL.
+  // * BMC_MAX_LED_TEST_DELAY defines the delay between LED blinks during testing,  
+  // * either at launch or triggered by the editor.
+  // *  
+  // * Each LED and pixel blinks three times during testing:  
+  // * - Turns on → waits for BMC_MAX_LED_TEST_DELAY → turns off → waits again.  
+  // * - This cycle repeats three times per LED/pixel.  
 
-
-  // #define BMC_MAX_LED_TEST_DELAY 15
-  #define BMC_MAX_LED_TEST_DELAY 25
-
-  
+  #if !defined(BMC_MAX_LED_TEST_DELAY)
+    #define BMC_MAX_LED_TEST_DELAY 50
+  #endif
 
   #define _____BMC_GLOBAL_HARDWARE ((BMC_MAX_GLOBAL_LEDS*11)+(BMC_MAX_GLOBAL_BI_LEDS*12)+(BMC_MAX_GLOBAL_BI_LEDS*13)+(BMC_MAX_GLOBAL_BUTTONS*22)+(BMC_MAX_GLOBAL_ENCODERS*33)+(BMC_MAX_GLOBAL_POTS*44) +(BMC_MAX_GLOBAL_MAGIC_ENCODERS*55))
 

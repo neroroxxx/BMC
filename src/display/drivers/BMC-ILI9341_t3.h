@@ -46,7 +46,10 @@
 
 // <\SoftEgg>
 
-#ifndef _BMC_ILI9341_t3H_
+#include "utility/BMC-Def.h"
+
+#if !defined(_BMC_ILI9341_t3H_) && defined(BMC_FOR_TEENSY) && BMC_MAX_ILI9341_BLOCKS > 0
+
 #define _BMC_ILI9341_t3H_
 
 #ifdef __cplusplus

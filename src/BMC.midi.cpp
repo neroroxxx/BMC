@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com 
+  Copyright (c) 2025 Roxxxtar.com 
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -155,7 +155,7 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
       callback.midiClockBeat();
     }
   }
-#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0
+#if BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0
     pixels.clockBeat(midiClock.getBpm());
 #endif
 }

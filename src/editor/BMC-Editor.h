@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -1741,7 +1741,6 @@ private:
         store.layers[i].ili[e].settings[1] = 1;
       }
     }
-    
 #endif
 
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
@@ -1758,7 +1757,18 @@ private:
 
     // update the device id on this new store to match the one we already have
     settings.setDeviceId(deviceId);
+
+#if BMC_TOTAL_PIXELS > 0
+    // * value must be from 0 to 3
+    // * 0 = 25% of BMC_PIXELS_MAX_CURRENT
+    // * 1 = 50% of BMC_PIXELS_MAX_CURRENT
+    // * 2 = 75% of BMC_PIXELS_MAX_CURRENT
+    // * 3 = 100% of BMC_PIXELS_MAX_CURRENT
+    settings.setPixelsBrightness(3);
+#endif
+
     saveStore();
+
     storage.get(address, store);
     flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
   }

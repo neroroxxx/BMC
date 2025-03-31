@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2019 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   See BMC Documentation for License
 
   Handles the Master and Slave Clock
@@ -137,7 +137,7 @@ public:
   }
 
   void setMaster(bool value){
-    if(isMaster()!=value){
+    if(isMaster() != value){
       flags.write(BMC_MIDI_CLOCK_FLAG_MASTER,value);
       ticks = 0;
       bpm = 0;
@@ -250,7 +250,7 @@ private:
     BMCClickTrack clickTrack;
   #endif
   BMCFlags <uint8_t> flags;
-  elapsedMicros masterTimer;
+  BMCElapsedMicros masterTimer;
   BMCBpmCalculator bpmCalc;
   BMCTimer bpmSetTimer;
   BMCTimer timeout;

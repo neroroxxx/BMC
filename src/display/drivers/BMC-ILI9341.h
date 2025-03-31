@@ -33,13 +33,17 @@
  *
  */
 
-#ifndef BMC_ILI9341_H
+
+// #include "utility/BMC-Def.h"
+
+#if !defined(BMC_ILI9341_H)
+
 #define BMC_ILI9341_H
 
-#include "Adafruit_GFX.h"
 #include "Arduino.h"
+#include "Adafruit_GFX.h"
 #include "Print.h"
-#include <Adafruit_SPITFT.h>
+#include "Adafruit_SPITFT.h"
 #include <SPI.h>
 // #include "utility/BMC-Tools.h"
 #include "display/drivers/BMC-GFXFonts.h"

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -8,7 +8,14 @@
 
 #if defined(BMC_DEBUG)
 void BMC::setupDebug(){
+  
+  #if defined(BMC_FOR_ESP32)
+    Serial.begin(115200);
+    delay(500);
+  #endif
+
   serialMonitor.setup();
+  
   BMC_INFO(
     "Badass MIDI Controller (BMC)",
     "For more info and to download/access the Editor",
@@ -32,6 +39,12 @@ void BMC::readDebug(){
   char debugInput[25];
   if(!serialMonitor.read(debugInput)){
     return;
+  }
+  if(BMCTools::isValidAnalogReadCommand(debugInput)){
+    return;
+  } else if(BMCTools::isValidDigitalReadCommand(debugInput)){
+    return;
+
   }
   if(BMC_STR_MATCH(debugInput,"") || BMC_STR_MATCH(debugInput,"help")){
     //debugInput = "help";
@@ -431,17 +444,16 @@ void BMC::readDebug(){
       BMC_PRINTLN("store.global.leds",sizeof(store.global.leds),"bytes");
       BMC_PRINTLN("store.global.leds[0]",sizeof(store.global.leds[0]),"bytes");
     #endif
+
     #if BMC_MAX_NL_RELAYS > 0
       BMC_PRINTLN("store.global.relaysNL",sizeof(store.global.relaysNL),"bytes");
       BMC_PRINTLN("store.global.relaysNL[0]",sizeof(store.global.relaysNL[0]),"bytes");
     #endif
+
     #if BMC_MAX_L_RELAYS > 0
       BMC_PRINTLN("store.global.relaysL",sizeof(store.global.relaysL),"bytes");
       BMC_PRINTLN("store.global.relaysL[0]",sizeof(store.global.relaysL[0]),"bytes");
     #endif
-
-    
-    
 
     #if BMC_MAX_LAYERS > 0
       BMC_PRINTLN("");
@@ -557,14 +569,33 @@ void BMC::readDebug(){
 }
 void BMC::printBoardInfo(){
   BMC_PRINTLN("Device Name:", BMC_DEVICE_NAME);
-  BMC_PRINTLN("Compiled with Teensyduino", TEENSYDUINO);  
-  BMC_PRINTLNNS("Teensy ", BMC_TEENSY_MODEL_STR," @ ",F_CPU/1000000.0,"MHz (",F_CPU,")");
-  BMC_PRINTLN("RAM:", BMC_TEENSY_RAM_SIZE,"Bytes");
-  BMC_PRINTLN("EEPROM:", BMC_TEENSY_EEPROM_SIZE,"Bytes");
+  #if defined(TEENSYDUINO)
+    BMC_PRINTLN("Compiled with Teensyduino", TEENSYDUINO);  
+  #endif
+
+  #if __cplusplus == 201402L
+    BMC_PRINTLN("C++14");
+  #elif __cplusplus == 201703L
+    BMC_PRINTLN("C++17");
+  #elif __cplusplus == 202002L
+    BMC_PRINTLN("C++20");
+  #elif __cplusplus > 202002L
+    BMC_PRINTLN("C++23");
+  #else
+    BMC_PRINTLN("C++ version unknown");
+  #endif
+
+  
+
+
+  BMC_PRINTLNNS("Teensy ", BMC_MCU_MODEL_STR," @ ",F_CPU/1000000.0,"MHz (",F_CPU,")");
+  BMC_PRINTLN("RAM:", BMC_MCU_RAM_SIZE,"Bytes");
+  BMC_PRINTLN("EEPROM:", BMC_MCU_EEPROM_SIZE,"Bytes");
   BMC_PRINTLN("Store:", sizeof(bmcStore),"Bytes");
-  BMC_PRINTLN("USB Host:", BMC_TEENSY_HAS_USB_HOST?"Yes":"No");
-  BMC_PRINTLN("SD Card:", BMC_TEENSY_HAS_SD_CARD?"Yes":"No");
-  BMC_PRINTLN("Hardware Serial Ports:", BMC_TEENSY_TOTAL_SERIAL_PORTS);
+  BMC_PRINTLN("USB Host:", BMC_MCU_HAS_USB_HOST?"Yes":"No");
+  BMC_PRINTLN("SD Card:", BMC_MCU_HAS_SD_CARD?"Yes":"No");
+  BMC_PRINTLN("SD Card:", BMC_MCU_HAS_SD_CARD?"Yes":"No");
+  BMC_PRINTLN("Hardware Serial Ports:", BMC_MCU_TOTAL_SERIAL_PORTS);
   #if BMC_MAX_ILI9341_BLOCKS > 0
     #if BMC_TFT_SIZE == 1
       BMC_PRINTLN("Using ILI9341 Driver");
@@ -622,7 +653,7 @@ void BMC::midiInDebug(BMCMidiMessage message){
       "Incoming",BMCTools::getMidiStatusName(message.getStatus())
     );
     BMC_PRINT_ARRAY(true,message.sysex,message.size());
-  } else if(message.getStatus()>BMC_MIDI_SYSTEM_EXCLUSIVE){
+  } else if(message.getStatus() > BMC_MIDI_SYSTEM_EXCLUSIVE){
     // no need to print the channel
     BMC_PRINTLN(
       millis(),
@@ -647,10 +678,10 @@ void BMC::midiInDebug(BMCMidiMessage message){
     BMC_PRINTLN(
       millis(),
       BMCTools::getPortName(message.getSource()),
-      "Incoming",BMCTools::getMidiStatusName(message.getStatus()),
-      "channel:",message.getChannel(),
-      "data1:",message.getData1(),
-      "data2:",message.getData2()
+      "Incoming", BMCTools::getMidiStatusName(message.getStatus()),
+      "channel:", message.getChannel(),
+      "data1:", message.getData1(),
+      "data2:", message.getData2()
     );
   }
 }

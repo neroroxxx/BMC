@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -626,7 +626,7 @@ private:
     message.appendSysExByte(0x00);
     message.appendSysExByte(0x7A);
     midi.sendSysEx(
-      B00111110, // send to all ports except USB and BLE
+      0b00111110, // send to all ports except USB and BLE
       message.getSysEx(), // the sysex array
       message.size(), // the sysex array length
       false, // does it have the 0xF0 & 0xF7 bytes

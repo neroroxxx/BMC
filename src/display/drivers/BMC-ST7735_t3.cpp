@@ -17,7 +17,9 @@
  ****************************************************/
 
 
+#include "utility/BMC-Def.h"
 
+#if defined(BMC_FOR_TEENSY)
 
 #include "display/drivers/BMC-ST7735_t3.h"
 // #include "ST7789_t3.h"
@@ -4745,6 +4747,8 @@ void BMC_ST7735_t3::waitUpdateAsyncComplete(void)
 #endif
 	#endif	
 }
+
+#endif
 
 #endif
 

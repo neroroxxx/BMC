@@ -15,7 +15,10 @@
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
-#ifndef BMC_ILI9488_H
+
+#include "utility/BMC-Def.h"
+
+#if !defined(BMC_ILI9488_H) && defined(BMC_FOR_TEENSY)
 #define BMC_ILI9488_H
 
 #if ARDUINO >= 100
@@ -24,10 +27,10 @@
 #else
  #include "WProgram.h"
 #endif
-#include <Adafruit_GFX.h>
+#include "Adafruit_GFX.h"
 #include <Arduino.h>
 #include <Print.h>
-#include <Adafruit_SPITFT.h>
+#include "Adafruit_SPITFT.h"
 #include <SPI.h>
 
 

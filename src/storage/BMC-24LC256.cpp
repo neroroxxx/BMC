@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -63,10 +63,14 @@
 #if defined(BMC_USE_24LC256)
 #include "storage/BMC-24LC256.h"
 
-
-#if defined(I2C_T3_H)
-  #define BUFFER_LENGTH I2C_TX_BUFFER_LENGTH
+#if defined(BMC_FOR_ESP32)
+  #define BUFFER_LENGTH I2C_BUFFER_LENGTH
+#else
+  #if defined(I2C_T3_H)
+    #define BUFFER_LENGTH I2C_TX_BUFFER_LENGTH
+  #endif
 #endif
+
 
 // Constructor.
 // - deviceCapacity is the capacity of a single EEPROM device in

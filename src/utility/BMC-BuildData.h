@@ -1,6 +1,6 @@
 /*
 See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2024 RoxXxtar.com
+Copyright (c) 2025 RoxXxtar.com
 See BMC Documentation for License
 See LICENSE file in the project root for full license information.
 */
@@ -6663,7 +6663,7 @@ static BMCSketchByteData getSketchByteData(uint8_t index){
     sprintf(defaultName,"Byte %01u",(uint8_t)index);
   }
   BMCSketchByteData buffer;
-  strcpy(buffer.name, defaultName);
+  strcpy(buffer.name,defaultName);
   buffer.initialValue = 0;
   buffer.min = 0;
   buffer.max = 255;
@@ -7064,7 +7064,7 @@ return buffer;
 }
 
 static bool isDigitalPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 32
+#if BMC_MCU_MODEL == 32
 switch(index){
 case 0:
 case 1:
@@ -7102,7 +7102,7 @@ case 32:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 35
+#if BMC_MCU_MODEL == 35
 switch(index){
 case 0:
 case 1:
@@ -7165,7 +7165,7 @@ case 57:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 36
+#if BMC_MCU_MODEL == 36
 switch(index){
 case 0:
 case 1:
@@ -7228,7 +7228,7 @@ case 57:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 40
+#if BMC_MCU_MODEL == 40
 switch(index){
 case 0:
 case 1:
@@ -7273,7 +7273,7 @@ case 39:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 41
+#if BMC_MCU_MODEL == 41
 switch(index){
 case 0:
 case 1:
@@ -7320,7 +7320,7 @@ case 41:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 42
+#if BMC_MCU_MODEL == 42
 switch(index){
 case 0:
 case 1:
@@ -7368,13 +7368,61 @@ case 42:
 case 43:
 case 44:
 case 45:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 100
+switch(index){
+case 2:
+case 4:
+case 5:
+case 12:
+case 13:
+case 14:
+case 15:
+case 16:
+case 17:
+case 18:
+case 19:
+case 21:
+case 22:
+case 23:
+case 25:
+case 26:
+case 27:
+case 32:
+case 33:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 101
+switch(index){
+case 4:
+case 5:
+case 12:
+case 13:
+case 14:
+case 15:
+case 16:
+case 17:
+case 18:
+case 19:
+case 21:
+case 22:
+case 23:
+case 25:
+case 26:
+case 28:
+case 29:
+case 32:
+case 33:
 return true;
 }
 #endif
 return false;
 }
 static bool isAnalogPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 32
+#if BMC_MCU_MODEL == 32
 switch(index){
 case 14:
 case 15:
@@ -7400,7 +7448,7 @@ case 37:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 35
+#if BMC_MCU_MODEL == 35
 switch(index){
 case 14:
 case 15:
@@ -7423,16 +7471,10 @@ case 38:
 case 39:
 case 49:
 case 50:
-case 64:
-case 65:
-case 66:
-case 67:
-case 68:
-case 69:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 36
+#if BMC_MCU_MODEL == 36
 switch(index){
 case 14:
 case 15:
@@ -7455,14 +7497,10 @@ case 38:
 case 39:
 case 49:
 case 50:
-case 64:
-case 65:
-case 66:
-case 67:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 40
+#if BMC_MCU_MODEL == 40
 switch(index){
 case 14:
 case 15:
@@ -7481,7 +7519,7 @@ case 27:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 41
+#if BMC_MCU_MODEL == 41
 switch(index){
 case 14:
 case 15:
@@ -7504,7 +7542,7 @@ case 41:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 42
+#if BMC_MCU_MODEL == 42
 switch(index){
 case 14:
 case 15:
@@ -7522,13 +7560,36 @@ case 26:
 case 27:
 case 40:
 case 41:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 100
+switch(index){
+case 25:
+case 26:
+case 27:
+case 32:
+case 33:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 101
+switch(index){
+case 25:
+case 26:
+case 28:
+case 29:
+case 32:
+case 33:
+case 34:
+case 35:
 return true;
 }
 #endif
 return false;
 }
 static bool isPwmPin(uint8_t index){
-#if BMC_TEENSY_MODEL == 32
+#if BMC_MCU_MODEL == 32
 switch(index){
 case 3:
 case 4:
@@ -7546,7 +7607,7 @@ case 37:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 35
+#if BMC_MCU_MODEL == 35
 switch(index){
 case 2:
 case 3:
@@ -7568,12 +7629,10 @@ case 35:
 case 36:
 case 37:
 case 38:
-case 66:
-case 67:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 36
+#if BMC_MCU_MODEL == 36
 switch(index){
 case 2:
 case 3:
@@ -7597,12 +7656,10 @@ case 35:
 case 36:
 case 37:
 case 38:
-case 66:
-case 67:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 40
+#if BMC_MCU_MODEL == 40
 switch(index){
 case 0:
 case 1:
@@ -7638,7 +7695,7 @@ case 39:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 41
+#if BMC_MCU_MODEL == 41
 switch(index){
 case 0:
 case 1:
@@ -7670,7 +7727,7 @@ case 37:
 return true;
 }
 #endif
-#if BMC_TEENSY_MODEL == 42
+#if BMC_MCU_MODEL == 42
 switch(index){
 case 0:
 case 1:
@@ -7703,6 +7760,46 @@ case 36:
 case 37:
 case 38:
 case 39:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 100
+switch(index){
+case 2:
+case 4:
+case 5:
+case 12:
+case 13:
+case 14:
+case 15:
+case 18:
+case 19:
+case 21:
+case 22:
+case 23:
+case 25:
+case 26:
+case 27:
+return true;
+}
+#endif
+#if BMC_MCU_MODEL == 101
+switch(index){
+case 4:
+case 5:
+case 12:
+case 13:
+case 14:
+case 15:
+case 18:
+case 19:
+case 21:
+case 22:
+case 23:
+case 25:
+case 26:
+case 28:
+case 29:
 return true;
 }
 #endif
@@ -7776,6 +7873,7 @@ static bool isMuxInKeypadPinIndex(uint8_t n){
 static bool isMuxInputPin(uint8_t n){
   if(isMuxInPin(n)){return true;}
   if(isMuxInAnalogPin(n)){return true;}
+  // if(isMuxInKeypadPinIndex(n)){return true;}
   if(isMuxInKeypadPin(n)){return true;}
   return false;
 }

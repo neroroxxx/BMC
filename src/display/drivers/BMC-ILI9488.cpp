@@ -15,6 +15,11 @@
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
+
+#include "utility/BMC-Def.h" 
+
+#if defined(BMC_FOR_TEENSY)
+
 #include "display/drivers/BMC-ILI9488.h"
 #ifdef __AVR
   #include <avr/pgmspace.h>
@@ -978,3 +983,4 @@ uint8_t BMC_ILI9488::readcommand8(uint8_t c, uint8_t index) {
  }
 
  */
+#endif

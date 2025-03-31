@@ -1,10 +1,12 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
-  work in progress...
+  Use a ESP32 as a BLE MIDI Bridge using SPI
+
+  not finished, doesn't work yet
 */
 #ifndef BMC_MIDI_BLE_BOARD_ESP32_H
 #define BMC_MIDI_BLE_BOARD_ESP32_H
@@ -142,7 +144,7 @@ private:
   uint8_t packetLength = 0;
   uint8_t packetData[20];
   BMCFlags <uint8_t> flags;
-  elapsedMillis nextCheckMillis;
+  BMCElapsedMillis nextCheckMillis;
 };
 
 #endif

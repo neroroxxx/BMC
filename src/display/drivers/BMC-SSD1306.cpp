@@ -44,24 +44,28 @@
 
 #ifdef __AVR__
  #include <avr/pgmspace.h>
-#elif defined(ESP8266) || defined(ESP32)
+#elif defined(BMC_FOR_TEENSY)
  #include <pgmspace.h>
 #else
  #define pgm_read_byte(addr) \
   (*(const unsigned char *)(addr)) ///< PROGMEM workaround for non-AVR
 #endif
 
-#if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) && !defined(ESP32) && !defined(__arc__)
- #include <util/delay.h>
-#endif
+// #if !defined(__ARM_ARCH) && !defined(ENERGIA) && !defined(ESP8266) && !defined(ESP32) && !defined(__arc__)
+//  #include <util/delay.h>
+// #endif
 
 #include <Adafruit_GFX.h>
 // #include "display/drivers/BMC-GFX.h"
 #include "display/drivers/BMC-SSD1306.h"
 
 
-#if defined(I2C_T3_H)
-  #define BUFFER_LENGTH 128
+#if defined(BMC_FOR_ESP32)
+  #define BUFFER_LENGTH I2C_BUFFER_LENGTH
+#else
+  #if defined(I2C_T3_H)
+    #define BUFFER_LENGTH I2C_TX_BUFFER_LENGTH
+  #endif
 #endif
 
 // SOME DEFINES AND STATIC VARIABLES USED INTERNALLY -----------------------

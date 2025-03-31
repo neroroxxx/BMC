@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -49,7 +49,7 @@
         bits 25-27  getChainingPort
         bits 28-31  getAuxJackMode
 
-      [1]:
+      [1]: FULL
         bits 00-01  getIncomingProgramType
         bits 02-05  Helix Id
         bits 06-09  Helix Channel
@@ -71,12 +71,15 @@
         bits 17-20  getLcdBacklight
         bits 21-21  getSetListAllowPartRecall
         bits 22-25  getOutgoingProgramType
+        bits 26-31  *6 bits available  
         
 
-
       [3]: 
-        bits 00-03  getOutgoingPCPort
-        bits 04-10  getOutgoingPCChannel
+        bits 00-07  getOutgoingPCPort
+        bits 08-11  getOutgoingPCChannel
+        bits 12-13  getPixelsBrightness
+
+  
 
 
 
@@ -489,24 +492,28 @@ public:
     return (settings.data[2]>>22) & 0x0F;
   }
   void setOutgoingProgramType(bool value){
-    BMC_WRITE_BITS(settings.data[2],value,0x0F,22);
+    BMC_WRITE_BITS(settings.data[2], value, 0x0F, 22);
   }
-
 
   uint8_t getOutgoingPCPort(){
     return (settings.data[3]>>0) & 0xFF;
   }
   void setOutgoingPCPort(uint8_t value){
-    BMC_WRITE_BITS(settings.data[3],value, 0xFF, 0);
+    BMC_WRITE_BITS(settings.data[3], value, 0xFF, 0);
   }
   uint8_t getOutgoingPCChannel(){
     return (settings.data[3]>>8) & 0x0F;
   }
   void setOutgoingPCChannel(uint8_t value){
-    BMC_WRITE_BITS(settings.data[3],value, 0x0F, 8);
+    BMC_WRITE_BITS(settings.data[3], value, 0x0F, 8);
   }
-
   
+  uint8_t getPixelsBrightness(){
+    return (settings.data[3]>>12) & 0x03;
+  }
+  void setPixelsBrightness(bool value){
+    BMC_WRITE_BITS(settings.data[3], value, 0x03, 12);
+  }
   
   // tft touch calibration
   float getTouchTftCalibration(uint8_t n){

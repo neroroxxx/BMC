@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -43,6 +43,7 @@ public:
     BMCStorage(BMCGlobals& t_globals):globals(t_globals){}
   #endif
   void begin(){
+
   #if defined(BMC_SD_CARD_ENABLED)
     BMC_PRINTLN("BMCStorage::begin (SD CARD)");
     STORAGE.begin();
@@ -93,7 +94,7 @@ public:
   #else
     BMC_PRINTLN("BMCStorage::begin (Built In EEPROM)");
     #ifdef BMC_FOR_ESP32
-      STORAGE.begin(4000);
+      STORAGE.begin(4096);
     #endif
   #endif
   }
@@ -139,7 +140,7 @@ public:
       // Update the bmcStore Struct in EEPROM,
       // only update bytes that have changed
       STORAGE.put(0, file);
-      #ifdef BMC_FOR_ESP32
+      #if defined(BMC_FOR_ESP32) && !defined(BMC_USE_24LC256)
         STORAGE.commit();
       #endif
     #endif
@@ -178,7 +179,7 @@ public:
       // Update the bmcStore Struct in EEPROM,
       // only update bytes that have changed
       STORAGE.put(address, file);
-      #ifdef BMC_FOR_ESP32
+      #if defined(BMC_FOR_ESP32) && !defined(BMC_USE_24LC256)
         STORAGE.commit();
       #endif
     #endif
@@ -199,16 +200,16 @@ public:
     #else
       for(uint16_t i = 0,n=STORAGE.length(); i < n; i++){
         // Set every cell to 0
-        #ifdef BMC_FOR_TEENSY
+        #if defined(BMC_FOR_TEENSY)
           STORAGE.update(i, 0);
         #endif
 
-        #ifdef BMC_FOR_ESP32
+        #if defined(BMC_FOR_ESP32)
           STORAGE.write(i, 0);
         #endif
       }
 
-      #ifdef BMC_FOR_ESP32
+      #if defined(BMC_FOR_ESP32) && !defined(BMC_USE_24LC256)
         STORAGE.commit();
       #endif
     #endif
@@ -231,7 +232,7 @@ private:
     BMC_SD STORAGE;
   #elif defined(BMC_USE_24LC256)
     BMC24LC256 STORAGE;
-    elapsedMillis extEepromTimer;
+    BMCElapsedMillis extEepromTimer;
   #endif
   #if defined(BMC_DEBUG)
     unsigned long debugTimer = 0;

@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -196,9 +196,9 @@ void BMC::readPixels(){
     uint8_t type = data.type;
     if(type==BMC_EVENT_TYPE_CUSTOM){
       //pixels.setBrightness(i, map(((state>>4)&0x0F), 0, 15, 0, 127), (state&0x0F));
-    } else if(type==BMC_EVENT_TYPE_PIXEL_PROGRAM){
+    } else if(type == BMC_EVENT_TYPE_PIXEL_PROGRAM){
 #if BMC_MAX_PIXEL_PROGRAMS > 0
-      pixels.setStateStrip(i, pixelPrograms.getColor());
+      pixels.setStateStrip(pixelPrograms.getColor());
 #endif
     } else {
       if(state<=1){

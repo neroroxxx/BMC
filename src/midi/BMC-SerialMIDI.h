@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   Read and send MIDI over Hardware Serial
   See LICENSE file in the project root for full license information.
@@ -10,10 +10,14 @@
 
 #include "utility/BMC-Def.h"
 
-#if defined(BMC_HAS_SERIAL_MIDI) || defined(BMC_MIDI_BLE_ENABLED)
+#if defined(BMC_HAS_SERIAL_MIDI) || defined(BMC_MIDI_BLE_ENABLED) || defined(BMC_FOR_ESP32)
+
+
 
 #include "HardwareSerial.h"
-template <uint8_t SerBit, class S>
+
+
+template <uint8_t SerBit, class S, uint8_t objIndex, bool isBLE=false>
 class BMCSerialMIDI {
 public:
   S& Port;
@@ -31,11 +35,15 @@ public:
   bool waitForSysExClose = false;
   bool thruOn = false;
 
-  BMCSerialMIDI(S& _port) : Port(_port){}
+  BMCSerialMIDI(S& _port) : Port(_port)
+  {}
   // BMCSerialMIDI(){}
 
   void begin(){
     Port.begin(31250);
+  }
+  void begin(uint8_t rxPin, uint8_t txPin){
+    Port.begin(31250, SERIAL_8N1, rxPin, txPin);
   }
   void flush(){
     Port.flush();
@@ -81,34 +89,58 @@ public:
   bool _read(){
     while(Port.available() > 0){
       uint8_t c = Port.read();
-      if(thruOn){
+      
+      if(!isBLE && thruOn){
         Port.write(c);
       }
       if(c > 0x7F){
+        uint8_t statusCheck = c;
+
+        if(c < 0xF0){
+          // channel status
+          statusCheck = c & 0xF0;
+        }
         // handle status
-        switch(c){
+        switch(statusCheck){
+
           // 3 bytes
           case BMC_MIDI_NOTE_OFF:
           case BMC_MIDI_NOTE_ON:
           case BMC_MIDI_AFTER_TOUCH_POLY:
           case BMC_MIDI_CONTROL_CHANGE:
           case BMC_MIDI_PITCH_BEND:
-          case BMC_MIDI_SONG_POSITION:
             // expect 3 bytes total including status
-            status = c&0xF0;
-            channel = c&0x0F;
+            status = c & 0xF0;
+            channel = (c & 0x0F) + 1;
+            expecting = 2;
+            waitForSysExClose = false;
+            break;
+          
+          // 3 bytes
+          case BMC_MIDI_SONG_POSITION:
+            // expect 3 bytes total including status, no channel!
+            status = c;
+            channel = 0;
             expecting = 2;
             waitForSysExClose = false;
             break;
 
           // 2 byte
           case BMC_MIDI_AFTER_TOUCH:
-          case BMC_MIDI_SONG_SELECT:
           case BMC_MIDI_PROGRAM_CHANGE:
-          case BMC_MIDI_TIME_CODE_QUARTER_FRAME:
             // expect 2 bytes total including status
-            status = c&0xF0;
-            channel = c&0x0F;
+            status = c & 0xF0;
+            channel = (c & 0x0F) + 1;
+            expecting = 1;
+            waitForSysExClose = false;
+            break;
+
+          // 2 bytes
+          case BMC_MIDI_SONG_SELECT:
+          case BMC_MIDI_TIME_CODE_QUARTER_FRAME:
+            // expect 2 bytes total including status, no channel!
+            status = c;
+            channel = 0;
             expecting = 1;
             waitForSysExClose = false;
             break;
@@ -122,13 +154,14 @@ public:
           case BMC_MIDI_RT_ACTIVE_SENSE:
           case BMC_MIDI_RT_SYSTEM_RESET:
             status = c;
-            // 1 byte
+            channel = 0;
             expecting = 0;
             waitForSysExClose = false;
             return true;
 
           case BMC_MIDI_SYSTEM_EXCLUSIVE: 
             status = c;
+            channel = 0;
             sysexLen = 0;
             sysex[sysexLen++] = 0xF0;
             // variable data
@@ -145,6 +178,7 @@ public:
             return true;
         }
       } else {
+
         // handle data
         if(waitForSysExClose){
           continue;
@@ -158,7 +192,7 @@ public:
             waitForSysExClose = true;
           }
           
-        } else if(expecting>0){
+        } else if(expecting > 0){
           if(expecting == 2){
             data1 = c;
           } else if(expecting == 1){
@@ -175,18 +209,31 @@ public:
     return false;
   }
   void writeData(uint8_t status){
-    Port.write(status);
+    if constexpr (isBLE) {
+      Port.sendMidiData(status);
+    } else {
+      Port.write(status);
+    }
   }
   void writeData(uint8_t status, uint8_t d1){
-    Port.write(status);
-    Port.write(d1 & 0x7F);
+    if constexpr (isBLE) {
+      Port.sendMidiData(status, d1 & 0x7F);
+    } else {
+      Port.write(status);
+      Port.write(d1 & 0x7F);
+    }
+    
   }
   void writeData(uint8_t status, uint8_t d1, uint8_t d2){
-    Port.write(status);
-    Port.write(d1 & 0x7F);
-    Port.write(d2 & 0x7F);
+    if constexpr (isBLE) {
+      Port.sendMidiData(status, d1 & 0x7F, d2 & 0x7F);
+    } else {
+      Port.write(status);
+      Port.write(d1 & 0x7F);
+      Port.write(d2 & 0x7F);
+    }
   }
-  void send(uint8_t type, uint8_t d1, uint8_t d2, uint8_t channel){
+  void send(uint8_t type, uint8_t d1, uint8_t d2, uint8_t channel, uint8_t cable=0){
     if(type <= BMC_MIDI_PITCH_BEND){
       if(channel < 1){
         return;
@@ -221,31 +268,38 @@ public:
         break;
     }
   }
-  void sendSysEx(uint16_t len, const uint8_t* arr, bool bounds = false){
+  void sendSysEx(uint16_t len, const uint8_t* arr, bool bounds = false, uint8_t cable=0){
     // writeData(BMC_MIDI_CONTROL_CHANGE | (channel-1), cc, val);
-    if(!bounds){
-      Port.write(0xF0);
+    if constexpr (isBLE) {
+      #if defined(BMC_FOR_ESP32)
+      Port.sendSysEx(arr, len, bounds);
+      #endif
+    } else {
+      if(!bounds){
+        Port.write(0xF0);
+      }
+      for(int i=0;i<len;i++){
+        Port.write(arr[i]);
+      }
+      if(!bounds){
+        Port.write(0xF7);
+      }
     }
-    for(int i=0;i<len;i++){
-      Port.write(arr[i]);
-    }
-    if(!bounds){
-      Port.write(0xF7);
-    }
+    
   }
-  void sendNoteOn(uint8_t note, uint8_t vel, uint8_t channel){
+  void sendNoteOn(uint8_t note, uint8_t vel, uint8_t channel, uint8_t cable=0){
     writeData(BMC_MIDI_NOTE_ON | (channel-1), note, vel);
   }
-  void sendNoteOff(uint8_t note, uint8_t vel, uint8_t channel){
+  void sendNoteOff(uint8_t note, uint8_t vel, uint8_t channel, uint8_t cable=0){
     writeData(BMC_MIDI_NOTE_OFF | (channel-1), note, vel);
   }
-  void sendProgramChange(uint8_t pc, uint8_t channel){
+  void sendProgramChange(uint8_t pc, uint8_t channel, uint8_t cable=0){
     writeData(BMC_MIDI_PROGRAM_CHANGE | (channel-1), pc);
   }
-  void sendControlChange(uint8_t cc, uint8_t val, uint8_t channel){
+  void sendControlChange(uint8_t cc, uint8_t val, uint8_t channel, uint8_t cable=0){
     writeData(BMC_MIDI_CONTROL_CHANGE | (channel-1), cc, val);
   }
-  void sendPitchBend(int pitch, uint8_t channel){
+  void sendPitchBend(int pitch, uint8_t channel, uint8_t cable=0){
     int bend = int(pitch - int(-8192));
     writeData(BMC_MIDI_PITCH_BEND | (channel-1), (bend & 0x7f), (bend >> 7) & 0x7f);
   }
@@ -255,19 +309,23 @@ public:
   void sendAfterTouch(uint8_t note, uint8_t pressure, uint8_t channel){
     writeData(BMC_MIDI_AFTER_TOUCH_POLY | (channel-1), note, pressure);
   }
-  void sendTimeCodeQuarterFrame(uint8_t type, uint8_t val){
+  void sendAfterTouchPoly(uint8_t note, uint8_t pressure, uint8_t channel, uint8_t cable=0){
+    writeData(BMC_MIDI_AFTER_TOUCH_POLY | (channel-1), note, pressure);
+  }
+  void sendTimeCodeQuarterFrame(uint8_t type, uint8_t val, uint8_t cable=0){
     writeData(BMC_MIDI_TIME_CODE_QUARTER_FRAME, ((type&0x07)<<4) | (val&0x0F));
   }
-  void sendTimeCodeQuarterFrame(uint8_t d1){
-    writeData(BMC_MIDI_TIME_CODE_QUARTER_FRAME, d1);
-  }
-  void sendSongPosition(uint16_t beats){
+  // void sendTimeCodeQuarterFrame(uint8_t d1, uint8_t cable=0){
+  //   writeData(BMC_MIDI_TIME_CODE_QUARTER_FRAME, d1);
+  // }
+
+  void sendSongPosition(uint16_t beats, uint8_t cable=0){
     writeData(BMC_MIDI_SONG_POSITION, (beats&0x7F), ((beats>>7)&0x7F));
   }
-  void sendSongSelect(uint8_t inSongNumber){
+  void sendSongSelect(uint8_t inSongNumber, uint8_t cable=0){
     writeData(BMC_MIDI_SONG_SELECT, inSongNumber);
   }
-  void sendTuneRequest(){
+  void sendTuneRequest(uint8_t cable=0){
     writeData(BMC_MIDI_TUNE_REQUEST);
   }
   // void sendCommon(uint8_t type, unsigned = 0);
@@ -278,57 +336,60 @@ public:
   void sendContinue()      { writeData(BMC_MIDI_RT_CONTINUE);  };
   void sendActiveSensing() { writeData(BMC_MIDI_RT_ACTIVE_SENSE);  };
   void sendSystemReset()   { writeData(BMC_MIDI_RT_SYSTEM_RESET);  };
-  void sendRealTime(uint8_t type){
+  void sendRealTime(uint8_t type, uint8_t cable=0){
     writeData(type);
   }
 
-  void beginRpn(uint16_t val, uint8_t channel){
+  void beginRpn(uint16_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(100, (val&0x7F), channel);
     sendControlChange(101, ((val>>7)&0x7F), channel);
     rpnVal = val;
   }
-  void sendRpnValue(uint16_t val, uint8_t channel){
+  void sendRpnValue(uint16_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(6, (val&0x7F), channel);
     sendControlChange(38, ((val>>7)&0x7F), channel);
   }
-  void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel){
+  void sendRpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0){
     sendControlChange(6, msb, channel);
     sendControlChange(38, lsb, channel);
   }
-  void sendRpnIncrement(uint8_t val, uint8_t channel){
+  void sendRpnIncrement(uint8_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(96, val, channel);
   }
-  void sendRpnDecrement(uint8_t val, uint8_t channel){
+  void sendRpnDecrement(uint8_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(97, val, channel);
   }
-  void endRpn(uint8_t channel){
+  void endRpn(uint8_t channel, uint8_t cable=0){
     sendControlChange(100, 0x7f, channel);
     sendControlChange(101, 0x7f, channel);
     rpnVal = 0xffff;
   }
-  void beginNrpn(uint16_t val, uint8_t channel){
+  void beginNrpn(uint16_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(99, (val&0x7F), channel);
     sendControlChange(98, ((val>>7)&0x7F), channel);
     nrpnVal = val;
   }
-  void sendNrpnValue(uint16_t val, uint8_t channel){
+  void sendNrpnValue(uint16_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(6, (val&0x7F), channel);
     sendControlChange(38, ((val>>7)&0x7F), channel);
   }
-  void sendNrpnValue(uint8_t msb, uint8_t lsb, uint8_t channel){
+  void sendNrpnValue(uint8_t msb, uint8_t lsb, uint8_t channel, uint8_t cable=0){
     sendControlChange(6, msb, channel);
     sendControlChange(38, lsb, channel);
   }
-  void sendNrpnIncrement(uint8_t val, uint8_t channel){
+  void sendNrpnIncrement(uint8_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(96, val, channel);
   }
-  void sendNrpnDecrement(uint8_t val, uint8_t channel){
+  void sendNrpnDecrement(uint8_t val, uint8_t channel, uint8_t cable=0){
     sendControlChange(97, val, channel);
   }
-  void endNrpn(uint8_t channel){
+  void endNrpn(uint8_t channel, uint8_t cable=0){
     sendControlChange(99, 0x7f, channel);
     sendControlChange(98, 0x7f, channel);
     nrpnVal = 0xffff;
+  }
+  void send_now(){
+    
   }
 };
 #endif

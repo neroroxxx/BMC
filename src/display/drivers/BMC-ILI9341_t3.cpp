@@ -48,6 +48,10 @@
 
 // <\SoftEgg>
 
+#include "utility/BMC-Def.h"
+
+#if defined(BMC_FOR_TEENSY) && BMC_MAX_ILI9341_BLOCKS > 0
+
 #include "display/drivers/BMC-ILI9341_t3.h"
 #include <SPI.h>
 #ifndef swap
@@ -1836,3 +1840,4 @@ void BMC_ILI9341_t3::sleep(bool enable) {
 // 	return true;
 // }
 
+#endif

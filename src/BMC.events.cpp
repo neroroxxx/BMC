@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -159,7 +159,6 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       data.useOffset = false;
       uint8_t currentCC = midi.getLocalControl(data.getChannel(), data.byteB);
       uint8_t outVal = data.setMinMax(currentCC, 0, 127, data.byteC, data.byteD);
-
 
       if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
         if(data.scrollEnabled()){
@@ -1390,6 +1389,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       } 
       break;
 #endif
+
     // HARDWARE
 #if BMC_MAX_AUX_JACKS > 0
     case BMC_EVENT_TYPE_AUX_JACK:

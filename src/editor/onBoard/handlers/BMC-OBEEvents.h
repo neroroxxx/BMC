@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2022 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -800,7 +800,7 @@ private:
 
 #if defined(BMC_HAS_BUTTONS) && defined(BMC_HAS_ENCODERS)
       case BMC_EVENT_TYPE_PIXEL_PROGRAM:
-        if(request==0){ /* available */ return BMC_MAX_PIXEL_PROGRAMS>0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0) && (BMC_MAX_AUX_JACKS>0); }
+        if(request==0){ /* available */ return BMC_MAX_PIXEL_PROGRAMS>0 && (BMC_MAX_PIXELS > 0 || BMC_MAX_GLOBAL_PIXELS > 0 || BMC_MAX_PIXEL_STRIP > 0) && (BMC_MAX_AUX_JACKS > 0); }
         else if(request==1){ /* fields */ return 4; }
         else if(request==2){ /* scroll */ return true; }
         else if(request==3){ /* ports */ return false; }

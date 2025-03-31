@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -30,7 +30,7 @@ public:
   void update(bool t_eigth, bool t_active){
     if(t_eigth){
       eigthNotes++;
-      if(eigthNotes>16){
+      if(eigthNotes > 16){
         eigthNotes = 1;
       }
     }

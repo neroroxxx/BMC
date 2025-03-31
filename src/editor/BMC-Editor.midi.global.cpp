@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -1044,7 +1044,7 @@ void BMCEditor::connectEditor(){
 void BMCEditor::keepConnectionAlive(){
   #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
     if(midi.globals.editorConnected() && editorHasConnectionAliveOption){
-      BMC_PRINTLN("Reset editor connection timer");
+      // BMC_PRINTLN("Reset editor connection timer");
       connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
     }
   #endif
@@ -1204,11 +1204,12 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     bitWrite(buildData, 31, 1);
 
     // byte 9
-    buff.appendToSysEx7Bits(BMC_TEENSY_MODEL);
+    buff.appendToSysEx7Bits(BMC_MCU_MODEL);
     buff.appendToSysEx32Bits(BMC_SEM_VERSION);
     buff.appendToSysEx16Bits(store.version);
     buff.appendToSysEx32Bits(sizeof(bmcStore));
     buff.appendToSysEx32Bits(buildData);
+    
     // BMC 2.0
     buff.appendToSysEx14Bits(BMC_MAX_EVENTS_LIBRARY);
     buff.appendToSysEx14Bits(BMC_MAX_NAMES_LIBRARY);
@@ -1269,6 +1270,7 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
     buff.appendToSysEx7Bits(BMC_MAX_LCD);
     buff.appendToSysEx7Bits(BMC_LCD_CHARS);
     buff.appendToSysEx7Bits(BMC_CUSTOM_UI_ID);
+    buff.appendToSysEx14Bits(BMC_PIXELS_MAX_CURRENT);
     
     
 

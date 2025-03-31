@@ -16,7 +16,10 @@
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 
-#ifndef _BMC_ST7735_t3_H_
+#include "utility/BMC-Def.h"
+
+#if !defined(_BMC_ST7735_t3_H_) && defined(BMC_FOR_TEENSY) 
+// #if !defined(_BMC_ST7735_t3_H_)
 #define _BMC_ST7735_t3_H_
 
 

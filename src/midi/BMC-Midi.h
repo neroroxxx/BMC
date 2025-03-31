@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -11,7 +11,20 @@
 
 #include "utility/BMC-Def.h"
 
-#define Midi usbMIDI
+// #define Midi usbMIDI
+
+
+
+
+#if defined(BMC_FOR_TEENSY)
+  #define USB_MIDI_PORT usbMIDI
+
+#elif defined(BMC_FOR_ESP32)
+  #include "midi/BMC-ESP32-BLE.h"
+  #include "midi/BMC-SerialMIDI.h"
+  #define USB_MIDI_PORT usbMIDIESP32
+
+#endif
 
 #define BMC_FLAG_MIDI_LISTENER_ENABLE 0
 #define BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT 1
@@ -39,20 +52,34 @@ public:
   BMCMidiMessage message;
   BMCCallbacks& callback;
   BMCGlobals& globals;
+
+  #if defined(BMC_FOR_ESP32)
+    BMCEsp32BleMidi midiBleTransport;
+    BMCSerialMIDI <BMC_MIDI_PORT_USB_BIT, BMCEsp32BleMidi, 0, true> USB_MIDI_PORT;
+  #endif
   
   // BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
   BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals):
     callback(cb),
     globals(t_globals)
+    
+#ifdef BMC_FOR_ESP32
+    ,midiBleTransport(t_globals)
+    ,USB_MIDI_PORT(midiBleTransport)
+#endif
+
 #ifdef BMC_HAS_SERIAL_MIDI
-      ,midiSerial(cb)
+    ,midiSerial(cb)
 #endif
+
 #ifdef BMC_USB_HOST_ENABLED
-      ,midiHost(cb, t_globals)
+    ,midiHost(cb, t_globals)
 #endif
+
 #ifdef BMC_MIDI_BLE_ENABLED
-      ,midiBle(cb, t_globals)
+    ,midiBle(cb, t_globals)
 #endif
+
     {
     flags.reset();
     
@@ -61,6 +88,11 @@ public:
   void begin(){
     BMC_PRINTLN("");
     BMC_PRINTLN("BMCMidi::begin");
+
+#if defined(BMC_FOR_ESP32)
+    USB_MIDI_PORT.begin();
+#endif
+
 #ifdef BMC_HAS_SERIAL_MIDI
       midiSerial.begin();
 #endif
@@ -77,44 +109,63 @@ public:
       midiSerial.flush();
     #endif
   }
+
+
+
   BMCMidiMessage read(){
     message.reset();
 
-    #ifdef BMC_FOR_TEENSY
-    if(usbMIDI.read()){
-      message.reset(BMC_MIDI_PORT_USB_BIT);
-      message.setStatus(usbMIDI.getType());
-      if(message.isSystemRealTimeStatus()){
-        if(!flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT)){
-          routing(message);
-        } else {
-          message.reset();
+   
+    #if defined(BMC_FOR_TEENSY)
+      if(USB_MIDI_PORT.read()){
+        message.reset(BMC_MIDI_PORT_USB_BIT);
+        message.setStatus(USB_MIDI_PORT.getType());
+        if(message.isSystemRealTimeStatus()){
+          if(!flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT)){
+            routing(message);
+          } else {
+            message.reset();
+          }
+          return message;
         }
-        return message;
+        message.setData1(USB_MIDI_PORT.getData1());
+        message.setData2(USB_MIDI_PORT.getData2());
+        if(message.isSystemExclusive()){
+          message.setData1(0);
+          message.setData2(0);
+          if(USB_MIDI_PORT.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
+            message.addSysEx(
+              USB_MIDI_PORT.getSysExArray(),
+              USB_MIDI_PORT.getSysExArrayLength()
+            );
+          } else {
+            message.setStatus(BMC_NONE);
+          }
+        } else if(message.isChannelStatus()){
+          message.setChannel(USB_MIDI_PORT.getChannel());
+          addToLocalData(message);
+        }
+        routing(message);
       }
-      message.setData1(usbMIDI.getData1());
-      message.setData2(usbMIDI.getData2());
-      if(message.isSystemExclusive()){
-        message.setData1(0);
-        message.setData2(0);
-        if(usbMIDI.getSysExArrayLength() <= BMC_MIDI_SYSEX_SIZE){
-          message.addSysEx(
-            usbMIDI.getSysExArray(),
-            usbMIDI.getSysExArrayLength()
-          );
-        } else {
-          message.setStatus(BMC_NONE);
-        }
-      } else if(message.isChannelStatus()){
-        message.setChannel(usbMIDI.getChannel());
+    #elif defined(BMC_FOR_ESP32)
+      if(USB_MIDI_PORT.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
+        routing(message);
         addToLocalData(message);
       }
-      routing(message);
-    }
     #endif
-    
     return message;
   }
+
+  // BMCMidiMessage readSerial(uint8_t port=0){
+  //   message.reset();
+  //   if(midiSerial.read(port, message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
+  //     routing(message);
+  //     addToLocalData(message);
+  //   }
+  //   return message;
+  // }
+
+
   bool isSkipped(uint8_t type){
     return (type==BMC_MIDI_RT_CLOCK || type==BMC_MIDI_RT_ACTIVE_SENSE);
   }
@@ -275,9 +326,10 @@ public:
 
   // Specific to USB & HOST
   void send_now(){
-    #ifdef BMC_FOR_TEENSY
-      usbMIDI.send_now();
+    #if defined(BMC_FOR_TEENSY)
+      USB_MIDI_PORT.send_now();
     #endif
+    
     #ifdef BMC_USB_HOST_ENABLED
       midiHost.Port.send_now();
     #endif
@@ -408,6 +460,8 @@ private:
     bool debug = false;
     bool debugClock = false;
   #endif
+
+
   // midiSerial = an object holding each MIDI Serial Port (DIN) that is compiled
   #ifdef BMC_HAS_SERIAL_MIDI
     BMCMidiPortSerial midiSerial;

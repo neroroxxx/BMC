@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
   I've tried to put a lot of comments thruout the library and all it's files
@@ -74,6 +74,7 @@
 
 #if BMC_TOTAL_PIXELS > 0
   #include "hardware/BMC-Pixels.h"
+  
   #if BMC_MAX_PIXEL_PROGRAMS > 0
     #include "utility/BMC-PixelPrograms.h"
   #endif
@@ -290,12 +291,12 @@ private:
   // Teensys can execute the update() method of BMC over 100 times per milli second
   // on some boards so this timer is used to lower that number of executions on some tasks
   // this value is set back to 0 at the end of the loop() method
-  elapsedMillis oneMilliSecondtimer;
+  BMCElapsedMillis oneMilliSecondtimer;
   bool oneMillisecondPassed(){
     return oneMilliSecondtimer>=1;
   }
   // used to send a callback every second and other tasks
-  elapsedMillis oneSecondTimer;
+  BMCElapsedMillis oneSecondTimer;
   bool oneSecondPassed(){
     return oneSecondTimer>=1000;
   }
@@ -516,7 +517,7 @@ private:
 #endif
 
 // PIXELS AND LEDS
-#if (BMC_TOTAL_LEDS+BMC_TOTAL_PIXELS) > 0
+#if (BMC_TOTAL_LEDS + BMC_TOTAL_PIXELS) > 0
 
   #if BMC_TOTAL_PIXELS > 0
     // pixels holds both standard pixels and rgb pixels

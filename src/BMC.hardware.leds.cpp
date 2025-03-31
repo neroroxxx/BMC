@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2023 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -76,7 +76,7 @@ void BMC::setupLeds(){
   }
 #endif
 }
-template <uint8_t sLen, uint8_t eLen, typename tname=bmcEvent_t>
+template <uint8_t sLen, uint8_t eLen, typename tname>
 void BMC::handleAssignLeds(BMCLed& t_led, bmcStoreDevice<sLen, eLen, tname>& t_device, uint8_t eIndex){
   bmcStoreEvent data = globals.getDeviceEventType(t_device.events[eIndex]);
   t_led.reassign(t_device.settings[eIndex]);

@@ -1,12 +1,17 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
 
 #ifndef BMC_PIXEL_COLORS_H
 #define BMC_PIXEL_COLORS_H
+
+#include <FastLED.h>
+
+
+
 
 
 // BMC_PIXEL_MAX_BRIGHTNESS sets the brightness of the WS2812Serial library.
@@ -185,6 +190,16 @@
 #endif
 
 
+#define BMC_HSV_HUE_RED       0
+#define BMC_HSV_HUE_ORANGE    30
+#define BMC_HSV_HUE_YELLOW    64
+#define BMC_HSV_HUE_GREEN     96
+#define BMC_HSV_HUE_CYAN      136 // 128
+#define BMC_HSV_HUE_BLUE      160
+#define BMC_HSV_HUE_PURPLE    192
+#define BMC_HSV_HUE_MAGENTA   224
+#define BMC_HSV_HUE_WHITE     0
+
 class BMCPixelColors {
 private:
   BMCPixelColors(){}
@@ -209,6 +224,53 @@ public:
       case BMC_COLOR_RAINBOW_FADE: return BMC_COLOR_RGB_RAINBOW_FADE;
     }
     return BMC_COLOR_RGB_BLACK;
+  }
+
+  // static uint32_t getDimmedColor(uint8_t t_index){
+  //   #if BMC_TOTAL_PIXELS > 0
+  //   switch(t_index){
+  //     case BMC_COLOR_BLACK: return BMC_COLOR_RGB_DIM_BLACK;
+  //     case BMC_COLOR_RED: return BMC_COLOR_RGB_DIM_RED;
+  //     case BMC_COLOR_GREEN: return BMC_COLOR_RGB_DIM_GREEN;
+  //     case BMC_COLOR_YELLOW: return BMC_COLOR_RGB_DIM_YELLOW;
+  //     case BMC_COLOR_BLUE: return BMC_COLOR_RGB_DIM_BLUE;
+  //     case BMC_COLOR_MAGENTA: return BMC_COLOR_RGB_DIM_MAGENTA;
+  //     case BMC_COLOR_CYAN: return BMC_COLOR_RGB_DIM_CYAN;
+  //     case BMC_COLOR_WHITE: return BMC_COLOR_RGB_DIM_WHITE;
+  //     case BMC_COLOR_LIME: return BMC_COLOR_RGB_DIM_LIME;
+  //     case BMC_COLOR_PINK: return BMC_COLOR_RGB_DIM_PINK;
+  //     case BMC_COLOR_PURPLE: return BMC_COLOR_RGB_DIM_PURPLE;
+  //     case BMC_COLOR_ORANGE: return BMC_COLOR_RGB_DIM_ORANGE;
+  //     case BMC_COLOR_TEAL: return BMC_COLOR_RGB_DIM_TEAL;
+  //     case BMC_COLOR_CORAL: return BMC_COLOR_RGB_DIM_CORAL;
+  //     case BMC_COLOR_RAINBOW: return BMC_COLOR_RGB_DIM_RAINBOW;
+  //     case BMC_COLOR_RAINBOW_FADE: return BMC_COLOR_RGB_DIM_RAINBOW_FADE;
+  //   }
+  //   #endif
+  //   // default color would always be dimmed RED
+  //   return BMC_COLOR_RGB_DIM_RED;
+  // }
+
+  static CHSV getHSVColor(uint8_t t_color){
+    switch(t_color & 0x7F){
+      case BMC_COLOR_BLACK: return CHSV(0, 0, 0);
+      case BMC_COLOR_RED: return CHSV(BMC_HSV_HUE_RED, 255, 255);
+      case BMC_COLOR_GREEN: return CHSV(BMC_HSV_HUE_GREEN, 255, 255);
+      case BMC_COLOR_YELLOW: return CHSV(BMC_HSV_HUE_YELLOW, 255, 255);
+      case BMC_COLOR_BLUE: return CHSV(BMC_HSV_HUE_BLUE, 255, 255);
+      case BMC_COLOR_MAGENTA: return CHSV(BMC_HSV_HUE_MAGENTA, 255, 255);
+      case BMC_COLOR_CYAN: return CHSV(BMC_HSV_HUE_CYAN, 255, 255);
+      case BMC_COLOR_WHITE: return CHSV(BMC_HSV_HUE_WHITE, 0, 255); // White can be represented as low saturation and high value
+      //case BMC_COLOR_LIME: return CHSV(85, 255, 255);  // Lime can be a bright green, hue 85
+      //case BMC_COLOR_PINK: return CHSV(213, 255, 255); // Pink is closer to magenta, hue 213
+      //case BMC_COLOR_PURPLE: return CHSV(160, 255, 255); // Purple is between red and blue, hue 160
+      case BMC_COLOR_ORANGE: return CHSV(BMC_HSV_HUE_ORANGE, 255, 255); // Orange is between red and yellow, hue 42
+      //case BMC_COLOR_TEAL: return CHSV(170, 255, 255); // Teal is cyan-like, hue 170
+      //case BMC_COLOR_CORAL: return CHSV(15, 255, 255); // Coral is a reddish-orange, hue 15
+      case BMC_COLOR_RAINBOW: return CHSV(0, 0, 0);
+      case BMC_COLOR_RAINBOW_FADE: return CHSV(0, 0, 0);
+    }
+    return CHSV(0, 0, 0);
   }
   static uint32_t getDimmedColor(uint8_t t_index){
     #if BMC_TOTAL_PIXELS > 0

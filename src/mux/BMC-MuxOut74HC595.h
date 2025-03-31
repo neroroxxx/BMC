@@ -1,6 +1,6 @@
 /*
   See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2020 RoxXxtar.com
+  Copyright (c) 2025 Roxxxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 
@@ -64,13 +64,13 @@ private:
     }
   }
   void _writeToMux(uint8_t mux, uint8_t mask){
-    digitalWriteFast(BMC_MUX_OUT_74HC595_DATA, (states[mux] & mask));
-    digitalWriteFast(BMC_MUX_OUT_74HC595_CLOCK, HIGH);
+    digitalWrite(BMC_MUX_OUT_74HC595_DATA, (states[mux] & mask));
+    digitalWrite(BMC_MUX_OUT_74HC595_CLOCK, HIGH);
   #if BMC_MUX_OUT_74HC595_DELAY > 0
     delayMicroseconds(BMC_MUX_OUT_74HC595_DELAY);
   #endif
-    digitalWriteFast(BMC_MUX_OUT_74HC595_CLOCK, LOW);
-    digitalWriteFast(BMC_MUX_OUT_74HC595_DATA, LOW);
+    digitalWrite(BMC_MUX_OUT_74HC595_CLOCK, LOW);
+    digitalWrite(BMC_MUX_OUT_74HC595_DATA, LOW);
   }
 
 public:
@@ -96,22 +96,22 @@ public:
     #endif
 #endif
 
-    digitalWriteFast(BMC_MUX_OUT_74HC595_CLOCK, LOW);
-    digitalWriteFast(BMC_MUX_OUT_74HC595_LATCH, HIGH);
+    digitalWrite(BMC_MUX_OUT_74HC595_CLOCK, LOW);
+    digitalWrite(BMC_MUX_OUT_74HC595_LATCH, HIGH);
 
     flags.on(BMC_MUX_OUT_74HC595_FLAG_CHANGED);
   }
   void update(){
     if(flags.toggleIfTrue(BMC_MUX_OUT_74HC595_FLAG_CHANGED)){
       // set load pin
-      digitalWriteFast(BMC_MUX_OUT_74HC595_LATCH, LOW);
-      digitalWriteFast(BMC_MUX_OUT_74HC595_DATA, LOW);
+      digitalWrite(BMC_MUX_OUT_74HC595_LATCH, LOW);
+      digitalWrite(BMC_MUX_OUT_74HC595_DATA, LOW);
       if(BMC_74HC595_MUX_COUNT>1){
         _updateMuxReverse();
       } else {
         _updateMux();
       }
-      digitalWriteFast(BMC_MUX_OUT_74HC595_LATCH, HIGH);
+      digitalWrite(BMC_MUX_OUT_74HC595_LATCH, HIGH);
     }
   }
   void test(uint8_t t_pin){
