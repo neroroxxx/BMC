@@ -66,7 +66,7 @@ public:
 
   BMCCallbacks& callback;
   BMCGlobals& globals;
-  BMCSerialMIDI <BMC_MIDI_PORT_BLE_BIT, HardwareSerial> Port;
+  BMCSerialMIDI <BMC_MIDI_PORT_BLE_BIT, HardwareSerial, 1, false> Port;
   unsigned long tConn = 0;
   bool connected = 0;
 };
