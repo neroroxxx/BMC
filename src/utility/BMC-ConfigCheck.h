@@ -572,6 +572,8 @@
     #define BMC_PIXELS_MAX_CURRENT 20
   #endif
 
+  #define FASTLED_INTERNAL
+
   #if defined(BMC_MAX_PIXELS) || defined(BMC_MAX_RGB_PIXELS) || defined(BMC_MAX_GLOBAL_PIXELS) || defined(BMC_MAX_GLOBAL_RGB_PIXELS) || defined(BMC_MAX_PIXEL_STRIP)
     #if (BMC_MAX_PIXELS > 0 && BMC_MAX_PIXELS <= 128) || (BMC_MAX_RGB_PIXELS > 0 && BMC_MAX_RGB_PIXELS <= 128) || (BMC_MAX_PIXEL_STRIP > 0 && BMC_MAX_PIXEL_STRIP <= 64)
       // #if !defined(BMC_PIXELS_PIN)
