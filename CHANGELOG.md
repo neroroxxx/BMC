@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## [2.3.4] - 2025-XX-XX
 - Adds **ESP32-S2, ESP32-S3, ESP32-S2 Mini, ESP32-S3 Zero** Beta Support
+- Requires updating the BMC for ESP32 boards package.
 - USB MIDI built-in on ESP32-S2/S3 - no setup needed.
 - Re-organized Files.
 - Adds LittleFS File System option for Editable memory.
