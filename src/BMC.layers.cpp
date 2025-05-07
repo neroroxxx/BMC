@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com 
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com 
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -19,7 +19,7 @@ void BMC::setLayer(uint8_t t_layer, bool reassignSettings, bool forced){
   }
   layer = t_layer;
 
-  BMC_PRINTLN("Switching to Layer #",layer+1,"(",layer,")");
+  BMC_PRINT_CHANGE("Layer: ", (layer + 1), " (", layer, ")");
 
   editor.setLayer(layer);
   editor.layerSendChangeMessage();
@@ -113,17 +113,13 @@ void BMC::getLayerStr(uint8_t n, char * str){
 
 
 void BMC::nextLayer(){
-  // BMCScroller <uint8_t> scroller(0, BMC_MAX_LAYERS-1);
-  // setLayer(scroller.scroll(1, true, true, layer, 0, BMC_MAX_LAYERS-1));
   scrollLayer(BMC_NEXT, BMC_WRAP, 1);
 }
 void BMC::prevLayer(){
-  // BMCScroller <uint8_t> scroller(0, BMC_MAX_LAYERS-1);
-  // setLayer(scroller.scroll(1, false, true, layer, 0, BMC_MAX_LAYERS-1));
   scrollLayer(BMC_PREV, BMC_WRAP, 1);
 }
-void BMC::scrollLayer(bool t_dir, bool t_endless, uint8_t t_amount){
-  scrollLayer(t_dir, t_endless, 0, BMC_MAX_LAYERS-1, t_amount);
+void BMC::scrollLayer(bool t_dir, bool t_wrap, uint8_t t_amount){
+  scrollLayer(t_dir, t_wrap, 0, BMC_MAX_LAYERS-1, t_amount);
 }
 
 void BMC::scrollLayer(uint8_t t_settings, uint8_t t_amount){
@@ -131,10 +127,10 @@ void BMC::scrollLayer(uint8_t t_settings, uint8_t t_amount){
 }
 void BMC::scrollLayer(uint8_t t_flags, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
   // t_flags bit-0 = direction
-  // t_flags bit-1 = endless
+  // t_flags bit-1 = wrap
   scrollLayer((bitRead(t_flags,0)),bitRead(t_flags,1),t_min,t_max,t_amount);
 }
-void BMC::scrollLayer(bool t_dir, bool t_endless, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
+void BMC::scrollLayer(bool t_dir, bool t_wrap, uint8_t t_min, uint8_t t_max, uint8_t t_amount){
   // if(!globals.onBoardEditorActive()){
   //   if(settings.getDisplayListMode() && !globals.displayListsActive()){
   //     globals.setRenderDisplayList(BMC_DEVICE_ID_LAYER);
@@ -144,7 +140,14 @@ void BMC::scrollLayer(bool t_dir, bool t_endless, uint8_t t_min, uint8_t t_max, 
   if(globals.setRenderDisplayList(BMC_DEVICE_ID_LAYER)){
     return;
   }
-  BMCScroller <uint8_t> scroller(0, BMC_MAX_LAYERS-1);
-  setLayer(scroller.scroll(t_amount, t_dir, t_endless, layer, t_min, t_max));
+  uint8_t nextLayer = BMCCycle<uint8_t>(0, BMC_MAX_LAYERS - 1)
+  .withAmount(t_amount)
+  .withDirection(t_dir)
+  .withWrap(t_wrap)
+  .withValue(layer)
+  .withRange(t_min, t_max)
+  .process();
+
+  setLayer(nextLayer);
 }
 

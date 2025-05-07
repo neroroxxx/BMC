@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Wrapper to some sync/control Fractal Audio Guitar Processors
   In this Class as BLOCK is an EFFECT like Delay, Reverb, Amp, etc.
@@ -485,12 +485,20 @@ public:
     }
     return controlScene(scene);
   }
-  void sceneScroll(bool t_up=true, bool t_wrap=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
+  void sceneScroll(bool t_direction=true, bool t_wrap=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
     if(!connected()){
       return;
     }
-    BMCScroller <uint8_t> scroller(0, 7);
-    setSceneNumber(scroller.scroll(1, t_up, t_wrap, device.scene, t_min, t_max), t_revert);
+
+    uint8_t nextScene = BMCCycle<uint8_t>(0, 7)
+      .withAmount(1)
+      .withDirection(t_direction)
+      .withWrap(t_wrap)
+      .withValue(device.scene)
+      .withRange(t_min, t_max)
+      .process();
+
+    setSceneNumber(nextScene, t_revert);
   }
   // Control Effect/Block XY State
   bool setBlockXY(uint8_t blockId, bool y){
@@ -560,12 +568,19 @@ public:
     // Send Program Change
     sendProgramChange((value & 0x7F));
   }
-  void presetScroll(bool t_up=true, bool t_wrap=true, uint16_t t_min=0, uint16_t t_max=7){
+  void presetScroll(bool t_direction=true, bool t_wrap=true, uint16_t t_min=0, uint16_t t_max=7){
     if(!connected()){
       return;
     }
-    BMCScroller <uint16_t> scroller(0, device.maxPresets);
-    uint16_t inc = scroller.scroll(1, t_up, t_wrap, device.preset, t_min, t_max);
+
+    uint16_t inc = BMCCycle<uint16_t>(0, device.maxPresets)
+      .withAmount(1)
+      .withDirection(t_direction)
+      .withWrap(t_wrap)
+      .withValue(device.preset)
+      .withRange(t_min, t_max)
+      .process();
+
     // only send a preset change if we changed to a new preset
     if(device.preset!=inc){
       setPreset(inc);

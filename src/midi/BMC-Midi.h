@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 
 
@@ -11,20 +11,69 @@
 
 #include "utility/BMC-Def.h"
 
-// #define Midi usbMIDI
-
-
 
 
 #if defined(BMC_FOR_TEENSY)
+  // *****************************************************************************
+  // *          For Teensy use USB MIDI, no need to do anything special.         
+  // *****************************************************************************
   #define USB_MIDI_PORT usbMIDI
+  #define BLE_MIDI_PORT midiBle.Port
 
 #elif defined(BMC_FOR_ESP32)
-  #include "midi/BMC-ESP32-BLE.h"
-  #include "midi/BMC-SerialMIDI.h"
-  #define USB_MIDI_PORT usbMIDIESP32
+  // *****************************************************************************
+  // *        For ESP32 use BLE if the esp32 model doesn't have native usb       
+  // * The only board that BMC will support with Native USB will be the ESP32-S3
+  // *   I want to keep things as simple as possible, more MCUs = more headaches 
+  // *   BMC does require the USB port to be available so for boards without it  
+  // *  emulates it using BLE MIDI, the built-in BLE port takes the place USB as 
+  // *    the first and main port, this mainly applies to the ESP32 DEVKIT and   
+  // *     ESP32 MicroMod, these boards are mainly supported because at least    
+  // *         ESP32 DEVKIT is one of the most available boards out there        
+  // *****************************************************************************
+
+  #if BMC_MCU_HAS_USB == false && BMC_MCU_HAS_BLE == true
+    // *****************************************************************************
+    // *                     ESP32 DEVKIT V1 and ESP32 MicroMod                    
+    // *                            No Native USB Support                           
+    // *                           Use BLE on them Instead                          
+    // *****************************************************************************
+    #define BMC_ESP32_USE_BLE_AS_USB
+    #define USB_MIDI_PORT usbMIDIESP32
+
+    #include "midi/BMC-ESP32-BLE.h"
+    #include "midi/BMC-SerialMIDI.h"
+
+  #elif BMC_MCU_HAS_USB == true
+    // *****************************************************************************
+    // *                         For ESP32-S2 and ESP32-S23                        
+    // *              These have Native USB so they use it for USB MIDI             
+    // *            The S3 has BLE built-in so it's automatically enabled           
+    // *           The S2 doesn't have BLE, only USB MIDI will be available         
+    // *****************************************************************************
+    #define BMC_ESP32_USE_NATIVE_USB
+
+    #if BMC_MCU_HAS_BLE == true
+      // *****************************************************************************
+      // *            The S3 has BLE built-in so it's automatically enabled           
+      // *****************************************************************************
+      #include "midi/BMC-ESP32-BLE.h"
+      #define BLE_MIDI_PORT midiBle
+    #endif
+
+    // *****************************************************************************
+    // *                  Use AdaFruit's tinyUSB to handle USB MIDI                 
+    // *****************************************************************************
+    #define TINYUSB_DEVICE_CDC 1
+    #define TINYUSB_DEVICE_MIDI 1
+    #define USB_MIDI_PORT usbMIDI
+    #include <Adafruit_TinyUSB.h>
+    #include "midi/BMC-SerialMIDI.h"
+
+  #endif
 
 #endif
+
 
 #define BMC_FLAG_MIDI_LISTENER_ENABLE 0
 #define BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT 1
@@ -38,7 +87,12 @@
   #include "midi/BMC-MidiPortHost.h"
 #endif
 
-#ifdef BMC_MIDI_BLE_ENABLED
+// *****************************************************************************
+// *          The BLE port when using Teensy is designed to use MIDIBLE         
+// *          a ESP32 powered BLE module that translates BLE to Serial         
+// *              when using ESP32 it instead uses the built-in BLE             
+// *****************************************************************************
+#if defined(BMC_MIDI_BLE_ENABLED) && defined(BMC_FOR_TEENSY)
   #include "midi/BMC-MidiPortBle.h"
 #endif
 
@@ -53,31 +107,63 @@ public:
   BMCCallbacks& callback;
   BMCGlobals& globals;
 
-  #if defined(BMC_FOR_ESP32)
+#if defined(BMC_ESP32_USE_BLE_AS_USB)
+  // * use BLE as the USB MIDI replacement
+  BMCEsp32BleMidi midiBleTransport;
+  BMCSerialMIDI <BMC_MIDI_PORT_USB_BIT, BMCEsp32BleMidi, 0, true> USB_MIDI_PORT;
+
+#elif defined(BMC_ESP32_USE_NATIVE_USB)
+  // *****************************************************************************
+  // *       Use Native USB on ESP32, Teensy doesn't need any of this stuff.      
+  // * The Adafruit's USB MIDI is designed to be used with the Arduino MIDI library
+  // * BMC has it's own MIDI library that is much more lightweight as it doesn't
+  // * need all the features of the MIDI Library, BMCSerialMIDI also takes
+  // *    a transport layer so it's used here with tinyUSB MIDI implementation   
+  // *****************************************************************************
+  Adafruit_USBD_MIDI midiUSBTransport;
+  BMCSerialMIDI <BMC_MIDI_PORT_USB_BIT, Adafruit_USBD_MIDI, 0, false> USB_MIDI_PORT;
+
+  #if BMC_MCU_HAS_BLE == true
+    // *****************************************************************************
+    // *         If the ESP32 has BLE (S3) then enable the built-in BLE MIDI        
+    // *      Also set the Port Bit to the BLE port bit (BMC_MIDI_PORT_BLE_BIT)     
+    // *****************************************************************************
     BMCEsp32BleMidi midiBleTransport;
-    BMCSerialMIDI <BMC_MIDI_PORT_USB_BIT, BMCEsp32BleMidi, 0, true> USB_MIDI_PORT;
+    BMCSerialMIDI <BMC_MIDI_PORT_BLE_BIT, BMCEsp32BleMidi, 0, true> BLE_MIDI_PORT;
   #endif
-  
-  // BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals, bmcStoreGlobal& t_global):
+#endif
+
   BMCMidi(BMCCallbacks& cb, BMCGlobals& t_globals):
     callback(cb),
     globals(t_globals)
-    
-#ifdef BMC_FOR_ESP32
+
+// * initialize the Native USB and BLE as USB objects
+#if defined(BMC_ESP32_USE_BLE_AS_USB)
     ,midiBleTransport(t_globals)
     ,USB_MIDI_PORT(midiBleTransport)
+#elif defined(BMC_ESP32_USE_NATIVE_USB)
+    ,USB_MIDI_PORT(midiUSBTransport)
 #endif
 
-#ifdef BMC_HAS_SERIAL_MIDI
+#if defined(BMC_HAS_SERIAL_MIDI)
     ,midiSerial(cb)
 #endif
 
-#ifdef BMC_USB_HOST_ENABLED
+#if defined(BMC_USB_HOST_ENABLED)
     ,midiHost(cb, t_globals)
 #endif
 
-#ifdef BMC_MIDI_BLE_ENABLED
+
+// * initialize the BLE Port
+#if defined(BMC_MIDI_BLE_ENABLED)
+  #if defined(BMC_ESP32_USE_NATIVE_USB)
+    // * for a board with Native USB and BLE we use the built-in BLE
+    ,midiBleTransport(t_globals)
+    ,BLE_MIDI_PORT(midiBleTransport)
+  #else
+    // * BLE over Serial using MIDIBLE
     ,midiBle(cb, t_globals)
+  #endif
 #endif
 
     {
@@ -86,23 +172,44 @@ public:
   }
 
   void begin(){
-    BMC_PRINTLN("");
     BMC_PRINTLN("BMCMidi::begin");
 
-#if defined(BMC_FOR_ESP32)
+#if defined(BMC_ESP32_USE_BLE_AS_USB) ||defined(BMC_ESP32_USE_NATIVE_USB)
+    #if defined(BMC_ESP32_USE_NATIVE_USB)
+      if (!TinyUSBDevice.isInitialized()) {
+        TinyUSBDevice.begin(0);
+      }
+      midiUSBTransport.setStringDescriptor(BMC_DEVICE_NAME);
+      TinyUSBDevice.setProductDescriptor(BMC_DEVICE_NAME);
+    #endif
+
     USB_MIDI_PORT.begin();
+
+    #if defined(BMC_ESP32_USE_NATIVE_USB)
+      BMC_PRINTLN(" (i) TinyUSBDevice checking for attached device.");
+      if (TinyUSBDevice.mounted()) {
+        TinyUSBDevice.detach();
+        delay(10);
+        TinyUSBDevice.attach();
+      }
+      delay(500);
+      BMC_PRINTLN(" (i) TinyUSBDevice Mounted");
+    #endif
 #endif
 
 #ifdef BMC_HAS_SERIAL_MIDI
       midiSerial.begin();
 #endif
+
 #ifdef BMC_USB_HOST_ENABLED
       midiHost.begin();
 #endif
+
 #ifdef BMC_MIDI_BLE_ENABLED
       midiBle.begin();
 #endif
-    BMC_PRINTLN("");
+    
+    
   }
   void flush(){
     #ifdef BMC_HAS_SERIAL_MIDI
@@ -110,13 +217,13 @@ public:
     #endif
   }
 
-
-
   BMCMidiMessage read(){
     message.reset();
 
-   
     #if defined(BMC_FOR_TEENSY)
+      // *****************************************************************************
+      // *          When using Teensy we deal with the usbMIDI port directly         
+      // *****************************************************************************
       if(USB_MIDI_PORT.read()){
         message.reset(BMC_MIDI_PORT_USB_BIT);
         message.setStatus(USB_MIDI_PORT.getType());
@@ -147,12 +254,20 @@ public:
         }
         routing(message);
       }
+
     #elif defined(BMC_FOR_ESP32)
+
+      // *****************************************************************************
+      // *          When dealing with the ESP32 we either use BLE MIDI or the         
+      // *                     Native USB which uses BMCSerialMIDI                    
+      // *****************************************************************************
       if(USB_MIDI_PORT.read(message, flags.read(BMC_FLAG_MIDI_REAL_TIME_BLOCK_INPUT))){
         routing(message);
         addToLocalData(message);
       }
+
     #endif
+
     return message;
   }
 
@@ -229,7 +344,7 @@ public:
 #endif
   }
 
-#ifdef BMC_DEBUG
+#if defined(BMC_DEBUG)
   void setDebugOut(bool t_debug){
     debug = t_debug;
   }
@@ -312,17 +427,16 @@ public:
   void sendNrpnDecrement(uint8_t port, uint8_t channel,
                         uint8_t amount, uint8_t cable=0);
   void endNrpn(uint8_t port, uint8_t channel, uint8_t cable=0);
+
   // TOGGLE
   uint8_t toggleCC(uint8_t ports, uint8_t channel, uint8_t control);
+
   // SCROLLING
-  uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control,
-                uint8_t t_flags, uint8_t min=0, uint8_t max=127);
   uint8_t scrollCC(uint8_t ports, uint8_t channel, uint8_t control, uint8_t amount,
-                bool direction, bool endless, uint8_t min=0, uint8_t max=127);
-  uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t t_flags,
-                uint8_t min=0, uint8_t max=127);
+                bool direction, bool endless, uint8_t min, uint8_t max);
+  
   uint8_t scrollPC(uint8_t ports, uint8_t channel, uint8_t amount, bool direction,
-                bool endless, uint8_t min=0, uint8_t max=127);
+                bool endless, uint8_t min, uint8_t max);
 
   // Specific to USB & HOST
   void send_now(){
@@ -400,14 +514,16 @@ public:
   uint8_t getListenerPorts(){
     return listenerPorts.get();
   }
-  void setClockListenerPort(uint8_t t_port){
+  void setClockPort(uint8_t t_port){
+    slaveClockPort = 0;
     bitWrite(slaveClockPort, (t_port & 0x07), 1);
   }
-  uint8_t getClockListenerPort(){
+  uint8_t getClockPort(){
     return slaveClockPort;
   }
   bool isIncomingClockPort(){
-    return BMC_MATCH_PORT(message.getSource(),slaveClockPort);
+    // return message.getSource() == slaveClockPort;
+    return BMC_MATCH_PORT(message.getSource(), slaveClockPort);
   }
   bool isIncoming(){
     return isListenerEnabled() &&
@@ -456,7 +572,7 @@ private:
   // layer changes, preset changes and bank changes
   uint8_t channel = 0;
   // debug variables only compiled if BMC_DEBUG is enabled
-  #ifdef BMC_DEBUG
+  #if defined(BMC_DEBUG)
     bool debug = false;
     bool debugClock = false;
   #endif
@@ -472,7 +588,7 @@ private:
   #endif
   // midiBle = the BLE MIDI port, it uses an object that emulates a serial port
   // then feeding/reading the MIDI library
-  #ifdef BMC_MIDI_BLE_ENABLED
+  #if defined(BMC_MIDI_BLE_ENABLED) && defined(BMC_FOR_TEENSY)
     BMCMidiPortBle midiBle;
   #endif
 

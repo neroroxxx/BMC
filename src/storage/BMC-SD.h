@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Read and write a file to the built-in SD card on Teensy 3.6/3.5/4.0/4.1
   This file is a Raw hex with the EEPROM data
@@ -13,6 +13,8 @@
 #include "utility/BMC-Def.h"
 
 #if defined(BMC_SD_CARD_ENABLED)
+
+#define BMC_FS_FILE_NAME "BMC.HEX"
 
 #include <SD.h>
 #include <SPI.h>
@@ -28,10 +30,10 @@ public:
       BMC_HALT();
     }
     loadFileId();
-    BMC_PRINTLN("BMC_SD: BEGIN file id:",fileId,"file name:",fileName);
+    BMC_PRINTLN("   - BMC_SD: BEGIN file id:",fileId,"file name:",fileName);
   }
   void setFileId(uint8_t id){
-    if(fileId != id && id<BMC_FS_MAX_STORES){
+    if(fileId != id && id < BMC_FS_MAX_STORES){
       fileId = id;
       sprintf(fileName,"BMC%03u.HEX",(uint8_t)id);
       saveFileId();
@@ -48,13 +50,13 @@ public:
     if(!SD.exists(fileName)){
       clear();
     } else {
-      bmcFile = SD.open(fileName,FILE_READ);
+      bmcFile = SD.open(fileName, FILE_READ);
       if(bmcFile.size()!=sizeof(t)){
         bmcFile.close();
         clear();
       }
     }
-    bmcFile = SD.open(fileName,FILE_READ);
+    bmcFile = SD.open(fileName, FILE_READ);
     bmcFile.read((uint8_t *)&t,sizeof(t));
     bmcFile.close();
     return t;
@@ -90,6 +92,11 @@ public:
       return 16000;
     #endif
   }
+  #if defined(BMC_DEBUG)
+    void printInfo(){
+      
+    }
+  #endif
 private:
   File bmcFile;
   uint8_t fileId = 0;

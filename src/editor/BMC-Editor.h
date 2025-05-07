@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   This class handles all the communication to and from the Editor App.
   It also has acces to the Storage class which reads/writes EEPROM.
@@ -132,6 +132,13 @@ public:
   uint32_t getCtrlValue(){
     return dataForBMC.getValue();
   }
+
+  #if defined(BMC_DEBUG)
+    void printStorageInfo(){
+      storage.printInfo();
+    }
+  #endif
+
   bool connected();
   bool connectionHasChanged();
   void connectEditor();
@@ -491,7 +498,7 @@ private:
   }
   // save the entire "store" struct to EEPROM
   void saveStore(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getStoreOffset();
@@ -500,7 +507,7 @@ private:
   }
   // save "store.global" only to EEPROM
   void saveGlobal(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1182,7 +1189,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
   // keep these public for access by the Api
   // save "store.global.settings" to EEPROM
   void saveSettings(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1195,7 +1202,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_EVENTS_LIBRARY){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1208,7 +1215,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_NAMES_LIBRARY){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1217,7 +1224,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     #endif
   }
   void saveDevicePorts(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1226,7 +1233,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     #endif
   }
   void saveShortCuts(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1236,7 +1243,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
   }
 #if BMC_MAX_LFO > 0
   void saveLFO(uint8_t index){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1248,7 +1255,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
 #if BMC_MAX_SKETCH_BYTES > 0
   // save Sketch Bytes to EEPROM
   void saveSketchBytes(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1262,7 +1269,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
   // save the "startup" preset item to EEPROM
   /*
   void saveStartup(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1276,7 +1283,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_PRESETS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1290,7 +1297,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
       if(index >= BMC_MAX_SETLISTS){
         return;
       }
-      #if defined(BMC_SD_CARD_ENABLED)
+      #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
         storage.set(storeAddress, store);
       #else
         uint16_t address = getGlobalOffset();
@@ -1302,7 +1309,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
       if(index >= BMC_MAX_SETLISTS_SONGS_LIBRARY){
         return;
       }
-      #if defined(BMC_SD_CARD_ENABLED)
+      #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
         storage.set(storeAddress, store);
       #else
         uint16_t address = getGlobalOffset();
@@ -1319,7 +1326,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_BUTTONS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1335,7 +1342,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index >= BMC_MAX_GLOBAL_LEDS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1353,7 +1360,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index >= BMC_MAX_GLOBAL_BI_LEDS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1369,7 +1376,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index >= BMC_MAX_GLOBAL_TRI_LEDS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1385,7 +1392,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_ENCODERS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1401,7 +1408,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_POTS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1416,7 +1423,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_TOTAL_POTS_AUX_JACKS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1432,7 +1439,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_PIXELS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1447,7 +1454,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_RGB_PIXELS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1462,7 +1469,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_GLOBAL_MAGIC_ENCODERS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1478,7 +1485,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_NL_RELAYS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1493,7 +1500,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_L_RELAYS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1508,7 +1515,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index >= BMC_MAX_AUX_JACKS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1527,7 +1534,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_CUSTOM_SYSEX){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1543,7 +1550,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_TRIGGERS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1559,7 +1566,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(index>=BMC_MAX_TEMPO_TO_TAP){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1574,7 +1581,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(n >= BMC_MAX_PIXEL_PROGRAMS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1589,7 +1596,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
     if(n>=BMC_MAX_TIMED_EVENTS){
       return;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress, store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1600,7 +1607,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
 #endif
   // save a single layer to EEPROM
   void saveLayer(uint8_t layer){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress,store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1611,7 +1618,7 @@ BMCDeviceData getDeviceDataByIndex(uint8_t index){
 private:
   // save all layers to EEPROM
   void saveLayer(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       storage.set(storeAddress,store);
     #else
       uint16_t address = getGlobalOffset();
@@ -1631,8 +1638,8 @@ private:
   }
   // change the store address in EEPROM
   void setStoreAddress(uint8_t value){
-    #if defined(BMC_SD_CARD_ENABLED)
-      if(value>=BMC_FS_MAX_STORES){
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
+      if(value >= BMC_FS_MAX_STORES){
         value = BMC_FS_MAX_STORES-1;
       }
     #endif
@@ -1642,7 +1649,7 @@ private:
   }
   // Get the maximum number of stores based on the store size and the eeprom size
   uint8_t maxStoreAddresses(){
-#if defined(BMC_SD_CARD_ENABLED)
+#if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
     return BMC_FS_MAX_STORES;
 #else
     uint8_t max = (storage.length()/sizeof(bmcStore));
@@ -1657,13 +1664,14 @@ private:
 
   // load the selected store into RAM
   void getStore(){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       uint16_t address = storeAddress;
     #else
       uint16_t address = getStoreOffset();
     #endif
-
+    
     storage.get(address, store);
+    
 
     // if the CRC in the store did NOT match the computed CRC then
     // we will clear all bytes of the store and add the new CRC and version
@@ -1673,9 +1681,9 @@ private:
     if(store.crc != BMC_CRC){
       // display a message confirming that EEPROM will be cleared if DEBUG
       BMC_WARN_HEAD;
-      BMC_PRINTLN("EEPROM Store",address,"CRC did NOT match");
+      BMC_PRINTLN("Store",address,"CRC did NOT match");
       BMC_PRINTLN("store.crc:",store.crc,", BMC_CRC:",BMC_CRC);
-      BMC_PRINTLN("EEPROM Store",address,"is being Erased.");
+      BMC_PRINTLN("Store",address,"is being Erased.");
       BMC_WARN_FOOT;
       // Erase the store and set all default values
       storeErase(true);
@@ -1683,12 +1691,13 @@ private:
       
       
     } else {
+      BMC_PRINTLN(" - Store looks good!");
       // update the device id on this store to match the one we already have
       // this is only done when a you change the store id so we skip doing this
       // when BMC first launches and gets the store.
       if(!flags.read(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP)){
         if(settings.getDeviceId()!=deviceId){
-          BMC_PRINTLN("Changing Device ID from",settings.getDeviceId(),"to",deviceId);
+          BMC_PRINTLN(" - Changing Device ID from",settings.getDeviceId(),"to",deviceId);
           settings.setDeviceId(deviceId);
           saveSettings();
         }
@@ -1699,7 +1708,7 @@ private:
   // erasing the touch calibration using the editor will cause
   // the on board editor not to work until the teensy is rebooted.
   void storeErase(bool full){
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       uint16_t address = storeAddress;
     #else
       uint16_t address = getStoreOffset();
@@ -1766,10 +1775,12 @@ private:
     // * 3 = 100% of BMC_PIXELS_MAX_CURRENT
     settings.setPixelsBrightness(3);
 #endif
-
+    
     saveStore();
 
     storage.get(address, store);
+
+    BMC_PRINTLN("get store after erase", address, store.crc)
     flags.on(BMC_EDITOR_FLAG_EEPROM_ERASED);
   }
 
@@ -1790,7 +1801,7 @@ private:
     if(t_address==storeAddress || t_address >= maxStoreAddresses()){
       return false;
     }
-    #if defined(BMC_SD_CARD_ENABLED)
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       setStoreAddress(t_address);
       getStore();
       delay(5);

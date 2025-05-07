@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   The BMCStorage class can be modified to use your own code
   for use with an external EEPROM chip, just make sure it
@@ -17,6 +17,10 @@
 // for built-in SD card
 #if defined(BMC_SD_CARD_ENABLED)
   #include "storage/BMC-SD.h"
+
+// for Flash File System
+#elif defined(BMC_FS_ENABLED)
+  #include "storage/BMC-FS.h"
 
 // for 24LC256 i2c EEPROM
 #elif defined(BMC_USE_24LC256)
@@ -45,10 +49,13 @@ public:
   void begin(){
 
   #if defined(BMC_SD_CARD_ENABLED)
-    BMC_PRINTLN("BMCStorage::begin (SD CARD)");
+    BMC_PRINTLN(" - BMCStorage::begin (SD CARD)");
+    STORAGE.begin();
+  #elif defined(BMC_FS_ENABLED)
+    BMC_PRINTLN(" - BMCStorage::begin (FS)");
     STORAGE.begin();
   #elif defined(BMC_USE_24LC256)
-    BMC_PRINTLN("BMCStorage::begin (24LC256)");
+    BMC_PRINTLN(" - BMCStorage::begin (24LC256)");
     #if BMC_I2C_FREQ == 400000
       uint8_t t = STORAGE.begin(BMC24LC256::twiClock400kHz);
     #else
@@ -92,31 +99,45 @@ public:
       BMC_HALT();
     }
   #else
-    BMC_PRINTLN("BMCStorage::begin (Built In EEPROM)");
+    BMC_PRINTLN(" - BMCStorage::begin (Built In EEPROM)");
     #ifdef BMC_FOR_ESP32
       STORAGE.begin(4096);
     #endif
   #endif
   }
   void setFileId(uint8_t id){
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       STORAGE.setFileId(id);
     #endif
   }
   uint8_t getFileId(){
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       return STORAGE.getFileId();
     #else
       return 0;
     #endif
   }
 
+  #if defined(BMC_DEBUG)
+    void printInfo(){
+      BMC_PRINTLN("=====================================================");
+      BMC_PRINTLN("Storage:")
+      BMC_PRINTLN(" - Total:",  length(),         "Bytes.");
+      BMC_PRINTLN(" - Used:",   sizeof(bmcStore), "Bytes");
+      BMC_PRINTLN("=====================================================");
+
+      #if defined(BMC_USE_24LC256) || defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
+        STORAGE.printInfo();
+      #endif
+    }
+  #endif
+
   void get(bmcStore &file){
     #ifdef BMC_DEBUG
       debugStartTiming("Reading");
     #endif
 
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       // load the bmcStore Struct from SD Card
       STORAGE.get(file);
     #else
@@ -133,7 +154,7 @@ public:
       debugStartTiming("Updating");
     #endif
 
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       // save the bmcStore Struct from SD Card
       STORAGE.put(file);
     #else
@@ -155,7 +176,7 @@ public:
       debugStartTiming("Reading");
     #endif
 
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       // load the bmcStore Struct from SD Card
       STORAGE.get(address, file);
     #else
@@ -172,8 +193,8 @@ public:
       debugStartTiming("Updating");
     #endif
 
-    #ifdef BMC_SD_CARD_ENABLED
-      // save the bmcStore Struct from SD Card
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
+      // save the bmcStore Struct to the SD Card
       STORAGE.put(address, file);
     #else
       // Update the bmcStore Struct in EEPROM,
@@ -193,7 +214,7 @@ public:
       debugStartTiming("Clearing");
     #endif
 
-    #ifdef BMC_SD_CARD_ENABLED
+    #if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
       STORAGE.clear();
     #elif defined(BMC_USE_24LC256)
       STORAGE.clear();
@@ -230,6 +251,8 @@ private:
   BMCGlobals& globals;
   #if defined(BMC_SD_CARD_ENABLED)
     BMC_SD STORAGE;
+  #elif defined(BMC_FS_ENABLED)
+    BMC_FS STORAGE;
   #elif defined(BMC_USE_24LC256)
     BMC24LC256 STORAGE;
     BMCElapsedMillis extEepromTimer;
@@ -240,7 +263,7 @@ private:
       if(!globals.getStorageDebug()){
         return;
       }
-      BMC_PRINTLN("");
+      BMC_INFO_HEAD;
       BMC_PRINT("***",str,"Store...");
       debugTimer = BMC_STORAGE_DEBUG_TIME_T();
     }
@@ -249,7 +272,7 @@ private:
         return;
       }
       BMC_PRINTLN("took",((BMC_STORAGE_DEBUG_TIME_T()-debugTimer)/1000.0),"milliseconds");
-      BMC_PRINTLN("");
+      BMC_INFO_FOOT;
     }
   #endif
 };

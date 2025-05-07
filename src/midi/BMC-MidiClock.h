@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com
   See BMC Documentation for License
 
   Handles the Master and Slave Clock
@@ -12,6 +12,7 @@
 
 #include "utility/BMC-Def.h"
 #include "midi/BMC-Midi.h"
+#include "midi/BMC-MidiClockTimer.h"
 
 #ifdef BMC_USE_CLICK_TRACK
   #include "utility/BMC-ClickTrack.h"
@@ -28,18 +29,30 @@
 
 class BMCMidiClock {
 public:
-  BMCMidiClock(BMCMidi& t_midi):midi(t_midi),bpm(t_midi.globals.bpm){
-    flags.reset();
-    masterTimer = 0;
-    bpmCalc.begin();
+  BMCMidiClock(BMCMidi& t_midi):midi(t_midi), globals(t_midi.globals), bpm(t_midi.globals.bpm){
+    
   }
   void begin(){
-    BMC_PRINTLN("    BMCMidiClock::begin");
+    BMC_PRINTLN(" - BMCMidiClock::begin");
+    flags.reset();
+    bpmCalc.begin();
+    masterClockTimer.begin();
     #ifdef BMC_USE_CLICK_TRACK
       clickTrack.begin();
     #endif
   }
-  bool read(bool incoming=false, bool isStartOrContinue=false){
+  void update(){
+    masterClockTimer.update();
+  }
+
+  void setInputPorts(uint8_t t_value){
+
+  }
+  void setOutputPorts(uint8_t t_value){
+
+  }
+
+  bool read(bool incoming = false, bool isStartOrContinue = false){
     // update the bpm calculator first
     bpmCalc.update();
     // if we are slave and a start or continue has been received
@@ -50,45 +63,29 @@ public:
       // this will reset the number of PPQNs in the BPM Calculator
       bpmCalc.startReceived();
     }
+
     // If BMC is set to Master Clock
     if(isMaster()){
-      flags.on(BMC_MIDI_CLOCK_FLAG_ACTIVE);
-      // check if the timer is active and complete, in which case we assign
-      // a new BPM, this timer is started when a new BPM is set via the API
-      if(bpmSetTimer.complete()){
-        assignBpm(tmpBpm);
-      }
-      // check if the number of microseconds (based on the master bpm) has passed
-      if(masterTimer>=interval){
-        // reset the masterTimer
-        masterTimer -= interval;
-        // send the Clock Message to the assigned port(s) 24 per quarter note
-        midi.sendRealTime(midi.getListenerPorts(), BMC_MIDI_RT_CLOCK);
-        // increase the number of ticks
-        ticks++;
-        flags.write(BMC_MIDI_CLOCK_FLAG_EIGTH, (ticks==12));
-        // if we have reached 24 ticks then we have reached a BEAT
-        if(ticks>=24){
-          flags.on(BMC_MIDI_CLOCK_FLAG_EIGTH);
-          // reset the ticks to start over
-          ticks = 0;
-          #ifdef BMC_USE_CLICK_TRACK
-            // play the click track sound if compiled
-            clickTrack.play();
-          #endif
-          // announce that a new beat has occureed
-          flags.on(BMC_MIDI_CLOCK_FLAG_BEAT);
-          return true;
-        }
-      }
-    } else if(incoming && midi.isIncomingClockPort()){
+      return handleMaster();
+    } 
+    
+    if(incoming && midi.isIncomingClockPort()){
       timeout.start(2000);
+      
       flags.on(BMC_MIDI_CLOCK_FLAG_ACTIVE);
+
       if(timeout.complete()){
         flags.off(BMC_MIDI_CLOCK_FLAG_ACTIVE);
       }
       // the ticks variable is only used by the master clock
       ticks = 0;
+
+      #if defined(BMC_DEBUG)
+        if(globals.getMidiClockDebug()){
+          BMC_PRINT(".");
+        }
+      #endif
+
       // the bmp calculator that a PPQN was received
       // if it retunrs tru then 24 ticks have been received
       if(bpmCalc.tickReceived()){
@@ -109,14 +106,21 @@ public:
         #endif
         // set a flat that a beat has accured (24 PPQN)
         flags.on(BMC_MIDI_CLOCK_FLAG_BEAT);
+
+        #if defined(BMC_DEBUG)
+          if(globals.getMidiClockDebug()){
+            BMC_PRINTLN(" Beat");
+          }
+        #endif
+
         // check if the timer is active and has reached the 1000ms
         // also check if the BPM has changed, we'll store the previous bpm
         // in tmpBpm
-        if(bpmSetTimer.complete() && tmpBpm!=bpm){
+        if(bpmSetTimer.complete() && tmpBpm != bpm){
           tmpBpm = bpm;
           // 100ms have passed since the last time the tempo changed
           // now callbacks can be triggered
-          BMC_PRINTLN("NEW BPM",bpm,"Received");
+          BMC_PRINTLN("NEW BPM", bpm, "Received");
           flags.on(BMC_MIDI_CLOCK_FLAG_BPM_CHANGED);
         }
         // return true as 24 PPQN have been received
@@ -125,27 +129,92 @@ public:
     }
     return false;
   }
+
+  bool handleMaster(){
+    if(!isMaster()) return false;
+
+    flags.on(BMC_MIDI_CLOCK_FLAG_ACTIVE);
+    // check if the timer is active and complete, in which case we assign
+    // a new BPM, this timer is started when a new BPM is set via the API
+    
+    if(bpmSetTimer.complete()){
+      assignBpm(tmpBpm);
+    }
+
+    // check if the number of microseconds (based on the master bpm) has passed
+    if(masterClockTimer.ready()){
+
+      // send the Clock Message to the assigned port(s) 24 per quarter note
+      midi.sendRealTime(midi.getClockPort(), BMC_MIDI_RT_CLOCK);
+
+      #if defined(BMC_DEBUG)
+        if(globals.getMidiClockDebug()){
+          BMC_PRINT(".");
+        }
+      #endif
+      
+      // increase the number of ticks
+      ticks++;
+      flags.write(BMC_MIDI_CLOCK_FLAG_EIGTH, (ticks==12));
+      // if we have reached 24 ticks then we have reached a BEAT
+      if(ticks >= 24){
+        flags.on(BMC_MIDI_CLOCK_FLAG_EIGTH);
+        // reset the ticks to start over
+        ticks = 0;
+
+        #ifdef BMC_USE_CLICK_TRACK
+          // play the click track sound if compiled
+          clickTrack.play();
+        #endif
+
+        // announce that a new beat has occureed
+        flags.on(BMC_MIDI_CLOCK_FLAG_BEAT);
+
+        #if defined(BMC_DEBUG)
+          if(globals.getMidiClockDebug()){
+            BMC_PRINTLN(" Beat");
+          }
+        #endif
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool isEigthNote(){
     if(isMaster()){
       //return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_EIGTH);
-      return ticks==12;
+      return ticks == 12;
     }
     return bpmCalc.isEigthNote();
   }
+
   bool isActive(){
     return flags.read(BMC_MIDI_CLOCK_FLAG_ACTIVE);
   }
 
   void setMaster(bool value){
     if(isMaster() != value){
-      flags.write(BMC_MIDI_CLOCK_FLAG_MASTER,value);
+
+      flags.write(BMC_MIDI_CLOCK_FLAG_MASTER, value);
+
+      masterClockTimer.setBpm(120);
+
+      if(value){
+        BMC_PRINTLN("Master Clock Mode");
+        masterClockTimer.start();
+      } else {
+        BMC_PRINTLN("Slave Clock Mode");
+        masterClockTimer.stop();
+      }
+
       ticks = 0;
       bpm = 0;
-      interval = 0;
       setBpm(120);
     }
   }
-  void setBpm(uint16_t tempo=0){
+
+  void setBpm(uint16_t tempo = 0){
     if(isMaster() && bpmCalc.isValidBpm(tempo)){
       tmpBpm = tempo;
       // Wait 100ms before assigning the new master BPM
@@ -157,12 +226,15 @@ public:
   uint16_t getBpm(){
     return bpm;
   }
+
   bool beat(){
     return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_BEAT);
   }
+
   bool tempoChanged(){
     return flags.toggleIfTrue(BMC_MIDI_CLOCK_FLAG_BPM_CHANGED);
   }
+
   bool tap(){
     if(isMaster() && bpmCalc.tap()){
       setBpm(bpmCalc.getBpm());
@@ -242,27 +314,29 @@ public:
 
 private:
   BMCMidi& midi;
+  BMCGlobals& globals;
   uint8_t ticks = 0;
   uint16_t & bpm;
   uint16_t tmpBpm = 0;
-  unsigned long interval = 0;
+  // unsigned long interval = 0;
   #ifdef BMC_USE_CLICK_TRACK
     BMCClickTrack clickTrack;
   #endif
   BMCFlags <uint8_t> flags;
-  BMCElapsedMicros masterTimer;
   BMCBpmCalculator bpmCalc;
   BMCTimer bpmSetTimer;
   BMCTimer timeout;
+  BMCMidiClockTimer masterClockTimer;
+
   void assignBpm(uint16_t tempo){
     if(isMaster() && BMCBpmCalculator::isValidBpm(tempo)){
       if(bpm != tempo){
         flags.on(BMC_MIDI_CLOCK_FLAG_BPM_CHANGED);
       }
-      BMC_PRINTLN("BMCMidiClock::assignBpm",tempo,"was",bpm);
+      BMC_PRINTLN("BMCMidiClock::assignBpm", tempo, "was", bpm);
       bpm = tempo;
-      interval = BMCBpmCalculator::bpmToMicrosPPQN(tempo);
-      masterTimer = 0;
+
+      masterClockTimer.setBpm(bpm);
     }
   }
 };

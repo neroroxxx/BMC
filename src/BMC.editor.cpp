@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com 
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com 
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
@@ -60,7 +60,7 @@ void BMC::editorRead(){
 }
 void BMC::assignStoreData(){
   // The editor has updated data in EEPROM so we need to update all Hardware and Settings
-  BMC_PRINTLN("editor.readyToReload()");
+  BMC_INFO("Assigning Store Data.");
   setLayer(editor.getLayer(), true);
 
   if(callback.storeUpdated){
@@ -70,12 +70,17 @@ void BMC::assignStoreData(){
 void BMC::assignSettings(){
   // Set the global settings
   globals.offset = settings.getDisplayOffset()?0:1;
+  
   midiClock.setMaster(settings.getMasterClock());
+
+
   midiActiveSense.setOutputPorts(settings.getListenerPorts());
   midi.setListenerEnable(settings.getIncomingListenerEnabled());
   midi.setListenerChannel(settings.getListenerChannel());
   midi.setListenerPorts(settings.getListenerPorts());
-  midi.setClockListenerPort(settings.getClockInputPortBit());
+
+  midi.setClockPort(settings.getClockInputPortBit());
+
   editor.setChainingPort(settings.getChainingPort());
 
   #if BMC_TOTAL_PIXELS > 0

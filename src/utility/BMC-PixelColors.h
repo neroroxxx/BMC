@@ -1,17 +1,14 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 
 #ifndef BMC_PIXEL_COLORS_H
 #define BMC_PIXEL_COLORS_H
 
 #include <FastLED.h>
-
-
-
 
 
 // BMC_PIXEL_MAX_BRIGHTNESS sets the brightness of the WS2812Serial library.

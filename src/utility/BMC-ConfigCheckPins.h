@@ -1,18 +1,121 @@
+
 /*
-See https://www.RoxXxtar.com/bmc for more details
-Copyright (c) 2025 RoxXxtar.com
-See BMC Documentation for License
-See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * See BMC Documentation for License
+  * See LICENSE file in the project root for full license information. 
 */
 
 #ifndef BMC_CONFIG_CHECK_PINS_H
 #define BMC_CONFIG_CHECK_PINS_H
 
+// ***********************************
+// * SPI Pins by MCU Model
+
+  #if BMC_MCU_MODEL == 32
+    // * Teensy 3.2 SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 35
+    // * Teensy 3.5 SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 36
+    // * Teensy 3.6 SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 40
+    // * Teensy 4.0 SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 41
+    // * Teensy 4.1 SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 42
+    // * Teensy MicroMod SPI Pins
+    #define BMC_SPI_PIN_DC 9
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 12
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 13
+  
+  #elif BMC_MCU_MODEL == 100
+    // * ESP32 DEVKIT V1 SPI Pins
+    #define BMC_SPI_PIN_DC 13
+    #define BMC_SPI_PIN_CS 5
+    #define BMC_SPI_PIN_MISO 19
+    #define BMC_SPI_PIN_MOSI 23
+    #define BMC_SPI_PIN_SCK 18
+  
+  #elif BMC_MCU_MODEL == 101
+    // * ESP32 MicroMod SPI Pins
+    #define BMC_SPI_PIN_DC 13
+    #define BMC_SPI_PIN_CS 5
+    #define BMC_SPI_PIN_MISO 19
+    #define BMC_SPI_PIN_MOSI 23
+    #define BMC_SPI_PIN_SCK 18
+  
+  #elif BMC_MCU_MODEL == 102
+    // * ESP32-S2 SPI Pins
+    #define BMC_SPI_PIN_DC 33
+    #define BMC_SPI_PIN_CS 34
+    #define BMC_SPI_PIN_MISO 37
+    #define BMC_SPI_PIN_MOSI 35
+    #define BMC_SPI_PIN_SCK 36
+  
+  #elif BMC_MCU_MODEL == 103
+    // * ESP32-S3 SPI Pins
+    #define BMC_SPI_PIN_DC 3
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 13
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 12
+  
+  #elif BMC_MCU_MODEL == 104
+    // * ESP32 S2 Mini SPI Pins
+    #define BMC_SPI_PIN_DC 33
+    #define BMC_SPI_PIN_CS 34
+    #define BMC_SPI_PIN_MISO 37
+    #define BMC_SPI_PIN_MOSI 35
+    #define BMC_SPI_PIN_SCK 36
+  
+  #elif BMC_MCU_MODEL == 105
+    // * ESP32-S3-Zero SPI Pins
+    #define BMC_SPI_PIN_DC 3
+    #define BMC_SPI_PIN_CS 10
+    #define BMC_SPI_PIN_MISO 13
+    #define BMC_SPI_PIN_MOSI 11
+    #define BMC_SPI_PIN_SCK 12
+  #else
+  #error "Unsupported MCU model for TFT SPI pins"
+#endif
+// ***********************************
+
 
 #ifndef BMC_MAX_PAGES
   #define BMC_MAX_PAGES 1
 #endif
-
 
 #ifndef BMC_MAX_MUX_GPIO
   #define BMC_MAX_MUX_GPIO 0
@@ -1076,6 +1179,7 @@ See LICENSE file in the project root for full license information.
 // *** BUTTONS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_BUTTONS start
 // *******************************************
@@ -2113,6 +2217,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_BUTTONS end
 // *******************************************
+
 
 // *******************************************
 // *** LEDS start
@@ -3152,6 +3257,7 @@ See LICENSE file in the project root for full license information.
 // *** LEDS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_LEDS start
 // *******************************************
@@ -4190,6 +4296,7 @@ See LICENSE file in the project root for full license information.
 // *** GLOBAL_LEDS end
 // *******************************************
 
+
 // *******************************************
 // *** BI_LEDS start
 // *******************************************
@@ -4715,6 +4822,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** BI_LEDS end
 // *******************************************
+
 
 // *******************************************
 // *** GLOBAL_BI_LEDS start
@@ -5242,6 +5350,7 @@ See LICENSE file in the project root for full license information.
 // *** GLOBAL_BI_LEDS end
 // *******************************************
 
+
 // *******************************************
 // *** TRI_LEDS start
 // *******************************************
@@ -5768,6 +5877,7 @@ See LICENSE file in the project root for full license information.
 // *** TRI_LEDS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_TRI_LEDS start
 // *******************************************
@@ -6293,6 +6403,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_TRI_LEDS end
 // *******************************************
+
 
 // *******************************************
 // *** POTS start
@@ -7332,6 +7443,7 @@ See LICENSE file in the project root for full license information.
 // *** POTS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_POTS start
 // *******************************************
@@ -8369,6 +8481,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_POTS end
 // *******************************************
+
 
 // *******************************************
 // *** ENCODERS start
@@ -9408,6 +9521,7 @@ See LICENSE file in the project root for full license information.
 // *** ENCODERS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_ENCODERS start
 // *******************************************
@@ -10445,6 +10559,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_ENCODERS end
 // *******************************************
+
 
 // *******************************************
 // *** PIXELS start
@@ -11484,6 +11599,7 @@ See LICENSE file in the project root for full license information.
 // *** PIXELS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_PIXELS start
 // *******************************************
@@ -12521,6 +12637,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_PIXELS end
 // *******************************************
+
 
 // *******************************************
 // *** RGB_PIXELS start
@@ -13560,6 +13677,7 @@ See LICENSE file in the project root for full license information.
 // *** RGB_PIXELS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_RGB_PIXELS start
 // *******************************************
@@ -14598,6 +14716,7 @@ See LICENSE file in the project root for full license information.
 // *** GLOBAL_RGB_PIXELS end
 // *******************************************
 
+
 // *******************************************
 // *** MAGIC_ENCODERS start
 // *******************************************
@@ -14740,6 +14859,7 @@ See LICENSE file in the project root for full license information.
 // *** MAGIC_ENCODERS end
 // *******************************************
 
+
 // *******************************************
 // *** GLOBAL_MAGIC_ENCODERS start
 // *******************************************
@@ -14881,6 +15001,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** GLOBAL_MAGIC_ENCODERS end
 // *******************************************
+
 
 // *******************************************
 // *** NL_RELAYS start
@@ -15408,6 +15529,7 @@ See LICENSE file in the project root for full license information.
 // *** NL_RELAYS end
 // *******************************************
 
+
 // *******************************************
 // *** L_RELAYS start
 // *******************************************
@@ -15934,6 +16056,7 @@ See LICENSE file in the project root for full license information.
 // *** L_RELAYS end
 // *******************************************
 
+
 // *******************************************
 // *** AUX_JACKS start
 // *******************************************
@@ -16076,6 +16199,7 @@ See LICENSE file in the project root for full license information.
 // *** AUX_JACKS end
 // *******************************************
 
+
 // *******************************************
 // *** PIXEL_STRIP start
 // *******************************************
@@ -16086,6 +16210,7 @@ See LICENSE file in the project root for full license information.
 // *******************************************
 // *** PIXEL_STRIP end
 // *******************************************
+
 
 #ifdef BMC_MAX_OLED
 #undef BMC_MAX_OLED
@@ -16605,6 +16730,7 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+
 #if defined(BMC_MAX_ILI9341_BLOCKS)
 #undef BMC_MAX_ILI9341_BLOCKS
 #endif
@@ -16792,6 +16918,7 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 #endif
+
 
 #if defined(BMC_MAX_MINI_DISPLAY)
 #undef BMC_MAX_MINI_DISPLAY
@@ -17157,6 +17284,7 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 
+
 #if defined(BMC_MAX_LCD)
 #undef BMC_MAX_LCD
 #endif
@@ -17254,6 +17382,7 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 #endif
+
 
 #ifdef BMC_MAX_LINKS
 #undef BMC_MAX_LINKS
@@ -17707,5 +17836,6 @@ See LICENSE file in the project root for full license information.
 #endif
 #endif
 #endif
+
 
 #endif

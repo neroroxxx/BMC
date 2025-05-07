@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_HELIX_H
 #define BMC_HELIX_H
@@ -85,8 +85,16 @@ public:
   void snapshotScroll(bool up){
     //getMaxSnapshots()
     //snapshot
-    BMCScroller <uint8_t> scroller(snapshot, 0, getMaxSnapshots()-1);
-    setSnapshot(scroller.scroll(1, up, true));
+
+    uint8_t nextSnapshot = BMCCycle<uint8_t>(0, getMaxSnapshots() - 1)
+      .withAmount(1)
+      .withDirection(up)
+      .withWrap(BMC_WRAP)
+      .withValue(snapshot)
+      .withRange(0, getMaxSnapshots() - 1)
+      .process();
+
+    setSnapshot(nextSnapshot);
   }
   void snapshotScroll(bool direction, uint8_t min, uint8_t max){
     //getMaxSnapshots()
@@ -97,8 +105,16 @@ public:
     uint8_t _max = getMaxSnapshots()-1;
     min = constrain(min, 0, _max);
     max = constrain(max, 0, _max);
-    BMCScroller <uint8_t> scroller(snapshot, min, max);
-    setSnapshot(scroller.scroll(1, direction, true));
+
+    uint8_t nextSnapshot = BMCCycle<uint8_t>(min, max)
+      .withAmount(1)
+      .withDirection(direction)
+      .withWrap(BMC_WRAP)
+      .withValue(snapshot)
+      .withRange(min, max)
+      .process();
+
+    setSnapshot(nextSnapshot);
   }
   void tap(){
     midi.sendControlChange(port, channel, BMC_HELIX_CC_TAP, 127);

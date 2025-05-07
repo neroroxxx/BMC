@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -70,7 +70,7 @@ BMC::BMC():
 }
 
 void BMC::begin(){
-  #ifdef BMC_DEBUG
+  #if defined(BMC_DEBUG)
     setupDebug();
   #endif
 
@@ -78,7 +78,9 @@ void BMC::begin(){
 
   // keep this order
   #if defined(BMC_HAS_DISPLAY)
+    BMC_INFO_HEAD;
     display.begin();
+    BMC_INFO_FOOT;
   #endif
 
   #if defined(BMC_USE_ON_BOARD_EDITOR)
@@ -86,13 +88,14 @@ void BMC::begin(){
   #endif
 
   // setup all MIDI Ports being used
+  BMC_INFO_HEAD;
   midi.begin();
-
+  delay(500);
   // setup midi clock
   midiClock.begin();
-
   // setup midi active sense
   midiActiveSense.begin();
+  BMC_INFO_FOOT;
 
   // load intial data from EEPROM, etc.
   editor.begin();
@@ -145,7 +148,11 @@ void BMC::update(){
   // send the startup preset.
   // This way if any callbacks triggered by the layer change can be triggered
   // and seen by your display.
+  
+  midiClock.update();
+
   if(flags.toggleIfTrue(BMC_FLAGS_FIRST_LOOP)){
+    BMC_INFO_HEAD;
     BMC_PRINTLN("Running First loop()");
 
     #if defined(BMC_HAS_DISPLAY)
@@ -200,6 +207,7 @@ void BMC::update(){
     oneMilliSecondtimer = 0;
     BMC_PRINTLN("");
     BMC_PRINTLN("First loop() complete");
+    BMC_INFO_FOOT;
   }
   if(globals.reloadLayer()){
     reloadLayer();
@@ -389,17 +397,17 @@ void BMC::update(){
       callback.oneSecondPassed(stopwatch.getState());
     }
 
-    globals.resetCPU();
+    // globals.resetCPU();
 
     if(BMC_IS_EVEN(runTime.seconds)){
       flags.on(BMC_FLAGS_STATUS_LED);
       heartbeat = millis();
       // only do this every other second
-#ifdef BMC_DEBUG
-      if(globals.getMetricsDebug()){
-        BMC_PRINTLN(">>>",globals.getCPU(), "loops/s, Free RAM:", globals.getRAM(),"<<<");
-      }
-#endif
+// #ifdef BMC_DEBUG
+//       if(globals.getMetricsDebug()){
+//         BMC_PRINTLN(">>>",globals.getCPU(), "loops/s, Free RAM:", globals.getRAM(),"<<<");
+//       }
+// #endif
     }
     //globals.resetCPU();
     oneSecondTimer = 0;

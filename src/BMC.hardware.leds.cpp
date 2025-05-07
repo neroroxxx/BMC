@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -29,6 +29,7 @@ void BMC::setupLeds(){
 #if BMC_MAX_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_LED, i);
+    BMC_PRINT(i, "l");
     handleSetupLeds(leds[i], ui.pins[0]);
   }
 #endif
@@ -36,6 +37,7 @@ void BMC::setupLeds(){
 #if BMC_MAX_GLOBAL_LEDS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_LED, i);
+    BMC_PRINT(i, "g");
     handleSetupLeds(globalLeds[i], ui.pins[0]);
   }
 #endif
@@ -44,6 +46,7 @@ void BMC::setupLeds(){
   for(uint16_t i = 0; i < BMC_MAX_BI_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BI_LED, i);
     for(uint16_t e = (i*2), u=0; u < 2; e++, u++){
+      BMC_PRINT(i, "l bi");
       handleSetupLeds(biLeds[e], ui.pins[u]);
     }
   }
@@ -53,6 +56,7 @@ void BMC::setupLeds(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BI_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BI_LED, i);
     for(uint16_t e = (i*2), u=0; u < 2; e++, u++){
+      BMC_PRINT(i, "g bi");
       handleSetupLeds(globalBiLeds[e], ui.pins[u]);
     }
   }
@@ -62,6 +66,7 @@ void BMC::setupLeds(){
   for(uint16_t i = 0; i < BMC_MAX_TRI_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_TRI_LED, i);
     for(uint16_t e = (i*3), u=0; u < 3; e++, u++){
+      BMC_PRINT(i, "l tri");
       handleSetupLeds(triLeds[e], ui.pins[u]);
     }
   }
@@ -71,6 +76,7 @@ void BMC::setupLeds(){
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_TRI_LEDS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_TRI_LED, i);
     for(uint16_t e = (i*3), u=0; u < 3; e++, u++){
+      BMC_PRINT(i, "g tri");
       handleSetupLeds(globalTriLeds[e], ui.pins[u]);
     }
   }

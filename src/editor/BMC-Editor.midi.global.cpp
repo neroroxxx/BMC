@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Handle all the global incoming MIDI Messages and spit out all others.
 */
@@ -21,7 +21,7 @@ void BMCEditor::globalProcessMessage(){
       break;
     case BMC_GLOBALF_EDITOR_FETCH_COMPLETE:
       if(isValidGlobalMessage() && isWriteMessage()){
-        BMC_PRINTLN("BMC_GLOBALF_EDITOR_FETCH_COMPLETE");
+        BMC_INFO("BMCEditor Fetch Complete");
         flags.off(BMC_EDITOR_FLAG_CONNECTING_TO_EDITOR);
       }
       break;
@@ -81,13 +81,10 @@ void BMCEditor::globalProcessMessage(){
       incomingMessageLinks();
       break;
     case BMC_EDITOR_FUNCTION_CONNECTION_ALIVE:
-      // BMC_PRINTLN("BMC_EDITOR_FUNCTION_CONNECTION_ALIVE received");
       #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
-        if(!editorHasConnectionAliveOption){
-          // BMC_PRINTLN("BMC_EDITOR_FUNCTION_CONNECTION_ALIVE is now enabled");
-          connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
-        }
+        // connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
         editorHasConnectionAliveOption = true;
+        keepConnectionAlive();
       #endif
       break;
   }
@@ -1043,7 +1040,7 @@ void BMCEditor::connectEditor(){
 
 void BMCEditor::keepConnectionAlive(){
   #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
-    if(midi.globals.editorConnected() && editorHasConnectionAliveOption){
+    if(connected() && editorHasConnectionAliveOption){
       // BMC_PRINTLN("Reset editor connection timer");
       connectionAliveTimer.start(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT);
     }
@@ -1196,6 +1193,10 @@ void BMCEditor::globalBuildInfoMessage(){// BMC_GLOBALF_BUILD_INFO
 
     #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
       bitWrite(buildData, 25, 1);
+    #endif
+
+    #ifdef BMC_FS_ENABLED
+      bitWrite(buildData, 26, 1);
     #endif
 
     
@@ -1366,7 +1367,7 @@ void BMCEditor::globalSettingsMessage(bool write){// BMC_GLOBALF_SETTINGS
   bool triggerDisconnect = false;
 
   uint8_t sysExLength = 77;
-  BMC_PRINTLN("Settings Length",incoming.size(),"required",sysExLength);
+  // BMC_PRINTLN("Settings Length",incoming.size(),"required",sysExLength);
   // handle backup
   if(write && backupActive()){
     backupGlobalSettings(sysExLength);
@@ -1566,8 +1567,8 @@ void BMCEditor::globalEditorFeedback(bool write){
   uint8_t sysExLength = BMC_EDITOR_SYSEX_MIN_LENGTH+1;
   if(write && incoming.size()>=sysExLength){
     uint8_t status = incoming.get7Bits(9);
-    flags.write(BMC_EDITOR_FLAG_EDITOR_FEEDBACK,status>0);
-    BMC_PRINTLN("BMC_EDITOR_FLAG_EDITOR_FEEDBACK", status);
+    flags.write(BMC_EDITOR_FLAG_EDITOR_FEEDBACK,status > 0);
+    BMC_INFO("Editor Feedback:", status?"Enabled":"Disabled");
   }
   BMCMidiMessage buff;
   buff.prepareEditorMessage(

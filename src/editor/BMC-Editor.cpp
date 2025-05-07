@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include "editor/BMC-Editor.h"
 
@@ -21,23 +21,27 @@ BMCEditor::BMCEditor(bmcStore& t_store,
   incoming.reset();
 }
 void BMCEditor::begin(){
+  #if defined(BMC_DEBUG)
+    delay(100);
+  #endif
   
   flags.reset();
   // see getStore() in BMC-Editor.h
   flags.on(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP);
-  BMC_PRINTLN("");
-  BMC_PRINTLN("+++++++++++++++++++++++++++++++++++++++++++");
+  
+  BMC_INFO_HEAD;
+
   BMC_PRINTLN("BMCEditor::begin");
 
   setDevicesData();
 
   storage.begin();
-  #if defined(BMC_USE_TIME)
+  #if defined(BMC_USE_TIME) && defined(BMC_FOR_ESP32)
     setSyncProvider(getTeensy3Time);
     adjustTime(BMC_TIME_ADJUST);
     #if defined(BMC_DEBUG)
       // print the time at launch if debug is enabled
-      BMC_PRINT("BMC Enabled Time:");
+      BMC_PRINT(" - BMC Enabled Time:");
       BMC_PRINTNS((getHour()<10?"0":""),getHour(),":");
       BMC_PRINTNS((getMinute()<10?"0":""),getMinute(),":");
       BMC_PRINTNS((getSecond()<10?"0":""),getSecond()," ");
@@ -61,14 +65,13 @@ void BMCEditor::begin(){
   // when BMC first launches it will always load the first store
   // get the store address from it, then it will load whatever store
   // is selected.
-  BMC_PRINTLN("****************************************");
-  BMC_PRINTLN("Editor Loading store at setup");
+  BMC_PRINTLN(" - Editor Loading store at setup");
 
 #if defined(BMC_DEBUG)
   unsigned long storeLoadTime = millis();
 #endif
 
-#if defined(BMC_SD_CARD_ENABLED)
+#if defined(BMC_SD_CARD_ENABLED) || defined(BMC_FS_ENABLED)
   setStoreAddress(storage.getFileId());
 #else
   setStoreAddress(settings.getStoreAddress());
@@ -80,8 +83,7 @@ void BMCEditor::begin(){
   // get the store
   getStore();
 
-  BMC_PRINTLN("Editor Initial store load took",(millis()-storeLoadTime),"ms");
-  BMC_PRINTLN("****************************************");
+  BMC_PRINTLN(" - Editor Initial store load took",(millis()-storeLoadTime),"ms");
 
   deviceId = settings.getDeviceId();
   #if BMC_MAX_TEMPO_TO_TAP > 0
@@ -94,12 +96,11 @@ void BMCEditor::begin(){
     flags.on(BMC_EDITOR_FLAG_EDITOR_TIMED_EVENTS_UPDATED);
   #endif
 
-  BMC_PRINTLNNS("BMC Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,".",BMC_VERSION_PATCH,"\"");
-  BMC_PRINTLNNS("Library Version stored in EEPROM \"",BMC_GET_BYTE(1,store.version),".",BMC_GET_BYTE(0,store.version),"\"");
-  BMC_PRINTLN("deviceId =", deviceId);
-  BMC_PRINTLN("storeAddress =", storeAddress);
-  BMC_PRINTLN("+++++++++++++++++++++++++++++++++++++++++++");
-  BMC_PRINTLN("");
+  BMC_PRINTLNNS(" - BMC Library Version \"",BMC_VERSION_MAJ,".",BMC_VERSION_MIN,".",BMC_VERSION_PATCH,"\"");
+  BMC_PRINTLNNS(" - Library Version stored in EEPROM \"",BMC_GET_BYTE(1,store.version),".",BMC_GET_BYTE(0,store.version),"\"");
+  BMC_PRINTLN(" - deviceId =", deviceId);
+  BMC_PRINTLN(" - storeAddress =", storeAddress);
+  BMC_INFO_FOOT;
 
   flags.off(BMC_EDITOR_FLAG_EDITOR_INITIAL_SETUP);
 }
@@ -107,9 +108,10 @@ void BMCEditor::update(){
   flags.off(BMC_EDITOR_FLAG_SEND_STATES);
 
   #if defined(BMC_EDITOR_ENABLE_CONNECTION_TIMEOUT)
-    if(midi.globals.editorConnected() && editorHasConnectionAliveOption && connectionAliveTimer.complete()){
+    bool timerIsComplete = connectionAliveTimer.active() && connectionAliveTimer.complete();
+    if(connected() && editorHasConnectionAliveOption && timerIsComplete){
       BMC_INFO("Editor Connection Lost");
-      disconnect(false);
+      disconnect(true);
     }
   #endif
 }

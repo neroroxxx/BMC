@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Emulates a Serial object to be used with the MIDI library
   https://github.com/FortySevenEffects/arduino_midi_library
@@ -71,7 +71,7 @@ public:
     return globals.bleConnected();
   }
   void begin(int baudRate){
-    BMC_PRINTLN("BMCSerialBle::begin");
+    BMC_PRINTLN(" - BMCSerialBle::begin");
     ble.begin();
   }
 

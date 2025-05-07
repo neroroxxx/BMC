@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Wrapper to some sync/control Fractal Audio Guitar Processors
   
@@ -184,15 +184,18 @@ public:
   void begin(){
     // globals.toggleMidiOutDebug();
     BMC_INFO(
-    "FAS3 Sync is meant to Sync with the Axe Fx 3, FM9 and FM3",
-    "However it's only tested with the Axe FX 3.",
-    "In order to sync you must turn on Send Realtime Sysex",
-    "On the Axe FX 3 front panel go to:",
-    "SETUP > MIDI/Remote > GENERAL > Send Realtime Sysex",
-    "BMC listens to the Tempo Downbeat message from the Axe FX.",
-    "",
-    "BMC is now listening and waiting for the Axe FX 3 announce itself."
-  );
+      "FAS3 Sync works with Axe-Fx III, FM9, and FM3.",
+      "Tested with Axe-Fx III only.",
+      "",
+      "To enable sync, turn on 'Send Realtime Sysex'.",
+      "On the Axe-Fx III front panel, go to:",
+      "SETUP > MIDI/Remote > GENERAL",
+      "Enable: 'Send Realtime Sysex'",
+      "",
+      "BMC listens for the Tempo Downbeat message.",
+      "",
+      "Waiting for the Axe-Fx III to announce itself..."
+    );
   }
   void update(){
     if(tuner.timedout()){
@@ -569,12 +572,19 @@ public:
 
     device.reSync(1);
   }
-  void presetScroll(bool t_up=true, bool t_wrap=true, uint16_t t_min=0, uint16_t t_max=7){
+  void presetScroll(bool t_direction=true, bool t_wrap=true, uint16_t t_min=0, uint16_t t_max=7){
     if(!connected()){
       return;
     }
-    BMCScroller <uint16_t> scroller(0, getMaxPresets());
-    uint16_t newValue = scroller.scroll(1, t_up, t_wrap, preset.id, t_min, t_max);
+
+    uint16_t newValue = BMCCycle<uint16_t>(0, getMaxPresets())
+      .withAmount(1)
+      .withDirection(t_direction)
+      .withWrap(t_wrap)
+      .withValue(preset.id)
+      .withRange(t_min, t_max)
+      .process();
+      
     // only send a preset change if we changed to a new preset
     if(preset.id != newValue){
       setPresetNumber(newValue);
@@ -619,12 +629,20 @@ public:
     // }
     fetchSysEx(BMC_FAS3_FUNC_ID_SCENE, t_value, 0, BMC_FAS3_FETCH_TYPE_7_BIT);
   }
-  void sceneScroll(bool t_up=true, bool t_wrap=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
+  void sceneScroll(bool t_direction=true, bool t_wrap=true, bool t_revert=false, uint8_t t_min=0, uint8_t t_max=7){
     if(!connected()){
       return;
     }
-    BMCScroller <uint8_t> scroller(0, 7);
-    setSceneNumber(scroller.scroll(1, t_up, t_wrap, preset.scene, t_min, t_max), t_revert);
+    
+    uint8_t nextScene = BMCCycle<uint8_t>(0, 7)
+      .withAmount(1)
+      .withDirection(t_direction)
+      .withWrap(t_wrap)
+      .withValue(preset.scene)
+      .withRange(t_min, t_max)
+      .process();
+
+    setSceneNumber(nextScene, t_revert);
   }
 
   // ******************

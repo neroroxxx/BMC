@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   This class is just a copy of the extEEPROM by JChristensen, all credits go to the developer
   The class is renamed here so it can be included with BMC
@@ -97,6 +97,12 @@ class BMC24LC256
         uint8_t read(unsigned long addr, uint8_t *values, unsigned int nBytes);
         int read(unsigned long addr);
         void commit(){}
+
+        #if defined(BMC_DEBUG)
+          void printInfo(){
+            
+          }
+        #endif
         uint8_t update(unsigned long addr, uint8_t value){
           if(read(addr) != value){
             write(addr, &value, 1);

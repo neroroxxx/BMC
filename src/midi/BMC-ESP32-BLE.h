@@ -1,5 +1,5 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
+  See https://www.roxxxtar.com/bmc for more details
   Copyright (uint8_t c) 2025 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
@@ -13,7 +13,7 @@
 
 #include "utility/BMC-Def.h"
 
-#if defined(BMC_FOR_ESP32)
+#if defined(BMC_FOR_ESP32) && BMC_MCU_HAS_BLE == true
 
 #include <NimBLEDevice.h>
 
@@ -22,7 +22,6 @@
 // UUIDs for MIDI service and characteristic
 #define BMC_MIDI_SERVICE_UUID        "03b80e5a-ede8-4b33-a751-6ce34ec4c700"
 #define BMC_MIDI_CHARACTERISTIC_UUID "7772e5db-3868-4112-a1a9-f2669d106bf3"
-
 
 
 class BMCEsp32BleMidi {

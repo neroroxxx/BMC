@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_DEBUG_H
 #define BMC_DEBUG_H
@@ -18,10 +18,11 @@
 #define __PRINTNS(a)   Serial.print(a);
 #define __PRINTLNNS(a) __PRINTLN(a);
 
-#define BMC__WARN_LINE  __PRINTLN("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-#define BMC__INFO_LINE  __PRINTLN("##############################################");
-#define BMC__ERROR_LINE __PRINTLN("!?@$%!?@$%!?@$%!?@$%!?@$%!?@$%!?@$%!?@$%!?@$%!");
+#define BMC__WARN_LINE  __PRINTLN("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+#define BMC__INFO_LINE  __PRINTLN("========================================================");
+#define BMC__ERROR_LINE __PRINTLN("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 
+#define BMC_DEBUG_CHANGE_MARKER " |-> "
 
 #define BMC_INFO_HEAD \
   __PRINTLN("") \
@@ -198,7 +199,6 @@
   #define BMCPL18(s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18)  __PRETTY_FUNC Serial.print(s1);Serial.print(" ");Serial.print(s2);Serial.print(" ");Serial.print(s3);Serial.print(" ");Serial.print(s4);Serial.print(" ");Serial.print(s5);Serial.print(" ");Serial.print(s6);Serial.print(" ");Serial.print(s7);Serial.print(" ");Serial.print(s8);Serial.print(" ");Serial.print(s9);Serial.print(" ");Serial.print(s10);Serial.print(" ");Serial.print(s11);Serial.print(" ");Serial.print(s12);Serial.print(" ");Serial.print(s13);Serial.print(" ");Serial.print(s14);Serial.print(" ");Serial.print(s15);Serial.print(" ");Serial.print(s16);Serial.print(" ");Serial.print(s17);Serial.print(" ");Serial.println(s18); 
   #define BMCPL19(s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18,s19)  __PRETTY_FUNC Serial.print(s1);Serial.print(" ");Serial.print(s2);Serial.print(" ");Serial.print(s3);Serial.print(" ");Serial.print(s4);Serial.print(" ");Serial.print(s5);Serial.print(" ");Serial.print(s6);Serial.print(" ");Serial.print(s7);Serial.print(" ");Serial.print(s8);Serial.print(" ");Serial.print(s9);Serial.print(" ");Serial.print(s10);Serial.print(" ");Serial.print(s11);Serial.print(" ");Serial.print(s12);Serial.print(" ");Serial.print(s13);Serial.print(" ");Serial.print(s14);Serial.print(" ");Serial.print(s15);Serial.print(" ");Serial.print(s16);Serial.print(" ");Serial.print(s17);Serial.print(" ");Serial.print(s18);Serial.print(" ");Serial.println(s19); 
   #define BMCPL20(s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15,s16,s17,s18,s19,s20)  __PRETTY_FUNC Serial.print(s1);Serial.print(" ");Serial.print(s2);Serial.print(" ");Serial.print(s3);Serial.print(" ");Serial.print(s4);Serial.print(" ");Serial.print(s5);Serial.print(" ");Serial.print(s6);Serial.print(" ");Serial.print(s7);Serial.print(" ");Serial.print(s8);Serial.print(" ");Serial.print(s9);Serial.print(" ");Serial.print(s10);Serial.print(" ");Serial.print(s11);Serial.print(" ");Serial.print(s12);Serial.print(" ");Serial.print(s13);Serial.print(" ");Serial.print(s14);Serial.print(" ");Serial.print(s15);Serial.print(" ");Serial.print(s16);Serial.print(" ");Serial.print(s17);Serial.print(" ");Serial.print(s18);Serial.print(" ");Serial.print(s19);Serial.print(" ");Serial.println(s20);
-
 
   // BMC_DEBUG_PRINTLNNS(...)
   // Same as BMC_DEBUG_PRINTLN() but without spaces between arguments
@@ -420,6 +420,18 @@
   #define BMC_PRINTLN_HEX(...) BMC_DEBUG_PRINTLN_HEX(__VA_ARGS__)
   #define BMC_PRINTSL(...) BMC_DEBUG_PRINTSL(__VA_ARGS__)
 
+  // #define BMC_PRINT_CHANGE(...) BMC_DEBUG_PRINTLN_CHANGE(__VA_ARGS__)
+
+
+  #define BMC_PRINT_CHANGE(...)\
+  Serial.println("");\
+  BMC__INFO_LINE;\
+  Serial.print(BMC_DEBUG_CHANGE_MARKER);\
+  BMC_PRINTLNNS(__VA_ARGS__);\
+  BMC__INFO_LINE;\
+  Serial.println("");
+  
+
   #define BMC_WARN(...) BMC_DEBUG_WARN(__VA_ARGS__)
   #define BMC_WARNING(...) BMC_DEBUG_WARN(__VA_ARGS__)
   #define BMC_INFO(...) BMC_DEBUG_INFO(__VA_ARGS__)
@@ -452,6 +464,8 @@
   #define BMC_PRINT_HEX(...)
   #define BMC_PRINTLN_HEX(...)
   #define BMC_PRINTSL(...)
+  #define BMC_PRINT_CHANGE(...)
+  
 
   #define BMC_WARN(...)
   #define BMC_WARNING(...)

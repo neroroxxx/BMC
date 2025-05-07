@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   This class is just a copy of the extEEPROM by JChristensen, all credits go to the developer
   The class is renamed here so it can be included with BMC
@@ -110,7 +110,7 @@ BMC24LC256::BMC24LC256(BMC_eeprom_size_t deviceCapacity, uint8_t nDevice, unsign
 //bus (other than EEPROM), call BMC24LC256::begin() after any initialization
 //calls for the other devices to ensure the intended I2C clock speed is set.
 uint8_t BMC24LC256::begin(twiClockFreq_t twiFreq){
-  BMC_PRINTLN("BMC24LC256::begin");
+  BMC_PRINTLN("   - BMC24LC256::begin");
   Wire.begin();
   Wire.setClock(twiFreq); 	// TRL 21Oct2018, compatibility with other processors
   Wire.beginTransmission(_eepromAddr);

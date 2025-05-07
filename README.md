@@ -17,11 +17,12 @@ BMC 2.0 is a major re-write of the BMC core. If you're upgrading from an older v
 🔹 [Follow BMC on Facebook](https://www.facebook.com/badassmidi)
 🔹 [Follow BMC on Instagram](https://www.instagram.com/badassmidi)  
 🔹 [Watch BMC Videos on YouTube](https://www.youtube.com/channel/UCDl3gSF3X0cuXY3fBwXpQYA)  
-🔹 [Access the Web Editor](https://www.RoxXxtar.com/bmc) (Google Chrome required)  
+🔹 [Access the Web Editor](https://www.roxxxtar.com/bmc) (Google Chrome required)  
 
 ---
 
 ## Table of Contents
+- [Changelog](CHANGELOG.md)
 - [What is BMC](#what-is-bmc)
 - [Supported Boards](#supported-boards)
 - [ESP32 Support](#esp32-support)
@@ -37,7 +38,7 @@ BMC 2.0 is a major re-write of the BMC core. If you're upgrading from an older v
 ---
 
 ## What is BMC?
-BMC (**Badass MIDI Controller**) is a powerful MIDI controller library designed for **Teensy** boards ([BMC now supports some ESP32 boards!](#esp32-support)). It comes with a **companion editor app** that lets users design their MIDI controller’s hardware and UI **without writing code**. 
+BMC (**Badass MIDI Controller**) is a powerful MIDI controller library designed for **Teensy** boards ([now supporting ESP32!](#esp32-support)). It comes with a **companion editor app** that lets you design your MIDI controller’s hardware and UI **without writing code**. 
 
 ### How It Works
 1. **Design Your MIDI Controller** 🛠️  
@@ -62,26 +63,39 @@ BMC (**Badass MIDI Controller**) is a powerful MIDI controller library designed 
 - Teensy **3.6** *(⚠ Not recommended for new designs)*
 - Teensy **3.5** *(⚠ Not recommended for new designs)*
 - Teensy **3.2** *(⚠ Not recommended for new designs)*
-- ✨ **NEW!** ESP32 DEVKIT V1 BETA (Mini Displays currently not supported)
-- ✨ **NEW!** SparkFun ESP32 BETA MicroMod (Mini Displays currently not supported)
+- ✨ **NEW!** ESP32 Devkit V1 (Beta)
+- ✨ **NEW!** SparkFun ESP32 (Beta)
+- ✨ **NEW!** ESP32-S2 Devkit(Beta)
+- ✨ **NEW!** ESP32-S3 Devkit (Beta)
+
 
 
 ---
 
-## ESP32 Support
-**BMC** has BETA support for **ESP32** boards! Currently, only the **ESP32 DEVKIT V1** (one of the most common boards) and the **SparkFun ESP32 MicroMod** are supported, with more boards to come as testing continues.
+### ESP32 Support
 
-A few things to keep in mind:
+BMC now supports multiple ESP32 models, including models with **OTG USB** all are currently in Beta.
 
-- ESP32 support is in BETA, please report any issues.
-- Since the ESP32 doesn't have **Native USB MIDI**, it relies solely on **Bluetooth Low Energy (BLE)** MIDI for connectivity.
-- BLE MIDI is always available taking the place of the USB MIDI port.
-- Only 2 Serial Ports are available on pins 4/5 and 17/16
-- **Mini Displays** are not supported yet, as they rely on a Teensy-specific library.
-- The **Serial Monitor** is unavailable on the web editor app.
-- When using the internal **EEPROM**, the size will always be 4,096 bytes.
-- To use with ESP32, the NimBLE-Arduino library version 1.4.3 is required.
-- The **BMC for ESP32 boards package** is a modified version of the official ESP32 package. Both can coexist, but if you select a board from the BMC package, you **MUST** have a `config.h` file in the sketch folder.
+- **ESP32 (Original)**  
+  - ❌ No native USB MIDI  
+  - ✅ BLE MIDI only (enabled automatically)
+- **ESP32-S2 / ESP32-S3**  
+  - ✅ Native USB MIDI support (enabled automatically)  
+  - ✅ BLE MIDI also enabled automatically
+- On **ESP32 (original)**, **BLE MIDI replaces USB MIDI**.
+- On **ESP32-S2/S3**, **USB MIDI works as expected**, and **BLE MIDI is also available**.
+- BLE MIDI is **always enabled**, regardless of variant.
+- Only **2 serial ports** are available on all ESP32 boards.
+- The **Serial Monitor** is **not available** in the Arduino Web Editor or iPad app.
+- Internal **EEPROM size is fixed** at **4,096 bytes**.
+- The **BMC for ESP32 Boards package** is a modified version of the official ESP32 package:
+  - Both packages can coexist.
+  - When using a BMC board, a `config.h` file **must** exist in the sketch folder.
+  - This package includes:
+    - [NimBLE](https://github.com/h2zero/NimBLE-Arduino) for BLE MIDI
+    - [TinyUSB](https://github.com/hathach/tinyusb) for USB MIDI
+- When selecting an ESP32-S2 or ESP32-S3 board from the **BMC for ESP32 Boards package**, all necessary USB MIDI settings are **automatically configured**.
+- All BMC features are currently Supported on ESP32.
 
 ---
 

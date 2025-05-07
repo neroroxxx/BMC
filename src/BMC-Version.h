@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   This is the version stored in EEPROM.
 
@@ -23,10 +23,10 @@
 // BMC Version stored in EEPROM (for editor usage)
 #define BMC_VERSION_MAJ     2
 #define BMC_VERSION_MIN     3
-#define BMC_VERSION_PATCH   3
+#define BMC_VERSION_PATCH   4
 
-#define BMC_VERSION_STR "2.3.3"
+#define BMC_VERSION_STR "2.3.4"
 
 //16 bits unsigned, LSB byte is minor, MSB byte is major
-#define BMC_VERSION ((BMC_VERSION_MAJ<<8) | BMC_VERSION_MIN)
-#define BMC_SEM_VERSION ((BMC_VERSION<<8) | BMC_VERSION_PATCH)
+#define BMC_VERSION ((BMC_VERSION_MAJ << 8) | BMC_VERSION_MIN)
+#define BMC_SEM_VERSION ((BMC_VERSION << 8) | BMC_VERSION_PATCH)

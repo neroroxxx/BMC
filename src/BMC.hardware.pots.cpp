@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -12,6 +12,7 @@ void BMC::setupPots(){
 #if BMC_MAX_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_POTS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_POT, i);
+    BMC_PRINT(i, "l");
     pots[i].begin(ui.pins[0]);
   }
 #endif
@@ -19,6 +20,7 @@ void BMC::setupPots(){
 #if BMC_MAX_GLOBAL_POTS > 0
   for(uint8_t i = 0; i < BMC_MAX_GLOBAL_POTS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_POT, i);
+    BMC_PRINT(i, "g");
     globalPots[i].begin(ui.pins[0]);
   }
 #endif
@@ -36,8 +38,8 @@ void BMC::assignPots(){
       store.global.potCalibration[i].events[0],
       store.global.potCalibration[i].events[1]
     );
-    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
     pots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
+    pots[i].setTaperLog(bitRead(device.settings[0], 7));
   }
 #endif
 #if BMC_MAX_GLOBAL_POTS > 0
@@ -50,8 +52,8 @@ void BMC::assignPots(){
       store.global.potCalibration[BMC_MAX_POTS+i].events[0],
       store.global.potCalibration[BMC_MAX_POTS+i].events[1]
     );
-    //pot.setTaper(bitRead(BMC_GET_BYTE(3, event), 7));
     globalPots[i].assignToeSwitch(toeEngage, toeDisengage, device.settings[0]);
+    globalPots[i].setTaperLog(bitRead(device.settings[0], 7));
   }
 #endif
 }
@@ -77,9 +79,9 @@ void BMC::readPots(){
     pots[i].setMuxValue(mux.readAnalog(pots[i].getMuxPin()));
 #endif
 
-    if(pots[i].toeSwitchActive()){
-      potParseToeSwitch(pots[i]);
-    }
+    
+    handlePotToeSwitch(pots[i]);
+
     bool sendData = false;
     if(pots[i].update()){
       sendData = true;
@@ -92,7 +94,7 @@ void BMC::readPots(){
                   );
       #if defined(BMC_DEBUG)
         if(globals.getPotsDebug()){
-          BMC_PRINTLN("Pot", i, value);
+          BMC_PRINTLN("Pot", i, value, pots[i].getRawValue());
         }
       #endif
       // HANDLE CALLBACKS
@@ -127,15 +129,9 @@ void BMC::readPots(){
     globalPots[i].setMuxValue(mux.readAnalog(globalPots[i].getMuxPin()));
   #endif
     bmcStoreDevice <1, 3>& device = store.global.pots[i];
-    //bmcStoreEvent data = globals.getDeviceEventType(device.events[0]);
-    if(globalPots[i].toeSwitchActive()){
-      potParseToeSwitch(globalPots[i]);
-      /*
-      if(callback.globalPotsToeSwitchState && BMC_GET_BYTE(0, globalPots[i].toeSwitchGetEvent())>0){
-        callback.globalPotsToeSwitchState(i, globalPots[i].toeSwitchGetState());
-      }
-      */
-    }
+    
+    handlePotToeSwitch(globalPots[i]);
+
     bool sendData = false;
     if(globalPots[i].update()){
       sendData = true;
@@ -167,15 +163,14 @@ void BMC::readPots(){
 #endif
 }
 
-void BMC::potParseToeSwitch(BMCPot& pot){
-  if(!pot.toeSwitchAvailable()){
-    return;
+void BMC::handlePotToeSwitch(BMCPot& pot){
+  if(pot.toeSwitchActive()){
+    processEvent(BMC_DEVICE_GROUP_BUTTON,
+      BMC_DEVICE_ID_BUTTON,
+      0,
+      pot.toeSwitchGetEvent()
+    );
   }
-  processEvent(BMC_DEVICE_GROUP_BUTTON,
-                BMC_DEVICE_ID_BUTTON,
-                0,
-                pot.toeSwitchGetEvent()
-              );
 }
 
 #endif

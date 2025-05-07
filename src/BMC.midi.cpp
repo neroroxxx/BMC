@@ -1,13 +1,13 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com 
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com 
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
 void BMC::readMidi(){
-  // this is mainly used to update the midi clocks timer
+  // this is mainly used to update the master midi clock's timer
   handleMidiClock(false);
 
   if(midiClock.tempoChanged()){
@@ -159,10 +159,17 @@ void BMC::handleMidiClock(bool isClock, bool isStartOrContinue){
     pixels.clockBeat(midiClock.getBpm());
 #endif
 }
-void BMC::midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t min, uint8_t max){
+void BMC::midiProgramBankScroll(bool up, bool wrap, uint8_t amount, uint8_t min, uint8_t max){
   amount = constrain(amount, 1, 64);
-  BMCScroller <uint8_t> scroller(0, 127);
-  programBank = scroller.scroll(amount, up, endless, programBank, min, max);
+
+  programBank = BMCCycle<uint8_t>(0, 127)
+    .withAmount(amount)
+    .withDirection(up)
+    .withWrap(wrap)
+    .withValue(programBank)
+    .withRange(min, max)
+    .process();
+
   if(callback.programBankChanged){
     callback.programBankChanged(programBank);
   }

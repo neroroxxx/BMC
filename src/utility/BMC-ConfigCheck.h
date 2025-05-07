@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_CONFIG_CHECK_H
 #define BMC_CONFIG_CHECK_H
@@ -331,7 +331,6 @@
     #define BMC_ILI_S_COUNT 1
   #endif
 
-  
 
   #if defined(BMC_USE_MIDI_SERIAL_A) && defined(BMC_MIDI_SERIAL_IO_A)
     #define BMC_MIDI_SERIAL_A_ENABLED
@@ -339,13 +338,15 @@
   #else
     #define _BMC_MIDISERIAL_A_ 0
   #endif
-  #if defined(BMC_USE_MIDI_SERIAL_B) && defined(BMC_MIDI_SERIAL_IO_B)
+
+  #if defined(BMC_USE_MIDI_SERIAL_B) && defined(BMC_MIDI_SERIAL_IO_B) && BMC_MCU_TOTAL_SERIAL_PORTS > 1
     #define BMC_MIDI_SERIAL_B_ENABLED
     #define _BMC_MIDISERIAL_B_ 1
   #else
     #define _BMC_MIDISERIAL_B_ 0
   #endif
-  #if defined(BMC_USE_MIDI_SERIAL_C) && defined(BMC_MIDI_SERIAL_IO_C)
+
+  #if defined(BMC_USE_MIDI_SERIAL_C) && defined(BMC_MIDI_SERIAL_IO_C) && BMC_MCU_TOTAL_SERIAL_PORTS > 2
     #define BMC_MIDI_SERIAL_C_ENABLED
     #define _BMC_MIDISERIAL_C_ 1
   #else
@@ -358,6 +359,7 @@
   #else
     #define _BMC_MIDISERIAL_D_ 0
   #endif
+
 
   #if defined(BMC_USE_MIDIBLE) && defined(BMC_MIDI_SERIAL_IO_BLE)
     #define BMC_MIDI_BLE_ENABLED
@@ -406,13 +408,25 @@
     #define BMC_SD_CARD_ENABLED
   #endif
 
+  #if defined(BMC_USE_FS) && BMC_MCU_HAS_FS == true
+    #ifdef BMC_USE_24LC256
+      #undef BMC_USE_24LC256
+    #endif
+    #ifdef BMC_USE_SD_CARD
+      #undef BMC_USE_SD_CARD
+    #endif
+    #if !defined(BMC_STORAGE_PARTITION_SIZE_32K)
+      #define BMC_STORAGE_PARTITION_SIZE_32K
+    #endif
+    #define BMC_FS_ENABLED
+  #endif
+
   #if defined(BMC_STORAGE_PARTITION_SIZE_32K)
     #if BMC_MCU_RAM_SIZE < 256000
       #undef BMC_STORAGE_PARTITION_SIZE_32K
     #endif
   #endif
 
-  #define BMC_FS_FILE_NAME "BMC.HEX"
 
   // layers check
   #if !defined(BMC_MAX_LAYERS)

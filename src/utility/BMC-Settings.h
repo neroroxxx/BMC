@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_SETTINGS_H
 #define BMC_SETTINGS_H
@@ -54,7 +54,7 @@
         bits 02-05  Helix Id
         bits 06-09  Helix Channel
         bits 10-13  Helix Port
-        bits 14-15  *2 bits Available*
+        bits 14-15  getButtonDebounceMode
         bits 16-19  BeatBuddy Channel
         bits 20-23  BeatBuddy Port
         bits 24-24  Click Track Mute State (0-1)
@@ -62,7 +62,7 @@
         bits 28-31  Click Track Level
 
       [2]:
-        bits 00-03  Buttons Threshold
+        bits 00-03  getButtonHoldThreshold
         bits 04-04  getSetListTriggerFirstSong
         bits 05-05  getSetListTriggerFirstSongPart
         bits 06-09  getTyperChannel
@@ -71,7 +71,8 @@
         bits 17-20  getLcdBacklight
         bits 21-21  getSetListAllowPartRecall
         bits 22-25  getOutgoingProgramType
-        bits 26-31  *6 bits available  
+        bits 26-28  getButtonDoublePressWindow
+        bits 29-31  getButtonContinuousTime
         
 
       [3]: 
@@ -157,8 +158,6 @@ public:
   void setOutgoingListenerEnabled(bool value){
     writeFlag(12,value);
   }
-
-  
 
 
   // Enable BeatBuddy Syncing
@@ -314,6 +313,7 @@ public:
   void setIncomingProgramType(bool value){
     BMC_WRITE_BITS(settings.data[1],value,0x03,0);
   }
+
   // Helix Id
   // @value: 0 to 15
   uint8_t getHelixId(){
@@ -338,6 +338,14 @@ public:
   void setHelixPort(uint8_t value){
     BMC_WRITE_BITS(settings.data[1],value,0x0F,10);
   }
+  
+  uint8_t getButtonDebounceMode(){
+    return (settings.data[1] >> 14) & 0x03;
+  }
+  void setButtonDebounceMode(bool value){
+    BMC_WRITE_BITS(settings.data[1], value, 0x03, 14);
+  }
+
   // BeatBuddy Channel
   // @value: 0 to 15
   uint8_t getBeatBuddyChannel(){
@@ -493,6 +501,22 @@ public:
   }
   void setOutgoingProgramType(bool value){
     BMC_WRITE_BITS(settings.data[2], value, 0x0F, 22);
+  }
+
+
+
+  uint8_t getButtonDoublePressWindow(){
+    return (settings.data[2]>>26) & 0x07;
+  }
+  void setButtonDoublePressWindow(bool value){
+    BMC_WRITE_BITS(settings.data[2], value, 0x07, 26);
+  }
+
+  uint8_t getButtonContinuousTime(){
+    return (settings.data[2]>>29) & 0x07;
+  }
+  void setButtonContinuousTime(bool value){
+    BMC_WRITE_BITS(settings.data[2], value, 0x07, 29);
   }
 
   uint8_t getOutgoingPCPort(){

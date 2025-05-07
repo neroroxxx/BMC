@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 
 #ifndef BMC_STRUCT_H
@@ -61,15 +61,18 @@ struct BMCEventScrollData {
     enabled = bitRead(settings, 0);
     direction = bitRead(settings, 1);
     wrap = bitRead(settings, 2);
+    
     if(forceEnable){
       if(!enabled){
         wrap = true;
       }
       enabled = true; 
     }
+
     if(ticks > 0 || forceEnable){
       direction = bitRead(ticks, 7);
     }
+    
     amount = ticks & 0x7F;
     if(amount == 0){
       amount = 1;
@@ -185,7 +188,7 @@ struct BMCDataContainer {
   bool scrollWrap(){
     return scroll.wrap;
   }
-  bool scrollAmount(){
+  uint8_t scrollAmount(){
     return scroll.amount;
   }
   void forceOnlyString(){

@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #ifndef BMC_CALLBACKS_H
 #define BMC_CALLBACKS_H
@@ -149,7 +149,7 @@ public:
 #endif
 
   bool (*customActivity)(uint8_t deviceType, uint16_t deviceIndex, uint8_t id, uint8_t dat1, uint8_t dat2);
-
+  
   void (*buttonDualPress)(uint16_t btn1, uint16_t btn2);
   void (*globalButtonDualPress)(uint16_t btn1, uint16_t btn2);
 

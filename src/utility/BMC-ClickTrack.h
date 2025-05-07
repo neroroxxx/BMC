@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   This is meant to be used with the built in DAC pin
   Teensy 3.2 Pin A14
@@ -79,24 +79,48 @@ public:
     }
   }
   void frequencyIncrease(uint16_t min=500, uint16_t max=4000){
-    BMCScroller <uint16_t> s(500, 4000);
-    s.setValue(frequency, min, max);
-    setFrequency(s.up(500, BMC_SCROLL_LIMITED));
+    uint16_t nextFreq = BMCCycle<uint16_t>(500, 4000)
+      .withAmount(500)
+      .withDirection(BMC_UP)
+      .withWrap(BMC_NO_WRAP)
+      .withValue(frequency)
+      .withRange(min, max)
+      .process();
+
+    setFrequency(nextFreq);
   }
   void frequencyDecrease(uint16_t min=500, uint16_t max=4000){
-    BMCScroller <uint16_t> s(500, 4000);
-    s.setValue(frequency, min, max);
-    setFrequency(s.down(500, BMC_SCROLL_LIMITED));
+    uint16_t nextFreq = BMCCycle<uint16_t>(500, 4000)
+      .withAmount(500)
+      .withDirection(BMC_DOWN)
+      .withWrap(BMC_NO_WRAP)
+      .withValue(frequency)
+      .withRange(min, max)
+      .process();
+
+    setFrequency(nextFreq);
   }
   void levelIncrease(uint16_t min=0, uint16_t max=10){
-    BMCScroller <uint8_t> s(0, 10);
-    s.setValue(volume, min, max);
-    setFrequency(s.up(1, BMC_SCROLL_LIMITED));
+    uint8_t nextVolume = BMCCycle<uint8_t>(0, 10)
+      .withAmount(1)
+      .withDirection(BMC_UP)
+      .withWrap(BMC_NO_WRAP)
+      .withValue(volume)
+      .withRange(min, max)
+      .process();
+
+    setFrequency(nextVolume);
   }
   void levelDecrease(uint16_t min=0, uint16_t max=10){
-    BMCScroller <uint8_t> s(0, 10);
-    s.setValue(volume, min, max);
-    setFrequency(s.down(1, BMC_SCROLL_LIMITED));
+    uint8_t nextVolume = BMCCycle<uint8_t>(0, 10)
+      .withAmount(1)
+      .withDirection(BMC_DOWN)
+      .withWrap(BMC_NO_WRAP)
+      .withValue(volume)
+      .withRange(min, max)
+      .process();
+
+    setFrequency(nextVolume);
   }
   void toggleMute(){
     flags.on(BMC_CLICK_TRACK_FLAG_CHANGED);

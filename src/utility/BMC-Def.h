@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 */
 
@@ -24,10 +24,36 @@
 // #endif
 
 
-#if __has_include("config.h")
-#include "config.h"
-//#pragma message "BMC_ILI9488_t3h - included ILI9488_sketch_options.h"
+
+#if defined(__arm__) && defined(CORE_TEENSY)
+
+  // * include the config file for teensy
+
+  #if __has_include("config.h")
+    #include "config.h"
+  #endif
+
+
+
+#else
+  
+
+  #ifndef BMC_CONFIG_INCLUDED
+    #define BMC_CONFIG_INCLUDED
+
+    #if __has_include(<config.h>)
+      #include <config.h>
+
+    #endif
+  #endif
+
 #endif
+
+
+
+
+
+
 
 #if !defined(BMC_CONFIG_H)
   #error "config.h file is required for BMC."
@@ -36,168 +62,313 @@
 #ifndef BMC_DEF_H
 #define BMC_DEF_H
 
-/*
-  tMM __IMXRT1062__ tested & supported - NO CLICK TRACK
-  t41 __IMXRT1062__ tested & supported - NO CLICK TRACK
-  t40 __IMXRT1062__ tested & supported - NO CLICK TRACK
-  t36 __MK66FX1M0__ tested & supported - NO CLICK TRACK
-  t35 __MK64FX512__ tested & supported
-  t32 __MK20DX256__ tested & supported ***
-  t31 __MK20DX256__ not tested - supported?
-  t30 __MK20DX128__ not tested - NOT supported
-  tLC __MKL26Z64__ not tested - supported? - NO CLICK TRACK
-
-*/
+#include "utility/BMC-DefBoards.h"
 
 
-// #if defined(ESP32_DEV)
-//   #error "ESP32_DEV"
-// #elif defined(ARDUINO_ESP32_DEV)
-//   #error "ARDUINO_ESP32_DEV"
+// #if defined(__arm__) && defined(CORE_TEENSY)
+
+//   #define BMC_FOR_TEENSY
+
+//   #if defined(ARDUINO_TEENSY_MICROMOD)
+
+//     // *******************************************
+//     // *        Teensy MicroMod
+//     // *******************************************
+//     // Teensy 4.1
+//     // __IMXRT1062__
+//     #define BMC_MCU_MODEL             	 42
+//     #define BMC_MCU_MODEL_STR         	 "Teensy MicroMod"
+//     #define BMC_MCU_RAM_SIZE          	 1024000
+//     #define BMC_MCU_EEPROM_SIZE       	 4284
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 true
+//     #define BMC_MCU_HAS_SD_CARD       	 true
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 46
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 27
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
+
+//   #elif defined(ARDUINO_TEENSY41)
+
+//     // *******************************************
+//     // *        Teensy 4.1
+//     // *******************************************
+//     // Teensy 4.1
+//     // __IMXRT1062__
+//     #define BMC_MCU_MODEL             	 41
+//     #define BMC_MCU_MODEL_STR         	 "Teensy 4.1"
+//     #define BMC_MCU_RAM_SIZE          	 1024000
+//     #define BMC_MCU_EEPROM_SIZE       	 4284
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 true
+//     #define BMC_MCU_HAS_SD_CARD       	 true
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 42
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 27
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
+
+//   #elif defined(ARDUINO_TEENSY40)
+
+//     // *******************************************
+//     // *        Teensy 4.0
+//     // *******************************************
+//     // Teensy 4.0
+//     // __IMXRT1062__
+//     #define BMC_MCU_MODEL             	 40
+//     #define BMC_MCU_MODEL_STR         	 "Teensy 4.0"
+//     #define BMC_MCU_RAM_SIZE          	 1024000
+//     #define BMC_MCU_EEPROM_SIZE       	 1080
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 true
+//     #define BMC_MCU_HAS_SD_CARD       	 true
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 7
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 40
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 31
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 14
+
+//   #elif defined(ARDUINO_TEENSY36)
+
+//     // *******************************************
+//     // *        Teensy 3.6
+//     // *******************************************
+//     // Teensy 3.6
+//     // __MK66FX1M0__
+//     #define BMC_MCU_MODEL             	 36
+//     #define BMC_MCU_MODEL_STR         	 "Teensy 3.6"
+//     #define BMC_MCU_RAM_SIZE          	 262144
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 true
+//     #define BMC_MCU_HAS_SD_CARD       	 true
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               false
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 22
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 25
+
+//   #elif defined(ARDUINO_TEENSY35)
+
+//     // *******************************************
+//     // *        Teensy 3.5
+//     // *******************************************
+//     // Teensy 3.5
+//     // __MK64FX512__
+//     #define BMC_MCU_MODEL             	 35
+//     #define BMC_MCU_MODEL_STR         	 "Teensy 3.5"
+//     #define BMC_MCU_RAM_SIZE          	 262144
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 true
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               false
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 20
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 27
+
+//   #elif defined(ARDUINO_TEENSY32)
+
+//     // *******************************************
+//     // *        Teensy 3.2
+//     // *******************************************
+//     // Teensy 3.2 / 3.1
+//     // __MK20DX256__
+//     #define BMC_MCU_MODEL             	 32
+//     #define BMC_MCU_MODEL_STR         	 "Teensy 3.2"
+//     #define BMC_MCU_RAM_SIZE          	 65536
+//     #define BMC_MCU_EEPROM_SIZE       	 2048
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               false
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 33
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 12
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 21
+
+//   #elif defined(ARDUINO_TEENSYLC)
+
+//     // *******************************************
+//     // *        Teensy LC
+//     // *******************************************
+//     // Teensy LC
+//     // __MKL26Z64__
+//     #define BMC_MCU_MODEL             	 10
+//     #define BMC_MCU_MODEL_STR         	 "Teensy LC"
+//     #define BMC_MCU_RAM_SIZE          	 8192
+//     #define BMC_MCU_EEPROM_SIZE       	 128
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               false
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 27
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 10
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 13
+
+//     #error "Teensy LC is no longer supported due to Flash size."
+
+//   #else
+//     #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1 & MicroMod"
+//   #endif
+
+// #elif defined(ESP32)
+  
+//   // *******************************************
+//   // *        ESP32 BOARDS DEFINITIONS
+//   // *******************************************
+
+//   #define BMC_FOR_ESP32
+
+//   #if defined(ARDUINO_ESP32_DEV)
+  
+//     // *******************************************
+//     // *        ESP32 Devkit
+//     // *******************************************
+
+//     #define BMC_MCU_MODEL             	 100
+//     #define BMC_MCU_MODEL_STR         	 "ESP32 Devkit"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       false
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     true
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 20
+
+//   #elif defined(ARDUINO_ESP32_MICROMOD)
+  
+//     // *******************************************
+//     // *        ESP32 MicroMod
+//     // *******************************************
+
+//     #define BMC_MCU_MODEL             	 101
+//     #define BMC_MCU_MODEL_STR         	 "ESP32 MicroMod"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       false
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     true
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 15
+
+//   #elif defined(ARDUINO_ESP32S2_DEV)
+  
+//     // *******************************************
+//     // *        ESP32-S2
+//     // *******************************************
+
+//     #define BMC_MCU_MODEL             	 102
+//     #define BMC_MCU_MODEL_STR         	 "ESP32-S2"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 20
+
+//   #elif defined(ARDUINO_ESP32S3_DEV)
+  
+//     // *******************************************
+//     // *        ESP32-S3
+//     // *******************************************
+    
+//     #if !defined(BMC_MIDI_BLE_ENABLED)
+//       #define BMC_MIDI_BLE_ENABLED
+//     #endif
+
+//     #define BMC_MCU_MODEL             	 103
+//     #define BMC_MCU_MODEL_STR         	 "ESP32-S3"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     true
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 20
+
+//   #elif defined(ARDUINO_LOLIN_S2_MINI)
+  
+//     // *******************************************
+//     // *        LOLIN S2 Mini
+//     // *******************************************
+
+//     #define BMC_MCU_MODEL             	 102
+//     #define BMC_MCU_MODEL_STR         	 "ESP32 S2 Mini (lolin)"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     false
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 20
+
+//   #elif defined(ARDUINO_WAVESHARE_ESP32_S3_ZERO)
+  
+//     // *******************************************
+//     // *        ESP32-S3-ZERO
+//     // *******************************************
+    
+//     #if !defined(BMC_MIDI_BLE_ENABLED)
+//       #define BMC_MIDI_BLE_ENABLED
+//     #endif
+
+//     #define BMC_MCU_MODEL             	 103
+//     #define BMC_MCU_MODEL_STR         	 "ESP32-S3 Zero"
+//     #define BMC_MCU_RAM_SIZE          	 520000
+//     #define BMC_MCU_EEPROM_SIZE       	 4096
+//     #define BMC_MCU_HAS_USB      	       true
+//     #define BMC_MCU_HAS_USB_HOST      	 false
+//     #define BMC_MCU_HAS_SD_CARD       	 false
+//     #define BMC_MCU_HAS_BLE       	     true
+//     #define BMC_MCU_HAS_FS               true
+//     #define BMC_MCU_TOTAL_SERIAL_PORTS	 2
+//     #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
+//     #define BMC_MCU_TOTAL_PWM_PINS    	 21
+//     #define BMC_MCU_TOTAL_ANALOG_PINS 	 20
+
+//   #else
+//     #error "BMC is not compatible withe the selected ESP32 board"
+//   #endif
+
 // #endif
 
 
-#if defined(__arm__) && defined(CORE_TEENSY)
+// #if !defined(BMC_MCU_MODEL)
+//   #error "BMC is only compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1 & MicroMod, ESP32 devkit (original), ESP32 MicroMod, ESP32-S2, ESP32-S3"
+// #endif
 
-  #define BMC_FOR_TEENSY
-
-  #if defined(ARDUINO_TEENSY_MICROMOD)
-    // Teensy 4.1
-    // __IMXRT1062__
-    #define BMC_MCU_MODEL             	 42
-    #define BMC_MCU_MODEL_STR         	 "MicroMod"
-    #define BMC_MCU_RAM_SIZE          	 1024000
-    #define BMC_MCU_EEPROM_SIZE       	 4284
-    #define BMC_MCU_HAS_USB_HOST      	 true
-    #define BMC_MCU_HAS_SD_CARD       	 true
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 46
-    #define BMC_MCU_TOTAL_PWM_PINS    	 27
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
-
-  #elif defined(ARDUINO_TEENSY41)
-    // Teensy 4.1
-    // __IMXRT1062__
-    #define BMC_MCU_MODEL             	 41
-    #define BMC_MCU_MODEL_STR         	 "4.1"
-    #define BMC_MCU_RAM_SIZE          	 1024000
-    #define BMC_MCU_EEPROM_SIZE       	 4284
-    #define BMC_MCU_HAS_USB_HOST      	 true
-    #define BMC_MCU_HAS_SD_CARD       	 true
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 8
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 42
-    #define BMC_MCU_TOTAL_PWM_PINS    	 27
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 18
-
-  #elif defined(ARDUINO_TEENSY40)
-    // Teensy 4.0
-    // __IMXRT1062__
-    #define BMC_MCU_MODEL             	 40
-    #define BMC_MCU_MODEL_STR         	 "4.0"
-    #define BMC_MCU_RAM_SIZE          	 1024000
-    #define BMC_MCU_EEPROM_SIZE       	 1080
-    #define BMC_MCU_HAS_USB_HOST      	 true
-    #define BMC_MCU_HAS_SD_CARD       	 true
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 7
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 40
-    #define BMC_MCU_TOTAL_PWM_PINS    	 31
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 14
-
-  #elif defined(ARDUINO_TEENSY36)
-    // Teensy 3.6
-    // __MK66FX1M0__
-    #define BMC_MCU_MODEL             	 36
-    #define BMC_MCU_MODEL_STR         	 "3.6"
-    #define BMC_MCU_RAM_SIZE          	 262144
-    #define BMC_MCU_EEPROM_SIZE       	 4096
-    #define BMC_MCU_HAS_USB_HOST      	 true
-    #define BMC_MCU_HAS_SD_CARD       	 true
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
-    #define BMC_MCU_TOTAL_PWM_PINS    	 22
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 25
-
-  #elif defined(ARDUINO_TEENSY35)
-    // Teensy 3.5
-    // __MK64FX512__
-    #define BMC_MCU_MODEL             	 35
-    #define BMC_MCU_MODEL_STR         	 "3.5"
-    #define BMC_MCU_RAM_SIZE          	 262144
-    #define BMC_MCU_EEPROM_SIZE       	 4096
-    #define BMC_MCU_HAS_USB_HOST      	 false
-    #define BMC_MCU_HAS_SD_CARD       	 true
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 6
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 58
-    #define BMC_MCU_TOTAL_PWM_PINS    	 20
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 27
-
-  #elif defined(ARDUINO_TEENSY32)
-    // Teensy 3.2 / 3.1
-    // __MK20DX256__
-    #define BMC_MCU_MODEL             	 32
-    #define BMC_MCU_MODEL_STR         	 "3.2"
-    #define BMC_MCU_RAM_SIZE          	 65536
-    #define BMC_MCU_EEPROM_SIZE       	 2048
-    #define BMC_MCU_HAS_USB_HOST      	 false
-    #define BMC_MCU_HAS_SD_CARD       	 false
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 33
-    #define BMC_MCU_TOTAL_PWM_PINS    	 12
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 21
-
-  #elif defined(ARDUINO_TEENSYLC)
-    // Teensy LC
-    // __MKL26Z64__
-    #define BMC_MCU_MODEL             	 10
-    #define BMC_MCU_MODEL_STR         	 "LC"
-    #define BMC_MCU_RAM_SIZE          	 8192
-    #define BMC_MCU_EEPROM_SIZE       	 128
-    #define BMC_MCU_HAS_USB_HOST      	 false
-    #define BMC_MCU_HAS_SD_CARD       	 false
-    #define BMC_MCU_HAS_BLE       	     false
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 3
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 27
-    #define BMC_MCU_TOTAL_PWM_PINS    	 10
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 13
-
-    #error "Teensy LC is no longer supported due to Flash size."
-
-  #else
-    #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
-  #endif
-
-#elif defined(ARDUINO_ESP32_DEV)
-  #define BMC_FOR_ESP32
-
-  #if !defined(ESP32)
-    #define ESP32
-  #endif
-
-    #define BMC_MCU_MODEL             	 100
-    #define BMC_MCU_MODEL_STR         	 "ESP32 Devkit"
-    #define BMC_MCU_RAM_SIZE          	 520000
-    #define BMC_MCU_EEPROM_SIZE       	 512
-    #define BMC_MCU_HAS_USB_HOST      	 false
-    #define BMC_MCU_HAS_SD_CARD       	 false
-    #define BMC_MCU_HAS_BLE       	     true
-    #define BMC_MCU_TOTAL_SERIAL_PORTS	 1
-    #define BMC_MCU_TOTAL_DIGITAL_PINS	 25
-    #define BMC_MCU_TOTAL_PWM_PINS    	 21
-    #define BMC_MCU_TOTAL_ANALOG_PINS 	 15
-
-#else
-  #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
-#endif
-
-#if !defined(BMC_MCU_MODEL) && !defined(BMC_FOR_ESP32)
-  #error "BMC is only Compatible with Teensy 3.2, 3.5, 3.6, 4.0, 4.1"
-#endif
 
 // MIDI STATUS, keep them here as they are used throut BMC
 // *********************************************
@@ -241,6 +412,7 @@
 #define BMC_MASK_16 0xFFFFFFFF
 
 #define BMC_PI 3.14159265359
+// #define BMC_PI 3.14159265358979323846
 
 // Soft Reboot the Teensy 3.x
 // https://forum.pjrc.com/threads/24304-_reboot_Teensyduino%28%29-vs-_restart_Teensyduino%28%29?highlight=teensy+reboot
@@ -420,23 +592,37 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 
 
 // used for number scrolling
+
+#define BMC_NO_WRAP              	 0
+#define BMC_WRAP                 	 1
+
+
 #define BMC_DOWN                 	 0
 #define BMC_UP                   	 1
-#define BMC_PREV                 	 BMC_DOWN
-#define BMC_NEXT                 	 BMC_UP
 
-#define BMC_DEC                  	 BMC_DOWN
-#define BMC_INC                  	 BMC_UP
+#define BMC_PREV                 	 0
+#define BMC_NEXT                 	 1
 
-#define BMC_SCROLL_DOWN          	 BMC_DOWN
-#define BMC_SCROLL_UP            	 BMC_UP
-#define BMC_SCROLL_PREV          	 BMC_DOWN
-#define BMC_SCROLL_NEXT          	 BMC_UP
-#define BMC_SCROLL_LIMITED       	 BMC_DOWN
-#define BMC_SCROLL_ENDLESS       	 BMC_UP
+#define BMC_DEC                  	 0
+#define BMC_INC                  	 1
 
-#define BMC_NO_WRAP              	 BMC_UP
-#define BMC_WRAP                 	 BMC_UP
+#define BMC_SCROLL_DOWN          	 0
+#define BMC_SCROLL_UP            	 1
+
+#define BMC_SCROLL_PREV          	 0
+#define BMC_SCROLL_NEXT          	 1
+
+#define BMC_SCROLL_LIMITED       	 0
+#define BMC_SCROLL_ENDLESS       	 1
+
+#define BMC_CYCLE_DOWN          	 0
+#define BMC_CYCLE_UP            	 1
+
+#define BMC_CYCLE_PREV          	 0
+#define BMC_CYCLE_NEXT          	 1
+
+#define BMC_CYCLE_CLAMP       	   0
+#define BMC_CYCLE_WRAP       	     1
 
 
 // for menu
@@ -537,8 +723,6 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_EVENT_TYPE_AUX_JACK                	 66
 #define BMC_EVENT_TYPE_CUSTOM                	   67
 #define BMC_EVENT_TYPE_NAME                	     68
-#define BMC_EVENT_TYPE_SKETCH_INPUT              69
-#define BMC_EVENT_TYPE_SKETCH_OUTPUT             70
 
 
 #define BMC_EVENT_IO_TYPE_ANY             	 0
@@ -890,9 +1074,14 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
   #define BMC_STREAM_TEMPL_MIDI_CLOCK_BPM "BPM %03u"
 #endif
 
-#define BMC_FS_MAX_STORES                         	 32
+#if defined(BMC_FS_ENABLED)
+  #define BMC_FS_MAX_STORES                         	 1
+#else
+  #define BMC_FS_MAX_STORES                         	 32
+#endif
 
 // *** Button Triggers ID
+#define BMC_BUTTON_PRESS_TYPE_IDLE                 	  0
 #define BMC_BUTTON_PRESS_TYPE_PRESS                 	1
 #define BMC_BUTTON_PRESS_TYPE_RELEASE               	2
 #define BMC_BUTTON_PRESS_TYPE_HOLD                  	3
@@ -907,6 +1096,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_BUTTON_PRESS_TYPE_STATE_CHANGE          	12
 
 // *** Abbreviations for button triggers
+#define BMC_TRIG_IDLE                              	  BMC_BUTTON_PRESS_TYPE_IDLE
 #define BMC_TRIG_PRESS                              	BMC_BUTTON_PRESS_TYPE_PRESS
 #define BMC_TRIG_RELEASE                            	BMC_BUTTON_PRESS_TYPE_RELEASE
 #define BMC_TRIG_HOLD                               	BMC_BUTTON_PRESS_TYPE_HOLD
@@ -919,6 +1109,27 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #define BMC_TRIG_RELEASE_CONTINUOUS                 	BMC_BUTTON_PRESS_TYPE_RELEASE_CONTINUOUS
 #define BMC_TRIG_RELEASE_ALT                        	BMC_BUTTON_PRESS_TYPE_RELEASE_ALT
 #define BMC_TRIG_STATE_CHANGE                       	BMC_BUTTON_PRESS_TYPE_STATE_CHANGE
+
+// *** Encoder detent modes
+#define BMC_ENCODER_DETENT_MODE       0
+#define BMC_ENCODER_NO_DETENT_MODE    1
+
+// *** Button debounce modes
+#define BMC_DEBOUNCE_MODE_DEFAULT     0
+#define BMC_DEBOUNCE_MODE_RESPONSIVE  1
+#define BMC_DEBOUNCE_MODE_FILTER      2
+#define BMC_DEBOUNCE_MODE_SMART       3  // hybrid mode: fast + filter + cooldown
+
+// *** Pot Filters
+// Filter sensitivity levels (how much change is needed to trigger an update)
+#define BMC_POT_FILTER_NONE     0 // Accepts all changes
+#define BMC_POT_FILTER_NORMAL   1 // Ignores small changes (diff < 2)
+#define BMC_POT_FILTER_STRONG   2 // Ignores very small changes (diff < 4)
+
+// *** Pot Tapers
+// Taper response curves
+#define BMC_POT_TAPER_LINEAR    0 // Linear mapping: 0–1023 → 0–127 evenly
+#define BMC_POT_TAPER_AUDIO     1 // Log-like curve for volume controls
 
 // 0 = layer led
 // 1 = global led
@@ -2519,7 +2730,7 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #include "utility/BMC-SerialMonitor.h"
 #include "utility/BMC-Debug.h"
 #include "storage/BMC-Store.h"
-#include "utility/BMC-Scroller.h"
+#include "utility/BMC-Cycle.h"
 #include "utility/BMC-Structs.h"
 #include "utility/BMC-PixelColors.h"
 #include "utility/BMC-BuildData.h"
@@ -2535,48 +2746,52 @@ const char bmcAlphabet[26] = {'A','B','C','D','E','F','G','H','I','J','K','L','M
 #if defined(BMC_HAS_DISPLAY)
 
   #define BMC_TFT_STR_LEN(_display, _str) _display.strPixelLen(_str)
-  #include "display/drivers/BMC-DisplayStruct.h"
+  #include "devices/physical/displays/drivers/BMC-DisplayStruct.h"
 
   #if BMC_MAX_OLED > 0
-    #include "display/drivers/BMC-SSD1306.h"
-    #include "display/drivers/BMC-Font.h"
-    #include "display/drivers/BMC-GFXFonts.h"
-    #include "display/BMC-Display-OLED.h"
+    #include "devices/physical/displays/drivers/BMC-SSD1306.h"
+    #include "devices/physical/displays/drivers/BMC-Font.h"
+    #include "devices/physical/displays/drivers/BMC-GFXFonts.h"
+    #include "devices/physical/displays/BMC-Display-OLED.h"
   #endif
 
   #if BMC_MAX_LCD > 0
-    #include "display/drivers/BMC-PCF8574.h"
-    #include "display/BMC-Display-LCD.h"
-    #include "display/BMC-Display-LCD-Line.h"
+    #include "devices/physical/displays/drivers/BMC-PCF8574.h"
+    #include "devices/physical/displays/BMC-Display-LCD.h"
+    #include "devices/physical/displays/BMC-Display-LCD-Line.h"
   #endif
 
   #if BMC_MAX_ILI9341_BLOCKS > 0 || BMC_MAX_MINI_DISPLAY > 0
-    #include "display/drivers/BMC-Font.h"
-    #include "display/drivers/BMC-GFXFonts.h"
+    #include "devices/physical/displays/drivers/BMC-Font.h"
+    #include "devices/physical/displays/drivers/BMC-GFXFonts.h"
   #endif
 
   #if BMC_MAX_MINI_DISPLAY > 0
-    #include "display/drivers/BMC-ST7735_t3.h"
-    // #include "display/drivers/BMC-ILIFonts.h"
-    // #include "display/drivers/BMC-ILIFontsBold.h"
-    #include "display/BMC-Display-MINI.h"
+    // #include "devices/physical/displays/drivers/ST77XX/BMC-ST77xx.h"
+    #include "devices/physical/displays/drivers/ST77XX/BMC-ST7735.h"
+    // only this one needed for t3
+    // #include "devices/physical/displays/drivers/BMC-ST7735_t3.h"
+
+    // #include "devices/physical/displays/drivers/BMC-ILIFonts.h"
+    // #include "devices/physical/displays/drivers/BMC-ILIFontsBold.h"
+    #include "devices/physical/displays/BMC-Display-MINI.h"
   #endif
 
 
   #if BMC_MAX_ILI9341_BLOCKS > 0
 
     #if BMC_TFT_SIZE == 1
-      // #include "display/drivers/BMC-ILI9341_t3.h"
-      #include "display/drivers/BMC-ILI9341.h"
+      // #include "devices/physical/displays/drivers/BMC-ILI9341_t3.h"
+      #include "devices/physical/displays/drivers/BMC-ILI9341.h"
     #elif BMC_TFT_SIZE == 2
-      // #include "display/drivers/BMC-ILI9488_t3.h"
-      #include "display/drivers/BMC-ILI9488.h"
+      // #include "devices/physical/displays/drivers/BMC-ILI9488_t3.h"
+      #include "devices/physical/displays/drivers/BMC-ILI9488.h"
     #endif
     
-    // #include "display/drivers/BMC-ILIFonts.h"
-    // #include "display/drivers/BMC-ILIFontsBold.h"
-    #include "display/BMC-Display-ILI.h"
-    #include "display/BMC-Display-ILI-Block.h"
+    // #include "devices/physical/displays/drivers/BMC-ILIFonts.h"
+    // #include "devices/physical/displays/drivers/BMC-ILIFontsBold.h"
+    #include "devices/physical/displays/BMC-Display-ILI.h"
+    #include "devices/physical/displays/BMC-Display-ILI-Block.h"
   #endif
 #endif
 

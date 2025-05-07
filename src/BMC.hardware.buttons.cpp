@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -12,6 +12,7 @@ void BMC::setupButtons(){
 #if BMC_MAX_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_BUTTONS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_BUTTON, i);
+    BMC_PRINT(i, "l");
     buttons[i].begin(ui.pins[0]);
   }
 #endif
@@ -19,6 +20,7 @@ void BMC::setupButtons(){
 #if BMC_MAX_GLOBAL_BUTTONS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_BUTTONS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_BUTTON, i);
+    BMC_PRINT(i, "g");
     globalButtons[i].begin(ui.pins[0]);
   }
 #endif
@@ -48,7 +50,11 @@ void BMC::assignButton(BMCButton& button, bmcStoreDevice <BMC_MAX_BUTTON_EVENTS,
     }
   }
   button.reassign(hasStateChangeTrigger);
-  button.setThreshold(settings.getButtonHoldThreshold());
+  button.setDebounceMode(settings.getButtonDebounceMode());
+  button.setHoldTime(settings.getButtonHoldThreshold());
+  button.setDoublePressWindow(settings.getButtonDoublePressWindow());
+  button.setContinuousTime(settings.getButtonContinuousTime());
+  
   // read button only any of it's events have a Trigger set
   for(uint8_t e = 0; e < BMC_MAX_BUTTON_EVENTS; e++){
     if((data.settings[e] & 0x0F) != BMC_NONE){
@@ -71,7 +77,7 @@ void BMC::readButtons(){
     #if defined(BMC_MUX_INPUTS_AVAILABLE)
       buttons[i].setMuxValue(mux.readDigital(buttons[i].getMuxPin()));
     #endif
-
+    
     uint8_t buttonTrigger = buttons[i].read();
     // this feature is only available when more than 1 button are compiled
     #if BMC_MAX_BUTTONS == 1
@@ -80,6 +86,7 @@ void BMC::readButtons(){
     #else
       bool dual = dualPress.read(i, buttonTrigger, buttons[i].isClosed());
     #endif
+
     if(buttonTrigger != BMC_NONE && !dual){
       handleButton(device, BMC_DEVICE_ID_BUTTON, i, buttonTrigger);
       #if defined(BMC_DEBUG)

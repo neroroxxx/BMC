@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -12,6 +12,7 @@ void BMC::setupEncoders(){
 #if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_ENCODER, i);
+    BMC_PRINT(i, "l");
     encoders[i].begin(ui.pins[0], ui.pins[1]);
   }
 #endif
@@ -19,6 +20,7 @@ void BMC::setupEncoders(){
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
     BMCUIData ui = BMCBuildData::getUIData(BMC_DEVICE_ID_GLOBAL_ENCODER, i);
+    BMC_PRINT(i, "g");
     globalEncoders[i].begin(ui.pins[0], ui.pins[1]);
   }
 #endif
@@ -27,12 +29,14 @@ void BMC::setupEncoders(){
 void BMC::assignEncoders(){
 #if BMC_MAX_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_ENCODERS; i++){
-    encoders[i].reassign();
+    bmcStoreDevice <1, 1>& device = store.layers[layer].encoders[i];
+    encoders[i].reassign(device.settings[0]);
   }
 #endif
 #if BMC_MAX_GLOBAL_ENCODERS > 0
   for(uint16_t i = 0; i < BMC_MAX_GLOBAL_ENCODERS; i++){
-    globalEncoders[i].reassign();
+    bmcStoreDevice <1, 1>& device = store.global.encoders[i];
+    globalEncoders[i].reassign(device.settings[0]);
   }
 #endif
 }
@@ -64,7 +68,7 @@ void BMC::readEncoders(){
                   BMC_DEVICE_ID_ENCODER,
                   i,
                   device.events[0],
-                  increased<<7 | ticks
+                  (increased << 7 | ticks)
                   );
 
       

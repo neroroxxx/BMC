@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 #include <BMC.h>
 
@@ -59,6 +59,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
   }
   
   bmcStoreEvent& e = store.global.events[eventIndex-1];
+
   if(e.type == BMC_NONE){
     return false;
   }
@@ -70,6 +71,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
   data.byteB = BMC_GET_BYTE(1, event);
   data.byteC = BMC_GET_BYTE(2, event);
   data.byteD = BMC_GET_BYTE(3, event);
+  
   data.setScroll(e.settings, value, group==BMC_DEVICE_GROUP_ENCODER);
 
 #if defined(BMC_HAS_DISPLAY)
@@ -162,6 +164,7 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
 
       if(group==BMC_DEVICE_GROUP_BUTTON || group==BMC_DEVICE_GROUP_ENCODER){
         if(data.scrollEnabled()){
+          BMC_PRINTLN("data.scrollAmount()", data.scrollAmount());
           outVal = midi.scrollCC(e.ports, data.getChannel(), data.byteB, data.scrollAmount(), data.scrollDirection(), data.scrollWrap(), data.min, data.max);
           streamMidi(BMC_MIDI_CONTROL_CHANGE, data.getChannel(), data.byteB, outVal);
         } else {
@@ -924,8 +927,14 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
         BMCSketchByteData sbData = BMCBuildData::getSketchByteData(data.byteA);
         uint8_t tmp = getSketchByte(data.byteA);
         if(data.scrollEnabled()){
-          BMCScroller <uint8_t> scroller(sbData.min, sbData.max);
-          tmp = scroller.scroll(sbData.step, data.scrollDirection(), data.scrollWrap(), tmp, sbData.min, sbData.max);
+          tmp = BMCCycle<uint8_t>(sbData.min, sbData.max)
+          .withAmount(sbData.step)
+          .withDirection(data.scrollDirection())
+          .withWrap(data.scrollWrap())
+          .withValue(tmp)
+          .withRange(sbData.min, sbData.max)
+          .process();
+          
         } else {
           tmp = constrain(data.byteB, sbData.min, sbData.max);
         }
@@ -2300,26 +2309,66 @@ uint8_t BMC::processEvent(uint8_t group, uint8_t deviceId,
       }
       break;
 #endif
+
+    // case BMC_EVENT_TYPE_CUSTOM:
+    //   if(callback.customActivity){
+    //     // this function only works for hardware except relays and displays
+    //     if(group == BMC_DEVICE_GROUP_BUTTON){
+    //       // dat1 has the press type
+    //       // dat2 is unused
+    //       callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
+    //     } else if(group == BMC_DEVICE_GROUP_ENCODER){
+    //       // dat1 has the direction
+    //       // dat2 has the number of ticks
+    //       callback.customActivity(deviceId, deviceIndex, data.byteA, bitRead(value, 7), value & 0x7F);
+    //     } else if(group == BMC_DEVICE_GROUP_POT){
+    //       // dat1 has the pot value
+    //       callback.customActivity(deviceId, deviceIndex, data.byteA, value, 0);
+    //     } else if(group == BMC_DEVICE_GROUP_LED){
+    //       // for rgb pixles dat1 is the color index, 0=r, 1=g, 2=b
+    //       // same applies to bi and tri leds, where dat is the index of the color
+    //       // for leds and pixels this function must return true or false, where
+    //       // true will turn (and keep) the led on and false will turn it off
+    //       return callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
+    //     }
+    //   }
+    //   break;
+
     case BMC_EVENT_TYPE_CUSTOM:
       if(callback.customActivity){
-        // this function only works for hardware except relays and displays
-        if(group == BMC_DEVICE_GROUP_BUTTON){
-          // dat1 has the press type
-          // dat2 is unused
-          callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
-        } else if(group == BMC_DEVICE_GROUP_ENCODER){
-          // dat1 has the direction
-          // dat2 has the number of ticks
-          callback.customActivity(deviceId, deviceIndex, data.byteA, bitRead(value, 7), value & 0x7F);
-        } else if(group == BMC_DEVICE_GROUP_POT){
-          // dat1 has the pot value
-          callback.customActivity(deviceId, deviceIndex, data.byteA, value, 0);
-        } else if(group == BMC_DEVICE_GROUP_LED){
-          // for rgb pixles dat1 is the color index, 0=r, 1=g, 2=b
-          // same applies to bi and tri leds, where dat is the index of the color
-          // for leds and pixels this function must return true or false, where
-          // true will turn (and keep) the led on and false will turn it off
-          return callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
+        // Process custom activity for hardware components (excluding relays and displays)
+        switch(group) {
+          case BMC_DEVICE_GROUP_BUTTON:
+            // BUTTON:
+            // - 'dat' holds the press type (dat1).
+            // - dat2 is unused.
+            callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
+            break;
+    
+          case BMC_DEVICE_GROUP_ENCODER:
+            {
+              // ENCODER:
+              // - dat1 holds the direction (extracted from the MSB of 'value').
+              // - dat2 holds the number of ticks (the lower 7 bits of 'value').
+              uint8_t direction = bitRead(value, 7);
+              uint8_t ticks = value & 0x7F;
+              callback.customActivity(deviceId, deviceIndex, data.byteA, direction, ticks);
+            }
+            break;
+    
+          case BMC_DEVICE_GROUP_POT:
+            // POT:
+            // - dat1 holds the potentiometer value.
+            // - dat2 is unused.
+            callback.customActivity(deviceId, deviceIndex, data.byteA, value, 0);
+            break;
+    
+          case BMC_DEVICE_GROUP_LED:
+            // LED:
+            // - For RGB pixels, 'dat' indicates the color index (0 = red, 1 = green, 2 = blue).
+            // - The same applies to bi- and tri-color LEDs.
+            // - The callback must return a boolean: true to turn (and keep) the LED on, false to turn it off.
+            return callback.customActivity(deviceId, deviceIndex, data.byteA, dat, 0);
         }
       }
       break;
@@ -2337,11 +2386,6 @@ void BMC::handleClockLeds(){
       // last 4 bits are always the color
       leds[index].pulse();
     }
-
-    //bmcStoreLed& item = store.layers[layer].leds[index];
-    //if(BMCTools::isMidiClockLedEvent(item.event)){
-      //leds[index].pulse();
-    //}
   }
 #endif
 

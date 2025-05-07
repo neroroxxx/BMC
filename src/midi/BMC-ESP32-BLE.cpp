@@ -1,5 +1,5 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
+  See https://www.roxxxtar.com/bmc for more details
   Copyright (uint8_t c) 2025 RoxXxtar.com
   Licensed under the MIT license.
   See LICENSE file in the project root for full license information.
@@ -7,7 +7,7 @@
 
 #include "midi/BMC-ESP32-BLE.h"
 
-#if defined(BMC_FOR_ESP32)
+#if defined(BMC_FOR_ESP32) && BMC_MCU_HAS_BLE == true
 
 bool BMCEsp32BleMidi::begin(uint16_t baud) {
   BLEDevice::init(BMC_BLE_DEVICE_NAME);

@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 */
 
 #ifndef BMC_TOOLS_H
@@ -49,6 +49,20 @@ public:
     }
     return false;  // Invalid format or value
   }
+
+#if BMC_MAX_CUSTOM_SYSEX > 0
+  static bool isValidCustomSysExCommand(const char* input, uint8_t &value) {
+    // Check if the string starts with "customSysEx "
+    if (strncmp(input, "customSysEx ", 12) == 0) {
+      // Parse the number after the command
+      value = atoi(input + 12);
+      // Validate the value (0–127 MIDI-style range, adjust if needed)
+      return (value <= (BMC_MAX_CUSTOM_SYSEX-1));
+    }
+    return false;
+  }
+#endif
+
   static bool match(int n, int v){
     return n==v;
   }
@@ -108,23 +122,23 @@ public:
   }
   static String printPortsNames(uint8_t port){
     if(isMidiUsbPort(port)){
-      #if defined(BMC_FOR_TEENSY)
-        BMC_PRINT("USB, ");
-      #elif defined(BMC_FOR_ESP32)
-        BMC_PRINT("BLE, ");
+      #if BMC_MCU_HAS_USB == false
+        BMC_PRINT("BLE");
+      #else
+        BMC_PRINT("USB");
       #endif
     } else if(isMidiSerialAPort(port)){
-      BMC_PRINT("SerialA, ");
+      BMC_PRINT("SerialA");
     } else if(isMidiSerialBPort(port)){
-      BMC_PRINT("SerialB, ");
+      BMC_PRINT("SerialB");
     } else if(isMidiSerialCPort(port)){
-      BMC_PRINT("SerialC, ");
+      BMC_PRINT("SerialC");
     } else if(isMidiSerialDPort(port)){
-      BMC_PRINT("SerialD, ");
+      BMC_PRINT("SerialD");
     } else if(isMidiHostPort(port)){
-      BMC_PRINT("USB Host, ");
+      BMC_PRINT("USB Host");
     } else if(isMidiBlePort(port)){
-      BMC_PRINT("BLE, ");
+      BMC_PRINT("BLE");
     }
     return "";
   }
@@ -730,55 +744,42 @@ public:
     return (newValue < min) ? min : newValue;
   }
   // an Endless SOS of the built-in led
-  static void sos(){
-    pinMode(LED_BUILTIN, OUTPUT);
-    while(1){
-      for(int i=0;i<3;i++){
-        digitalWrite(LED_BUILTIN, HIGH);delay(150);
-        digitalWrite(LED_BUILTIN, LOW); delay(150);
-      }
-      for(int i=0;i<3;i++){
-        digitalWrite(LED_BUILTIN, HIGH);delay(500);
-        digitalWrite(LED_BUILTIN, LOW); delay(500);
-      }
-      for(int i=0;i<3;i++){
-        digitalWrite(LED_BUILTIN, HIGH);delay(150);
-        digitalWrite(LED_BUILTIN, LOW); delay(150);
-      }
-      delay(500);
-    }
-    /*
-    #if BMC_TOTAL_LEDS == 0
-      while(1);
-    #else
-    uint8_t items[3];
-    uint8_t totalLeds = 0;
-
-    #if BMC_MAX_LEDS > 0
-    for(uint8_t i = 0; i < BMC_MAX_LEDS; i++){
-      items[totalLeds++] = BMCBuildData::getLedPin(i);
-      pinMode(BMCBuildData::getLedPin(i),OUTPUT);
-      break;
-    }
+  static void sos() {
+    #if defined(LED_BUILTIN)
+      pinMode(LED_BUILTIN, OUTPUT);
     #endif
-    #if BMC_MAX_GLOBAL_LEDS > 0
-    for(uint8_t i = 0; i < BMC_MAX_GLOBAL_LEDS; i++){
-      items[totalLeds++] = BMCBuildData::getGlobalLedPin(i);
-      pinMode(BMCBuildData::getGlobalLedPin(i),OUTPUT);
-      break;
-    }
-    #endif
-    delay(500);
-    while(1){
-      for(uint8_t i = 0; i < totalLeds; i++){
-        digitalWrite(items[i], HIGH);
-        delay(250);
-        digitalWrite(items[i], LOW);
-        delay(250);
+  
+    unsigned long lastPrint = 0;
+  
+    while (1) {
+      // Print error message every 3 seconds
+      if (millis() - lastPrint >= 3000) {
+        BMC_ERROR(
+          "BMC HALTED: Invalid config or hardware not responding",
+          "Please update your sketch/config and reupload."
+        );
+        lastPrint = millis();
       }
+  
+      // LED SOS blink
+      #if defined(LED_BUILTIN)
+        for (int i = 0; i < 3; i++) {
+          digitalWrite(LED_BUILTIN, HIGH); delay(150);
+          digitalWrite(LED_BUILTIN, LOW); delay(150);
+        }
+        for (int i = 0; i < 3; i++) {
+          digitalWrite(LED_BUILTIN, HIGH); delay(500);
+          digitalWrite(LED_BUILTIN, LOW); delay(500);
+        }
+        for (int i = 0; i < 3; i++) {
+          digitalWrite(LED_BUILTIN, HIGH); delay(150);
+          digitalWrite(LED_BUILTIN, LOW); delay(150);
+        }
+        delay(500);
+      #else
+        delay(3000); // No LED, just wait
+      #endif
     }
-    #endif
-    */
   }
 };
 

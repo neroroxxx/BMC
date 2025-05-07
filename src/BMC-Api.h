@@ -1,4 +1,4 @@
-// See https://www.RoxXxtar.com/bmc for more details 
+// See https://www.roxxxtar.com/bmc for more details 
 // See LICENSE file in the project root for full license information.
 
 // ************************************************************
@@ -158,15 +158,16 @@ public:
   void onCustomActivity(bool (*fptr)(uint8_t deviceType, uint16_t deviceIndex, uint8_t id, uint8_t dat1, uint8_t dat2)){
     callback.customActivity = fptr;
   }
+  
   // * GROUP: HARDWARE
   // triggered when 2 buttons are pressed at the same time
-  // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
+  // see src/devices/physical/buttons/BMC-ButtonsDualHandler.h for info on how this works.
   void onButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.buttonDualPress = fptr;
   }
   // * GROUP: HARDWARE
   // triggered when an global button is pressed, released, etc.
-  // see src/hardware/BMC-ButtonsDualHandler.h for info on how this works.
+  // see src/devices/physical/buttons/BMC-ButtonsDualHandler.h for info on how this works.
   void onGlobalButtonDualPress(void (*fptr)(uint16_t btn1, uint16_t btn2)){
     callback.globalButtonDualPress = fptr;
   }
@@ -1054,8 +1055,13 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
       return 0;
     }
     t_amount = (t_amount==0) ? 1 : t_amount;
-    BMCScroller <uint8_t> scroller(0, BMC_MAX_SKETCH_BYTES-1);
-    return scroller.scroll(t_amount, t_direction, true, n, 0, BMC_MAX_SKETCH_BYTES-1);
+    return BMCCycle<uint8_t>(0, BMC_MAX_SKETCH_BYTES - 1)
+    .withAmount(t_amount)
+    .withDirection(t_direction)
+    .withWrap(BMC_WRAP)
+    .withValue(n)
+    .withRange(0, BMC_MAX_SKETCH_BYTES - 1)
+    .process();
   }
   // * GROUP: SYSTEM
   // scroll the value of a sketch byte up or down based on the sketch byte's data
@@ -1071,8 +1077,14 @@ void getDeviceName(uint8_t deviceType, uint16_t index, char* str){
     }
     t_amount = (t_amount==0) ? 1 : t_amount;
     BMCSketchByteData data = BMCBuildData::getSketchByteData(n);
-    BMCScroller <uint8_t> scroller(data.min, data.max);
-    return scroller.scroll(t_amount*data.step, t_direction, true, t_value, data.min, data.max);
+    
+    return BMCCycle<uint8_t>(data.min, data.max)
+    .withAmount(t_amount * data.step)
+    .withDirection(t_direction)
+    .withWrap(BMC_WRAP)
+    .withValue(t_value)
+    .withRange(data.min, data.max)
+    .process();
   }
   // * GROUP: SYSTEM
   // format the value of a sketch byte based on it's config format data

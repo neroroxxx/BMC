@@ -1,6 +1,6 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
+  See https://www.roxxxtar.com/bmc for more details
+  Copyright (c) 2015 - 2025 Roxxxtar.com
   Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
   I've tried to put a lot of comments thruout the library and all it's files
@@ -45,7 +45,7 @@
 // main definitions for BMC
 #include "utility/BMC-Def.h"
 // the LFO object
-#include "utility/BMC-LFO.h"
+#include "devices/virtual/BMC-LFO.h"
 // the MIDI I/O object
 #include "midi/BMC-Midi.h"
 // the MIDI clock master/slave handler
@@ -60,60 +60,60 @@
 #endif
 
 #if BMC_MAX_BUTTONS > 0 || BMC_MAX_GLOBAL_BUTTONS > 0
-  #include "hardware/BMC-Button.h"
+  #include "devices/physical/buttons/BMC-Button.h"
 
   #if BMC_MAX_BUTTONS > 1 || BMC_MAX_GLOBAL_BUTTONS > 1
-    #include "hardware/BMC-ButtonsDualHandler.h"
+    #include "devices/physical/buttons/BMC-ButtonsDualHandler.h"
   #endif
 #endif
 
 
 #if BMC_TOTAL_LEDS > 0
-  #include "hardware/BMC-Led.h"
+  #include "devices/physical/leds/BMC-Led.h"
 #endif
 
 #if BMC_TOTAL_PIXELS > 0
-  #include "hardware/BMC-Pixels.h"
+  #include "devices/physical/leds/BMC-Pixels.h"
   
   #if BMC_MAX_PIXEL_PROGRAMS > 0
-    #include "utility/BMC-PixelPrograms.h"
+    #include "devices/virtual/BMC-PixelPrograms.h"
   #endif
 #endif
 
 
 #if BMC_MAX_ENCODERS > 0 || BMC_MAX_GLOBAL_ENCODERS > 0
-  #include "hardware/BMC-Encoder.h"
+  #include "devices/physical/encoders/BMC-Encoder.h"
 #endif
 
 #if BMC_MAX_POTS > 0 || BMC_MAX_GLOBAL_POTS > 0
-  #include "hardware/BMC-Pot.h"
+  #include "devices/physical/pots/BMC-Pot.h"
 #endif
 
 #if BMC_TOTAL_POTS_AUX_JACKS > 0
-  #include "hardware/BMC-PotCalibration.h"
+  #include "devices/physical/pots/BMC-Calibration.h"
 #endif
 
 #if BMC_MAX_MAGIC_ENCODERS > 0 || BMC_MAX_GLOBAL_MAGIC_ENCODERS > 0
-  #include "hardware/BMC-MagicEncoder.h"
+  #include "devices/physical/encoders/BMC-MagicEncoder.h"
 #endif
 
 
 #if BMC_MAX_NL_RELAYS > 0
-  #include "hardware/BMC-RelayNL.h"
+  #include "devices/physical/relays/BMC-RelayNL.h"
 #endif
 
 #if BMC_MAX_L_RELAYS > 0
-  #include "hardware/BMC-RelayL.h"
+  #include "devices/physical/relays/BMC-RelayL.h"
 #endif
 
 #if BMC_MAX_AUX_JACKS > 0
-  #include "hardware/BMC-AuxJack.h"
+  #include "devices/physical/auxJacks/BMC-AuxJack.h"
 #endif
 
 #if BMC_MAX_PRESETS > 0
-  #include "utility/BMC-Presets.h"
+  #include "devices/virtual/BMC-Presets.h"
   #if BMC_MAX_SETLISTS > 0
-    #include "utility/BMC-SetLists.h"
+    #include "devices/virtual/BMC-SetLists.h"
   #endif
 #endif
 
@@ -122,19 +122,19 @@
 #endif
 
 #if BMC_MAX_CUSTOM_SYSEX > 0
-  #include "utility/BMC-CustomSysEx.h"
+  #include "devices/virtual/BMC-CustomSysEx.h"
 #endif
 #if BMC_MAX_TEMPO_TO_TAP > 0
-  #include "utility/BMC-TempoToTap.h"
+  #include "devices/virtual/BMC-TempoToTap.h"
 #endif
 #if BMC_MAX_TRIGGERS > 0
-  #include "utility/BMC-Triggers.h"
+  #include "devices/virtual/BMC-Triggers.h"
 #endif
 #if BMC_MAX_TIMED_EVENTS > 0
-  #include "utility/BMC-TimedEvents.h"
+  #include "devices/virtual/BMC-TimedEvents.h"
 #endif
 #if defined(BMC_HAS_DISPLAY)
-  #include "display/BMC-Display.h"
+  #include "devices/physical/displays/BMC-Display.h"
 #endif
 
 #if defined(BMC_USE_ON_BOARD_EDITOR)
@@ -175,11 +175,11 @@ public:
   void nextLayer();
   void prevLayer();
   // scroll to a different layer, either the previous or next layer
-  void scrollLayer(bool t_dir, bool t_endless, uint8_t t_amount);
+  void scrollLayer(bool t_dir, bool t_wrap, uint8_t t_amount);
   void scrollLayer(uint8_t t_settings, uint8_t t_amount);
   void scrollLayer(uint8_t t_flags, uint8_t t_min,
                   uint8_t t_max, uint8_t t_amount);
-  void scrollLayer(bool t_direction, bool t_endless,
+  void scrollLayer(bool t_direction, bool t_wrap,
                   uint8_t t_min, uint8_t t_max,
                   uint8_t t_amount);
 
@@ -308,7 +308,7 @@ private:
   void stopwatchCmd(uint8_t cmd, uint8_t h=0, uint8_t m=0, uint8_t s=0);
 
   void runLayerChanged(){
-    BMC_PRINTLN("runLayerChanged");
+    // BMC_INFO("Changing Layer, assigning all layer data.");
     #if defined(BMC_HAS_DISPLAY) && BMC_MAX_ILI9341_BLOCKS > 0
       globals.setRenderDisplayList(BMC_DEVICE_ID_LAYER);
       display.renderLayerBanner();
@@ -499,7 +499,7 @@ private:
   void readMidi();
   void incomingMidi(BMCMidiMessage midiMessage);
   void handleMidiClock(bool isClock=false, bool isStartOrContinue=false);
-  void midiProgramBankScroll(bool up, bool endless, uint8_t amount, uint8_t min, uint8_t max);
+  void midiProgramBankScroll(bool up, bool wrap, uint8_t amount, uint8_t min, uint8_t max);
   void midiProgramBankTrigger(uint8_t channel, uint8_t ports);
 
 
@@ -660,7 +660,7 @@ private:
   void setupPots();
   void assignPots();
   void readPots();
-  void potParseToeSwitch(BMCPot& pot);
+  void handlePotToeSwitch(BMCPot& pot);
 #endif
 
 
@@ -716,6 +716,8 @@ private:
   void debugStartTiming(uint8_t n, bool t_micros=false);
   unsigned long debugStopTiming(uint8_t n, bool t_micros=false);
   unsigned long getTiming(uint8_t n, bool t_micros=false);
+  void printStorageInfo();
+
 #endif
 
 #if defined(BMC_HAS_DISPLAY)

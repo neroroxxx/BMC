@@ -1,8 +1,8 @@
 /*
-  See https://www.RoxXxtar.com/bmc for more details
-  Copyright (c) 2025 Roxxxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   Class holding mainly flags that are used across BMC
   For example when there's MIDI IN activity a MIDI IN flag is set,
@@ -16,6 +16,7 @@
 #ifndef BMC_GLOBALS_H
 #define BMC_GLOBALS_H
 #include <Arduino.h>
+#include "utility/BMC-Metrics.h"
 
 #define BMC_GLOBALS_FLAG_MIDI_IN                	 0
 #define BMC_GLOBALS_FLAG_MIDI_OUT               	 1
@@ -49,7 +50,7 @@
 #define BMC_GLOBALS_DEBUG_FLAG_ENCODERS              10
 #define BMC_GLOBALS_DEBUG_FLAG_TIMER                 11
 #define BMC_GLOBALS_DEBUG_DISPLAY_RENDER_TIME        12
-
+#define BMC_GLOBALS_DEBUG_FLAG_MIDI_CLOCK            13
 
 // https://github.com/mpflaga/Arduino-MemoryFree
 // doesn't seem to be work with Teensy 4.0 unless
@@ -66,11 +67,18 @@ public:
   BMCGlobals(bmcStore& t_store, BMCSettings& t_settings):store(t_store), settings(t_settings){
     reset();
   }
+  void begin(){
+    // * params
+    // * uint32_t reportIntervalMs = 2000
+    // * uint16_t minLps = 500
+    // * uint16_t maxLoopTimeUs
+    metrics.begin(2000, 500, 1000);
+  }
   void update(){
+    metrics.update();
     flags.off(BMC_GLOBALS_FLAG_MIDI_IN);
     flags.off(BMC_GLOBALS_FLAG_MIDI_OUT);
     flags.off(BMC_GLOBALS_FLAG_MIDI_LOCAL_UPDATE);
-    loopsPerSecond++;
   }
   bool timerComplete(){
     #if defined(BMC_DEBUG)
@@ -84,13 +92,17 @@ public:
       debugFlags.on(BMC_GLOBALS_DEBUG_FLAG_TIMER);
     #endif
   }
-  void resetCPU(){
-    lastLoopsPerSecond = loopsPerSecond;
-    loopsPerSecond = 0;
-  }
+
+  // void resetCPU(){
+  //   lastLoopsPerSecond = loopsPerSecond;
+  //   loopsPerSecond = 0;
+  // }
+
   uint32_t getCPU(){
-    return lastLoopsPerSecond;
+    // return lastLoopsPerSecond;
+    return metrics.getLoopsPerSecond();
   }
+
   // https://github.com/mpflaga/Arduino-MemoryFree
   // doesn't seem to be work with Teensy 4.0 unless
   // Returns 4GB of Free RAM
@@ -230,6 +242,7 @@ public:
 
 #ifdef BMC_DEBUG
   bool toggleMetricsDebug(){
+    metrics.toggle();
     return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_METRICS);
   }
   bool getMetricsDebug(){
@@ -279,6 +292,7 @@ public:
   bool getMidiOutDebug(){
     return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT);
   }
+
   bool toggleMidiOutClockDebug(){
     if(!debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT)){
       debugFlags.off(BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT_WITH_CLOCK);
@@ -289,6 +303,19 @@ public:
   bool getMidiOutClockDebug(){
     return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_MIDI_OUT_WITH_CLOCK);
   }
+
+
+
+  bool toggleMidiClockDebug(){
+    return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_MIDI_CLOCK);
+  }
+  bool getMidiClockDebug(){
+    return debugFlags.read(BMC_GLOBALS_DEBUG_FLAG_MIDI_CLOCK);
+  }
+  
+
+
+
   bool toggleButtonsDebug(){
     return debugFlags.toggle(BMC_GLOBALS_DEBUG_FLAG_BUTTONS);
   }
@@ -535,10 +562,13 @@ private:
   BMCFlags <uint16_t> debugFlags;
 #endif
 
+  BMCMetrics metrics;
 
 
-  uint32_t loopsPerSecond = 0;
-  uint32_t lastLoopsPerSecond = 0;
+
+  // uint32_t loopsPerSecond = 0;
+  // uint32_t lastLoopsPerSecond = 0;
+
   void reset(){
     flags.reset();
     #ifdef BMC_DEBUG
@@ -547,8 +577,9 @@ private:
     offset = 0;
     layer = 0;
     bpm = 120;
-    loopsPerSecond = 0;
-    lastLoopsPerSecond = 0;
+    metrics.reset();
+    // loopsPerSecond = 0;
+    // lastLoopsPerSecond = 0;
   }
 };
 #endif

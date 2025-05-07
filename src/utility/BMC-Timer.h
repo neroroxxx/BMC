@@ -1,8 +1,8 @@
 /*
-  See https://www.BMCXxtar.com/bmc for more details
-  Copyright (c) 2020 BMCXxtar.com
-  Licensed under the MIT license.
-  See LICENSE file in the project root for full license information.
+  * See https://www.roxxxtar.com/bmc for more details
+  * Copyright (c) 2015 - 2025 Roxxxtar.com
+  * Licensed under the MIT license.
+  * See LICENSE file in the project root for full license information.
 
   A wrapper to check the specified number of milliseconds have passed
   Once the number of milliseconds have passed the timer will stop
@@ -78,7 +78,7 @@ public:
   }
   // returns true if the timer is currently running
   bool active(){
-    return (prevTime>0);
+    return (prevTime > 0);
   }
   // returns true if the time specified has been reached
   // after that point the complete() method will return false until
