@@ -8,6 +8,10 @@
   This file is a Raw hex with the EEPROM-style Store data
 */
 
+#include "utility/BMC-Def.h"
+
+#if BMC_MCU_HAS_FS == true && defined(BMC_FS_ENABLED)
+
 #include "storage/BMC-FS.h"
 #include <LittleFS.h>
 
@@ -116,3 +120,4 @@ void BMC_FS::saveFileId() {
     bmcFsStoreFile.close();
   }
 }
+#endif
